@@ -10,8 +10,8 @@ Installation
 
     $ pip install pycryptoprices
 
-Basic Usage
-===========
+High level API
+==============
 
     >>> from pycryptoprices import get_current_price
     >>> get_current_price('btc', 'usd')
@@ -34,19 +34,49 @@ Basic Usage
     >>> get_current_price('ltc', 'mex')
     [big ugly exception]
 
-Getting from a single service
-=============================
+Low level API
+=============
 
 The `get_current_price` function tries multiple services until it find one that returns a result.
-If you would rather just use one service with no automatic retrying, use the following API:
+If you would rather just use one service with no automatic retrying, use the low level ‘getter’ API:
 
     >>> from pycryptoprices.getters import BTERPriceGetter
     >>> getter = BTERPriceGetter(“optional useragent string”)
-    >>> getter.get_price(‘btc’, usd’)
+    >>> getter.get_price(‘btc’, ‘usd’)
     (391.324, 'BTER')
+
+Currently, this is a list of all supported getters:
+
+    CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter
+
+
+Caching considerations
+======================
+
+The high level API does not do any caching of any sort. Each call to `get_current_price` will result in a
+request with fresh results. On the other hand, the low level API will never make the request twice.
+
+For instance, consider the following example:
+
+    from pycryptoprices.getters import BTERPriceGetter
+    >>> getter = BTERPriceGetter()
+    >>> getter.get_price(‘ltc’, ‘rur’)
+    (1.33535 ‘bter’)
+
+Note that the BTER exchange does not have a direct orderbook between litecoin and Russian ruble. As a result, pycryptoprices
+needs to make two separate API calls to get the correct exchange rate. The first one to get the litecoin -> BTC
+exchange rate, and the second one to get the BTC -> RUR exchange rate. Then the two results are multiplied together
+to get the LTC -> RUR exchange rate. If your application does a lot of converting
+
+If you keep the original getter instance around and make more calls to get_price, it will use the result of previous calls:
+
+    >>> getter.get_price(‘btc’, ‘rur’) # will make no external calls
+    (1.34563, ‘bter’)
+
+In other words, if you are using the low level API, and you want fresh values, you must make a new instance of the getter.
 
 Contributing
 ============
 
 If you would like to add a new service, feel free to make a pull request.
-If you discover a service is no longer working
+If you discover a service is no longer working feel free to create a github issue and some will fix it shortly.
