@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 from setuptools import setup, find_packages
 
 setup(
-    name=‘pycryptoprices’,
+    name=“pycryptoprices”,
     version='1.0',
-    description='',
+    description=‘Tool for getting the exchange rate from various cryptocurrency price APIs’,
     long_description=open('README.md’).read(),
     author='Chris Priest',
     author_email='cp368202@ohiou.edu',

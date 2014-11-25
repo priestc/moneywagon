@@ -56,8 +56,8 @@ If you would rather just use one service with no automatic retrying, use the low
 
 Currently, this is a list of all supported getters:
 
-```python
-    CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter
+```
+CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter
 ```
 
 Caching considerations
@@ -69,16 +69,19 @@ request with fresh results. On the other hand, the low level API will never make
 For instance, consider the following example:
 
 ```python
-from pycryptoprices.getters import BTERPriceGetter
+>>> from pycryptoprices.getters import BTERPriceGetter
 >>> getter = BTERPriceGetter()
->>> getter.get_price(‘ltc’, ‘rur’)
-(1.33535 ‘bter’)
+>>> getter.get_price(‘ltc’, ‘fur’) # makes two external calls, one for ltc->btc, one for btc->rur
+(1.33535, ‘bter’)
+>>> getter.get_price(‘btc’, ‘rur’) # makes zero external calls (uses btc-> rur result from last call)
+(1.33535, ‘bter’)
 ```
 
 Note that the BTER exchange does not have a direct orderbook between litecoin and Russian ruble. As a result, pycryptoprices
 needs to make two separate API calls to get the correct exchange rate. The first one to get the litecoin -> BTC
 exchange rate, and the second one to get the BTC -> RUR exchange rate. Then the two results are multiplied together
-to get the LTC -> RUR exchange rate. If your application does a lot of converting
+to get the LTC -> RUR exchange rate. If your application does a lot of converting at a time, it will be better
+for performance to use the low level API.
 
 If you keep the original getter instance around and make more calls to get_price, it will use the result of previous calls:
 
@@ -87,7 +90,7 @@ If you keep the original getter instance around and make more calls to get_price
 (1.34563, ‘bter’)
 ```
 
-In other words, if you are using the low level API, and you want fresh values, you must make a new instance of the getter.
+In other words, if you are using the low level API and you want fresh values, you must make a new instance of the getter class.
 
 Contributing
 ============
