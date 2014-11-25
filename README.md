@@ -20,9 +20,10 @@ High level API
 >>> get_current_price('btc', 'usd')
 (391.324, 'bitstamp')
 >>> get_current_price('ltc', 'rur')
-(391.324, 'BTER (calculated)')
+(3.486, ‘bter (calculated)')
 ```
-A two item tuple is always returned. The first item is the exchange  rate (as a float), the second
+
+A two item tuple is always returned. The first item is the exchange rate (as a float), the second
 item is a string describing the source for the exchange rate.
 
 Optionally, be a good netizen and set a custom `User-Agent` string for
@@ -91,6 +92,13 @@ If you keep the original getter instance around and make more calls to get_price
 ```
 
 In other words, if you are using the low level API and you want fresh values, you must make a new instance of the getter class.
+
+Coming Soon
+===========
+
+* More backup data sources
+* A way to fetch the exchange rate of a crypto/fiat currency at an arbitrary point in time. Using the HistoricalCryptoPrices service: https://github.com/priestc/HistoricalCryptoPrices
+
 
 Contributing
 ============
