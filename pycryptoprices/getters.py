@@ -1,26 +1,5 @@
 import requests
 
-def get_current_price(crypto_symbol, fiat_symbol, useragent=None):
-    “””
-    High level function for getting the current price. This function will try multiple
-    services until either a price is found, or if no price can be found, an exception is raised.
-    “””
-    crypto_symbol = crypto_symbol.lower()
-    fiat_symbol = fiat_symbol.lower()
-
-    for Getter in [CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter]:
-        if useragent:
-            getter = Getter(useragent)
-        else:
-            getter = Getter()
-        
-        try:
-            return getter.get_price(crypto_symbol, fiat_symbol):
-        except:
-            pass
-
-    raise Exception(“Can not find price for %s to %s” % (crypto_symbol, fiat_symbol))
-
 class PriceGetter(object):
     “””
     All getters should subclass this class, and implement their own `get_price` function
@@ -68,7 +47,6 @@ class OldCryptoCoinChartsPriceGetter(PriceGetter):
             crypto_symbol, fiat_symbol
         )
         response = self.fetch_url(url).json()
-        print response
         return float(response['price'] or 0), response['best_market']
 
 

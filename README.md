@@ -3,7 +3,7 @@ pycryptoprices
 
 Python library for getting the current price of various cryptocurrencies.
 This library is useful if you are building an application in Python that needs
-to know the current price of any crypto-currency.
+to know the current price of any crypto-currency converted to any local fiat currency.
 
 Installation
 ============
@@ -25,7 +25,7 @@ High level API
     Optionally, be a good netizen and set a custom useragent string for
     external requests, so API service maintainers know who is using their service:
 
-    >>> get_current_price(‘btc’, ‘eur’, useragent=My custom app 0.3b2’)
+    >>> get_current_price(‘btc’, ‘eur’, useragent=‘My custom app 0.3b2’)
     (391.324, 'BTER (calculated)')
 
     If an external service is down, or the API has changed, or the
