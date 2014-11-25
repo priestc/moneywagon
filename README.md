@@ -72,7 +72,7 @@ For instance, consider the following example:
 ```python
 >>> from pycryptoprices.getters import BTERPriceGetter
 >>> getter = BTERPriceGetter()
->>> getter.get_price(‘ltc’, ‘fur’) # makes two external calls, one for ltc->btc, one for btc->rur
+>>> getter.get_price(‘ltc’, ‘rur’) # makes two external calls, one for ltc->btc, one for btc->rur
 (1.33535, ‘bter’)
 >>> getter.get_price(‘btc’, ‘rur’) # makes zero external calls (uses btc-> rur result from last call)
 (1.33535, ‘bter’)

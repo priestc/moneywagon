@@ -8,7 +8,6 @@ class PriceGetter(object):
     def __init__(self, useragent=‘pycryptoprices 1.0’):
         self.useragent = useragent
         self.responses = {}
-        self.subgetter = None
 
     def fetch_url(*args, **kwargs):
         """
@@ -63,22 +62,24 @@ class CryptoCoinChartsPriceGetter(PriceGetter):
 
 class BTERPriceGetter(PriceGetter):
     def get_price(self, crypto_symbol, fiat_symbol):
-        pair = "%s_%s" % (crypto_symbol, fiat_symbol)
-        url = "http://data.bter.com/api/1/ticker/%s" % pair
+        url_template = "http://data.bter.com/api/1/ticker/%s_%s”
+        url = url_template % (crypto_symbol, fiat_symbol)
 
         response = fetch_url(url).json()
 
         if response['result'] == 'false': # bter api returns this as string
             # bter doesn't support this pair, we need to make 2 calls and
             # do the math ourselves. The extra http request isn't a problem because
-            # of caching that happens upstream. BTER only has USD, BTC and CNY
+            # of caching. BTER only has USD, BTC and CNY
             # markets, so any other fiat will likely fail.
 
-            if not self.subgetter:
-                self.subgetter = BTERPriceGetter(self.useragent)
+            url = url_template % (crypto_symbol, ‘btc’)
+            response = self.fetch_url(url)
+            altcoin_btc = response['last']
 
-            altcoin_btc, _ = self.subgetter.get_price(crypto_symbol, ‘btc’)
-            btc_fiat, _ = self.subgetter.get_price(‘btc’, fiat_symbol)
+            url = url_template % (‘btc’, fiat_symbol)
+            response = self.fetch_url(url)
+            btc_fiat = response['last']
 
             return (btc_fiat * altcoin_btc), 'bter (calculated)'
 
