@@ -19,8 +19,8 @@ High level API
     >>> get_current_price('ltc', 'rur')
     (391.324, 'BTER (calculated)')
 
-    A two item tuple is always returned. The first item is the exchange  rate (as a float), the second
-    item is a string describing the source for the exchange rate.
+A two item tuple is always returned. The first item is the exchange  rate (as a float), the second
+item is a string describing the source for the exchange rate.
 
     Optionally, be a good netizen and set a custom useragent string for
     external requests, so API service maintainers know who is using their service:
@@ -28,10 +28,10 @@ High level API
     >>> get_current_price(‘btc’, ‘eur’, useragent=‘My custom app 0.3b2’)
     (391.324, 'BTER (calculated)')
 
-    If an external service is down, or the API has changed, or the
-    currency pairs is not implemented, an exception will be raised:
+If an external service is down, or the API has changed, or the
+currency pairs is not implemented, an exception will be raised:
 
-    >>> get_current_price('ltc', 'mex')
+    >>> get_current_price(‘nxt’, 'mex')
     [big ugly exception]
 
 Low level API
