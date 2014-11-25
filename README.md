@@ -25,7 +25,7 @@ High level API
 A two item tuple is always returned. The first item is the exchange  rate (as a float), the second
 item is a string describing the source for the exchange rate.
 
-Optionally, be a good netizen and set a custom useragent string for
+Optionally, be a good netizen and set a custom `User-Agent` string for
 external requests, so API service maintainers know who is using their service:
 
 ```python
