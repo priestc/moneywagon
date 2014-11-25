@@ -8,31 +8,38 @@ to know the current price of any crypto-currency converted to any local fiat cur
 Installation
 ============
 
-    $ pip install pycryptoprices
+```
+$ pip install pycryptoprices
+```
 
 High level API
 ==============
 
-    >>> from pycryptoprices import get_current_price
-    >>> get_current_price('btc', 'usd')
-    (391.324, 'bitstamp')
-    >>> get_current_price('ltc', 'rur')
-    (391.324, 'BTER (calculated)')
-
+```python
+>>> from pycryptoprices import get_current_price
+>>> get_current_price('btc', 'usd')
+(391.324, 'bitstamp')
+>>> get_current_price('ltc', 'rur')
+(391.324, 'BTER (calculated)')
+```
 A two item tuple is always returned. The first item is the exchange  rate (as a float), the second
 item is a string describing the source for the exchange rate.
 
-    Optionally, be a good netizen and set a custom useragent string for
-    external requests, so API service maintainers know who is using their service:
+Optionally, be a good netizen and set a custom useragent string for
+external requests, so API service maintainers know who is using their service:
 
-    >>> get_current_price(‘btc’, ‘eur’, useragent=‘My custom app 0.3b2’)
-    (391.324, 'BTER (calculated)')
+```python
+>>> get_current_price(‘btc’, ‘eur’, useragent=‘My custom app 0.3b2’)
+(391.324, 'BTER (calculated)')
+```
 
 If an external service is down, or the API has changed, or the
 currency pairs is not implemented, an exception will be raised:
 
-    >>> get_current_price(‘nxt’, 'mex')
-    [big ugly exception]
+```python
+>>> get_current_price(‘nxt’, 'mex')
+[big ugly exception]
+```
 
 Low level API
 =============
@@ -40,15 +47,18 @@ Low level API
 The `get_current_price` function tries multiple services until it find one that returns a result.
 If you would rather just use one service with no automatic retrying, use the low level ‘getter’ API:
 
-    >>> from pycryptoprices.getters import BTERPriceGetter
-    >>> getter = BTERPriceGetter(“optional useragent string”)
-    >>> getter.get_price(‘btc’, ‘usd’)
-    (391.324, 'BTER')
+```python
+>>> from pycryptoprices.getters import BTERPriceGetter
+>>> getter = BTERPriceGetter(“optional useragent string”)
+>>> getter.get_price(‘btc’, ‘usd’)
+(391.324, 'BTER')
+```
 
 Currently, this is a list of all supported getters:
 
+```python
     CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter
-
+```
 
 Caching considerations
 ======================
@@ -58,10 +68,12 @@ request with fresh results. On the other hand, the low level API will never make
 
 For instance, consider the following example:
 
-    from pycryptoprices.getters import BTERPriceGetter
-    >>> getter = BTERPriceGetter()
-    >>> getter.get_price(‘ltc’, ‘rur’)
-    (1.33535 ‘bter’)
+```python
+from pycryptoprices.getters import BTERPriceGetter
+>>> getter = BTERPriceGetter()
+>>> getter.get_price(‘ltc’, ‘rur’)
+(1.33535 ‘bter’)
+```
 
 Note that the BTER exchange does not have a direct orderbook between litecoin and Russian ruble. As a result, pycryptoprices
 needs to make two separate API calls to get the correct exchange rate. The first one to get the litecoin -> BTC
@@ -70,8 +82,10 @@ to get the LTC -> RUR exchange rate. If your application does a lot of convertin
 
 If you keep the original getter instance around and make more calls to get_price, it will use the result of previous calls:
 
-    >>> getter.get_price(‘btc’, ‘rur’) # will make no external calls
-    (1.34563, ‘bter’)
+```python
+>>> getter.get_price(‘btc’, ‘rur’) # will make no external calls
+(1.34563, ‘bter’)
+```
 
 In other words, if you are using the low level API, and you want fresh values, you must make a new instance of the getter.
 
