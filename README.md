@@ -64,13 +64,13 @@ If you would rather just use one service with no automatic retrying, use the low
 Currently, this is a list of all supported getters:
 
 
-class name               | API
--------------------------|--------------
-| CryptonatorPriceGetter | https://www.cryptonator.com/api
-| BTERPriceGetter        | https://bter.com/api
-| CoinSwapPriceGetter    | https://coin-swap.net/api
-| BitstampPriceGetter    | https://www.bitstamp.net/api/
-| BTCEPriceGetter        | https://btc-e.com/api/documentation
+class name                 | API
+---------------------------|--------------
+| `CryptonatorPriceGetter` | https://www.cryptonator.com/api
+| `BTERPriceGetter`        | https://bter.com/api
+| `CoinSwapPriceGetter`    | https://coin-swap.net/api
+| `BitstampPriceGetter`    | https://www.bitstamp.net/api/
+| `BTCEPriceGetter`        | https://btc-e.com/api/documentation
 
 Caching considerations
 ======================
