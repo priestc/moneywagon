@@ -1,5 +1,5 @@
-pycryptoprices
-==============
+moneywagon
+==========
 
 Python library for getting the current price of various cryptocurrencies.
 This library is useful if you are building an application in Python that needs
@@ -9,14 +9,14 @@ Installation
 ============
 
 ```
-$ pip install pycryptoprices
+$ pip install moneywagon
 ```
 
 High level API
 ==============
 
 ```python
->>> from pycryptoprices import get_current_price
+>>> from moneywagon import get_current_price
 >>> get_current_price('btc', 'usd')
 (391.324, 'bitstamp')
 >>> get_current_price('ltc', 'rur')
@@ -41,7 +41,7 @@ currency pairs is not implemented, an exception will be raised:
 >>> get_current_price('nxt', 'mex')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-  File "pycryptoprices/__init__.py", line 22, in get_current_price
+  File "moneywagon/__init__.py", line 22, in get_current_price
     raise Exception("Can not find price for %s to %s" % (crypto_symbol, fiat_symbol))
 Exception: Can not find price for nxt to mex
 ```
@@ -53,7 +53,7 @@ The `get_current_price` function tries multiple services until it find one that 
 If you would rather just use one service with no automatic retrying, use the low level 'getter' API:
 
 ```python
->>> from pycryptoprices.getters import BTERPriceGetter
+>>> from moneywagon.current_price import BTERPriceGetter
 >>> getter = BTERPriceGetter("optional useragent string")
 >>> getter.get_price('btc', 'usd')
 (391.324, 'BTER')
@@ -62,7 +62,7 @@ If you would rather just use one service with no automatic retrying, use the low
 Currently, this is a list of all supported getters:
 
 ```
-CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter
+CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter, BitstampPriceGetter, BTCEPriceGetter
 ```
 
 Caching considerations
@@ -74,7 +74,7 @@ request with fresh results. On the other hand, the low level API will never make
 For instance, consider the following example:
 
 ```python
->>> from pycryptoprices.getters import BTERPriceGetter
+>>> from moneywagon.current_price import BTERPriceGetter
 >>> getter = BTERPriceGetter()
 >>> getter.get_price('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
 (1.33535, 'bter')
