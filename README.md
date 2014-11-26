@@ -111,3 +111,8 @@ Contributing
 
 If you would like to add a new service, feel free to make a pull request.
 If you discover a service is no longer working feel free to create a github issue and some will fix it shortly.
+
+Donations
+=========
+
+If you would like to send a donation to support development, please send BTC here: 1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X
