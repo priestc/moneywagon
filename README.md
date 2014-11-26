@@ -1,4 +1,4 @@
-[Imgur](http://i.imgur.com/kLJqwqs.png)
+![Imgur](http://i.imgur.com/kLJqwqs.png)
 
 moneywagon
 ==========
