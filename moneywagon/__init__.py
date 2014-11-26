@@ -109,8 +109,6 @@ class CryptoPriceGetter(object):
     """
     def __init__(self, useragent=None):
         self.getters = [
-            BitstampPriceGetter(useragent),
-            BTCEPriceGetter(useragent),
             CryptonatorPriceGetter(useragent),
             BTERPriceGetter(useragent),
             CoinSwapPriceGetter(useragent)
@@ -126,26 +124,11 @@ class CryptoPriceGetter(object):
         for getter in self.getters:
             try:
                 return getter.get_price(crypto_symbol, fiat_symbol)
-            except (Exception, KeyError, IndexError, TypeError, ValueError) as exc:
+            except (KeyError, IndexError, TypeError, ValueError) as exc:
                 # API is probably broken
                 pass
 
         raise Exception("Can not find price for %s to %s" % (crypto_symbol, fiat_symbol))
-
-class BitstampPriceGetter(PriceGetter):
-    def get_price(self, crypto_symbol, fiat_symbol):
-        if crypto_symbol.lower() != 'usd' or fiat_symbol.lower() != 'btc':
-            raise Exception('Bitstamp only does USD->BTC')
-
-        url = "https://www.bitstamp.net/api/ticker/"
-        response = self.fetch_url(url).json()
-        return (float(response['last']), 'bitstamp')
-
-class BTCEPriceGetter(PriceGetter):
-    def get_price(self, crypto_symbol, fiat_symbol):
-        url = "https://btc-e.com/api/2/%s_%s/ticker" % (fiat_symbol, crypto_symbol)
-        response = self.fetch_url(url).json()
-        return (response['ticker']['last'], 'btc-e')
 
 def get_current_price(crypto_symbol, fiat_symbol, useragent=None):
     """
