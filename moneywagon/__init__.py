@@ -1,4 +1,7 @@
-from current_price import CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter
+from current_price import (
+    CryptonatorPriceGetter, BTERPriceGetter, CoinSwapPriceGetter,
+    BitstampPriceGetter, BTCEPriceGetter
+)
 from historical_price import QuandlHistoricalPriceGetter
 
 class CurrentCryptoPriceGetter(object):
@@ -8,6 +11,8 @@ class CurrentCryptoPriceGetter(object):
     """
     def __init__(self, useragent=None):
         self.getters = [
+            BitstampPriceGetter(useragent),
+            BTCEPriceGetter(useragent),
             CryptonatorPriceGetter(useragent),
             BTERPriceGetter(useragent),
             CoinSwapPriceGetter(useragent)
@@ -23,7 +28,7 @@ class CurrentCryptoPriceGetter(object):
         for getter in self.getters:
             try:
                 return getter.get_price(crypto_symbol, fiat_symbol)
-            except (KeyError, IndexError, TypeError, ValueError) as exc:
+            except (Exception, KeyError, IndexError, TypeError, ValueError) as exc:
                 # API has probably changed, therefore getter class broken
                 pass
 

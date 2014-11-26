@@ -100,3 +100,18 @@ class CoinSwapPriceGetter(PriceGetter):
         url = "https://api.coin-swap.net/market/stats/%s" % chunk
         response = self.fetch_url(url).json()
         return float(response['lastprice']), 'coin-swap'
+
+class BitstampPriceGetter(PriceGetter):
+    def get_price(self, crypto_symbol, fiat_symbol):
+        if crypto_symbol.lower() != 'usd' or fiat_symbol.lower() != 'btc':
+            raise Exception('Bitstamp only does USD->BTC')
+
+        url = "https://www.bitstamp.net/api/ticker/"
+        response = self.fetch_url(url).json()
+        return (float(response['last']), 'bitstamp')
+
+class BTCEPriceGetter(PriceGetter):
+    def get_price(self, crypto_symbol, fiat_symbol):
+        url = "https://btc-e.com/api/2/%s_%s/ticker" % (fiat_symbol, crypto_symbol)
+        response = self.fetch_url(url).json()
+        return (response['ticker']['last'], 'btc-e')
