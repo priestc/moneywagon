@@ -3,15 +3,15 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="pycryptoprices",
+    name="moneywagon",
     version='1.0',
-    description='Tool for getting the exchange rate from various cryptocurrency price APIs',
+    description='Toolset for getting the exchange rate for cryptocurrencies',
     long_description=open('README.md').read(),
     author='Chris Priest',
     author_email='cp368202@ohiou.edu',
-    url='https://github.com/priestc/pycryptoprices',
+    url='https://github.com/priestc/moneywagon',
     packages=find_packages(),
-    #scripts=['bin/cryptopricecmd'], # coming soon
+    #scripts=['bin/moneywagon'], # coming soon
     include_package_data=True,
     license='LICENSE',
     classifiers=[
