@@ -1,11 +1,11 @@
 import requests
 
 class PriceGetter(object):
-    “””
+    """
     All getters should subclass this class, and implement their own `get_price` function
-    “””
+    """
 
-    def __init__(self, useragent=‘pycryptoprices 1.0’):
+    def __init__(self, useragent='pycryptoprices 1.0'):
         self.useragent = useragent
         self.responses = {}
 
@@ -62,7 +62,7 @@ class CryptoCoinChartsPriceGetter(PriceGetter):
 
 class BTERPriceGetter(PriceGetter):
     def get_price(self, crypto_symbol, fiat_symbol):
-        url_template = "http://data.bter.com/api/1/ticker/%s_%s”
+        url_template = "http://data.bter.com/api/1/ticker/%s_%s"
         url = url_template % (crypto_symbol, fiat_symbol)
 
         response = fetch_url(url).json()
@@ -73,13 +73,13 @@ class BTERPriceGetter(PriceGetter):
             # of caching. BTER only has USD, BTC and CNY
             # markets, so any other fiat will likely fail.
 
-            url = url_template % (crypto_symbol, ‘btc’)
+            url = url_template % (crypto_symbol, 'btc')
             response = self.fetch_url(url)
-            altcoin_btc = response['last']
+            altcoin_btc = float(response['last'])
 
-            url = url_template % (‘btc’, fiat_symbol)
+            url = url_template % ('btc', fiat_symbol)
             response = self.fetch_url(url)
-            btc_fiat = response['last']
+            btc_fiat = float(response['last'])
 
             return (btc_fiat * altcoin_btc), 'bter (calculated)'
 
