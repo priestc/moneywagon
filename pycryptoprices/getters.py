@@ -9,12 +9,12 @@ class PriceGetter(object):
         self.useragent = useragent
         self.responses = {}
 
-    def fetch_url(*args, **kwargs):
+    def fetch_url(self, *args, **kwargs):
         """
         Wrapper for requests.get with useragent automatically set.
         """
         url = args[0]
-        if self.responses[url]:
+        if url in self.responses.keys():
             return self.responses[url] # return from cache if its there
 
         headers = kwargs.pop('headers', None)
@@ -65,7 +65,7 @@ class BTERPriceGetter(PriceGetter):
         url_template = "http://data.bter.com/api/1/ticker/%s_%s"
         url = url_template % (crypto_symbol, fiat_symbol)
 
-        response = fetch_url(url).json()
+        response = self.fetch_url(url).json()
 
         if response['result'] == 'false': # bter api returns this as string
             # bter doesn't support this pair, we need to make 2 calls and
@@ -90,7 +90,7 @@ class CryptonatorPriceGetter(PriceGetter):
     def get_price(self, crypto_symbol, fiat_symbol):
         pair = "%s-%s" % (crypto_symbol, fiat_symbol)
         url = "https://www.cryptonator.com/api/ticker/%s" % pair
-        response = fetch_url(url).json()
+        response = self.fetch_url(url).json()
         return float(response['ticker']['price']), 'cryptonator'
 
 
@@ -98,5 +98,5 @@ class CoinSwapPriceGetter(PriceGetter):
     def get_price(self, crypto_symbol, fiat_symbol):
         chunk = ("%s/%s" % (crypto_symbol, fiat_symbol)).upper()
         url = "https://api.coin-swap.net/market/stats/%s" % chunk
-        response = fetch_url(url).json()
+        response = self.fetch_url(url).json()
         return float(response['lastprice']), 'coin-swap'

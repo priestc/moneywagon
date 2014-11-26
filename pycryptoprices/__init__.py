@@ -13,10 +13,10 @@ def get_current_price(crypto_symbol, fiat_symbol, useragent=None):
             getter = Getter(useragent)
         else:
             getter = Getter()
-        
+
         try:
-            return getter.get_price(crypto_symbol, fiat_symbol):
-        except:
+            return getter.get_price(crypto_symbol, fiat_symbol)
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
             pass
 
     raise Exception("Can not find price for %s to %s" % (crypto_symbol, fiat_symbol))

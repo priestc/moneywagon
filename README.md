@@ -20,7 +20,7 @@ High level API
 >>> get_current_price('btc', 'usd')
 (391.324, 'bitstamp')
 >>> get_current_price('ltc', 'rur')
-(3.486, 'bter (calculated)')
+(169.54116322, 'cryptonator')
 ```
 
 A two item tuple is always returned. The first item is the exchange rate (as a float), the second
@@ -31,7 +31,7 @@ external requests, so API service maintainers know who is using their service:
 
 ```python
 >>> get_current_price('btc', 'eur', useragent='My custom app 0.3b2')
-(391.324, 'BTER (calculated)')
+(298.84381425, 'cryptonator')
 ```
 
 If an external service is down, or the API has changed, or the
@@ -39,7 +39,11 @@ currency pairs is not implemented, an exception will be raised:
 
 ```python
 >>> get_current_price('nxt', 'mex')
-[big ugly exception]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "pycryptoprices/__init__.py", line 22, in get_current_price
+    raise Exception("Can not find price for %s to %s" % (crypto_symbol, fiat_symbol))
+Exception: Can not find price for nxt to mex
 ```
 
 Low level API
@@ -78,17 +82,19 @@ For instance, consider the following example:
 (1.33535, 'bter')
 ```
 
-Note that the BTER exchange does not have a direct orderbook between litecoin and Russian ruble. As a result, pycryptoprices
-needs to make two separate API calls to get the correct exchange rate. The first one to get the litecoin -> BTC
-exchange rate, and the second one to get the BTC -> RUR exchange rate. Then the two results are multiplied together
-to get the LTC -> RUR exchange rate. If your application does a lot of converting at a time, it will be better
-for performance to use the low level API.
+Note that the BTER exchange does not have a direct orderbook between litecoin and Russian ruble.
+As a result, pycryptoprices needs to make two separate API calls to get the correct exchange rate.
+The first one to get the LTC->BTC exchange rate, and the second one to get the BTC->RUR exchange rate.
+Then the two results are multiplied together to get the LTC -> RUR exchange rate.
+If your application does a lot of converting at a time, it will be better for performance to use
+the low level API.
 
-If you keep the original getter instance around and make more calls to get_price, it will use the result of previous calls:
+If you keep the original getter instance around and make more calls to get_price,
+it will use the result of previous calls:
 
 ```python
 >>> getter.get_price('btc', 'rur') # will make no external calls
-(1.34563, 'bter')
+(17865.4210346, 'cryptonator')
 ```
 
 In other words, if you are using the low level API and you want fresh values, you must make a new instance of the getter class.
