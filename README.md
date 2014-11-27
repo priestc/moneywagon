@@ -14,8 +14,11 @@ Installation
 $ pip install moneywagon
 ```
 
+Current Price
+=============
+
 High level API
-==============
+--------------
 
 ```python
 >>> from moneywagon import get_current_price
@@ -49,7 +52,7 @@ Exception: Can not find price for nxt to mex
 ```
 
 Low level API
-=============
+-------------
 
 The `get_current_price` function tries multiple services until it find one that returns a result.
 If you would rather just use one service with no automatic retrying, use the low level 'getter' API:
@@ -73,7 +76,7 @@ class name                 | API
 | `BTCEPriceGetter`        | https://btc-e.com/api/documentation
 
 Caching considerations
-======================
+----------------------
 
 The high level API does not do any caching of any sort. Each call to `get_current_price` will result in a
 request with fresh results. On the other hand, the low level API will never make the request twice.
@@ -107,7 +110,7 @@ it will use the result of previous calls:
 In other words, if you are using the low level API and you want fresh values, you must make a new instance of the getter class.
 
 Automatic API fallback
-======================
+----------------------
 
 When using the high-level price API (or the `CurrentCryptoPrice` class), if the highest order
 API service is not able to return a response, the next API will be called instead.
@@ -126,11 +129,58 @@ On the other hand, if you call one of the API specific getter classes (such as `
 no fallback calls will occur. If the CoinSwap API does not support the passed in crypto/fiat pair,
 or if the service is not running, the call will raise an exception.
 
+Historical Cryptocurrency Price
+===============================
+
+The API is similar to the low-level current price API.
+There are two differences:
+
+1. The method is named `get_historical` instead of `get_price`.
+2. It takes an extra argument `at_time`. This should be a `datetime` instance
+representing when you'd like to get the price.
+
+```python
+>>> from datetime import datetime
+>>> from moneywagon import HistoricalCryptoPrice
+>>> getter = HistoricalCryptoPrice(useragent="my app")
+>>> getter.get_historical('btc', 'usd', datetime(2013, 11, 13))
+(354.94,
+'BITCOIN/BITSTAMPUSD',
+datetime.datetime(2013, 11, 13, 0, 0))
+```
+
+The result is the same, except there is a third item in the tuple.
+This third value is the time of the actual price.
+There are gaps in Quandl's data, so sometimes the actual price returned
+is from a day before or a day after.
+
+Unlike the current price API, the historical price API only has an implementation for one service,
+and that service is Quandl.com. If Quandl is ever down, this feature will not work.
+If you know of an API service that hosts historical cryptocurrency prices,
+please let the moneywagon developers know.
+
+Also, the Quandl service does not have every single cryptocurrency to fiat exchange history,
+so for some pairs, moneywagon has to make two different calls to Quandl.
+
+```python
+>>> getter.get_historical('vtc', 'rur', datetime(2014, 11, 13))
+(3.2636992,
+'CRYPTOCHART/VTC x BITCOIN/BTCERUR',
+datetime.datetime(2014, 11, 13, 0, 0))
+```
+
+In this case, moneywagon first gets the conversion rate from VTC-BTC on 2014-11-13.
+Then it gets hte conversion rate for BTC->RUR on 2014-11-13.
+The result that is returned is those two values multiplied together.
+The nature of this calculation can also be seen in the source string
+(the second item in the response).
+
+
 Coming Soon
 ===========
 
 * More backup data sources
-* A way to fetch the exchange rate of a crypto/fiat currency at an arbitrary point in time. Using the HistoricalCryptoPrices service: https://github.com/priestc/HistoricalCryptoPrices
+* Super easy API for creating a transaction for any cryptocurrency
 
 
 Contributing
