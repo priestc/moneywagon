@@ -106,6 +106,26 @@ it will use the result of previous calls:
 
 In other words, if you are using the low level API and you want fresh values, you must make a new instance of the getter class.
 
+Automatic API fallback
+======================
+
+When using the high-level price API (or the `CurrentCryptoPriceGetter` class), if the highest order
+API service is not able to return a response, the next API will be called instead.
+The order of API service precidence is:
+
+1. Bitstamp (BTC->USD only)
+2. BTC-e
+3. Cryptonator
+4. BTER
+5. Coinswap
+
+The result is that almost every single fiat/crypto is guaranteed to return a result
+even if one or more API services are down.
+
+On the other hand, if you call one of the API specific getter classes (such as `CoinSwapPriceGetter`)
+no fallback calls will occur. If the CoinSwap API does not support the passed in crypto/fiat pair,
+or if the service is not running, the call will raise an exception.
+
 Coming Soon
 ===========
 
