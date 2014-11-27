@@ -4,7 +4,27 @@ from current_price import (
 )
 from historical_price import QuandlHistoricalPriceGetter
 
-class CurrentCryptoPriceGetter(object):
+class HistoricalCryptoPrice(object):
+    def __init__(self, useragent=None, responses=None):
+        self.getter = QuandlHistoricalPriceGetter(useragent, responses)
+
+    def get_historical(self, crypto_symbol, fiat_symbol, at_time):
+        crypto_symbol = crypto_symbol.lower()
+        fiat_symbol = fiat_symbol.lower()
+        
+        if crypto_symbol != 'btc' and fiat_symbol != 'btc':
+            # two external requests and some math is going to be needed.
+            from_btc, source1, date1 = self.getter.get_historical(crypto_symbol, 'btc', at_time)
+            to_altcoin, source2, date2 = self.getter.get_historical('btc', fiat_symbol, at_time)
+            return (from_btc * to_altcoin), "%s x %s" % (source1, source2), date1
+        else:
+            return self.getter.get_historical(crypto_symbol, fiat_symbol, at_time)
+
+    @property
+    def responses(self):
+        return self.getter.responses
+
+class CurrentCryptoPrice(object):
     """
     This Price getter calls other price getters until a price is met.
     It works much like `get_current_price` but caches all external calls.

@@ -5,9 +5,9 @@ class PriceGetter(object):
     All getters should subclass this class, and implement their own `get_price` function
     """
 
-    def __init__(self, useragent=None):
+    def __init__(self, useragent=None, responses=None):
         self.useragent = useragent or 'pycryptoprices 1.0'
-        self.responses = {} # for caching
+        self.responses = responses or {} # for caching
 
     def fetch_url(self, *args, **kwargs):
         """
