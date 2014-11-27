@@ -44,7 +44,7 @@ currency pairs is not implemented, an exception will be raised:
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
   File "moneywagon/__init__.py", line 22, in get_current_price
-    raise Exception("Can not find price for %s to %s" % (crypto_symbol, fiat_symbol))
+    raise Exception("Can not find price for %s to %s" % (crypto, fiat))
 Exception: Can not find price for nxt to mex
 ```
 
@@ -109,7 +109,7 @@ In other words, if you are using the low level API and you want fresh values, yo
 Automatic API fallback
 ======================
 
-When using the high-level price API (or the `CurrentCryptoPriceGetter` class), if the highest order
+When using the high-level price API (or the `CurrentCryptoPrice` class), if the highest order
 API service is not able to return a response, the next API will be called instead.
 The order of API service precidence is:
 

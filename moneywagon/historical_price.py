@@ -42,7 +42,7 @@ quandl_exchange_btc_to_fiat = {
 }
 
 class QuandlHistoricalPriceGetter(PriceGetter):
-    def get_historical(self, crypto_symbol, fiat_symbol, at_time):
+    def get_historical(self, crypto, fiat, at_time):
         """
         Using the quandl.com API, get the historical price (by day).
         The CRYPTOCHART source claims to be from multiple exchange sources
@@ -51,24 +51,24 @@ class QuandlHistoricalPriceGetter(PriceGetter):
         # represents the 'width' of the quandl data returned (one day)
         # if quandl ever supports data hourly or something, this can be changed
         interval = datetime.timedelta(hours=24)
-        crypto_symbol = crypto_symbol.lower()
-        fiat_symbol = fiat_symbol.lower()
+        crypto = crypto.lower()
+        fiat = fiat.lower()
 
-        if crypto_symbol == 'btc':
+        if crypto == 'btc':
             # Bitcoin to fiat
-            if fiat_symbol == 'usd':
+            if fiat == 'usd':
                 if at_time < datetime.datetime(2013, 2, 1, tzinfo=pytz.utc):
                     exchange = 'MtGox'
                 else:
                     exchange = "Bitstamp"
             else:
-                exchange = quandl_exchange_btc_to_fiat[fiat_symbol.upper()]
+                exchange = quandl_exchange_btc_to_fiat[fiat.upper()]
 
-            source = "BITCOIN/%s%s" % (exchange.upper(), fiat_symbol.upper())
+            source = "BITCOIN/%s%s" % (exchange.upper(), fiat.upper())
             price_index = 1
         else:
             # some altcoin to bitcoin
-            if fiat_symbol != 'btc':
+            if fiat != 'btc':
                 raise Exception("Altcoins are only available via BTC base fiat")
             sources = {
                 'myr': ['CRYPTOCHART/MYR', 1],
@@ -79,7 +79,7 @@ class QuandlHistoricalPriceGetter(PriceGetter):
                 'nxt': ['CRYPTOCHART/NXT', 1],
                 'ftc': ['CRYPTOCHART/FTC', 1],
             }
-            source, price_index = sources[crypto_symbol.lower()]
+            source, price_index = sources[crypto.lower()]
 
         url = "https://www.quandl.com/api/v1/datasets/%s.json" % source
         trim = "?trim_start={0:%Y-%m-%d}&trim_end={1:%Y-%m-%d}".format(
@@ -106,7 +106,7 @@ class QuandlHistoricalPriceGetter(PriceGetter):
 
         if not best_price:
             msg = "Data source is incomplete. Could not get best price for %s/%s on %s." % (
-                crypto_symbol, fiat_symbol, at_time
+                crypto, fiat, at_time
             )
             raise Exception(msg)
 
