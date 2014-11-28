@@ -3,9 +3,16 @@
 moneywagon
 ==========
 
-Python library for getting the current price of various cryptocurrencies.
-This library is useful if you are building an application in Python that needs
-to know the current price of any crypto-currency converted to any local fiat currency.
+Python library containing various tools relating to cryptocurrencies.
+This tool is still being developed, but currently has two principle functions:
+
+1. Getting the **current** exchange rate of any cryptocurrency (LTC, BTC, PPC, etc) and a
+fiat currency (USD, EUR, RUR, etc.)
+2. Getting the exchange rate between a cryptocurrency and a fiat currency **at an
+arbitrary point in time**.
+
+There is a third planned part of moneywagon that has not yet been buily.
+This section will be a fancy API for creating transactions.
 
 Installation
 ============
