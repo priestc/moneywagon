@@ -1,9 +1,12 @@
+from __future__ import print_function
+
 import datetime
 import requests
 import arrow
 import pytz
 
-from current_price import PriceGetter
+from getter import PriceGetter
+from crypto_data import crypto_data
 
 quandl_exchange_btc_to_fiat = {
     'ARS': 'localbtc',
@@ -50,9 +53,16 @@ class QuandlHistoricalPriceGetter(PriceGetter):
         """
         # represents the 'width' of the quandl data returned (one day)
         # if quandl ever supports data hourly or something, this can be changed
-        interval = datetime.timedelta(hours=24)
+        interval = datetime.timedelta(hours=48)
         crypto = crypto.lower()
         fiat = fiat.lower()
+
+        at_time = arrow.get(at_time).datetime
+
+        name, date_created = crypto_data[crypto]
+
+        if date_created.replace(tzinfo=pytz.utc) > at_time:
+            raise Exception("%s (%s) did not exist on %s" % (name, crypto, at_time))
 
         if crypto == 'btc':
             # Bitcoin to fiat
@@ -70,21 +80,17 @@ class QuandlHistoricalPriceGetter(PriceGetter):
             # some altcoin to bitcoin
             if fiat != 'btc':
                 raise Exception("Altcoins are only available via BTC base fiat")
-            sources = {
-                'myr': ['CRYPTOCHART/MYR', 1],
-                'doge': ['CRYPTOCHART/DOGE', 1],
-                'ppc': ['CRYPTOCHART/PPC', 1],
-                'ltc': ['BTCE/BTCLTC', 4],
-                'vtc': ['CRYPTOCHART/VTC', 1],
-                'nxt': ['CRYPTOCHART/NXT', 1],
-                'ftc': ['CRYPTOCHART/FTC', 1],
-            }
-            source, price_index = sources[crypto.lower()]
+            if crypto == 'ltc':
+                source, price_index = ['BTCE/BTCLTC', 4]
+            else:
+                source, price_index = ['CRYPTOCHART/' + crypto.upper(), 1]
 
         url = "https://www.quandl.com/api/v1/datasets/%s.json" % source
         trim = "?trim_start={0:%Y-%m-%d}&trim_end={1:%Y-%m-%d}".format(
             at_time - interval, at_time + interval
         )
+
+        if self.verbose: print("URL:", url + trim)
 
         response = self.fetch_url(url + trim).json()
         closest_distance = interval
