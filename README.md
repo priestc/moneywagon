@@ -179,15 +179,53 @@ datetime.datetime(2014, 11, 13, 0, 0))
 In this case, moneywagon first gets the conversion rate from VTC-BTC on 2014-11-13.
 Then it gets hte conversion rate for BTC->RUR on 2014-11-13.
 The result that is returned is those two values multiplied together.
+This is similar to the process described earlier
 The nature of this calculation can also be seen in the source string
 (the second item in the response).
 
+Transaction API
+===============
 
-Coming Soon
-===========
+The transaction API has been designed to be as simple and easy to use as possible.
+No knowledge of cryptography is needed. You do need to know the basics of how
+cryptocurrency transactions work.
 
-* More backup data sources
-* Super easy API for creating a transaction for any cryptocurrency
+Just like the price getter API's, the transaction API available via a
+"Low Level API" and a "High Level API"
+
+High Level API
+--------------
+
+```python
+from moneywagon import Transaction
+
+t = Transaction(
+    crypto='btc'
+    to='1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X',
+    from='1DBQgauyuSodrPctQojRtAUfHncU1ECghW',
+    private_key='5KBudDby7NFod41Jkbb8s9KgiFi6GuTvnMBsiNZkgFV2c3Bijvv'
+    amount=0.023,
+    fee=0.00001,
+)
+
+t.verify() # checks if the
+t.send()
+```
+
+Low Level API
+-------------
+
+```python
+from moneywagon.transactions import get_unspent_outputs, make_transaction, send_transaction
+outputs = get_unspent_outputs('btc', '1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X')
+raw_transaction = make_transaction(
+    outputs=outputs,
+    amount=0.0023,
+    to='1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X',
+    private_key='5KBudDby7NFod41Jkbb8s9KgiFi6GuTvnMBsiNZkgFV2c3Bijvv'
+)
+send_transaction('btc', raw_transaction)
+```
 
 
 Contributing
