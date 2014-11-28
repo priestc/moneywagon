@@ -10,7 +10,7 @@ class PriceGetter(object):
     """
 
     def __init__(self, useragent=None, verbose=False, responses=None):
-        self.useragent = useragent or 'pycryptoprices 1.0'
+        self.useragent = useragent or 'moneywagon 1.0.1'
         self.responses = responses or {} # for caching
         self.verbose = verbose
 
