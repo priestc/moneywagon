@@ -6,6 +6,9 @@ useragent = 'moneywagon 1.0.1'
 class SkipThisFetcher(Exception):
     pass
 
+class NoService(Exception):
+    pass
+
 class Fetcher(object):
     """
     All fetchers should subclass this class, and implement their own `get_price` function
@@ -99,13 +102,13 @@ class AutoFallback(object):
                 # that getter can't return a response, but maybe another one can.
                 if self.verbose: print("SKIP:", exc)
 
-        return self.no_return_value(*args, **kwargs)
+        raise NoService(self.no_service_msg(*args, **kwargs))
 
-    def no_return_value(self, *args, **kwargs):
+    def no_service_msg(self, *args, **kwargs):
         """
         This function is called when all fetchers have been tried and no value
         can be returned. It much take the same args and kwargs as in the method
-        spefified in `self.method_name`. This functin can return a number or
-        (more reasonably) raise an exception.
+        spefified in `self.method_name`. Returned is a string for the error message.
+        It should say something informative.
         """
-        pass
+        return "All either skipped or failed."

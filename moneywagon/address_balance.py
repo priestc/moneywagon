@@ -35,15 +35,25 @@ class FeathercoinComAddressBalance(Fetcher):
         return float(response.json()['balance']), 'feathercoin.com'
 
 class VertcoinOrgAddressBalance(Fetcher):
-    def get_balance(self):
+    supported_cryptos = ['vtc']
+
+    def get_balance(self, crypto, address):
         url = "https://explorer.vertcoin.org/chain/Vertcoin/q/addressbalance/" + address
         response = self.get_url(url, verify=False)
         return float(response.content)
 
+class NXTPortalAddressBalance(Fetcher):
+    supported_cryptos = ['nxt']
+
+    def get_balance(self, crypto, address):
+        url='http://nxtportal.org/nxt?requestType=getAccount&account=' + address
+        response = self.get_url(url)
+        return float(response.json()['balanceNQT']) * 1e-8
+
 class AddressBalance(AutoFallback):
     getter_classes = [
         BlockChainInfoAddressBalance, DogeChainInfoAddressBalance, VertcoinOrgAddressBalance,
-        FeathercoinComAddressBalance, BlockrAddressBalance
+        FeathercoinComAddressBalance, NXTPortalAddressBalance, BlockrAddressBalance
     ]
     method_name = "get_balance"
 
@@ -51,5 +61,5 @@ class AddressBalance(AutoFallback):
         crypto = crypto.lower()
         return self._try_each_getter(crypto, address)
 
-    def no_return_value(self, crypto, address):
-        return 0
+    def no_service_msg(self, crypto, address):
+        return "Could not get address balance for: %s" % crypto

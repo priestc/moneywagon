@@ -8,6 +8,9 @@ import pytz
 from .fetcher import Fetcher
 from .crypto_data import crypto_data
 
+class NoData(Exception):
+    pass
+
 quandl_exchange_btc_to_fiat = {
     'ARS': 'localbtc',
     'AUD': 'weex',
@@ -90,8 +93,6 @@ class QuandlHistoricalPrice(Fetcher):
             at_time - interval, at_time + interval
         )
 
-        if self.verbose: print("URL:", url + trim)
-
         response = self.get_url(url + trim).json()
         closest_distance = interval
 
@@ -111,10 +112,10 @@ class QuandlHistoricalPrice(Fetcher):
                 best_date = tick_date
 
         if not best_price:
-            msg = "Data source is incomplete. Could not get best price for %s/%s on %s." % (
+            msg = "Quandl's data source is incomplete. Could not get best price for %s/%s on %s." % (
                 crypto, fiat, at_time
             )
-            raise Exception(msg)
+            raise NoData(msg)
 
         return best_price, source, best_date
 

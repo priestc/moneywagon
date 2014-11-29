@@ -102,5 +102,5 @@ class CurrentPrice(AutoFallback):
 
         return self._try_each_getter(crypto, fiat)
 
-    def no_return_value(self, crypto, fiat):
-        raise Exception("Can not find price for %s->%s" % (crypto, fiat))
+    def no_service_msg(self, crypto, fiat):
+        return "Can not find price for %s->%s" % (crypto, fiat)
