@@ -5,7 +5,28 @@ from .current_price import (
     BitstampCurrentPrice, BTCECurrentPrice
 )
 from .historical_price import QuandlHistoricalPrice
+from .historical_transactions import BlockrHistoricalTransaction, ChainSoHistoricalTransaction
 from .fetcher import SkipThisFetcher
+
+class HistoricalTransactions(object):
+    def __init__(self, useragent=None, verbose=False, responses=None):
+        self.getters = [
+            BlockrHistoricalTransaction(useragent, verbose=verbose),
+            ChainSoHistoricalTransaction(useragent, verbose=verbose),
+        ]
+        self.verbose = verbose
+
+    def get_transactions(self, crypto, address):
+        for getter in self.getters:
+            try:
+                if self.verbose: print("* Trying:", getter)
+                return getter.get_transactions(crypto, address)
+            except (KeyError, IndexError, TypeError, ValueError) as exc:
+                # API has probably changed, therefore getter class broken
+                if self.verbose: print("FAIL:", exc.__class__.__name__, exc)
+            except SkipThisFetcher as exc:
+                if self.verbose: print("SKIP:", exc)
+
 
 class HistoricalCryptoPrice(object):
     def __init__(self, useragent=None, responses=None):
@@ -56,7 +77,7 @@ class CurrentCryptoPrice(object):
             except (KeyError, IndexError, TypeError, ValueError) as exc:
                 # API has probably changed, therefore getter class broken
                 if self.verbose: print("FAIL:", exc.__class__.__name__, exc)
-            except SkipThisGetter as exc:
+            except SkipThisFetcher as exc:
                 if self.verbose: print("SKIP:", exc)
 
         raise Exception("Can not find price for %s->%s" % (crypto, fiat))

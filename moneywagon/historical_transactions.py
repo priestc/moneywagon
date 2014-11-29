@@ -1,5 +1,5 @@
 import arrow
-from .fetcher import Fetcher
+from .fetcher import Fetcher, SkipThisFetcher
 
 class BlockrHistoricalTransaction(Fetcher):
     def get_transactions(self, crypto, address):
@@ -22,7 +22,7 @@ class BlockrHistoricalTransaction(Fetcher):
 
 class ChainSoHistoricalTransaction(Fetcher):
     def get_transactions(self, crypto, address):
-        crypto = crypeo.lower()
+        crypto = crypto.lower()
         if crypto != 'doge':
             raise SkipThisFetcher('Chain.so only for dogecoin')
 
