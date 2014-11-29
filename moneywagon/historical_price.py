@@ -44,7 +44,7 @@ quandl_exchange_btc_to_fiat = {
     'ZAR': 'bitx',
 }
 
-class QuandlHistoricalPriceGetter(Fetcher):
+class QuandlHistoricalPrice(Fetcher):
     def get_historical(self, crypto, fiat, at_time):
         """
         Using the quandl.com API, get the historical price (by day).
