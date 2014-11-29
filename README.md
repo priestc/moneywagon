@@ -65,14 +65,18 @@ The `get_current_price` function tries multiple services until it find one that 
 If you would rather just use one service with no automatic retrying, use the low level 'getter' API:
 
 ```python
->>> from moneywagon.current_price import BTERCurrentPrice
->>> getter = BTERCurrentPrice("optional useragent string")
+>>> from moneywagon.current_price import CurrentPrice, BTERCurrentPrice
+>>> getter = BTERCurrentPrice()
 >>> getter.get_price('btc', 'usd')
 (391.324, 'BTER')
 ```
 
-Currently, this is a list of all supported getters:
+If you use the `CryptoPrice` class, the get_price method will try all getters
+until a value is returned (same as high level API). If you use a getter class
+that is limited to one API service, such as "BTERCurrentPrice",
+then only that service will be called.
 
+Here is a list of all supported getters for purrent price:
 
 class name                  | API
 ----------------------------|--------------
@@ -119,7 +123,7 @@ In other words, if you are using the low level API and you want fresh values, yo
 Automatic API fallback
 ----------------------
 
-When using the high-level price API (or the `CurrentCryptoPrice` class), if the highest order
+When using the high-level price API (or the `CurrentPrice` class), if the highest order
 API service is not able to return a response, the next API will be called instead.
 The order of API service precidence is:
 
@@ -132,7 +136,7 @@ The order of API service precidence is:
 The result is that almost every single fiat/crypto is guaranteed to return a result
 even if one or more API services are down.
 
-On the other hand, if you call one of the API specific getter classes (such as `CoinSwapPriceGetter`)
+On the other hand, if you call one of the API specific getter classes (such as `CoinSwapCurrentPrice`)
 no fallback calls will occur. If the CoinSwap API does not support the passed in crypto/fiat pair,
 or if the service is not running, the call will raise an exception.
 
