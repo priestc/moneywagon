@@ -1,6 +1,6 @@
-from getter import PriceGetter, SkipThisGetter
+from getter import Fetcher, SkipThisFetcher
 
-class OldCryptoCoinChartsPriceGetter(PriceGetter):
+class OldCryptoCoinChartsCurrentPrice(Fetcher):
     """
     Using raw rest API (looks to be currently broken)
     """
@@ -12,7 +12,7 @@ class OldCryptoCoinChartsPriceGetter(PriceGetter):
         return float(response['price'] or 0), response['best_market']
 
 
-class CryptoCoinChartsPriceGetter(PriceGetter):
+class CryptoCoinChartsCurrentPrice(Fetcher):
     """
     Using fancy API client library (currently broken)
     """
@@ -23,7 +23,7 @@ class CryptoCoinChartsPriceGetter(PriceGetter):
         return tradingpair.price, tradingpair.best_market
 
 
-class BTERPriceGetter(PriceGetter):
+class BTERCurrentPrice(Fetcher):
     def get_price(self, crypto, fiat):
         url_template = "http://data.bter.com/api/1/ticker/%s_%s"
         url = url_template % (crypto, fiat)
@@ -49,7 +49,7 @@ class BTERPriceGetter(PriceGetter):
         return float(response['last'] or 0), 'bter'
 
 
-class CryptonatorPriceGetter(PriceGetter):
+class CryptonatorCurrentPrice(Fetcher):
     def get_price(self, crypto, fiat):
         pair = "%s-%s" % (crypto, fiat)
         url = "https://www.cryptonator.com/api/ticker/%s" % pair
@@ -57,7 +57,7 @@ class CryptonatorPriceGetter(PriceGetter):
         return float(response['ticker']['price']), 'cryptonator'
 
 
-class CoinSwapPriceGetter(PriceGetter):
+class CoinSwapCurrentPrice(Fetcher):
     def get_price(self, crypto, fiat):
         chunk = ("%s/%s" % (crypto, fiat)).upper()
         url = "https://api.coin-swap.net/market/stats/%s" % chunk
@@ -65,17 +65,17 @@ class CoinSwapPriceGetter(PriceGetter):
         return float(response['lastprice']), 'coin-swap'
 
 
-class BitstampPriceGetter(PriceGetter):
+class BitstampCurrentPrice(Fetcher):
     def get_price(self, crypto, fiat):
         if fiat.lower() != 'usd' or crypto.lower() != 'btc':
-            raise SkipThisGetter('Bitstamp only does USD->BTC')
+            raise SkipThisFetcher('Bitstamp only does USD->BTC')
 
         url = "https://www.bitstamp.net/api/ticker/"
         response = self.fetch_url(url).json()
         return (float(response['last']), 'bitstamp')
 
 
-class BTCEPriceGetter(PriceGetter):
+class BTCEPriceCurrentPrice(Fetcher):
     def get_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto, fiat)
         url = "https://btc-e.com/api/3/ticker/" + pair

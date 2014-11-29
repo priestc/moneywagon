@@ -65,8 +65,8 @@ The `get_current_price` function tries multiple services until it find one that 
 If you would rather just use one service with no automatic retrying, use the low level 'getter' API:
 
 ```python
->>> from moneywagon.current_price import BTERPriceGetter
->>> getter = BTERPriceGetter("optional useragent string")
+>>> from moneywagon.current_price import BTERCurrentPrice
+>>> getter = BTERCurrentPrice("optional useragent string")
 >>> getter.get_price('btc', 'usd')
 (391.324, 'BTER')
 ```
@@ -74,13 +74,13 @@ If you would rather just use one service with no automatic retrying, use the low
 Currently, this is a list of all supported getters:
 
 
-class name                 | API
----------------------------|--------------
-| `CryptonatorPriceGetter` | https://www.cryptonator.com/api
-| `BTERPriceGetter`        | https://bter.com/api
-| `CoinSwapPriceGetter`    | https://coin-swap.net/api
-| `BitstampPriceGetter`    | https://www.bitstamp.net/api/
-| `BTCEPriceGetter`        | https://btc-e.com/api/documentation
+class name                  | API
+----------------------------|--------------
+| `CryptonatorCurrentPrice` | https://www.cryptonator.com/api
+| `BTERCurrentPrice`        | https://bter.com/api
+| `CoinSwapCurrentPrice`    | https://coin-swap.net/api
+| `BitstampCurrentPrice`    | https://www.bitstamp.net/api/
+| `BTCECurrentPrice`        | https://btc-e.com/api/documentation
 
 Caching considerations
 ----------------------
@@ -91,8 +91,8 @@ request with fresh results. On the other hand, the low level API will never make
 For instance, consider the following example:
 
 ```python
->>> from moneywagon.current_price import BTERPriceGetter
->>> getter = BTERPriceGetter()
+>>> from moneywagon.current_price import BTERCurrentPrice
+>>> getter = BTERCurrentPrice()
 >>> getter.get_price('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
 (1.33535, 'bter')
 >>> getter.get_price('btc', 'rur') # makes zero external calls (uses btc-> rur result from last call)

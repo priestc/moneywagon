@@ -1,10 +1,10 @@
 from __future__ import print_function
 import requests
 
-class SkipThisGetter(Exception):
+class SkipThisFetcher(Exception):
     pass
 
-class PriceGetter(object):
+class Fetcher(object):
     """
     All getters should subclass this class, and implement their own `get_price` function
     """
