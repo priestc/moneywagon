@@ -143,14 +143,15 @@ The API is similar to the low-level current price API.
 There are two differences:
 
 1. The method is named `get_historical` instead of `get_price`.
-2. It takes an extra argument `at_time`. This should be a `datetime` instance
-representing when you'd like to get the price.
+2. It takes an extra argument `at_time`. This can be a either a `datetime` instance
+representing when you'd like to get the price, or a string that will get converted to a
+datetime object by arrow.get..
 
 ```python
 >>> from datetime import datetime
 >>> from moneywagon import HistoricalCryptoPrice
 >>> getter = HistoricalCryptoPrice(useragent="my app")
->>> getter.get_historical('btc', 'usd', datetime(2013, 11, 13))
+>>> getter.get_historical('btc', 'usd', '2013-11-13')
 (354.94,
 'BITCOIN/BITSTAMPUSD',
 datetime.datetime(2013, 11, 13, 0, 0))
@@ -170,7 +171,7 @@ Also, the Quandl service does not have every single cryptocurrency to fiat excha
 so for some pairs, moneywagon has to make two different calls to Quandl.
 
 ```python
->>> getter.get_historical('vtc', 'rur', datetime(2014, 11, 13))
+>>> getter.get_historical('vtc', 'rur', '2014-11-13'))
 (3.2636992,
 'CRYPTOCHART/VTC x BITCOIN/BTCERUR',
 datetime.datetime(2014, 11, 13, 0, 0))

@@ -6,7 +6,7 @@ class SkipThisFetcher(Exception):
 
 class Fetcher(object):
     """
-    All getters should subclass this class, and implement their own `get_price` function
+    All fetchers should subclass this class, and implement their own `get_price` function
     """
 
     def __init__(self, useragent=None, verbose=False, responses=None):
@@ -20,6 +20,7 @@ class Fetcher(object):
     def fetch_url(self, *args, **kwargs):
         """
         Wrapper for requests.get with useragent automatically set.
+        And also all requests are reponses are cached.
         """
         url = args[0]
         if url in self.responses.keys():
@@ -33,7 +34,7 @@ class Fetcher(object):
         else:
             kwargs['headers'] = custom
 
-        if self.verbose: print("request: %s" % url)
+        if self.verbose: print("URL: %s" % url)
 
         response = requests.get(*args, **kwargs)
         self.responses[url] = response # cache for later
@@ -47,4 +48,10 @@ class Fetcher(object):
         raise NotImplementedError()
 
     def get_historical(self, crypto, fiat, at_time):
+        raise NotImplementedError()
+
+    def get_transactions(self, crypto, address):
+        raise NotImplementedError()
+
+    def get_balance(self, crypto, address):
         raise NotImplementedError()
