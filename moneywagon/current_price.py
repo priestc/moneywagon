@@ -1,4 +1,4 @@
-from getter import Fetcher, SkipThisFetcher
+from .fetcher import Fetcher, SkipThisFetcher
 
 class OldCryptoCoinChartsCurrentPrice(Fetcher):
     """
@@ -75,7 +75,7 @@ class BitstampCurrentPrice(Fetcher):
         return (float(response['last']), 'bitstamp')
 
 
-class BTCEPriceCurrentPrice(Fetcher):
+class BTCECurrentPrice(Fetcher):
     def get_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto, fiat)
         url = "https://btc-e.com/api/3/ticker/" + pair

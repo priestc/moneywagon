@@ -5,8 +5,8 @@ import requests
 import arrow
 import pytz
 
-from fetcher import Fetcher
-from crypto_data import crypto_data
+from .fetcher import Fetcher
+from .crypto_data import crypto_data
 
 quandl_exchange_btc_to_fiat = {
     'ARS': 'localbtc',

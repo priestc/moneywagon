@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-from current_price import (
+from .current_price import (
     CryptonatorCurrentPrice, BTERCurrentPrice, CoinSwapCurrentPrice,
     BitstampCurrentPrice, BTCECurrentPrice
 )
-from historical_price import QuandlHistoricalPrice
-from fetcher import SkipThisFetcher
+from .historical_price import QuandlHistoricalPrice
+from .fetcher import SkipThisFetcher
 
 class HistoricalCryptoPrice(object):
     def __init__(self, useragent=None, responses=None):
