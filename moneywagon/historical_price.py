@@ -92,7 +92,7 @@ class QuandlHistoricalPrice(Fetcher):
 
         if self.verbose: print("URL:", url + trim)
 
-        response = self.fetch_url(url + trim).json()
+        response = self.get_url(url + trim).json()
         closest_distance = interval
 
         best_price = None
@@ -117,3 +117,24 @@ class QuandlHistoricalPrice(Fetcher):
             raise Exception(msg)
 
         return best_price, source, best_date
+
+
+class HistoricalPrice(object):
+    def __init__(self, responses=None):
+        self.getter = QuandlHistoricalPrice(responses)
+
+    def get_historical(self, crypto, fiat, at_time):
+        crypto = crypto.lower()
+        fiat = fiat.lower()
+
+        if crypto != 'btc' and fiat != 'btc':
+            # two external requests and some math is going to be needed.
+            from_btc, source1, date1 = self.getter.get_historical(crypto, 'btc', at_time)
+            to_altcoin, source2, date2 = self.getter.get_historical('btc', fiat, at_time)
+            return (from_btc * to_altcoin), "%s x %s" % (source1, source2), date1
+        else:
+            return self.getter.get_historical(crypto, fiat, at_time)
+
+    @property
+    def responses(self):
+        return self.getter.responses

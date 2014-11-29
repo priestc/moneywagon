@@ -6,5 +6,5 @@ class BlockrPushTransaction(Fetcher):
         if crypto not in ['btc', 'ltc', 'mec', 'qrk', 'dgc', 'tbtc']:
             raise SkipThisFetcher("Blockr.io does not support this crypto: " + crypto)
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto
-        self.fetch_url(url)
+        self.get_url(url)
         raise NotFinished()
