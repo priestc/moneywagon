@@ -5,7 +5,7 @@ from .current_price import (
     BitstampCurrentPrice, BTCECurrentPrice, CurrentPrice
 )
 from .address_balance import (
-    BlockChainInfoAddressBalance, DogeChainInfoAddressBalance,
+    BlockChainInfoAddressBalance, DogeChainInfoAddressBalance, BlockCypherAddressBalance,
     FeathercoinComAddressBalance, BlockrAddressBalance, AddressBalance
 )
 from .historical_price import (

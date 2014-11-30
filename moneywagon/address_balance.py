@@ -1,5 +1,14 @@
 from .fetcher import Fetcher, AutoFallback
 
+class BlockCypherAddressBalance(Fetcher):
+    supported_cryptos = ['btc', 'ltc', 'uro']
+    
+    def get_balance(self, crypto, address):
+        crypto = crypto.lower()
+        url = "http://api.blockcypher.com/v1/%s/main/addrs/%s" % (crypto, address)
+        response = self.get_url(url)
+        return response.json()['balance'] / 1.0e8, 'blockcypher'
+
 class BlockrAddressBalance(Fetcher):
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
 
@@ -53,7 +62,8 @@ class NXTPortalAddressBalance(Fetcher):
 class AddressBalance(AutoFallback):
     getter_classes = [
         BlockChainInfoAddressBalance, DogeChainInfoAddressBalance, VertcoinOrgAddressBalance,
-        FeathercoinComAddressBalance, NXTPortalAddressBalance, BlockrAddressBalance
+        FeathercoinComAddressBalance, NXTPortalAddressBalance, BlockrAddressBalance,
+        BlockCypherAddressBalance
     ]
     method_name = "get_balance"
 
