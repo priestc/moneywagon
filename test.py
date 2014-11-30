@@ -20,17 +20,18 @@ for fiat in ['usd', 'gbp', 'eur', 'jpy', 'cny', 'cad', 'rur', 'btc']:
 
 
 wallets = [
-    #['btc', '1JhtQAGKApRgxWvRASGAH8qggtVNQMU47d'],
-    #['ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ'],
-    #['ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj'],
-    #['doge', 'D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ'],
-    #['vtc', 'Va3LcDhwrcwGtG366jeP6EJzWnKT4yMDxs'],
-    ['nxt', 'NXT-ZMUQ-729K-5AM6-4AAYM'],
-
-    ['drk', 'XrbZsLp9QDSf8usYYMPhmKWA8u1kQ26rQJ'],
-    ['ftc', '6tE27DEB6HgnofAFPFtCyQ9aDaCD828YRq'],
-    ['myr', 'MHEipvGqerT3XDp2hq62xtnCujS4qL67DZ'],
+    ['btc', '1JhtQAGKApRgxWvRASGAH8qggtVNQMU47d'],
+    ['ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ'],
+    ['ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj'],
+    ['doge', 'D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ'],
     ['rdd', 'RbHsU84Eo5tUBj7HDNEb9ZSw2fFhU1NKgD'],
+    ['drk', 'XrbZsLp9QDSf8usYYMPhmKWA8u1kQ26rQJ'],
+
+    ['vtc', 'Va3LcDhwrcwGtG366jeP6EJzWnKT4yMDxs'],
+    ['nxt', 'NXT-ZMUQ-729K-5AM6-4AAYM'],
+    ['myr', 'MHEipvGqerT3XDp2hq62xtnCujS4qL67DZ'],
+    #['ftc', '6tE27DEB6HgnofAFPFtCyQ9aDaCD828YRq'],
+
 
 ]
 

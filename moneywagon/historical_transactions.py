@@ -37,10 +37,56 @@ class ChainSoHistoricalTransactions(Fetcher):
             ))
         return transactions
 
+def insight_tx(tx, address):
+    """
+    The Insight API is weird and does not simply return the amount of coin sent
+    per transaction. We have to iterate over the response data. This function
+    can be reused by other services that have forked bitpay's insight code.
+    """
+    my_outs = [
+        float(x['value']) for x in tx['vout'] if address in x['scriptPubKey']['addresses']
+    ]
+    return dict(
+        amount=sum(my_outs),
+        date=arrow.get(tx['time']).datetime,
+        txid=tx['txid'],
+        confirmations=tx['confirmations'],
+    )
+
+class BitpayInsightHistoricalTransaction(Fetcher):
+    supported_cryptos = ['btc']
+
+    def get_transactions(self, crypto, address):
+        url = "http://insight.bitpay.com/api/txs/?address=%s" % address
+        response = self.get_url(url)
+
+        transactions = []
+        for tx in response.json()['txs']:
+            transactions.append(insight_tx(tx, address))
+
+        return transactions
+
+class ReddcoinHistoricalTransaction(Fetcher):
+    supported_cryptos = ['rdd']
+
+    def get_transactions(self, crypto, address):
+        url = "http://live.reddcoin.com/api/txs/?address=%s" % address
+        response = self.get_url(url)
+
+        transactions = []
+        for tx in response.json()['txs']:
+            transactions = []
+            for tx in response.json()['txs']:
+                transactions.append(insight_tx(tx, address))
+
+        return transactions
+
 class HistoricalTransactions(AutoFallback):
     getter_classes = [
         BlockrHistoricalTransactions,
-        ChainSoHistoricalTransactions
+        ChainSoHistoricalTransactions,
+        ReddcoinHistoricalTransaction,
+        BitpayInsightHistoricalTransaction,
     ]
     method_name = 'get_transactions'
 

@@ -83,6 +83,13 @@ class CoinSwapCurrentPrice(Fetcher):
         return float(response['lastprice']), 'coin-swap'
 
 
+class ExCoInCurrentPrice(Fetcher):
+    def get_price(self, crypto, fiat):
+        url = "https://api.exco.in/v1/exchange/%s/%s" % (fiat, crypto)
+        response = self.get_url(url).json()
+        return float(response['last_price']), 'exco.in'
+
+
 class CurrentPrice(AutoFallback):
     getter_classes = [
         BitstampCurrentPrice,
