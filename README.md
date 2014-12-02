@@ -3,7 +3,16 @@
 moneywagon
 ==========
 
-Python library containing various tools relating to cryptocurrencies.
+Moneywagon lets you build a bitcoin wallet application in Python without
+ever having to rely on a single blockchain API service.
+
+For instance, lets say you are building an application in Python that
+needs to know the current exchange rate between BTC and USD. Before moneywagon,
+you had to hardcode your application to make an HTTP request to a single service like
+bitstamp to get the current price. If the bitstamp API were ever to change, your
+code would break, wasting development time. With moneywagon, you code yor application
+to the moneywagon API (which doesn't change).
+
 This tool is still being developed, but currently has 5 principle functions:
 
 1. Getting the **current** exchange rate of any cryptocurrency (LTC, BTC, PPC, etc) and a
