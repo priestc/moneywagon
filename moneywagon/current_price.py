@@ -1,6 +1,6 @@
-from .fetcher import Fetcher, SkipThisFetcher, AutoFallback
+from .service import Service, SkipThisService, AutoFallback
 
-class OldCryptoCoinChartsCurrentPrice(Fetcher):
+class OldCryptoCoinChartsCurrentPrice(Service):
     """
     Using raw rest API (looks to be currently broken)
     """
@@ -12,7 +12,7 @@ class OldCryptoCoinChartsCurrentPrice(Fetcher):
         return float(response['price'] or 0), response['best_market']
 
 
-class CryptoCoinChartsCurrentPrice(Fetcher):
+class CryptoCoinChartsCurrentPrice(Service):
     """
     Using fancy API client library (currently broken)
     """
@@ -23,33 +23,33 @@ class CryptoCoinChartsCurrentPrice(Fetcher):
         return tradingpair.price, tradingpair.best_market
 
 
-class BitstampCurrentPrice(Fetcher):
+class BitstampCurrentPrice(Service):
     supported_cryptos = ['btc']
 
     def get_price(self, crypto, fiat):
         if fiat.lower() != 'usd' or crypto.lower() != 'btc':
-            raise SkipThisFetcher('Bitstamp only does USD->BTC')
+            raise SkipThisService('Bitstamp only does USD->BTC')
 
         url = "https://www.bitstamp.net/api/ticker/"
         response = self.get_url(url).json()
         return (float(response['last']), 'bitstamp')
 
 
-class BTCECurrentPrice(Fetcher):
+class BTCECurrentPrice(Service):
     def get_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto, fiat)
         url = "https://btc-e.com/api/3/ticker/" + pair
         response = self.get_url(url).json()
         return (response[pair]['last'], 'btc-e')
 
-class CryptonatorCurrentPrice(Fetcher):
+class CryptonatorCurrentPrice(Service):
     def get_price(self, crypto, fiat):
         pair = "%s-%s" % (crypto, fiat)
         url = "https://www.cryptonator.com/api/ticker/%s" % pair
         response = self.get_url(url).json()
         return float(response['ticker']['price']), 'cryptonator'
 
-class BTERCurrentPrice(Fetcher):
+class BTERCurrentPrice(Service):
     def get_price(self, crypto, fiat):
         url_template = "http://data.bter.com/api/1/ticker/%s_%s"
         url = url_template % (crypto, fiat)
@@ -75,7 +75,7 @@ class BTERCurrentPrice(Fetcher):
         return float(response['last'] or 0), 'bter'
 
 
-class CoinSwapCurrentPrice(Fetcher):
+class CoinSwapCurrentPrice(Service):
     def get_price(self, crypto, fiat):
         chunk = ("%s/%s" % (crypto, fiat)).upper()
         url = "https://api.coin-swap.net/market/stats/%s" % chunk
@@ -83,7 +83,7 @@ class CoinSwapCurrentPrice(Fetcher):
         return float(response['lastprice']), 'coin-swap'
 
 
-class ExCoInCurrentPrice(Fetcher):
+class ExCoInCurrentPrice(Service):
     def get_price(self, crypto, fiat):
         url = "https://api.exco.in/v1/exchange/%s/%s" % (fiat, crypto)
         response = self.get_url(url).json()
@@ -91,7 +91,7 @@ class ExCoInCurrentPrice(Fetcher):
 
 
 class CurrentPrice(AutoFallback):
-    getter_classes = [
+    service_classes = [
         BitstampCurrentPrice,
         BTCECurrentPrice,
         CryptonatorCurrentPrice,
@@ -107,7 +107,7 @@ class CurrentPrice(AutoFallback):
         if crypto == fiat:
             return (1.0, 'math')
 
-        return self._try_each_getter(crypto, fiat)
+        return self._try_each_service(crypto, fiat)
 
     def no_service_msg(self, crypto, fiat):
         return "Can not find price for %s->%s" % (crypto, fiat)

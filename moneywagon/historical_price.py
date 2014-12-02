@@ -5,7 +5,7 @@ import requests
 import arrow
 import pytz
 
-from .fetcher import Fetcher
+from .service import Service
 from .crypto_data import crypto_data
 
 class NoData(Exception):
@@ -47,7 +47,7 @@ quandl_exchange_btc_to_fiat = {
     'ZAR': 'bitx',
 }
 
-class QuandlHistoricalPrice(Fetcher):
+class QuandlHistoricalPrice(Service):
     def get_historical(self, crypto, fiat, at_time):
         """
         Using the quandl.com API, get the historical price (by day).
@@ -122,7 +122,7 @@ class QuandlHistoricalPrice(Fetcher):
 
 class HistoricalPrice(object):
     def __init__(self, responses=None):
-        self.getter = QuandlHistoricalPrice(responses)
+        self.service = QuandlHistoricalPrice(responses)
 
     def get_historical(self, crypto, fiat, at_time):
         crypto = crypto.lower()
@@ -130,12 +130,12 @@ class HistoricalPrice(object):
 
         if crypto != 'btc' and fiat != 'btc':
             # two external requests and some math is going to be needed.
-            from_btc, source1, date1 = self.getter.get_historical(crypto, 'btc', at_time)
-            to_altcoin, source2, date2 = self.getter.get_historical('btc', fiat, at_time)
+            from_btc, source1, date1 = self.service.get_historical(crypto, 'btc', at_time)
+            to_altcoin, source2, date2 = self.service.get_historical('btc', fiat, at_time)
             return (from_btc * to_altcoin), "%s x %s" % (source1, source2), date1
         else:
-            return self.getter.get_historical(crypto, fiat, at_time)
+            return self.service.get_historical(crypto, fiat, at_time)
 
     @property
     def responses(self):
-        return self.getter.responses
+        return self.service.responses

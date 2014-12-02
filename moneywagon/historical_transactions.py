@@ -1,7 +1,7 @@
 import arrow
-from .fetcher import Fetcher, SkipThisFetcher, AutoFallback
+from .service import Service, SkipThisService, AutoFallback
 
-class BlockrHistoricalTransactions(Fetcher):
+class BlockrHistoricalTransactions(Service):
     supported_cryptos = ['btc', 'ltc', 'ppc', 'dgc', 'qrk', 'mec']
 
     def get_transactions(self, crypto, address):
@@ -19,7 +19,7 @@ class BlockrHistoricalTransactions(Fetcher):
             ))
         return transactions
 
-class ChainSoHistoricalTransactions(Fetcher):
+class ChainSoHistoricalTransactions(Service):
     supported_cryptos = ['doge']
 
     def get_transactions(self, crypto, address):
@@ -35,6 +35,23 @@ class ChainSoHistoricalTransactions(Fetcher):
                 txid=tx['txid'],
                 confirmations=tx['confirmations'],
             ))
+        return transactions
+
+class NXTPortalHistoricalTransaction(Service):
+    supported_cryptos = ['nxt']
+
+    def get_transactions(self, crypto, address):
+        url = 'http://nxtportal.org/transactions/account/%s?num=50' % address
+        response = self.get_url(url)
+        transactions = []
+        for tx in txs:
+            transactions.append(dict(
+                date=arrow.get(tx['time']).datetime,
+                amount=tx['value'],
+                txid=tx['txid'],
+                confirmations=tx['confirmations'],
+            ))
+
         return transactions
 
 def insight_tx(tx, address):
@@ -53,7 +70,7 @@ def insight_tx(tx, address):
         confirmations=tx['confirmations'],
     )
 
-class BitpayInsightHistoricalTransaction(Fetcher):
+class BitpayInsightHistoricalTransaction(Service):
     supported_cryptos = ['btc']
 
     def get_transactions(self, crypto, address):
@@ -66,7 +83,7 @@ class BitpayInsightHistoricalTransaction(Fetcher):
 
         return transactions
 
-class ReddcoinHistoricalTransaction(Fetcher):
+class ReddcoinHistoricalTransaction(Service):
     supported_cryptos = ['rdd']
 
     def get_transactions(self, crypto, address):
@@ -82,9 +99,10 @@ class ReddcoinHistoricalTransaction(Fetcher):
         return transactions
 
 class HistoricalTransactions(AutoFallback):
-    getter_classes = [
+    service_classes = [
         BlockrHistoricalTransactions,
         ChainSoHistoricalTransactions,
+        NXTPortalHistoricalTransaction,
         ReddcoinHistoricalTransaction,
         BitpayInsightHistoricalTransaction,
     ]
@@ -92,7 +110,7 @@ class HistoricalTransactions(AutoFallback):
 
     def get_transactions(self, crypto, address):
         crypto = crypto.lower()
-        return self._try_each_getter(crypto, address)
+        return self._try_each_service(crypto, address)
 
     def no_service_msg(self, crypto, address):
         return "Could not get transactions for: %s" % crypto

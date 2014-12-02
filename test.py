@@ -20,6 +20,9 @@ for fiat in ['usd', 'gbp', 'eur', 'jpy', 'cny', 'cad', 'rur', 'btc']:
 
 
 wallets = [
+
+    ['nxt', 'NXT-ZMUQ-729K-5AM6-4AAYM'],
+
     ['btc', '1JhtQAGKApRgxWvRASGAH8qggtVNQMU47d'],
     ['ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ'],
     ['ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj'],
@@ -36,5 +39,5 @@ wallets = [
 ]
 
 for crypto, address in wallets:
-    print("Balance:", crypto, address_balance.get_balance(crypto, address))
+    #print("Balance:", crypto, address_balance.get_balance(crypto, address))
     print("Trans:", historical_transactions.get_transactions(crypto, address))

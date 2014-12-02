@@ -3,15 +3,15 @@ import requests
 
 useragent = 'moneywagon 1.0.1'
 
-class SkipThisFetcher(Exception):
+class SkipThisService(Exception):
     pass
 
 class NoService(Exception):
     pass
 
-class Fetcher(object):
+class Service(object):
     """
-    All fetchers should subclass this class, and implement their own `get_price` function
+    All Services should subclass this class, and implement their own `get_price` function
     """
     supported_cryptos = None
 
@@ -70,43 +70,43 @@ class Fetcher(object):
 
 class AutoFallback(object):
     """
-    Calls a succession of getters until one returns a value.
+    Calls a succession of services until one returns a value.
     """
-    getter_classes = [] # must be class instances of getter
-    method_name = None # the relevant name of the method on each getter class
+    service_classes = [] # must be class instances of service
+    method_name = None # the relevant name of the method on each service class
 
     def __init__(self, verbose=False, responses=None):
-        self.getters = []
-        for Getter in self.getter_classes:
-            self.getters.append(
-                Getter(verbose=verbose, responses=responses)
+        self.services = []
+        for service in self.service_classes:
+            self.services.append(
+                service(verbose=verbose, responses=responses)
             )
 
         self.verbose = verbose
 
-    def _try_each_getter(self, *args, **kwargs):
-        for getter in self.getters:
+    def _try_each_service(self, *args, **kwargs):
+        for service in self.services:
             crypto = (args and args[0]) or kwargs['crypto']
-            if getter.supported_cryptos and (crypto.lower() not in getter.supported_cryptos):
+            if service.supported_cryptos and (crypto.lower() not in service.supported_cryptos):
                 if self.verbose:
-                    print("SKIP:", "%s not supported for %s" % (crypto, getter.__class__.__name__))
+                    print("SKIP:", "%s not supported for %s" % (crypto, service.__class__.__name__))
                 continue
             try:
-                if self.verbose: print("* Trying:", getter)
-                return getattr(getter, self.method_name)(*args, **kwargs)
+                if self.verbose: print("* Trying:", service)
+                return getattr(service, self.method_name)(*args, **kwargs)
             except (KeyError, IndexError, TypeError, ValueError) as exc:
-                # API has probably changed, therefore getter class broken
+                # API has probably changed, therefore service class broken
                 if self.verbose: print("FAIL:", exc.__class__.__name__, exc)
-            except SkipThisFetcher as exc:
-                # getter classes can raise this exception if for whatever reason
-                # that getter can't return a response, but maybe another one can.
+            except SkipThisService as exc:
+                # service classes can raise this exception if for whatever reason
+                # that service can't return a response, but maybe another one can.
                 if self.verbose: print("SKIP:", exc)
 
         raise NoService(self.no_service_msg(*args, **kwargs))
 
     def no_service_msg(self, *args, **kwargs):
         """
-        This function is called when all fetchers have been tried and no value
+        This function is called when all Services have been tried and no value
         can be returned. It much take the same args and kwargs as in the method
         spefified in `self.method_name`. Returned is a string for the error message.
         It should say something informative.

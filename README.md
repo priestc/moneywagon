@@ -4,14 +4,16 @@ moneywagon
 ==========
 
 Python library containing various tools relating to cryptocurrencies.
-This tool is still being developed, but currently has two principle functions:
+This tool is still being developed, but currently has 4 principle functions:
 
 1. Getting the **current** exchange rate of any cryptocurrency (LTC, BTC, PPC, etc) and a
 fiat currency (USD, EUR, RUR, etc.)
 2. Getting the exchange rate between a cryptocurrency and a fiat currency **at an
 arbitrary point in time**.
+3. Getting the balance of an address for any cryptocurrency.
+4. Getting a list of historical transaction from an address for any cryptocurrency.
 
-There is a third planned part of moneywagon that has not yet been buily.
+There is a fifth planned part of moneywagon that has not yet been built.
 This section will be a fancy API for creating transactions.
 
 Installation
@@ -62,21 +64,21 @@ Low level API
 -------------
 
 The `get_current_price` function tries multiple services until it find one that returns a result.
-If you would rather just use one service with no automatic retrying, use the low level 'getter' API:
+If you would rather just use one service with no automatic retrying, use the low level 'service' API:
 
 ```python
 >>> from moneywagon.current_price import CurrentPrice, BTERCurrentPrice
->>> getter = BTERCurrentPrice()
->>> getter.get_price('btc', 'usd')
+>>> service = BTERCurrentPrice()
+>>> service.get_price('btc', 'usd')
 (391.324, 'BTER')
 ```
 
-If you use the `CryptoPrice` class, the get_price method will try all getters
-until a value is returned (same as high level API). If you use a getter class
+If you use the `CryptoPrice` class, the get_price method will try all services
+until a value is returned (same as high level API). If you use a service class
 that is limited to one API service, such as "BTERCurrentPrice",
 then only that service will be called.
 
-Here is a list of all supported getters for purrent price:
+Here is a list of all supported services for purrent price:
 
 class name                  | API
 ----------------------------|--------------
@@ -96,10 +98,10 @@ For instance, consider the following example:
 
 ```python
 >>> from moneywagon.current_price import BTERCurrentPrice
->>> getter = BTERCurrentPrice()
->>> getter.get_price('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
+>>> service = BTERCurrentPrice()
+>>> service.get_price('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
 (1.33535, 'bter')
->>> getter.get_price('btc', 'rur') # makes zero external calls (uses btc-> rur result from last call)
+>>> service.get_price('btc', 'rur') # makes zero external calls (uses btc-> rur result from last call)
 (1.33535, 'bter')
 ```
 
@@ -110,15 +112,15 @@ Then the two results are multiplied together to get the LTC -> RUR exchange rate
 If your application does a lot of converting at a time, it will be better for performance to use
 the low level API.
 
-If you keep the original getter instance around and make more calls to get_price,
+If you keep the original service instance around and make more calls to get_price,
 it will use the result of previous calls:
 
 ```python
->>> getter.get_price('btc', 'rur') # will make no external calls
+>>> service.get_price('btc', 'rur') # will make no external calls
 (17865.4210346, 'cryptonator')
 ```
 
-In other words, if you are using the low level API and you want fresh values, you must make a new instance of the getter class.
+In other words, if you are using the low level API and you want fresh values, you must make a new instance of the service class.
 
 Automatic API fallback
 ----------------------
@@ -136,7 +138,7 @@ The order of API service precidence is:
 The result is that almost every single fiat/crypto is guaranteed to return a result
 even if one or more API services are down.
 
-On the other hand, if you call one of the API specific getter classes (such as `CoinSwapCurrentPrice`)
+On the other hand, if you call one of the API specific service classes (such as `CoinSwapCurrentPrice`)
 no fallback calls will occur. If the CoinSwap API does not support the passed in crypto/fiat pair,
 or if the service is not running, the call will raise an exception.
 
@@ -154,8 +156,8 @@ datetime object by arrow.get..
 ```python
 >>> from datetime import datetime
 >>> from moneywagon import HistoricalCryptoPrice
->>> getter = HistoricalCryptoPrice(useragent="my app")
->>> getter.get_historical('btc', 'usd', '2013-11-13')
+>>> service = HistoricalCryptoPrice(useragent="my app")
+>>> service.get_historical('btc', 'usd', '2013-11-13')
 (354.94,
 'BITCOIN/BITSTAMPUSD',
 datetime.datetime(2013, 11, 13, 0, 0))
@@ -175,7 +177,7 @@ Also, the Quandl service does not have every single cryptocurrency to fiat excha
 so for some pairs, moneywagon has to make two different calls to Quandl.
 
 ```python
->>> getter.get_historical('vtc', 'rur', '2014-11-13'))
+>>> service.get_historical('vtc', 'rur', '2014-11-13'))
 (3.2636992,
 'CRYPTOCHART/VTC x BITCOIN/BTCERUR',
 datetime.datetime(2014, 11, 13, 0, 0))
@@ -195,7 +197,7 @@ The transaction API has been designed to be as simple and easy to use as possibl
 No knowledge of cryptography is needed. You do need to know the basics of how
 cryptocurrency transactions work.
 
-Just like the price getter API's, the transaction API available via a
+Just like the price service API's, the transaction API available via a
 "Low Level API" and a "High Level API"
 
 High Level API

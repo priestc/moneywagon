@@ -14,7 +14,6 @@ from .historical_price import (
 from .historical_transactions import (
     BlockrHistoricalTransactions, ChainSoHistoricalTransactions, HistoricalTransactions
 )
-from .fetcher import SkipThisFetcher
 
 def get_current_price(crypto, fiat):
     """

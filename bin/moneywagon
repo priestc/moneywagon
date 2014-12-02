@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import argparse
+from moneywagon import CurrentPrice, HistoricalPrice, AddressBalance, HistoricalTransactions
+
+parser = argparse.ArgumentParser(version='1.0.2')
+parser.add_argument('--include-source', action='store_true', help='Return the source')
+
+subparsers = parser.add_subparsers(help='commands', dest="subparser_name")
+
+current_price_parser = subparsers.add_parser('current-price', help='Get current price of a crypto/fiat pair.')
+current_price_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+current_price_parser.add_argument('fiat', action='store', help='Fiat currency symbol')
+current_price_parser.add_argument('--include-source', action='store_true', help='Return the source')
+
+historical_price_parser = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
+historical_price_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+historical_price_parser.add_argument('fiat', action='store', help='Fiat currency symbol')
+historical_price_parser.add_argument('at_time', action='store', help='Time when to get the price.')
+historical_price_parser.add_argument('--include-source', action='store_true', help='Return the source')
+
+address_balance_parser = subparsers.add_parser('address-balance', help='Get total amount of coin in wallet.')
+address_balance_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+address_balance_parser.add_argument('address', action='store', help='Wallet address')
+
+argz = parser.parse_args()
+
+if argz.subparser_name == 'current-price':
+    price, source = CurrentPrice().get_price(argz.crypto, argz.fiat)
+    print(price, source if argz.include_source else '')
+
+elif argz.subparser_name == 'historical-price':
+    price, source = CurrentPrice().get_historical_price(argz.crypto, argz.fiat, argz.at_time)
+    print(price, source if argz.include_source else '')
+
+elif argz.subparser_name == 'address-balance':
+    amount = AddressBalance().get_balance(argz.crypto, argz.address)
+    print(amount)
