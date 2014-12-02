@@ -18,7 +18,7 @@ current_price_parser.add_argument('--include-source', action='store_true', help=
 historical_price_parser = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
 historical_price_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 historical_price_parser.add_argument('fiat', action='store', help='Fiat currency symbol')
-historical_price_parser.add_argument('at_time', action='store', help='Time when to get the price.')
+historical_price_parser.add_argument('at_time', action='store', help='Time when to get the price. e.g. 2014-04-03')
 
 address_balance_parser = subparsers.add_parser('address-balance', help='Get total amount of coin in wallet.')
 address_balance_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')

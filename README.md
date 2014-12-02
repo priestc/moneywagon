@@ -4,7 +4,7 @@ moneywagon
 ==========
 
 Python library containing various tools relating to cryptocurrencies.
-This tool is still being developed, but currently has 4 principle functions:
+This tool is still being developed, but currently has 5 principle functions:
 
 1. Getting the **current** exchange rate of any cryptocurrency (LTC, BTC, PPC, etc) and a
 fiat currency (USD, EUR, RUR, etc.)
@@ -12,8 +12,9 @@ fiat currency (USD, EUR, RUR, etc.)
 arbitrary point in time**.
 3. Getting the balance of an address for any cryptocurrency.
 4. Getting a list of historical transaction from an address for any cryptocurrency.
+5. Command line interface for accessing all of moneywagon's functionality from the shell.
 
-There is a fifth planned part of moneywagon that has not yet been built.
+There is a sixth planned part of moneywagon that has not yet been built.
 This section will be a fancy API for creating transactions.
 
 Installation
@@ -190,8 +191,42 @@ This is similar to the process described earlier
 The nature of this calculation can also be seen in the source string
 (the second item in the response).
 
-Transaction API
+Address Balance
 ===============
+
+```python
+>>> from moneywagon import AddressBalance
+>>> AddressBalance().get_balance('ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj')
+103.98
+```
+
+This API is vary similar to the prices API. The first argument is the cryptocurrency symbol,
+and the second argument is the wallet address. This class fetches from multiple services
+the same way the current price class does.
+
+Historical Transactions
+=======================
+
+```python
+>>> from moneywagon import HistoricalTransactions
+>>> HistoricalTransactions().get_transactions('ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ')
+[{'amount': 147.58363366,
+'confirmations': 9093,
+'date': datetime.datetime(2014, 11, 16, 23, 53, 37, tzinfo=tzutc()),
+'txid': u'cb317dec84514773f34e4258cd0ff49eed6bfcf1770709b1ed07855d2e1a4aa4'},
+{'amount': 19.7,
+'confirmations': 100494,
+'date': datetime.datetime(2014, 6, 16, 0, 7, 26, tzinfo=tzutc()),
+'txid': u'846d316f369906f990262e1758eb0a2a953ebd47a9b1cf13d57aadc9ad2e19a3'},
+{'amount': 71.75600005,
+'confirmations': 219032,
+'date': datetime.datetime(2013, 11, 27, 16, 36, 14, tzinfo=tzutc()),
+'txid': u'9152784755564c3c680aa47a3a1cdc28e4896657bfc2e60626a0ee22b200af7c'}]
+```
+
+
+Transaction Creation
+====================
 
 The transaction API has been designed to be as simple and easy to use as possible.
 No knowledge of cryptography is needed. You do need to know the basics of how
@@ -210,12 +245,12 @@ t = Transaction(
     crypto='btc'
     to='1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X',
     from='1DBQgauyuSodrPctQojRtAUfHncU1ECghW',
-    private_key='5KBudDby7NFod41Jkbb8s9KgiFi6GuTvnMBsiNZkgFV2c3Bijvv'
+    private_key='5KBudDby7NFod41Jkbb8s9KgiFi6GuTvnMBsiNZkgFV2c3Bijvv',
     amount=0.023,
     fee=0.00001,
 )
 
-t.verify() # checks if the
+t.verify() # checks if the balances are sufficient and signatures are correct
 t.send()
 ```
 
@@ -233,7 +268,6 @@ raw_transaction = make_transaction(
 )
 send_transaction('btc', raw_transaction)
 ```
-
 
 Contributing
 ============
