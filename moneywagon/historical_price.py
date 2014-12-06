@@ -5,11 +5,8 @@ import requests
 import arrow
 import pytz
 
-from .service import Service
+from .service import Service, NoData
 from .crypto_data import crypto_data
-
-class NoData(Exception):
-    pass
 
 quandl_exchange_btc_to_fiat = {
     'ARS': 'localbtc',
@@ -121,8 +118,8 @@ class QuandlHistoricalPrice(Service):
 
 
 class HistoricalPrice(object):
-    def __init__(self, responses=None):
-        self.service = QuandlHistoricalPrice(responses)
+    def __init__(self, responses=None, verbose=False):
+        self.service = QuandlHistoricalPrice(responses, verbose=verbose)
 
     def get_historical(self, crypto, fiat, at_time):
         crypto = crypto.lower()

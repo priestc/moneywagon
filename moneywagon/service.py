@@ -9,6 +9,9 @@ class SkipThisService(Exception):
 class NoService(Exception):
     pass
 
+class NoData(Exception):
+    pass
+
 class Service(object):
     """
     All Services should subclass this class, and implement their own `get_price` function
