@@ -61,13 +61,21 @@ class Service(object):
         """
         raise NotImplementedError()
 
-    def get_historical(self, crypto, fiat, at_time):
+    def get_historical_price(self, crypto, fiat, at_time):
+        """
+        """
         raise NotImplementedError()
 
     def get_transactions(self, crypto, address):
+        """
+        """
         raise NotImplementedError()
 
     def get_balance(self, crypto, address):
+        """
+        Get the amount of coin in teh address passed in.
+        Always returns a single float.
+        """
         raise NotImplementedError()
 
 

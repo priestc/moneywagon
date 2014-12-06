@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from .services import *
+from .core import AutoFallback
 from .historical_price import Quandl
 
 def get_current_price(crypto, fiat):
@@ -15,7 +16,7 @@ class HistoricalTransactions(AutoFallback):
         Blockr,
         ChainSo,
         NXTPortal,
-        Reddcoin,
+        ReddcoinCom,
         BitpayInsight,
     ]
     method_name = 'get_transactions'

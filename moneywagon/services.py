@@ -48,7 +48,7 @@ class Blockr(Service):
 
     def push_transaction(self, crypto, tx):
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto
-        self.post_url(url)
+        self.post_url(url, {'tx': tx})
         raise NotFinished()
 
 class BTCE(Service):
@@ -84,14 +84,22 @@ class BlockChainInfo(Service):
         response = self.get_url(url)
         return float(response.json()['final_balance']) * 1e-8
 
-
-class DogeChainInfo(Service):
+class BitcoinAbe(Service):
     supported_cryptos = ['doge']
+    base_url = "http://bitcoin-abe.info/chain/Bitcoin"
 
     def get_balance(self, crypto, address):
-        url = "https://dogechain.info/chain/Dogecoin/q/addressbalance/" + address
+        url = self.base_url + "/q/addressbalance/" + address
         response = self.get_url(url)
         return float(response.content)
+
+class DogeChainInfo(BitcoinAbe):
+    supported_cryptos = ['doge']
+    base_url = "https://dogechain.info/chain/Dogecoin"
+
+class VertcoinOrg(BitcoinAbe):
+    supported_cryptos = ['vtc']
+    base_url = "https://explorer.vertcoin.org/chain/Vertcoin"
 
 
 class FeathercoinCom(Service):
@@ -101,15 +109,6 @@ class FeathercoinCom(Service):
         url= "http://api.feathercoin.com/?output=balance&address=%s&json=1" % address
         response = self.get_url(url)
         return float(response.json()['balance'])
-
-
-class VertcoinOrg(Service):
-    supported_cryptos = ['vtc']
-
-    def get_balance(self, crypto, address):
-        url = "https://explorer.vertcoin.org/chain/Vertcoin/q/addressbalance/" + address
-        response = self.get_url(url, verify=False)
-        return float(response.content)
 
 
 class NXTPortal(Service):
