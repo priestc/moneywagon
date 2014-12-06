@@ -5,7 +5,7 @@ import requests
 import arrow
 import pytz
 
-from .service import Service, NoData
+from .core import Service, NoData
 from .crypto_data import crypto_data
 
 quandl_exchange_btc_to_fiat = {
@@ -44,8 +44,8 @@ quandl_exchange_btc_to_fiat = {
     'ZAR': 'bitx',
 }
 
-class QuandlHistoricalPrice(Service):
-    def get_historical(self, crypto, fiat, at_time):
+class Quandl(Service):
+    def get_historical_price(self, crypto, fiat, at_time):
         """
         Using the quandl.com API, get the historical price (by day).
         The CRYPTOCHART source claims to be from multiple exchange sources
@@ -115,24 +115,3 @@ class QuandlHistoricalPrice(Service):
             raise NoData(msg)
 
         return best_price, source, best_date
-
-
-class HistoricalPrice(object):
-    def __init__(self, responses=None, verbose=False):
-        self.service = QuandlHistoricalPrice(responses, verbose=verbose)
-
-    def get_historical(self, crypto, fiat, at_time):
-        crypto = crypto.lower()
-        fiat = fiat.lower()
-
-        if crypto != 'btc' and fiat != 'btc':
-            # two external requests and some math is going to be needed.
-            from_btc, source1, date1 = self.service.get_historical(crypto, 'btc', at_time)
-            to_altcoin, source2, date2 = self.service.get_historical('btc', fiat, at_time)
-            return (from_btc * to_altcoin), "%s x %s" % (source1, source2), date1
-        else:
-            return self.service.get_historical(crypto, fiat, at_time)
-
-    @property
-    def responses(self):
-        return self.service.responses
