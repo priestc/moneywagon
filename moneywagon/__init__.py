@@ -1,44 +1,40 @@
 from __future__ import print_function
 
-from .services import *
+from .services import ALL_SERVICES
 from .core import AutoFallback
 from .historical_price import Quandl
 
 def get_current_price(crypto, fiat):
-    """
-    High level function for getting the current price. This function will try multiple
-    services until either a price is found, or if no price can be found, an exception is raised.
-    """
-    return CurrentPrice().get_price(crypto, fiat)
+    return CurrentPrice(services=ALL_SERVICES).get(crypto, fiat)
+
+
+def get_address_balance(crypto, address):
+    return AddressBalance(services=ALL_SERVICES).get(crypto, address)
+
+
+def get_historical_transactions(crypto, address):
+    return HistoricalTransactions(services=ALL_SERVICES).get(crypto, address)
+
+
+def get_historical_price(crypto, fiat, date):
+    return HistoricalPrice().get(crypto, fiat, date)
+
 
 class HistoricalTransactions(AutoFallback):
-    service_classes = [
-        Blockr,
-        ChainSo,
-        NXTPortal,
-        ReddcoinCom,
-        BitpayInsight,
-    ]
     method_name = 'get_transactions'
 
-    def get_transactions(self, crypto, address):
+    def get(self, crypto, address):
         crypto = crypto.lower()
         return self._try_each_service(crypto, address)
 
     def no_service_msg(self, crypto, address):
         return "Could not get transactions for: %s" % crypto
 
+
 class CurrentPrice(AutoFallback):
-    service_classes = [
-        Bitstamp,
-        BTCE,
-        Cryptonator,
-        BTER,
-        CoinSwap
-    ]
     method_name = 'get_price'
 
-    def get_price(self, crypto, fiat):
+    def get(self, crypto, fiat):
         crypto = crypto.lower()
         fiat = fiat.lower()
 
@@ -50,23 +46,11 @@ class CurrentPrice(AutoFallback):
     def no_service_msg(self, crypto, fiat):
         return "Can not find price for %s->%s" % (crypto, fiat)
 
+
 class AddressBalance(AutoFallback):
-    service_classes = [
-        BlockChainInfo,
-        BitEasy,
-        DogeChainInfo,
-        VertcoinOrg,
-        FeathercoinCom,
-        NXTPortal,
-        Blockr,
-        CryptoID,
-        BlockCypher,
-        CryptapUS,
-        ReddcoinCom
-    ]
     method_name = "get_balance"
 
-    def get_balance(self, crypto, address):
+    def get(self, crypto, address):
         crypto = crypto.lower()
         return self._try_each_service(crypto, address)
 
@@ -74,12 +58,15 @@ class AddressBalance(AutoFallback):
         return "Could not get address balance for: %s" % crypto
 
 
-
 class HistoricalPrice(object):
+    """
+    This one doesn't inherit from AutoFallback because there is only one
+    historical price API service at the moment.
+    """
     def __init__(self, responses=None, verbose=False):
         self.service = Quandl(responses, verbose=verbose)
 
-    def get_historical(self, crypto, fiat, at_time):
+    def get(self, crypto, fiat, at_time):
         crypto = crypto.lower()
         fiat = fiat.lower()
 

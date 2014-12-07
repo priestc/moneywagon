@@ -71,7 +71,7 @@ If you would rather just use one service with no automatic retrying, use the low
 ```python
 >>> from moneywagon.services import BTER
 >>> service = BTER()
->>> service.get_price('btc', 'usd')
+>>> service.get('btc', 'usd')
 (391.324, 'BTER')
 ```
 
@@ -80,6 +80,16 @@ until a value is returned (same as high level API). If you use a service class
 that is limited to one API service, such as "BTER",
 then only that service will be called.
 
+You can also pass in a list of services classes to get more control of which
+services will be used:
+
+```python
+>>> from moneywagon.services import BTCE, Bitstamp
+>>> from moneywagon import CurrentPrice
+>>> service = CurrentPrice([BTCE, Bitstamp])
+>>> service.get('btc', 'usd')
+(377.2, 'btce')
+```
 
 Caching considerations
 ----------------------
@@ -92,9 +102,9 @@ For instance, consider the following example:
 ```python
 >>> from moneywagon.services import BTER
 >>> service = BTER()
->>> service.get_price('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
+>>> service.get('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
 (1.33535, 'bter')
->>> service.get_price('btc', 'rur') # makes zero external calls (uses btc-> rur result from last call)
+>>> service.get('btc', 'rur') # makes zero external calls (uses btc-> rur result from last call)
 (1.33535, 'bter')
 ```
 
@@ -109,7 +119,7 @@ If you keep the original service instance around and make more calls to get_pric
 it will use the result of previous calls:
 
 ```python
->>> service.get_price('btc', 'rur') # will make no external calls
+>>> service.get('btc', 'rur') # will make no external calls
 (17865.4210346, 'cryptonator')
 ```
 
@@ -150,7 +160,7 @@ datetime object by arrow.get..
 >>> from datetime import datetime
 >>> from moneywagon import HistoricalCryptoPrice
 >>> service = HistoricalCryptoPrice(useragent="my app")
->>> service.get_historical('btc', 'usd', '2013-11-13')
+>>> service.get('btc', 'usd', '2013-11-13')
 (354.94,
 'BITCOIN/BITSTAMPUSD',
 datetime.datetime(2013, 11, 13, 0, 0))
@@ -170,7 +180,7 @@ Also, the Quandl service does not have every single cryptocurrency to fiat excha
 so for some pairs, moneywagon has to make two different calls to Quandl.
 
 ```python
->>> service.get_historical('vtc', 'rur', '2014-11-13'))
+>>> service.get('vtc', 'rur', '2014-11-13'))
 (3.2636992,
 'CRYPTOCHART/VTC x BITCOIN/BTCERUR',
 datetime.datetime(2014, 11, 13, 0, 0))
@@ -188,7 +198,7 @@ Address Balance
 
 ```python
 >>> from moneywagon import AddressBalance
->>> AddressBalance().get_balance('ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj')
+>>> AddressBalance().get('ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj')
 103.98
 ```
 
@@ -201,7 +211,7 @@ Historical Transactions
 
 ```python
 >>> from moneywagon import HistoricalTransactions
->>> HistoricalTransactions().get_transactions('ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ')
+>>> HistoricalTransactions().get('ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ')
 [{'amount': 147.58363366,
 'confirmations': 9093,
 'date': datetime.datetime(2014, 11, 16, 23, 53, 37, tzinfo=tzutc()),

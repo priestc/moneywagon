@@ -18,7 +18,7 @@ class Service(object):
     """
     supported_cryptos = None
 
-    def __init__(self, useragent=None, verbose=False, responses=None):
+    def __init__(self, verbose=False, responses=None):
         self.responses = responses or {} # for caching
         self.verbose = verbose
 
@@ -83,12 +83,14 @@ class AutoFallback(object):
     """
     Calls a succession of services until one returns a value.
     """
-    service_classes = [] # must be class instances of service
     method_name = None # the relevant name of the method on each service class
 
-    def __init__(self, verbose=False, responses=None):
+    def __init__(self, services=None, verbose=False, responses=None):
         self.services = []
-        for service in self.service_classes:
+        if not services:
+            from moneywagon.services import ALL_SERVICES
+            services = ALL_SERVICES
+        for service in services:
             self.services.append(
                 service(verbose=verbose, responses=responses)
             )
@@ -112,6 +114,8 @@ class AutoFallback(object):
                 # service classes can raise this exception if for whatever reason
                 # that service can't return a response, but maybe another one can.
                 if self.verbose: print("SKIP:", exc)
+            except NotImplementedError:
+                if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
 
         raise NoService(self.no_service_msg(*args, **kwargs))
 

@@ -16,7 +16,6 @@ class BlockCypher(Service):
     supported_cryptos = ['btc', 'ltc', 'uro']
 
     def get_balance(self, crypto, address):
-        crypto = crypto.lower()
         url = "http://api.blockcypher.com/v1/%s/main/addrs/%s" % (crypto, address)
         response = self.get_url(url)
         return response.json()['balance'] / 1.0e8
@@ -26,13 +25,11 @@ class Blockr(Service):
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
 
     def get_balance(self, crypto, address):
-        crypto = crypto.lower()
         url = "http://%s.blockr.io/api/v1/address/info/%s" % (crypto, address)
         response = self.get_url(url)
         return response.json()['data']['balance']
 
     def get_transactions(self, crypto, address):
-        crypto = crypto.lower()
         url = 'http://%s.blockr.io/api/v1/address/txs/%s' % (crypto, address)
         response = self.get_url(url)
 
@@ -84,14 +81,24 @@ class BlockChainInfo(Service):
         response = self.get_url(url)
         return float(response.json()['final_balance']) * 1e-8
 
+##################################
+
 class BitcoinAbe(Service):
-    supported_cryptos = ['doge']
+    supported_cryptos = ['btc']
     base_url = "http://bitcoin-abe.info/chain/Bitcoin"
 
     def get_balance(self, crypto, address):
         url = self.base_url + "/q/addressbalance/" + address
         response = self.get_url(url)
         return float(response.content)
+
+class LitecoinAbe(BitcoinAbe):
+    supported_cryptos = ['ltc']
+    base_url = "http://bitcoin-abe.info/chain/Litecoin"
+
+class NamecoinAbe(BitcoinAbe):
+    supported_cryptos = ['nmc']
+    base_url = "http://bitcoin-abe.info/chain/Namecoin"
 
 class DogeChainInfo(BitcoinAbe):
     supported_cryptos = ['doge']
@@ -101,6 +108,7 @@ class VertcoinOrg(BitcoinAbe):
     supported_cryptos = ['vtc']
     base_url = "https://explorer.vertcoin.org/chain/Vertcoin"
 
+##################################
 
 class FeathercoinCom(Service):
     supported_cryptos = ['ftc']
@@ -196,7 +204,6 @@ class ChainSo(Service):
     supported_cryptos = ['doge']
 
     def get_transactions(self, crypto, address):
-        crypto = crypto.lower()
         url = "https://chain.so/api/v2/get_tx_unspent/DOGE/" + address
         response = self.get_url(url)
 
@@ -217,6 +224,7 @@ class ExCoIn(Service):
         response = self.get_url(url).json()
         return float(response['last_price']), 'exco.in'
 
+################################################
 
 class BitpayInsight(Service):
     supported_cryptos = ['btc']
@@ -253,3 +261,6 @@ class ReddcoinCom(BitpayInsight):
 class BirdOnWheels(BitpayInsight):
     supported_cryptos = ['myr']
     domain = "http://birdonwheels5.no-ip.org:3000"
+
+# some meta magic to get a list of all service classes.
+ALL_SERVICES = [x for x in globals().copy().values() if hasattr(x, 'mro') and x.mro()[-2] == Service and x != Service]
