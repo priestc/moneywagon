@@ -63,6 +63,14 @@ class Cryptonator(Service):
         response = self.get_url(url).json()
         return float(response['ticker']['price']), 'cryptonator'
 
+class Winkdex(Service):
+    supported_cryptos = ['btc']
+
+    def get_price(self, crypto, fiat):
+        if fiat != 'usd':
+            raise SkipThisService("winkdex is btc->usd only")
+        url = "https://winkdex.com/api/v0/price"
+        return self.get_url(url).json()['price'] / 100.0, 'winkdex'
 
 class BitEasy(Service):
     supported_cryptos = ['btc']

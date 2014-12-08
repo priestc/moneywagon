@@ -20,22 +20,16 @@ for fiat in ['usd', 'gbp', 'eur', 'jpy', 'cny', 'cad', 'rur', 'btc']:
 
 
 wallets = [
-
-    ['nxt', 'NXT-ZMUQ-729K-5AM6-4AAYM'],
-
     ['btc', '1JhtQAGKApRgxWvRASGAH8qggtVNQMU47d'],
     ['ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ'],
     ['ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj'],
     ['doge', 'D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ'],
-    ['rdd', 'RbHsU84Eo5tUBj7HDNEb9ZSw2fFhU1NKgD'],
     ['drk', 'XrbZsLp9QDSf8usYYMPhmKWA8u1kQ26rQJ'],
-
     ['vtc', 'Va3LcDhwrcwGtG366jeP6EJzWnKT4yMDxs'],
-    ['nxt', 'NXT-ZMUQ-729K-5AM6-4AAYM'],
     ['myr', 'MHEipvGqerT3XDp2hq62xtnCujS4qL67DZ'],
-    #['ftc', '6tE27DEB6HgnofAFPFtCyQ9aDaCD828YRq'],
-
-
+    ['rdd', 'RbHsU84Eo5tUBj7HDNEb9ZSw2fFhU1NKgD'],
+    ['nxt', 'NXT-ZMUQ-729K-5AM6-4AAYM'],
+    ['ftc', '6tE27DEB6HgnofAFPFtCyQ9aDaCD828YRq'],
 ]
 
 for crypto, address in wallets:
