@@ -21,7 +21,7 @@ def get_historical_price(crypto, fiat, date):
 
 
 class HistoricalTransactions(AutoFallback):
-    method_name = 'get_transactions'
+    service_method_name = 'get_transactions'
 
     def get(self, crypto, address):
         crypto = crypto.lower()
@@ -32,7 +32,7 @@ class HistoricalTransactions(AutoFallback):
 
 
 class CurrentPrice(AutoFallback):
-    method_name = 'get_price'
+    service_method_name = 'get_price'
 
     def get(self, crypto, fiat):
         crypto = crypto.lower()
@@ -48,7 +48,7 @@ class CurrentPrice(AutoFallback):
 
 
 class AddressBalance(AutoFallback):
-    method_name = "get_balance"
+    service_method_name = "get_balance"
 
     def get(self, crypto, address):
         crypto = crypto.lower()

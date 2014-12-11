@@ -83,9 +83,14 @@ class AutoFallback(object):
     """
     Calls a succession of services until one returns a value.
     """
-    method_name = None # the relevant name of the method on each service class
+    service_method_name = None # the relevant name of the method on each service class
 
     def __init__(self, services=None, verbose=False, responses=None):
+        """
+        Each service class is instantiated here so the service instances stay
+        in scope for the entire life of this object. This way the service
+        objects can cache responses.
+        """
         self.services = []
         if not services:
             from moneywagon.services import ALL_SERVICES
@@ -98,6 +103,12 @@ class AutoFallback(object):
         self.verbose = verbose
 
     def _try_each_service(self, *args, **kwargs):
+        """
+        Try each service until one returns a response. This function only
+        catches the bare minimum of exceptions from the service class. We want
+        exceptions to be raised so the service classes can be debugged and
+        fixed quickly.
+        """
         for service in self.services:
             crypto = (args and args[0]) or kwargs['crypto']
             if service.supported_cryptos and (crypto.lower() not in service.supported_cryptos):
@@ -106,14 +117,14 @@ class AutoFallback(object):
                 continue
             try:
                 if self.verbose: print("* Trying:", service)
-                return getattr(service, self.method_name)(*args, **kwargs)
+                return getattr(service, self.service_method_name)(*args, **kwargs)
             except (KeyError, IndexError, TypeError, ValueError) as exc:
                 # API has probably changed, therefore service class broken
                 if self.verbose: print("FAIL:", exc.__class__.__name__, exc)
             except SkipThisService as exc:
                 # service classes can raise this exception if for whatever reason
                 # that service can't return a response, but maybe another one can.
-                if self.verbose: print("SKIP:", exc)
+                if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
             except NotImplementedError as exc:
                 if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
 
