@@ -30,6 +30,7 @@ wallets = [
     ['rdd', 'RbHsU84Eo5tUBj7HDNEb9ZSw2fFhU1NKgD'],
     ['nxt', 'NXT-ZMUQ-729K-5AM6-4AAYM'],
     ['ftc', '6tE27DEB6HgnofAFPFtCyQ9aDaCD828YRq'],
+    ['aur', 'AL8vRddTujqaFJQ3feZpg1jYHz6Jv2Rkwc'],
 ]
 
 for crypto, address in wallets:

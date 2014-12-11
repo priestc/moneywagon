@@ -116,6 +116,14 @@ class VertcoinOrg(BitcoinAbe):
     supported_cryptos = ['vtc']
     base_url = "https://explorer.vertcoin.org/chain/Vertcoin"
 
+class AuroraCoinEU(BitcoinAbe):
+    supported_cryptos = ['aur']
+    base_url = 'http://blockexplorer.auroracoin.eu/chain/AuroraCoin'
+
+class Atorox(BitcoinAbe):
+    supported_cryptos = ['aur']
+    base_url = "http://auroraexplorer.atorox.net/chain/AuroraCoin"
+
 ##################################
 
 class FeathercoinCom(Service):
