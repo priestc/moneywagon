@@ -6,7 +6,6 @@ import argparse
 from moneywagon import CurrentPrice, HistoricalPrice, AddressBalance, HistoricalTransactions
 
 parser = argparse.ArgumentParser(version='1.0.2')
-parser.add_argument('--include-source', action='store_true', help='Return the source')
 
 subparsers = parser.add_subparsers(help='commands', dest="subparser_name")
 
@@ -14,32 +13,36 @@ current_price_parser = subparsers.add_parser('current-price', help='Get current 
 current_price_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 current_price_parser.add_argument('fiat', action='store', help='Fiat currency symbol')
 current_price_parser.add_argument('--include-source', action='store_true', help='Return the source')
+current_price_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
 historical_price_parser = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
 historical_price_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 historical_price_parser.add_argument('fiat', action='store', help='Fiat currency symbol')
 historical_price_parser.add_argument('at_time', action='store', help='Time when to get the price. e.g. 2014-04-03')
+historical_price_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
 address_balance_parser = subparsers.add_parser('address-balance', help='Get total amount of coin in wallet.')
 address_balance_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 address_balance_parser.add_argument('address', action='store', help='Wallet address')
+address_balance_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
 historical_tx_parser = subparsers.add_parser('historical-transactions', help='Get list of all transactions for this address.')
 historical_tx_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 historical_tx_parser.add_argument('address', action='store', help='Wallet address')
+historical_tx_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
 argz = parser.parse_args()
 
 if argz.subparser_name == 'current-price':
-    price, source = CurrentPrice().get_price(argz.crypto, argz.fiat)
+    price, source = CurrentPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat)
     print(price, source if argz.include_source else '')
 
 elif argz.subparser_name == 'historical-price':
-    price, source, date = HistoricalPrice().get_historical(argz.crypto, argz.fiat, argz.at_time)
+    price, source, date = HistoricalPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat, argz.at_time)
     print(price, source, date)
 
 elif argz.subparser_name == 'address-balance':
-    print(AddressBalance().get_balance(argz.crypto, argz.address))
+    print(AddressBalance(verbose=argz.verbose).get(argz.crypto, argz.address))
 
 elif argz.subparser_name == 'historical-transactions':
-    print(HistoricalTransactions().get_transactions(argz.crypto, argz.address))
+    print(HistoricalTransactions(verbose=argz.verbose).get(argz.crypto, argz.address))

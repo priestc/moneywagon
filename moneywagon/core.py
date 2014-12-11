@@ -90,9 +90,9 @@ class AutoFallback(object):
         if not services:
             from moneywagon.services import ALL_SERVICES
             services = ALL_SERVICES
-        for service in services:
+        for Service in services:
             self.services.append(
-                service(verbose=verbose, responses=responses)
+                Service(verbose=verbose, responses=responses)
             )
 
         self.verbose = verbose
@@ -114,7 +114,7 @@ class AutoFallback(object):
                 # service classes can raise this exception if for whatever reason
                 # that service can't return a response, but maybe another one can.
                 if self.verbose: print("SKIP:", exc)
-            except NotImplementedError:
+            except NotImplementedError as exc:
                 if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
 
         raise NoService(self.no_service_msg(*args, **kwargs))
