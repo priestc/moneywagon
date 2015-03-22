@@ -1,4 +1,5 @@
 from .core import Service, NoService, NoData, SkipThisService
+import arrow
 
 class Bitstamp(Service):
     supported_cryptos = ['btc']
