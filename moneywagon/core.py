@@ -1,7 +1,7 @@
 from __future__ import print_function
 import requests
 
-useragent = 'moneywagon 1.0.1'
+useragent = 'moneywagon 1.0.6'
 
 class SkipThisService(Exception):
     pass
@@ -14,7 +14,7 @@ class NoData(Exception):
 
 class Service(object):
     """
-    All Services should subclass this class, and implement their own `get_price` function
+    All Services should subclass this class, and implement their own `get_*` method
     """
     supported_cryptos = None
 
@@ -73,8 +73,15 @@ class Service(object):
 
     def get_balance(self, crypto, address):
         """
-        Get the amount of coin in teh address passed in.
+        Get the amount of coin in the address passed in.
         Always returns a single float.
+        """
+        raise NotImplementedError()
+
+    def push_tx(self, crypto, tx_hex):
+        """
+        Push transaction to the miner network. Returns nothing if done
+        successfully.
         """
         raise NotImplementedError()
 

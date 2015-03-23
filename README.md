@@ -226,50 +226,18 @@ Historical Transactions
 'txid': u'9152784755564c3c680aa47a3a1cdc28e4896657bfc2e60626a0ee22b200af7c'}]
 ```
 
+Push Transaction
+================
 
-Transaction Creation
-====================
-
-The transaction API has been designed to be as simple and easy to use as possible.
-No knowledge of cryptography is needed. You do need to know the basics of how
-cryptocurrency transactions work.
-
-Just like the price service API's, the transaction API available via a
-"Low Level API" and a "High Level API"
-
-High Level API
---------------
+If you have a raw transaction that you would like to push tot he bitcoin network,
+you can use moneywagon to do that.
 
 ```python
-from moneywagon import Transaction
-
-t = Transaction(
-    crypto='btc'
-    to='1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X',
-    from='1DBQgauyuSodrPctQojRtAUfHncU1ECghW',
-    private_key='5KBudDby7NFod41Jkbb8s9KgiFi6GuTvnMBsiNZkgFV2c3Bijvv',
-    amount=0.023,
-    fee=0.00001,
-)
-
-t.verify() # checks if the balances are sufficient and signatures are correct
-t.send()
+>>> from moneywagon import PushTx
+>>> PushTx().push('btc', '0100000001d992c7a88...')
 ```
 
-Low Level API
--------------
-
-```python
-from moneywagon.transactions import get_unspent_outputs, make_transaction, send_transaction
-outputs = get_unspent_outputs('btc', '1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X')
-raw_transaction = make_transaction(
-    outputs=outputs,
-    amount=0.0023,
-    to='1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X',
-    private_key='5KBudDby7NFod41Jkbb8s9KgiFi6GuTvnMBsiNZkgFV2c3Bijvv'
-)
-send_transaction('btc', raw_transaction)
-```
+If the transaction went through successfully, the `push` method will return nothing.
 
 Contributing
 ============

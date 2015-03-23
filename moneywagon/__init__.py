@@ -19,6 +19,8 @@ def get_historical_transactions(crypto, address):
 def get_historical_price(crypto, fiat, date):
     return HistoricalPrice().get(crypto, fiat, date)
 
+def push_tx(crypto, tx_hex):
+    return PushTx().push(crypto, tx_hex)
 
 class HistoricalTransactions(AutoFallback):
     service_method_name = 'get_transactions'
@@ -56,6 +58,17 @@ class AddressBalance(AutoFallback):
 
     def no_service_msg(self, crypto, address):
         return "Could not get address balance for: %s" % crypto
+
+
+class PushTx(AutoFallback):
+    service_method_name = "push_transaction"
+
+    def push(self, crypto, tx_hex):
+        crypto = crypto.lower()
+        return self._try_each_service(crypto, tx_hex)
+
+    def no_service_msg(self, crypto, hex):
+        return "Could not push this %s transaction." % crypto
 
 
 class HistoricalPrice(object):
