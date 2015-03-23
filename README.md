@@ -229,8 +229,8 @@ Historical Transactions
 Push Transaction
 ================
 
-If you have a raw transaction that you would like to push tot he bitcoin network,
-you can use moneywagon to do that.
+If you have a raw transaction that you would like to push to the bitcoin network,
+you can use moneywagon to do that:
 
 ```python
 >>> from moneywagon import PushTx
@@ -238,6 +238,7 @@ you can use moneywagon to do that.
 ```
 
 If the transaction went through successfully, the `push` method will return nothing.
+This functionality orks much like the others. If one service is down, it fallsback to another service.
 
 Contributing
 ============
