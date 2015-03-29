@@ -44,10 +44,10 @@ class Blockr(Service):
             ))
         return transactions
 
-    def push_transaction(self, crypto, tx):
+    def push_tx(self, crypto, tx):
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto
-        self.post_url(url, {'tx': tx})
-        raise NotFinished()
+        response = self.post_url(url, {'tx': tx})
+        return response.json()['data']
 
 class BTCE(Service):
     def get_price(self, crypto, fiat):

@@ -61,7 +61,7 @@ class AddressBalance(AutoFallback):
 
 
 class PushTx(AutoFallback):
-    service_method_name = "push_transaction"
+    service_method_name = "push_tx"
 
     def push(self, crypto, tx_hex):
         crypto = crypto.lower()
