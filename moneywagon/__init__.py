@@ -19,8 +19,10 @@ def get_historical_transactions(crypto, address):
 def get_historical_price(crypto, fiat, date):
     return HistoricalPrice().get(crypto, fiat, date)
 
+
 def push_tx(crypto, tx_hex):
     return PushTx().push(crypto, tx_hex)
+
 
 class HistoricalTransactions(AutoFallback):
     service_method_name = 'get_transactions'

@@ -21,7 +21,8 @@ fiat currency (USD, EUR, RUR, etc.)
 arbitrary point in time**.
 3. Getting the balance of an address for any cryptocurrency.
 4. Getting a list of historical transaction from an address for any cryptocurrency.
-5. Command line interface for accessing all of moneywagon's functionality from the shell.
+5. A Bitcore-esque wrapper class for making transactions (BTC only for now).
+6. Command line interface for accessing all of moneywagon's functionality from the shell.
 
 There is a sixth planned part of moneywagon that has not yet been built.
 This section will be a fancy API for creating transactions.
@@ -225,6 +226,31 @@ Historical Transactions
 'date': datetime.datetime(2013, 11, 27, 16, 36, 14, tzinfo=tzutc()),
 'txid': u'9152784755564c3c680aa47a3a1cdc28e4896657bfc2e60626a0ee22b200af7c'}]
 ```
+
+Transactions
+============
+
+There is a wrapper class that helps you make transactions. Here is how to use it:
+
+```python
+>>> from moneywagon.tx import Transaction
+>>> tx = Transaction('btc')
+>>> tx.add_input('1HWpyFJ7N...', 'KxDwaDis...')
+>>> tx.add_output('1Fs3...', 1.42, unit='btc')
+>>> tx.hex()
+'00100137876876...
+>>> tx.push()
+```
+
+The private key argument should be a string in WIF format.
+You can also specify the `amount` argument to `add_output` with a unit argument:
+
+```python
+>>> tx.add_output(address, amount=1423, unit='bits')
+>>> tx.add_output(address2, amount=1.3, units="dollars")
+```
+
+All exchange rates are taken from the `get_current_price` function defined above.
 
 Push Transaction
 ================
