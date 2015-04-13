@@ -30,9 +30,12 @@ class Transaction(object):
     def add_input(self, address, private_key, amount='all'):
         self.private_key = private_key
         self.change_address = address
+
+        total_added = 0
         for o in history(address):
-            if amount == 'all':
+            if (amount == 'all' or total_added < amount) and not o.get('spend'):
                 self.ins.append(o)
+                total_added += o['value']
 
     def add_output(self, address, value, unit=None):
         """
@@ -57,6 +60,9 @@ class Transaction(object):
         total_ins = sum([x['value'] for x in self.ins])
         total_outs = sum([x['value'] for x in self.outs])
         change_satoshi = total_ins - (total_outs + self.fee_satoshi)
+
+        if change_satoshi < 0:
+            raise ValueError("Input amount must be more than all Output amounts. You need more bitcoin.")
 
         tx = mktx(self.ins, self.outs + [{'address': self.change_address, 'value': change_satoshi}])
         tx = signall(tx, self.private_key)
