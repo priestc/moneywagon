@@ -4,7 +4,8 @@ moneywagon
 ==========
 
 Moneywagon lets you build a bitcoin wallet application in Python without
-ever having to rely on a single blockchain API service.
+ever having to rely on a single blockchain API service. This library is Python 2
+and Python 3 compatible.
 
 For instance, lets say you are building an application in Python that
 needs to know the current exchange rate between BTC and USD. Before moneywagon,
