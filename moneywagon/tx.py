@@ -37,6 +37,12 @@ class Transaction(object):
                 self.ins.append(o)
                 total_added += o['value']
 
+    def total_input_satoshis(self):
+        """
+        Add up all the satoshis coming from all input tx's.
+        """
+        return sum([x['value'] for x in self.ins])
+
     def add_output(self, address, value, unit=None):
         """
         Add an output (a person who will receive funds via this tx)
@@ -57,7 +63,7 @@ class Transaction(object):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
-        total_ins = sum([x['value'] for x in self.ins])
+        total_ins = self.total_input_satoshis()
         total_outs = sum([x['value'] for x in self.outs])
         change_satoshi = total_ins - (total_outs + self.fee_satoshi)
 
