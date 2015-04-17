@@ -1,10 +1,10 @@
-from moneywagon import push_tx, get_current_price
 from pybitcointools import history, mktx, signall
 
 def from_unit_to_satoshi(value, unit):
     """
     Convert a value to satoshis. units can be any fiat currency
     """
+    from moneywagon import get_current_price
     if not unit or unit == 'satoshi':
         return value
     if unit == 'bitcoin' or unit == 'btc':
@@ -70,4 +70,5 @@ class Transaction(object):
         return tx
 
     def push(self):
+        from moneywagon import push_tx
         return push_tx(self.currency, self.get_hex())

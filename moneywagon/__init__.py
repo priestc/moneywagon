@@ -4,6 +4,8 @@ from .services import ALL_SERVICES
 from .core import AutoFallback
 from .historical_price import Quandl
 
+from tx import Transaction
+
 def get_current_price(crypto, fiat):
     return CurrentPrice(services=ALL_SERVICES).get(crypto, fiat)
 
