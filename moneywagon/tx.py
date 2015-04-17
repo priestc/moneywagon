@@ -1,5 +1,3 @@
-from pybitcointools import history, mktx, signall
-
 def from_unit_to_satoshi(value, unit):
     """
     Convert a value to satoshis. units can be any fiat currency
@@ -28,6 +26,7 @@ class Transaction(object):
             self.hex = hex
 
     def add_input(self, address, private_key, amount='all'):
+        from pybitcointools import history
         self.private_key = private_key
         self.change_address = address
 
@@ -63,6 +62,7 @@ class Transaction(object):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
+        from pybitcointools import mktx, signall
         total_ins = self.total_input_satoshis()
         total_outs = sum([x['value'] for x in self.outs])
         change_satoshi = total_ins - (total_outs + self.fee_satoshi)
