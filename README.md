@@ -236,7 +236,7 @@ There is a wrapper class that helps you make transactions. Here is how to use it
 ```python
 >>> from moneywagon.tx import Transaction
 >>> tx = Transaction('btc')
->>> tx.add_input('1HWpyFJ7N...', 'KxDwaDis...')
+>>> tx.add_input(address='1HWpyFJ7N...', private_key='KxDwaDis...')
 >>> tx.add_output('1Fs3...', 1.42, unit='btc')
 >>> tx.hex()
 '00100137876876...
