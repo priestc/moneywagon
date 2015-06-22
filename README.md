@@ -265,7 +265,7 @@ you can use moneywagon to do that:
 ```
 
 If the transaction went through successfully, the `push` method will return nothing.
-This functionality orks much like the others. If one service is down, it fallsback to another service.
+This functionality works much like the others. If one service is down, it fallsback to another service.
 
 Contributing
 ============
