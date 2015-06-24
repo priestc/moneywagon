@@ -238,7 +238,8 @@ There is a wrapper class that helps you make transactions. Here is how to use it
 >>> tx = Transaction('btc')
 >>> tx.add_input(address='1HWpyFJ7N...', private_key='KxDwaDis...')
 >>> tx.add_output('1Fs3...', 1.42, unit='btc')
->>> tx.hex()
+>>> tx.fee(4000, unit='satoshi') #defaut is 10000
+>>> tx.get_hex()
 '00100137876876...
 >>> tx.push()
 ```
