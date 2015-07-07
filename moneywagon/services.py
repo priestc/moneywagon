@@ -279,5 +279,9 @@ class BirdOnWheels(BitpayInsight):
     supported_cryptos = ['myr']
     domain = "http://birdonwheels5.no-ip.org:3000"
 
-# some meta magic to get a list of all service classes.
-ALL_SERVICES = [x for x in globals().copy().values() if hasattr(x, 'mro') and x.mro()[-2] == Service and x != Service]
+ALL_SERVICES = [
+    Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
+    BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
+    VertcoinOrg, AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
+    CryptapUS, BTER, CoinSwap, ChainSo, BitpayInsight
+]
