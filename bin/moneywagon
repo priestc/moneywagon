@@ -5,7 +5,7 @@ from __future__ import print_function
 import argparse
 from moneywagon import CurrentPrice, HistoricalPrice, AddressBalance, HistoricalTransactions
 
-parser = argparse.ArgumentParser(version='1.0.2')
+parser = argparse.ArgumentParser() #version='1.0.2')
 
 subparsers = parser.add_subparsers(help='commands', dest="subparser_name")
 
