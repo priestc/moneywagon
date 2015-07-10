@@ -31,6 +31,11 @@ historical_tx_parser.add_argument('crypto', action='store', help='Cryptocurrency
 historical_tx_parser.add_argument('address', action='store', help='Wallet address')
 historical_tx_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
+historical_tx_parser = subparsers.add_parser('wallet-balance', help='Get current value in fiat of a set of crypo addresses.')
+historical_tx_parser.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='Wallet file')
+historical_tx_parser.add_argument('fiat', action='store', help='Fiat currency')
+historical_tx_parser.add_argument('--verbose', action='store_true', help='Include extra output')
+
 argz = parser.parse_args()
 
 if argz.subparser_name == 'current-price':
@@ -46,3 +51,32 @@ elif argz.subparser_name == 'address-balance':
 
 elif argz.subparser_name == 'historical-transactions':
     print(HistoricalTransactions(verbose=argz.verbose).get(argz.crypto, argz.address))
+
+elif argz.subparser_name == 'wallet-balance':
+    current_price = CurrentPrice() #defined here to cache api calls
+    balance = AddressBalance()
+    wallets = argz.wallet
+
+    cumm_amount = 0
+    for line in wallets.readlines():
+        currency, address = line.split(",")
+        try:
+            price, price_source = current_price.get(currency, argz.fiat)
+        except Exception as exc:
+            print("Can't get price for " + currency, exc)
+            continue
+
+        try:
+            amount = balance.get(currency, address)
+        except Exception as exc:
+            print("Can't get balance for " + currency, exc)
+            continue
+
+        usd_amount = amount * price
+        cumm_amount += usd_amount
+
+        print(
+            "%s ($%.2f) == %s x %s (%s)" % (currency, usd_amount, amount, price, price_source)
+        )
+
+    print("Total amount of all crypto: $%.2f %s" % (cumm_amount, argz.fiat.upper()))
