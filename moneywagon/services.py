@@ -248,7 +248,7 @@ class BitpayInsight(Service):
     domain = "http://insight.bitpay.com"
 
     def get_balance(self, crypto, address):
-        url = "/api/addr/%s/balance" % (self.domain, address)
+        url = "%s/api/addr/%s/balance" % (self.domain, address)
         return float(self.get_url(url).content) / 1e8
 
     def get_transactions(self, crypto, address):
@@ -274,6 +274,9 @@ class ReddcoinCom(BitpayInsight):
     supported_cryptos = ['rdd']
     domain = "http://live.reddcoin.com"
 
+class FTCe(BitpayInsight):
+    supported_cryptos = ['ftc']
+    domain = "http://block.ftc-c.com"
 
 class BirdOnWheels(BitpayInsight):
     supported_cryptos = ['myr']
@@ -283,5 +286,5 @@ ALL_SERVICES = [
     Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
     BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
     VertcoinOrg, AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
-    CryptapUS, BTER, CoinSwap, ChainSo, BitpayInsight
+    CryptapUS, BTER, CoinSwap, ChainSo, BitpayInsight, ReddcoinCom, FTCe
 ]
