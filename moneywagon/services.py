@@ -62,7 +62,7 @@ class Toshi(Service):
         This call also returns unconfirmed transactions.
         """
         url = "%s/addresses/%s/transactions" % (self.url, address)
-        response = self.get_url(url).json()
+        response = self.get_url(url)
 
         transactions = []
         for tx in response.json()['transactions']:
