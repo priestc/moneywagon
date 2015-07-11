@@ -49,6 +49,33 @@ class Blockr(Service):
         response = self.post_url(url, {'tx': tx})
         return response.json()['data']
 
+class Toshi(Service):
+    url = "https://bitcoin.toshi.io/api/v0"
+
+    def get_balance(self, crypto, address):
+        url = "%s/addresses/%s" % (self.url, address)
+        response = self.get_url(url).json()
+        return response['balance'] / 1e8
+
+    def get_transactions(self, crypto, address):
+        """
+        This call also returns unconfirmed transactions.
+        """
+        url = "%s/addresses/%s/transactions" % (self.url, address)
+        response = self.get_url(url).json()
+
+        transactions = []
+        for tx in response.json()['transactions']:
+            transactions.append(dict(
+                amount=tx['amount'],
+                txid=tx['hash'],
+            ))
+        return transactions
+
+    def push_tx(self, tx):
+        url = "%s/transactions/%s" % (self.url, tx)
+        return self.get_url(url).json()['hash']
+
 class BTCE(Service):
     def get_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto, fiat)

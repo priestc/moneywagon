@@ -79,4 +79,4 @@ elif argz.subparser_name == 'wallet-balance':
             "%s ($%.2f) == %s x %s (%s)" % (currency, usd_amount, amount, price, price_source)
         )
 
-    print("Total amount of all crypto: $%.2f %s" % (cumm_amount, argz.fiat.upper()))
+    print("Total amount of all crypto: %.2f %s" % (cumm_amount, argz.fiat.upper()))
