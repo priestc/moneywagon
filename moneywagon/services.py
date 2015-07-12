@@ -140,10 +140,6 @@ class DogeChainInfo(BitcoinAbe):
     supported_cryptos = ['doge']
     base_url = "https://dogechain.info/chain/Dogecoin"
 
-class VertcoinOrg(BitcoinAbe):
-    supported_cryptos = ['vtc']
-    base_url = "https://explorer.vertcoin.org/chain/Vertcoin"
-
 class AuroraCoinEU(BitcoinAbe):
     supported_cryptos = ['aur']
     base_url = 'http://blockexplorer.auroracoin.eu/chain/AuroraCoin'
@@ -296,6 +292,9 @@ class BitpayInsight(Service):
 
         return transactions
 
+class ThisIsVTC(BitpayInsight):
+    supported_cryptos = ['vtc']
+    domain = "http://explorer.thisisvtc.com"
 
 class ReddcoinCom(BitpayInsight):
     supported_cryptos = ['rdd']
@@ -313,5 +312,5 @@ ALL_SERVICES = [
     Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
     BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
     VertcoinOrg, AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
-    CryptapUS, BTER, CoinSwap, ChainSo, BitpayInsight, ReddcoinCom, FTCe
+    CryptapUS, BTER, CoinSwap, ChainSo, BitpayInsight, ThisIsVTC, ReddcoinCom, FTCe
 ]
