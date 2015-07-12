@@ -292,6 +292,14 @@ class BitpayInsight(Service):
 
         return transactions
 
+class MYRCryptap(BitpayInsight):
+    supported_cryptos = ['myr']
+    domain = "http://insight-myr.cryptap.us/"
+
+class BirdOnWheels(BitpayInsight):
+    supported_cryptos = ['myr']
+    domain = "http://birdonwheels5.no-ip.org:3000"
+
 class ThisIsVTC(BitpayInsight):
     supported_cryptos = ['vtc']
     domain = "http://explorer.thisisvtc.com"
@@ -304,13 +312,11 @@ class FTCe(BitpayInsight):
     supported_cryptos = ['ftc']
     domain = "http://block.ftc-c.com"
 
-class BirdOnWheels(BitpayInsight):
-    supported_cryptos = ['myr']
-    domain = "http://birdonwheels5.no-ip.org:3000"
-
 ALL_SERVICES = [
     Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
     BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
-    VertcoinOrg, AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
-    CryptapUS, BTER, CoinSwap, ChainSo, BitpayInsight, ThisIsVTC, ReddcoinCom, FTCe
+    AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
+    CryptapUS, BTER, CoinSwap, ChainSo,
+
+    BitpayInsight, ThisIsVTC, BirdOnWheels, MYRCryptap, ReddcoinCom, FTCe
 ]
