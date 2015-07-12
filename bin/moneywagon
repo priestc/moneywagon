@@ -53,15 +53,20 @@ elif argz.subparser_name == 'historical-transactions':
     print(HistoricalTransactions(verbose=argz.verbose).get(argz.crypto, argz.address))
 
 elif argz.subparser_name == 'wallet-balance':
-    current_price = CurrentPrice() #defined here to cache api calls
-    balance = AddressBalance()
+    current_price = CurrentPrice(verbose=argz.verbose) #defined here to cache api calls
+    balance = AddressBalance(verbose=argz.verbose)
     wallets = argz.wallet
+    fiat = argz.fiat.upper()
 
     cumm_amount = 0
     for line in wallets.readlines():
+        if line.startswith("#"):
+            continue
+
         currency, address = line.split(",")
+        address = address.strip()
         try:
-            price, price_source = current_price.get(currency, argz.fiat)
+            price, price_source = current_price.get(currency, fiat)
         except Exception as exc:
             print("Can't get price for " + currency, exc)
             continue
@@ -76,7 +81,9 @@ elif argz.subparser_name == 'wallet-balance':
         cumm_amount += usd_amount
 
         print(
-            "%s ($%.2f) == %s x %s (%s)" % (currency, usd_amount, amount, price, price_source)
+            "%s (%.2f %s) == %s x %s (%s)" % (
+                currency, usd_amount, fiat, amount, price, price_source
+            )
         )
 
-    print("Total amount of all crypto: %.2f %s" % (cumm_amount, argz.fiat.upper()))
+    print("Total amount of all crypto: %.2f %s" % (cumm_amount, fiat))
