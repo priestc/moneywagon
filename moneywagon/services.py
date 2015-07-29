@@ -312,11 +312,25 @@ class FTCe(BitpayInsight):
     supported_cryptos = ['ftc']
     domain = "http://block.ftc-c.com"
 
+class CoinTape(Service):
+    supported_cryptos = ['btc']
+
+    def get_optimal_fee_satoshi(self, tx_bytes, acceptable_block_delay=0):
+        url = "http://www.cointape.com/fees"
+        response = self.get_url(url).json()
+        for sample in response['fees']:
+            if sample['maxDelay'] <= acceptable_block_delay:
+                rate = sample['maxFee']
+                return tx_bytes * rate
+
+
 ALL_SERVICES = [
     Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
     BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
     AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
     CryptapUS, BTER, CoinSwap, ChainSo,
 
-    BitpayInsight, ThisIsVTC, BirdOnWheels, MYRCryptap, ReddcoinCom, FTCe
+    BitpayInsight, ThisIsVTC, BirdOnWheels, MYRCryptap, ReddcoinCom, FTCe,
+
+    CoinTape
 ]

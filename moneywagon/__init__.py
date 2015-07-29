@@ -3,7 +3,6 @@ from __future__ import print_function
 from .services import ALL_SERVICES
 from .core import AutoFallback
 from .historical_price import Quandl
-
 from .tx import Transaction
 
 def get_current_price(crypto, fiat):
@@ -25,6 +24,19 @@ def get_historical_price(crypto, fiat, date):
 def push_tx(crypto, tx_hex):
     return PushTx().push(crypto, tx_hex)
 
+def get_optimal_fee(crypto, tx_size, acceptable_block_delay):
+    return OptimalFee().get_optimal_fee
+
+
+class OptimalFee(AutoFallback):
+    service_method_name = "get_optimal_fee"
+
+    def get(self, crypto, tx_size, acceptable_block_delay=0):
+        crypto = crypto.lower()
+        return self._try_each_service(crypto, tx_size, acceptable_block_delay)
+
+    def no_service_msg(self, crypto, tx_size, acceptable_block_delay):
+        return "Could not get optimal fee for: %s" % crypto
 
 class HistoricalTransactions(AutoFallback):
     service_method_name = 'get_transactions'

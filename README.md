@@ -268,6 +268,25 @@ you can use moneywagon to do that:
 If the transaction went through successfully, the `push` method will return nothing.
 This functionality works much like the others. If one service is down, it fallsback to another service.
 
+Fee Estimation
+==============
+
+Moneywagon can be used to get the optimal fee to use for a transaction based on
+the current state of the network.
+
+```python
+>>> from moneywagon import get_optimal_fee
+>>> get_optimal_fee('btc', tx_bytes=213, acceptable_block_delay=0)
+10650
+```
+
+In the above example, a transaction that is 213 bytes that is to be confirmed in
+the next block, will need a fee of 10650 satoshis. If you are willing to wait
+more blocks, call the function with `acceptable_block_delay` argument with the
+number of blocks you're willing to wait until confirmation.
+
+Currently, btc is the only currency supported for fee estimation.
+
 Contributing
 ============
 
