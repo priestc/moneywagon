@@ -315,7 +315,7 @@ class FTCe(BitpayInsight):
 class CoinTape(Service):
     supported_cryptos = ['btc']
 
-    def get_optimal_fee_satoshi(self, tx_bytes, acceptable_block_delay=0):
+    def get_optimal_fee(self, crypto, tx_bytes, acceptable_block_delay=0):
         url = "http://www.cointape.com/fees"
         response = self.get_url(url).json()
         for sample in response['fees']:

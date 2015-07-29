@@ -24,18 +24,18 @@ def get_historical_price(crypto, fiat, date):
 def push_tx(crypto, tx_hex):
     return PushTx().push(crypto, tx_hex)
 
-def get_optimal_fee(crypto, tx_size, acceptable_block_delay):
-    return OptimalFee().get_optimal_fee
+def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay):
+    return OptimalFee().get(crypto, tx_bytes, acceptable_block_delay)
 
 
 class OptimalFee(AutoFallback):
     service_method_name = "get_optimal_fee"
 
-    def get(self, crypto, tx_size, acceptable_block_delay=0):
+    def get(self, crypto, tx_bytes, acceptable_block_delay=0):
         crypto = crypto.lower()
-        return self._try_each_service(crypto, tx_size, acceptable_block_delay)
+        return self._try_each_service(crypto, tx_bytes, acceptable_block_delay)
 
-    def no_service_msg(self, crypto, tx_size, acceptable_block_delay):
+    def no_service_msg(self, crypto, tx_bytes, acceptable_block_delay):
         return "Could not get optimal fee for: %s" % crypto
 
 class HistoricalTransactions(AutoFallback):

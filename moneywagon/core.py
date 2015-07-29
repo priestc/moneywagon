@@ -85,6 +85,9 @@ class Service(object):
         """
         raise NotImplementedError()
 
+    def get_optimal_fee(self, crypto, tx_bytes, acceptable_block_delay):
+        raise NotImplementedError()
+
 
 class AutoFallback(object):
     """

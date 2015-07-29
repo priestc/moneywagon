@@ -56,16 +56,28 @@ class Transaction(object):
         """
         Set the miner fee, if unit is not set, assumes value is satoshi
         """
-        self.fee_satoshi = from_unit_to_satoshi(value, unit)
+        if value = 'optimal':
+            self.fee_satoshi = value
+        else
+            self.fee_satoshi = from_unit_to_satoshi(value, unit)
 
     def get_hex(self):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
         from pybitcointools import mktx, signall
+        from moneywagon import get_optimal_fee
+
         total_ins = self.total_input_satoshis()
         total_outs = sum([x['value'] for x in self.outs])
-        change_satoshi = total_ins - (total_outs + self.fee_satoshi)
+
+        fee = self.fee_satoshi
+        if fee == 'optimal':
+            # formula taken from http://bitcoin.stackexchange.com/a/3011/18150
+            tx_size = len(self.outs) * 148 + 34 * len(self.ins) + 10
+            fee = get_optimal_fee(self.currency, tx_size, 0)
+
+        change_satoshi = total_ins - (total_outs + fee)
 
         if change_satoshi < 0:
             raise ValueError("Input amount must be more than all Output amounts. You need more bitcoin.")
