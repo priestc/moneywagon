@@ -49,6 +49,7 @@ class Blockr(Service):
         response = self.post_url(url, {'tx': tx})
         return response.json()['data']
 
+
 class Toshi(Service):
     url = "https://bitcoin.toshi.io/api/v0"
 
@@ -78,6 +79,7 @@ class Toshi(Service):
         url = "%s/transactions/%s" % (self.url, tx)
         return self.get_url(url).json()['hash']
 
+
 class BTCE(Service):
     def get_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto, fiat)
@@ -93,6 +95,7 @@ class Cryptonator(Service):
         response = self.get_url(url).json()
         return float(response['ticker']['price']), 'cryptonator'
 
+
 class Winkdex(Service):
     supported_cryptos = ['btc']
 
@@ -101,6 +104,7 @@ class Winkdex(Service):
             raise SkipThisService("winkdex is btc->usd only")
         url = "https://winkdex.com/api/v0/price"
         return self.get_url(url).json()['price'] / 100.0, 'winkdex'
+
 
 class BitEasy(Service):
     supported_cryptos = ['btc']
@@ -182,6 +186,7 @@ class NXTPortal(Service):
             ))
 
         return transactions
+
 
 class CryptoID(Service):
     supported_cryptos = [

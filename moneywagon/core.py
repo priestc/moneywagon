@@ -1,8 +1,12 @@
 from __future__ import print_function
+import random
 import requests
 from .crypto_data import crypto_data
 
-useragent = 'moneywagon 1.0.6'
+useragent = 'moneywagon 1.3.0'
+
+class ServiceDisagreement(Exception):
+    pass
 
 class SkipThisService(Exception):
     pass
@@ -107,9 +111,9 @@ class AutoFallback(object):
             services = ALL_SERVICES
 
         self.services = []
-        for Service in services:
+        for ServiceClass in services:
             self.services.append(
-                Service(verbose=verbose, responses=responses)
+                ServiceClass(verbose=verbose, responses=responses)
             )
 
         self.verbose = verbose
@@ -150,3 +154,31 @@ class AutoFallback(object):
         It should say something informative.
         """
         return "All either skipped or failed."
+
+def enforce_service_mode(services, mode, FetcherClass, args):
+    """
+    Fetches the value according to the mode of execution desired.
+    """
+    if mode == 'default':
+        return FetcherClass(services=services).get(args)
+
+    if mode == 'random':
+        random.shuffle(services)
+        return FetcherClass(services=services).get(args)
+
+    if mode.startswith('paranoid'):
+        depth = int(mode[9:]) # 'paranoid-3' -> 3
+        if depth < 2:
+            raise ValueError("paranoid depth must be >= 2")
+
+        # try first [depth] services and only proceed if all values agree.
+        results = []
+        for service in services[:depth]:
+            results.append(
+                FetcherClass(services=[service]).get(args)
+            )
+        if len(set(results)) == 1:
+            # if all values match, return
+            return results[0]
+        else:
+            raise ServiceDisagreement("Differing values returned: ", results)

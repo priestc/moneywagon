@@ -1,21 +1,26 @@
 from __future__ import print_function
 
-from .core import AutoFallback
+from .core import AutoFallback, enforce_service_mode
 from .historical_price import Quandl
 from .tx import Transaction
 from .crypto_data import crypto_data
 
-def get_current_price(crypto, fiat):
+
+def get_current_price(crypto, fiat, service_mode='default'):
     services = crypto_data[crypto]['services']['current_price']
-    return CurrentPrice(services=services).get(crypto, fiat)
+    return  enforce_service_mode(
+        services, service_mode, CurrentPrice, [crypto, fiat]
+    )
 
 
-def get_address_balance(crypto, address):
+def get_address_balance(crypto, address, service_mode='default'):
     services = crypto_data[crypto]['services']['address_balance']
-    return AddressBalance(services=services).get(crypto, address)
+    return  enforce_service_mode(
+        services, service_mode, AddressBalance, [crypto, address]
+    )
 
 
-def get_historical_transactions(crypto, address):
+def get_historical_transactions(crypto, address, service_mode='default'):
     services = crypto_data[crypto]['services']['historical_transactions']
     return HistoricalTransactions(services=services).get(crypto, address)
 
@@ -24,10 +29,11 @@ def get_historical_price(crypto, fiat, date):
     return HistoricalPrice().get(crypto, fiat, date)
 
 
-def push_tx(crypto, tx_hex):
+def push_tx(crypto, tx_hex, service_mode='default'):
     services = crypto_data[crypto]['services']['push_tx']
-    return PushTx(services=services).push(crypto, tx_hex)
-
+    return  enforce_service_mode(
+        services, service_mode, PushTx, [crypto, tx_hex]
+    )
 
 def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay):
     return OptimalFee().get(crypto, tx_bytes, acceptable_block_delay)

@@ -8,7 +8,7 @@ crypto_data = {
     'btc': {
         'name': 'Bitcoin',
         'genesis_date': datetime(2009, 1, 12),
-        'sources': {
+        'services': {
             'current_price': [
                 Bitstamp, Winkdex, BTCE, BTER, Cryptonator
             ],
@@ -27,7 +27,7 @@ crypto_data = {
     'ltc': {,
         'name': 'Litecoin',
         'genesis_date': datetime(2011, 10, 7),
-        'sources': {
+        'services': {
             'current_price': [
                 BTCE, BTER, Cryptonator
             ],
@@ -45,7 +45,7 @@ crypto_data = {
     'ppc': {
         'name': 'Peercoin',
         'genesis_date': datetime(2012, 8, 19),
-        'sources': {
+        'services': {
             'current_price': [
                 BTCE, BTER, Cryptonator
             ],
@@ -63,7 +63,7 @@ crypto_data = {
     'doge': {
         'name': 'Dogecoin',
         'genesis_date': datetime(2013, 12, 6)],
-        'sources': {
+        'services': {
             'current_price': [
                 BTCE, BTER, Cryptonator
             ],
@@ -81,7 +81,7 @@ crypto_data = {
     'nxt': {
         'name': 'Nxt',
         'genesis_date': datetime(2013, 10, 29)
-        'sources': {
+        'services': {
             'current_price': [
                 Cryptonator
             ],
@@ -100,7 +100,7 @@ crypto_data = {
     'myr': {
         'name': 'MyriadCoin',
         'genesis_date': datetime(2014, 2, 23),
-        'sources': {
+        'services': {
             'current_price': [
                 Cryptonator
             ],
@@ -119,7 +119,7 @@ crypto_data = {
     'vtc': {
         'name': 'Vertcoin',
         'genesis_date': datetime(2014, 1, 8),
-        'sources': {
+        'services': {
             'current_price': [
                 Cryptonator
             ],
@@ -139,7 +139,7 @@ crypto_data = {
     'ftc': {
         'name': 'Feathercoin',
         'genesis_date': datetime(2013, 4, 16),
-        'sources': {
+        'services': {
             'current_price': [
                 Cryptonator
             ],
@@ -158,7 +158,7 @@ crypto_data = {
     'drk': {
         'name': 'Dash',
         'genesis_date': datetime(2014, 1, 19),
-        'sources': {
+        'services': {
             'current_price': [
                 Cryptonator
             ],
