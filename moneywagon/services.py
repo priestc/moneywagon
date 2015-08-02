@@ -52,6 +52,8 @@ class Blockr(Service):
 class Toshi(Service):
     url = "https://bitcoin.toshi.io/api/v0"
 
+    supported_cryptos = ['btc']
+
     def get_balance(self, crypto, address):
         url = "%s/addresses/%s" % (self.url, address)
         response = self.get_url(url).json()
@@ -259,6 +261,7 @@ class ChainSo(Service):
 
 
 class ExCoIn(Service):
+    # decommissioned
     def get_price(self, crypto, fiat):
         url = "https://api.exco.in/v1/exchange/%s/%s" % (fiat, crypto)
         response = self.get_url(url).json()

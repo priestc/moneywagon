@@ -1,20 +1,23 @@
 from __future__ import print_function
 
-from .services import ALL_SERVICES
 from .core import AutoFallback
 from .historical_price import Quandl
 from .tx import Transaction
+from .crypto_data import crypto_data
 
 def get_current_price(crypto, fiat):
-    return CurrentPrice(services=ALL_SERVICES).get(crypto, fiat)
+    services = crypto_data[crypto]['services']['current_price']
+    return CurrentPrice(services=services).get(crypto, fiat)
 
 
 def get_address_balance(crypto, address):
-    return AddressBalance(services=ALL_SERVICES).get(crypto, address)
+    services = crypto_data[crypto]['services']['address_balance']
+    return AddressBalance(services=services).get(crypto, address)
 
 
 def get_historical_transactions(crypto, address):
-    return HistoricalTransactions(services=ALL_SERVICES).get(crypto, address)
+    services = crypto_data[crypto]['services']['historical_transactions']
+    return HistoricalTransactions(services=services).get(crypto, address)
 
 
 def get_historical_price(crypto, fiat, date):
@@ -22,7 +25,9 @@ def get_historical_price(crypto, fiat, date):
 
 
 def push_tx(crypto, tx_hex):
-    return PushTx().push(crypto, tx_hex)
+    services = crypto_data[crypto]['services']['push_tx']
+    return PushTx(services=services).push(crypto, tx_hex)
+
 
 def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay):
     return OptimalFee().get(crypto, tx_bytes, acceptable_block_delay)
@@ -37,6 +42,7 @@ class OptimalFee(AutoFallback):
 
     def no_service_msg(self, crypto, tx_bytes, acceptable_block_delay):
         return "Could not get optimal fee for: %s" % crypto
+
 
 class HistoricalTransactions(AutoFallback):
     service_method_name = 'get_transactions'

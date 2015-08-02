@@ -1,29 +1,200 @@
 from datetime import datetime
+from .services import *
 
 # taken from http://coinwik.org/List_of_all_DCs
 # sorted by date released, copied over on Nov 27, 2014
 
 crypto_data = {
-    'btc': ['Bitcoin', datetime(2009, 1, 12)],
+    'btc': {
+        'name': 'Bitcoin',
+        'genesis_date': datetime(2009, 1, 12),
+        'sources': {
+            'current_price': [
+                Bitstamp, Winkdex, BTCE, BTER, Cryptonator
+            ],
+            'address_balance': [
+                BlockCypher, Blockr, Toshi, BitEasy, BlockChainInfo,
+                BitcoinAbe
+            ],
+            'historical_transactions': [
+                Blockr, Toshi
+            ],
+            'push_tx': [
+                Blockr, BlockChainInfo
+            ]
+        },
+    },
+    'ltc': {,
+        'name': 'Litecoin',
+        'genesis_date': datetime(2011, 10, 7),
+        'sources': {
+            'current_price': [
+                BTCE, BTER, Cryptonator
+            ],
+            'address_balance': [
+                BlockCypher, Blockr, LitecoinAbe
+            ],
+            'historical_transactions': [
+                Blockr
+            ],
+            'push_tx': [
+                Blockr
+            ]
+        },
+    },
+    'ppc': {
+        'name': 'Peercoin',
+        'genesis_date': datetime(2012, 8, 19),
+        'sources': {
+            'current_price': [
+                BTCE, BTER, Cryptonator
+            ],
+            'address_balance': [
+                Blockr
+            ],
+            'historical_transactions': [
+                Blockr
+            ],
+            'push_tx': [
+                Blockr
+            ]
+        },
+    },
+    'doge': {
+        'name': 'Dogecoin',
+        'genesis_date': datetime(2013, 12, 6)],
+        'sources': {
+            'current_price': [
+                BTCE, BTER, Cryptonator
+            ],
+            'address_balance': [
+                DogeChainInfo
+            ],
+            'historical_transactions': [
+                ChainSo
+            ],
+            'push_tx': [
+
+            ]
+        },
+    },
+    'nxt': {
+        'name': 'Nxt',
+        'genesis_date': datetime(2013, 10, 29)
+        'sources': {
+            'current_price': [
+                Cryptonator
+            ],
+            'address_balance': [
+                NXTPortal
+            ],
+            'historical_transactions': [
+                NXTPortal
+            ],
+            'push_tx': [
+
+            ]
+        },
+    },
+
+    'myr': {
+        'name': 'MyriadCoin',
+        'genesis_date': datetime(2014, 2, 23),
+        'sources': {
+            'current_price': [
+                Cryptonator
+            ],
+            'address_balance': [
+                MYRCryptap, CryptapUS, BirdOnWheels
+            ],
+            'historical_transactions': [
+                MYRCryptap, BirdOnWheels
+            ],
+            'push_tx': [
+
+            ]
+        },
+    },
+
+    'vtc': {
+        'name': 'Vertcoin',
+        'genesis_date': datetime(2014, 1, 8),
+        'sources': {
+            'current_price': [
+                Cryptonator
+            ],
+            'address_balance': [
+                ThisIsVTC
+            ],
+            'historical_transactions': [
+                ThisIsVTC
+            ],
+            'push_tx': [
+
+            ]
+        },
+    },
+
+
+    'ftc': {
+        'name': 'Feathercoin',
+        'genesis_date': datetime(2013, 4, 16),
+        'sources': {
+            'current_price': [
+                Cryptonator
+            ],
+            'address_balance': [
+                FTCe
+            ],
+            'historical_transactions': [
+                FTCe
+            ],
+            'push_tx': [
+
+            ]
+        },
+    },
+
+    'drk': {
+        'name': 'Dash',
+        'genesis_date': datetime(2014, 1, 19),
+        'sources': {
+            'current_price': [
+                Cryptonator
+            ],
+            'address_balance': [
+                CryptoID
+            ],
+            'historical_transactions': [
+
+            ],
+            'push_tx': [
+
+            ]
+        },
+    },
+
+
+    # these ones below need to be modified to match the above format
+
     'nmc': ['Namecoin', datetime(2011, 4, 18)],
     'tk':  ['TimeKoin', datetime(2011, 5, 27)],
     'dvc': ['DevCoin', datetime(2011, 8, 5)],
     'ixc': ['IxCoin', datetime(2011, 8, 10)],
-    'ltc': ['Litecoin', datetime(2011, 10, 7)],
     'bcn': ['Bytecoin', datetime(2012, 7, 4)],
     'bte': ['Bytecoin', datetime(2012, 7, 4)],
     'bqc': ['BBQCoin', datetime(2012, 7, 15)],
     'str': ['StarCoin', datetime(2012, 7, 19)],
-    'ppc': ['Peercoin', datetime(2012, 8, 19)],
+
     'nvc': ['NovaCoin', datetime(2012, 10, 1)],
     'trc': ['TerraCoin', datetime(2012, 10, 26)],
     'frc': ['Freicoin', datetime(2012, 12, 21)],
-    'nxt': ['Nxt', datetime(2013, 10, 29)],
+
     'btb': ['BitBar', datetime(2013, 4, 1)],
     'mnc': ['MinCoin', datetime(2013, 4, 3)],
     'net': ['NetCoin', datetime(2013, 4, 7)],
     'nan': ['NanoToken', datetime(2013, 4, 8)],
-    'ftc': ['Feathercoin', datetime(2013, 4, 16)],
+
     'xrp': ['Ripple', datetime(2011, 3, 1)],
     'pxc': ['PhoenixCoin', datetime(2013, 5, 1)],
     'cnc': ['CHNCoin', datetime(2013, 5, 1)],
@@ -116,7 +287,7 @@ crypto_data = {
     'apc': ['Applecoin', datetime(2013, 11, 19)],
     'cin': ['Cinnamoncoin', datetime(2013, 11, 21)],
     'ybc': ['YBCoin', datetime(2013, 11, 23)],
-    'doge':['Dogecoin', datetime(2013, 12, 6)],
+
     'gra': ['Grain', datetime(2013, 12, 7)],
     'fz':  ['Frozen', datetime(2013, 12, 10)],
     'lot': ['LottoCoin', datetime(2013, 12, 12)],
@@ -147,7 +318,7 @@ crypto_data = {
     'nobl':['Noblecoin', datetime(2014, 1, 7)],
     'ptc': ['PesetaCoin', datetime(2014, 1, 7)],
     'aph': ['AphroditeCoin', datetime(2014, 1, 7)],
-    'vtc': ['Vertcoin', datetime(2014, 1, 8)],
+
     'rpd': ['Rapidcoin', datetime(2014, 1, 8)],
     'etok':['Etoken', datetime(2014, 1, 8)],
     'kdc': ['Klondike', datetime(2014, 1, 9)],
@@ -162,7 +333,7 @@ crypto_data = {
     'zed': ['ZedCoin', datetime(2014, 1, 14)],
     'mtc': ['MarineCoin', datetime(2014, 1, 15)],
     'fox': ['FoxCoin', datetime(2014, 1, 17)],
-    'drk': ['Darkcoin', datetime(2014, 1, 19)],
+
     'tes': ['Teslacoin', datetime(2014, 1, 18)],
     'con': ['Coino', datetime(2014, 1, 18)],
     'plc': ['PolCoin', datetime(2014, 1, 19)],
@@ -206,7 +377,6 @@ crypto_data = {
     'eqb': ['EquestrianBit', datetime(2014, 2, 17)],
     'v':   ['Version', datetime(2014, 2, 21)],
     'btq': ['BitQuark', datetime(2014, 2, 22)],
-    'myr': ['MyriadCoin', datetime(2014, 2, 23)],
     'app': ['AppCoin', datetime(2014, 2, 23)],
     'bc':  ['BlackCoin', datetime(2014, 2, 24)],
     'mzc': ['MazaCoin', datetime(2014, 2, 24)],

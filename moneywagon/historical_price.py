@@ -59,7 +59,8 @@ class Quandl(Service):
 
         at_time = arrow.get(at_time).datetime
 
-        name, date_created = crypto_data[crypto]
+        data = crypto_data[crypto]
+        name, date_created = data['name'], data['genesis_date']
 
         if date_created.replace(tzinfo=pytz.utc) > at_time:
             raise Exception("%s (%s) did not exist on %s" % (name, crypto, at_time))

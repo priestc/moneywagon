@@ -25,7 +25,10 @@ class Transaction(object):
         if hex:
             self.hex = hex
 
-    def add_input(self, address, private_key, amount='all'):
+    def add_input_from_address(self, address, private_key=None, stragety='all'):
+        """
+        Make call to external service to get inputs from an address.
+        """
         from pybitcointools import history
         self.private_key = private_key
         self.change_address = address
@@ -57,11 +60,19 @@ class Transaction(object):
         Set the miner fee, if unit is not set, assumes value is satoshi
         """
         if value = 'optimal':
-            self.fee_satoshi = value
+            self.fee_satoshi = 'optimal'
         else
             self.fee_satoshi = from_unit_to_satoshi(value, unit)
 
-    def get_hex(self):
+    def estimate_size(self):
+        """
+        Estimate how many bytes this transaction will be by countng inputs
+        and outputs.
+        Formula taken from: http://bitcoin.stackexchange.com/a/3011/18150
+        """
+        return len(self.outs) * 148 + 34 * len(self.ins) + 10
+
+    def get_hex(self, signed=True):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
@@ -73,9 +84,8 @@ class Transaction(object):
 
         fee = self.fee_satoshi
         if fee == 'optimal':
-            # formula taken from http://bitcoin.stackexchange.com/a/3011/18150
-            tx_size = len(self.outs) * 148 + 34 * len(self.ins) + 10
-            fee = get_optimal_fee(self.currency, tx_size, 0)
+            # makes call to external service to get optimal fee
+            fee = get_optimal_fee(self.currency, self.estimate_size(), 0)
 
         change_satoshi = total_ins - (total_outs + fee)
 
@@ -83,7 +93,9 @@ class Transaction(object):
             raise ValueError("Input amount must be more than all Output amounts. You need more bitcoin.")
 
         tx = mktx(self.ins, self.outs + [{'address': self.change_address, 'value': change_satoshi}])
-        tx = signall(tx, self.private_key)
+
+        if signed:
+            tx = signall(tx, self.private_key)
 
         return tx
 

@@ -1,5 +1,6 @@
 from __future__ import print_function
 import requests
+from .crypto_data import crypto_data
 
 useragent = 'moneywagon 1.0.6'
 
@@ -101,10 +102,11 @@ class AutoFallback(object):
         in scope for the entire life of this object. This way the service
         objects can cache responses.
         """
-        self.services = []
         if not services:
             from moneywagon.services import ALL_SERVICES
             services = ALL_SERVICES
+
+        self.services = []
         for Service in services:
             self.services.append(
                 Service(verbose=verbose, responses=responses)
