@@ -19,7 +19,9 @@ class NoData(Exception):
 
 class Service(object):
     """
-    All Services should subclass this class, and implement their own `get_*` method
+    Represents a blockchain service running an Http interface.
+    Some `Services` subclass will only support a subset of all pissible blockchain functions.
+    All Services should subclass this class, and implement their own `get_*` method.
     """
     supported_cryptos = None
 
@@ -161,7 +163,8 @@ def enforce_service_mode(services, mode, FetcherClass, args, verbose=False):
     `FetcherClass` must be a class that is subclassed from AutoFallback.
     `services` must be a list of Service classes.
     `args` is a list of arguments used to make the service call, usually
-      something like ['btc', '1HwY...'] or ['btc', 'rur'], (depends on the FetcherClass)
+      something like ['btc', '1HwY...'] or ['ltc', 'rur'], (depends on the what
+      FetcherClass.get takes)
     """
     if mode == 'default':
         return FetcherClass(services=services, verbose=verbose).get(*args)
@@ -185,4 +188,4 @@ def enforce_service_mode(services, mode, FetcherClass, args, verbose=False):
             # if all values match, return
             return results[0]
         else:
-            raise ServiceDisagreement("Differing values returned: ", results)
+            raise ServiceDisagreement("Differing values returned: %s" % results)
