@@ -6,33 +6,36 @@ from .tx import Transaction
 from .crypto_data import crypto_data
 
 
-def get_current_price(crypto, fiat, service_mode='default'):
-    services = crypto_data[crypto]['services']['current_price']
-    return  enforce_service_mode(
-        services, service_mode, CurrentPrice, [crypto, fiat]
+def get_current_price(crypto, fiat, service_mode='default', verbose=False):
+    if service_mode.startswith('paranoid'):
+        raise ValueError("paranoid mode not applicable for current price")
+
+    services = crypto_datP[crypto]['services']['current_price'] # get best services
+    return enforce_service_mode(
+        services, service_mode, CurrentPrice, [crypto, fiat], verbose
     )
 
 
-def get_address_balance(crypto, address, service_mode='default'):
-    services = crypto_data[crypto]['services']['address_balance']
-    return  enforce_service_mode(
-        services, service_mode, AddressBalance, [crypto, address]
+def get_address_balance(crypto, address, service_mode='default', verbose=False):
+    services = crypto_data[crypto]['services']['address_balance'] # get best services
+    return enforce_service_mode(
+        services, service_mode, AddressBalance, [crypto, address], verbose
     )
 
 
-def get_historical_transactions(crypto, address, service_mode='default'):
-    services = crypto_data[crypto]['services']['historical_transactions']
-    return HistoricalTransactions(services=services).get(crypto, address)
+def get_historical_transactions(crypto, address, service_mode='default', verbose=False):
+    services = crypto_data[crypto]['services']['historical_transactions'] # get best services
+    return HistoricalTransactions(services=services, verbose=verbose).get(crypto, address)
 
 
 def get_historical_price(crypto, fiat, date):
     return HistoricalPrice().get(crypto, fiat, date)
 
 
-def push_tx(crypto, tx_hex, service_mode='default'):
-    services = crypto_data[crypto]['services']['push_tx']
-    return  enforce_service_mode(
-        services, service_mode, PushTx, [crypto, tx_hex]
+def push_tx(crypto, tx_hex, service_mode='default', verbose=False):
+    services = crypto_data[crypto]['services']['push_tx'] # get best services
+    return enforce_service_mode(
+        services, service_mode, PushTx, [crypto, tx_hex], verbose
     )
 
 def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay):

@@ -155,16 +155,20 @@ class AutoFallback(object):
         """
         return "All either skipped or failed."
 
-def enforce_service_mode(services, mode, FetcherClass, args):
+def enforce_service_mode(services, mode, FetcherClass, args, verbose=False):
     """
     Fetches the value according to the mode of execution desired.
+    `FetcherClass` must be a class that is subclassed from AutoFallback.
+    `services` must be a list of Service classes.
+    `args` is a list of arguments used to make the service call, usually
+      something like ['btc', '1HwY...'] or ['btc', 'rur'], (depends on the FetcherClass)
     """
     if mode == 'default':
-        return FetcherClass(services=services).get(args)
+        return FetcherClass(services=services, verbose=verbose).get(*args)
 
     if mode == 'random':
         random.shuffle(services)
-        return FetcherClass(services=services).get(args)
+        return FetcherClass(services=services, verbose=verbose).get(*args)
 
     if mode.startswith('paranoid'):
         depth = int(mode[9:]) # 'paranoid-3' -> 3
@@ -175,7 +179,7 @@ def enforce_service_mode(services, mode, FetcherClass, args):
         results = []
         for service in services[:depth]:
             results.append(
-                FetcherClass(services=[service]).get(args)
+                FetcherClass(services=[service], verbose=verbose).get(*args)
             )
         if len(set(results)) == 1:
             # if all values match, return
