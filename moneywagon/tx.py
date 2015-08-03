@@ -25,25 +25,43 @@ class Transaction(object):
         if hex:
             self.hex = hex
 
-    def add_input_from_address(self, address, private_key=None, stragety='all'):
+    def add_raw_inputs(self, inputs, private_key=False):
+        """
+        Add a set of utxo's to this transaction. This method is better to use if you
+        want more fine control of which inputs get added to a transaction.
+        `inputs` is a list of "unspent outputs" (they were 'outputs' to previous transactions,
+          and 'inputs' to subsiquent transactions).
+
+        `private_key` - All inputs must be signable by the passed in private key.
+        """
+        for i in inputs:
+            self.ins.append(dict(input=i, private_key=private_key))
+
+    def add_inputs_from_address(self, address, private_key=None, amount='all'):
         """
         Make call to external service to get inputs from an address.
+        `amount` is the amount of [currency] worth of inputs to add from this address.
+          pass in 'all' (the default) to use *all* inputs found for this address.
         """
         from pybitcointools import history
         self.private_key = private_key
         self.change_address = address
 
         total_added = 0
+        ins = []
         for o in history(address):
             if (amount == 'all' or total_added < amount) and not o.get('spend'):
-                self.ins.append(o)
+                self.ins.append(
+                    dict(input=o, private_key=private_key)
+                )
                 total_added += o['value']
 
     def total_input_satoshis(self):
         """
         Add up all the satoshis coming from all input tx's.
         """
-        return sum([x['value'] for x in self.ins])
+        just_inputs = [x['input'] for x in self.ins]
+        return sum([x['value'] for x in just_inputs])
 
     def add_output(self, address, value, unit=None):
         """
@@ -92,10 +110,15 @@ class Transaction(object):
         if change_satoshi < 0:
             raise ValueError("Input amount must be more than all Output amounts. You need more bitcoin.")
 
-        tx = mktx(self.ins, self.outs + [{'address': self.change_address, 'value': change_satoshi}])
+        ins = [x['input'] for x in self.ins]
+
+        tx = mktx(ins, self.outs + [{'address': self.change_address, 'value': change_satoshi}])
 
         if signed:
-            tx = signall(tx, self.private_key)
+            for i, private_key in self.ins:
+                if not private_key:
+                    raise Exception("Can't sign transaction, missing private key")
+                tx = sign(tx, private_key, i)
 
         return tx
 
