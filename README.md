@@ -301,7 +301,7 @@ You can also specify the `amount` argument to `add_output` with a unit argument:
 
 ```python
 >>> tx.add_output(address, amount=1423, unit='bits')
->>> tx.add_output(address2, amount=1.3, units="dollars")
+>>> tx.add_output(address2, amount=1.3, units="usd")
 ```
 
 All exchange rates are taken from the `get_current_price` function defined above.
