@@ -27,6 +27,12 @@ def get_historical_transactions(crypto, address, service_mode='default', verbose
     services = crypto_data[crypto]['services']['historical_transactions'] # get best services
     return HistoricalTransactions(services=services, verbose=verbose).get(crypto, address)
 
+def get_utxos(crypto, address, service_mode='default', verbose=False):
+    unspent = []
+    for tx in get_historical_transactions(crypto, address, service_mode, verbose):
+        if tx.amount > 0:
+            unspend.append(tx)
+    return unspent
 
 def get_historical_price(crypto, fiat, date):
     return HistoricalPrice().get(crypto, fiat, date)

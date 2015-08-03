@@ -64,6 +64,57 @@ Traceback (most recent call last):
 Exception: Can not find price for nxt to mex
 ```
 
+Controlling Service Redundancy via `service_mode`
+-------------------------------------------------
+
+Since all cryptocurrencies are open source, many of them have multiple instances
+of block explorers running for public consumtion. These multiple services can
+be utilized in various ways to gain various advantages.
+
+Each blockchain function's high level API function call contains an optional keyword argument `service_mode`.
+The mods are as follows:
+
+* **default** - This method tris each service in order until it gets a valid response,
+and then returns that response.
+
+* **random** - This method is the same as the first, except the sources are randomized.
+
+* **paranoid-2** - This method will call the first service, then the second service,
+and then returns a response if the two responses are the same. If one API returns
+a different value than another sevice, a `ServiceDisagreement` exception is raised.
+
+* **paranoid-3** - Same as paranoid-2, except it calls three services and returns the value
+if all three services agree. The number '3' an be replaced with any integer. You pass
+in a number larger than the number of services programmed for that currency, then all
+effectively services re required to agree in order for a result to be returned.
+
+```python
+>>> from moneywagon import get_address_balance
+>>> get_address_balance('btc', '1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X', service_mode='paranoid-2')
+0.0002
+```
+
+In the above example, two calls will be made to two different services. One goes to the
+first address balance service defined for BTC, and then another call will be made to the
+second defined address balance service. In the case of the BTC currency, the first and second
+services are BlockCypher and Blockr. To see which services are programmed to which
+currencies, refer to the `crypto_data` module.
+
+You can also pass in an explicit set of services:
+
+```python
+>>> from moneywagon import get_address_balance
+>>> from moneywagon.services import Toshi, BlockchainInfo
+>>> s = [Toshi, BlockchainInfo]
+>>> get_address_balance('btc', '1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X', services=s, service_mode='random')
+0.0002
+```
+
+In this example, one single call will be made to either Blockchain.info or Toshi (chosen at random).
+If one of those services happens to be down at the monment, then the other one will be called and its
+value returned.
+
+
 Low level API
 -------------
 
@@ -146,6 +197,7 @@ even if one or more API services are down.
 On the other hand, if you call one of the API specific service classes (such as `CoinSwapCurrentPrice`)
 no fallback calls will occur. If the CoinSwap API does not support the passed in crypto/fiat pair,
 or if the service is not running, the call will raise an exception.
+
 
 Historical Cryptocurrency Price
 ===============================

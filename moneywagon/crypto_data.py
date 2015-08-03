@@ -96,7 +96,6 @@ crypto_data = {
             ]
         },
     },
-
     'myr': {
         'name': 'MyriadCoin',
         'genesis_date': datetime(2014, 2, 23),
@@ -115,7 +114,6 @@ crypto_data = {
             ]
         },
     },
-
     'vtc': {
         'name': 'Vertcoin',
         'genesis_date': datetime(2014, 1, 8),
@@ -134,8 +132,6 @@ crypto_data = {
             ]
         },
     },
-
-
     'ftc': {
         'name': 'Feathercoin',
         'genesis_date': datetime(2013, 4, 16),
@@ -154,7 +150,6 @@ crypto_data = {
             ]
         },
     },
-
     'drk': {
         'name': 'Dash',
         'genesis_date': datetime(2014, 1, 19),
