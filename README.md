@@ -83,10 +83,10 @@ and then returns that response.
 and then returns a response if the two responses are the same. If one API returns
 a different value than another sevice, a `ServiceDisagreement` exception is raised.
 
-* **paranoid-3** - Same as paranoid-2, except it calls three services and returns the value
+* **paranoid-3...n** - Same as paranoid-2, except it calls three services and returns the value
 if all three services agree. The number '3' an be replaced with any integer. You pass
 in a number larger than the number of services programmed for that currency, then all
-effectively services re required to agree in order for a result to be returned.
+effectively all services are required to agree in order for a result to be returned.
 
 ```python
 >>> from moneywagon import get_address_balance

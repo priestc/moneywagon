@@ -6,40 +6,49 @@ from .tx import Transaction
 from .crypto_data import crypto_data
 
 
-def get_current_price(crypto, fiat, service_mode='default', verbose=False):
+def get_current_price(crypto, fiat, service_mode='default', services=None, verbose=False):
     if service_mode.startswith('paranoid'):
         raise ValueError("paranoid mode not applicable for current price")
 
-    services = crypto_datP[crypto]['services']['current_price'] # get best services
+    if not services:
+        services = crypto_data[crypto]['services']['current_price'] # get best services
+
     return enforce_service_mode(
         services, service_mode, CurrentPrice, [crypto, fiat], verbose
     )
 
 
-def get_address_balance(crypto, address, service_mode='default', verbose=False):
-    services = crypto_data[crypto]['services']['address_balance'] # get best services
+def get_address_balance(crypto, address, service_mode='default', services=None, verbose=False):
+    if not services:
+        services = crypto_data[crypto]['services']['address_balance'] # get best services
+
     return enforce_service_mode(
         services, service_mode, AddressBalance, [crypto, address], verbose
     )
 
 
-def get_historical_transactions(crypto, address, service_mode='default', verbose=False):
-    services = crypto_data[crypto]['services']['historical_transactions'] # get best services
+def get_historical_transactions(crypto, address, service_mode='default', services=None, verbose=False):
+    if not services:
+        services = crypto_data[crypto]['services']['historical_transactions'] # get best services
+
     return HistoricalTransactions(services=services, verbose=verbose).get(crypto, address)
 
+
 def get_utxos(crypto, address, service_mode='default', verbose=False):
-    unspent = []
-    for tx in get_historical_transactions(crypto, address, service_mode, verbose):
-        if tx.amount > 0:
-            unspend.append(tx)
-    return unspent
+    if not services:
+        services = crypto_data[crypto]['services']['unspent_outputs'] # get best services
+    return enforce_service_mode(
+        services, service_mode, UnspentOutputs, [crypto, address], verbose
+    )
+
 
 def get_historical_price(crypto, fiat, date):
     return HistoricalPrice().get(crypto, fiat, date)
 
 
-def push_tx(crypto, tx_hex, service_mode='default', verbose=False):
-    services = crypto_data[crypto]['services']['push_tx'] # get best services
+def push_tx(crypto, tx_hex, service_mode='default', verbose=False, services=None):
+    if not services:
+        services = crypto_data[crypto]['services']['push_tx'] # get best services
     return enforce_service_mode(
         services, service_mode, PushTx, [crypto, tx_hex], verbose
     )
@@ -63,21 +72,27 @@ class HistoricalTransactions(AutoFallback):
     service_method_name = 'get_transactions'
 
     def get(self, crypto, address):
-        crypto = crypto.lower()
         return self._try_each_service(crypto, address)
 
     def no_service_msg(self, crypto, address):
         return "Could not get transactions for: %s" % crypto
 
 
+class UnspentOutputs(AutoFallback):
+    service_method_name = 'get_unspent_outputs'
+
+    def get(self, crypto, address):
+        return self._try_each_service(crypto, address)
+
+    def no_service_msg(self, crypto, address):
+        return "Could not get unspent outputs for: %s" % crypto
+
+
 class CurrentPrice(AutoFallback):
     service_method_name = 'get_price'
 
     def get(self, crypto, fiat):
-        crypto = crypto.lower()
-        fiat = fiat.lower()
-
-        if crypto == fiat:
+        if crypto.lower() == fiat.lower():
             return (1.0, 'math')
 
         return self._try_each_service(crypto, fiat)
@@ -90,7 +105,6 @@ class AddressBalance(AutoFallback):
     service_method_name = "get_balance"
 
     def get(self, crypto, address):
-        crypto = crypto.lower()
         return self._try_each_service(crypto, address)
 
     def no_service_msg(self, crypto, address):
@@ -101,7 +115,6 @@ class PushTx(AutoFallback):
     service_method_name = "push_tx"
 
     def push(self, crypto, tx_hex):
-        crypto = crypto.lower()
         return self._try_each_service(crypto, tx_hex)
 
     def no_service_msg(self, crypto, hex):

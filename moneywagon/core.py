@@ -23,7 +23,7 @@ class Service(object):
     Some `Services` subclass will only support a subset of all pissible blockchain functions.
     All Services should subclass this class, and implement their own `get_*` method.
     """
-    supported_cryptos = None
+    supported_cryptos = None # must be a list of lower case currency codes.
 
     def __init__(self, verbose=False, responses=None):
         self.responses = responses or {} # for caching
@@ -78,6 +78,17 @@ class Service(object):
         """
         raise NotImplementedError()
 
+    def get_unspent_outputs(self, crypto, address):
+        """
+        Default implmentation of this function that uses get_transaction
+        Subclasses should overwrite this with a direct call to get utxo (if applicable)
+        """
+        unspent = []
+        for tx in self.get_transactions(crypto, address)
+            if tx.amount > 0:
+                unspend.append(tx)
+        return unspent
+
     def get_balance(self, crypto, address):
         """
         Get the amount of coin in the address passed in.
@@ -128,8 +139,8 @@ class AutoFallback(object):
         fixed quickly.
         """
         for service in self.services:
-            crypto = (args and args[0]) or kwargs['crypto']
-            if service.supported_cryptos and (crypto.lower() not in service.supported_cryptos):
+            crypto = ((args and args[0]) or kwargs['crypto']).lower()
+            if service.supported_cryptos and (crypto not in service.supported_cryptos):
                 if self.verbose:
                     print("SKIP:", "%s not supported for %s" % (crypto, service.__class__.__name__))
                 continue
