@@ -11,8 +11,8 @@ For instance, lets say you are building an application in Python that
 needs to know the current exchange rate between BTC and USD. Before moneywagon,
 you had to hardcode your application to make an HTTP request to a single service like
 bitstamp to get the current price. If the bitstamp API were ever to change, your
-code would break, wasting development time. With moneywagon, you code yor application
-to the moneywagon API (which doesn't change).
+code would break, wasting development time. With moneywagon, you code your application
+to the moneywagon API (which doesn't change), and under the hood you can swap between services.
 
 This tool is still being developed, but currently has 5 principle functions:
 

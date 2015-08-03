@@ -13,14 +13,14 @@ crypto_data = {
                 Bitstamp, Winkdex, BTCE, BTER, Cryptonator
             ],
             'address_balance': [
-                BlockCypher, Blockr, Toshi, BitEasy, BlockChainInfo,
+                Toshi, BlockCypher, Blockr, BitEasy, BlockChainInfo,
                 BitcoinAbe
             ],
             'historical_transactions': [
                 Blockr, Toshi
             ],
             'push_tx': [
-                Blockr, BlockChainInfo
+                BlockChainInfo, Blockr
             ]
         },
     },
@@ -110,7 +110,7 @@ crypto_data = {
                 MYRCryptap, BirdOnWheels
             ],
             'push_tx': [
-
+                MYRCryptap
             ]
         },
     },
@@ -128,7 +128,7 @@ crypto_data = {
                 ThisIsVTC
             ],
             'push_tx': [
-
+                ThisIsVTC
             ]
         },
     },
@@ -146,7 +146,7 @@ crypto_data = {
                 FTCe
             ],
             'push_tx': [
-
+                FTCe
             ]
         },
     },
