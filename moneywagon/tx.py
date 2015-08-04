@@ -77,9 +77,9 @@ class Transaction(object):
         """
         Set the miner fee, if unit is not set, assumes value is satoshi
         """
-        if value = 'optimal':
+        if value == 'optimal':
             self.fee_satoshi = 'optimal'
-        else
+        else:
             self.fee_satoshi = from_unit_to_satoshi(value, unit)
 
     def estimate_size(self):

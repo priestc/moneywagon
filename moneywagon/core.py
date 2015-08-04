@@ -1,7 +1,6 @@
 from __future__ import print_function
 import random
 import requests
-from .crypto_data import crypto_data
 
 useragent = 'moneywagon 1.3.0'
 
@@ -84,7 +83,7 @@ class Service(object):
         Subclasses should overwrite this with a direct call to get utxo (if applicable)
         """
         unspent = []
-        for tx in self.get_transactions(crypto, address)
+        for tx in self.get_transactions(crypto, address):
             if tx.amount > 0:
                 unspend.append(tx)
         return unspent

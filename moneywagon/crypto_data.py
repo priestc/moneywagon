@@ -24,7 +24,7 @@ crypto_data = {
             ]
         },
     },
-    'ltc': {,
+    'ltc': {
         'name': 'Litecoin',
         'genesis_date': datetime(2011, 10, 7),
         'services': {
@@ -62,7 +62,7 @@ crypto_data = {
     },
     'doge': {
         'name': 'Dogecoin',
-        'genesis_date': datetime(2013, 12, 6)],
+        'genesis_date': datetime(2013, 12, 6),
         'services': {
             'current_price': [
                 BTCE, BTER, Cryptonator
@@ -80,7 +80,7 @@ crypto_data = {
     },
     'nxt': {
         'name': 'Nxt',
-        'genesis_date': datetime(2013, 10, 29)
+        'genesis_date': datetime(2013, 10, 29),
         'services': {
             'current_price': [
                 Cryptonator
