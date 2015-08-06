@@ -105,8 +105,25 @@ class Winkdex(Service):
         url = "https://winkdex.com/api/v0/price"
         return self.get_url(url).json()['price'] / 100.0, 'winkdex'
 
+class BlockStrap(Service):
+    """
+    Documentation here: http://docs.blockstrap.com/en/api/
+    """
+    domain = 'api.blockstrap.com'
+    supported_cryptos = ['btc', 'ltc', 'drk', 'doge']
+
+    def address_balance(self, crypto, address, confirmations=None):
+        url = "http://%s/v0/%s/address/id/%s" % (self.domain, crypto, address)
+        print(url)
+        response = self.get_url(url).json()
+        return response['data']['address']['inputs_value_confirmed'] / 1e8
+
 
 class BitEasy(Service):
+    """
+    Most functions from this servie require an API key. therefore only
+    address balance is supported at this time.
+    """
     supported_cryptos = ['btc']
 
     def get_balance(self, crypto, address):
@@ -248,7 +265,7 @@ class CoinSwap(Service):
 
 
 class ChainSo(Service):
-    supported_cryptos = ['doge']
+    supported_cryptos = ['doge', 'btc']
 
     def get_transactions(self, crypto, address):
         url = "https://chain.so/api/v2/get_tx_unspent/DOGE/" + address
@@ -336,7 +353,7 @@ ALL_SERVICES = [
     Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
     BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
     AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
-    CryptapUS, BTER, CoinSwap, ChainSo,
+    CryptapUS, BTER, CoinSwap, ChainSo, BlockStrap,
 
     BitpayInsight, ThisIsVTC, BirdOnWheels, MYRCryptap, ReddcoinCom, FTCe,
 
