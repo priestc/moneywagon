@@ -20,7 +20,7 @@ crypto_data = {
                 Blockr, Toshi
             ],
             'push_tx': [
-                BlockChainInfo, Blockr
+                BlockChainInfo, Blockr, BlockStrap
             ]
         },
     },
@@ -38,7 +38,7 @@ crypto_data = {
                 Blockr
             ],
             'push_tx': [
-                Blockr
+                Blockr, BlockStrap
             ]
         },
     },
@@ -74,7 +74,7 @@ crypto_data = {
                 ChainSo
             ],
             'push_tx': [
-
+                BlockStrap
             ]
         },
     },

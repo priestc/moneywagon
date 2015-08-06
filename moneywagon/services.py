@@ -118,6 +118,9 @@ class BlockStrap(Service):
         response = self.get_url(url).json()
         return response['data']['address']['inputs_value_confirmed'] / 1e8
 
+    def pushtx(self, crypto, tx):
+        url = "http://%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx)
+        return self.get_url(url)['data']['id']
 
 class BitEasy(Service):
     """
