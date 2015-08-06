@@ -74,6 +74,7 @@ class Service(object):
 
     def get_transactions(self, crypto, address):
         """
+        Must be returned with the most recent transaction at the top.
         """
         raise NotImplementedError()
 

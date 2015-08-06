@@ -105,6 +105,7 @@ class Winkdex(Service):
         url = "https://winkdex.com/api/v0/price"
         return self.get_url(url).json()['price'] / 100.0, 'winkdex'
 
+
 class BlockStrap(Service):
     """
     Documentation here: http://docs.blockstrap.com/en/api/
@@ -121,6 +122,21 @@ class BlockStrap(Service):
     def pushtx(self, crypto, tx):
         url = "http://%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx)
         return self.get_url(url)['data']['id']
+
+    def get_transactions(self, crypto, address):
+        url = "http://%s/v0/%s/address/transactions/%s" % (self.domain, crypto, address)
+        txs = []
+        for tx in self.get_url(url).json()['data']['address']['transactions']:
+            #print(tx)
+            s_amount = tx['tx_address_input_value'] or tx['tx_address_output_value'] * -1
+            txs.append(dict(
+                date=arrow.get(tx['block_time']).datetime,
+                amount=s_amount / 1e8,
+                confirmations=tx['confirmations'],
+                txid=tx['id'],
+            ))
+        return txs
+
 
 class BitEasy(Service):
     """
@@ -278,10 +294,11 @@ class ChainSo(Service):
         for tx in response.json()['data']['txs']:
             transactions.append(dict(
                 date=arrow.get(tx['time']).datetime,
-                amount=tx['value'],
+                amount=float(tx['value']),
                 txid=tx['txid'],
                 confirmations=tx['confirmations'],
             ))
+        transactions.reverse()
         return transactions
 
 
