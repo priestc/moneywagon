@@ -10,7 +10,7 @@ crypto_data = {
         'genesis_date': datetime(2009, 1, 12),
         'services': {
             'current_price': [
-                Bitstamp, Winkdex, BTCE, BTER, Cryptonator
+                Bitstamp, Winkdex, BTCE, BTER, Cryptonator, ChainSo
             ],
             'address_balance': [
                 Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BitEasy,
@@ -29,7 +29,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 10, 7),
         'services': {
             'current_price': [
-                BTCE, BTER, Cryptonator
+                BTCE, BTER, Cryptonator, ChainSo
             ],
             'address_balance': [
                 BlockCypher, Blockr, BlockStrap, LitecoinAbe, ChainSo
@@ -47,7 +47,7 @@ crypto_data = {
         'genesis_date': datetime(2012, 8, 19),
         'services': {
             'current_price': [
-                BTCE, BTER, Cryptonator
+                BTCE, BTER, Cryptonator, ChainSo
             ],
             'address_balance': [
                 Blockr
@@ -65,7 +65,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 12, 6),
         'services': {
             'current_price': [
-                BTCE, BTER, Cryptonator
+                BTCE, BTER, Cryptonator, ChainSo
             ],
             'address_balance': [
                 DogeChainInfo, BlockStrap
@@ -83,7 +83,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 10, 29),
         'services': {
             'current_price': [
-                Cryptonator
+                Cryptonator, ChainSo
             ],
             'address_balance': [
                 NXTPortal
@@ -101,7 +101,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 2, 23),
         'services': {
             'current_price': [
-                Cryptonator
+                Cryptonator, ChainSo
             ],
             'address_balance': [
                 MYRCryptap, CryptapUS, BirdOnWheels
@@ -119,7 +119,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 8),
         'services': {
             'current_price': [
-                Cryptonator
+                Cryptonator, ChainSo
             ],
             'address_balance': [
                 ThisIsVTC
@@ -137,7 +137,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 4, 16),
         'services': {
             'current_price': [
-                Cryptonator
+                Cryptonator, ChainSo
             ],
             'address_balance': [
                 FTCe
@@ -155,7 +155,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 19),
         'services': {
             'current_price': [
-                Cryptonator
+                Cryptonator, ChainSo
             ],
             'address_balance': [
                 CryptoID
