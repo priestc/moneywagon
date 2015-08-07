@@ -75,7 +75,7 @@ class Toshi(Service):
         transactions = []
         for tx in to_iterate:
             transactions.append(dict(
-                amount=tx['amount'],
+                amount=sum([x['amount'] / 1e8 for x in tx['outputs'] if address in x['addresses']]),
                 txid=tx['hash'],
             ))
         return transactions

@@ -30,9 +30,10 @@ def get_address_balance(crypto, address, service_mode='default', services=None, 
 def get_historical_transactions(crypto, address, service_mode='default', services=None, verbose=False):
     if not services:
         services = crypto_data[crypto]['services']['historical_transactions'] # get best services
-        print("Services!!!", services)
 
-    return HistoricalTransactions(services=services, verbose=verbose).get(crypto, address)
+    return enforce_service_mode(
+        services, service_mode, HistoricalTransactions, [crypto, address], verbose
+    )
 
 
 def get_utxos(crypto, address, service_mode='default', verbose=False):

@@ -225,7 +225,24 @@ def enforce_service_mode(services, mode, FetcherClass, args, verbose=False):
             results.append(
                 FetcherClass(services=[service], verbose=verbose).get(*args)
             )
-        if len(set(results)) == 1:
+
+        if FetcherClass.__name__ in ["HistoricalTransactions", "UnspentOutputs"]:
+            # in the case of historical transactions, not all services return the
+            # same attributes, so we can't simply compare that they are all
+            # equal. So instead we only compare txid and amount.
+            stripped = []
+            for result in results:
+                stripped.append(
+                    ", ".join(
+                        ["[id: %s, amount: %s]" % (x['txid'], x['amount']) for x in result]
+                    )
+                )
+            to_compare = stripped
+        else:
+            to_compare = results
+        #from ipdb import set_trace; set_trace()
+
+        if len(set(to_compare)) == 1:
             # if all values match, return
             return results[0]
         else:
