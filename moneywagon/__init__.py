@@ -30,6 +30,7 @@ def get_address_balance(crypto, address, service_mode='default', services=None, 
 def get_historical_transactions(crypto, address, service_mode='default', services=None, verbose=False):
     if not services:
         services = crypto_data[crypto]['services']['historical_transactions'] # get best services
+        print("Services!!!", services)
 
     return HistoricalTransactions(services=services, verbose=verbose).get(crypto, address)
 
@@ -107,7 +108,7 @@ class AddressBalance(AutoFallback):
     def get(self, crypto, address, confirmations=1):
         return self._try_each_service(crypto, address, confirmations)
 
-    def no_service_msg(self, crypto, address):
+    def no_service_msg(self, crypto, address, confirmations=1):
         return "Could not get confirmed address balance for: %s" % crypto
 
 

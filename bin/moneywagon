@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 import argparse
-from moneywagon import CurrentPrice, HistoricalPrice, AddressBalance, HistoricalTransactions
+from moneywagon import CurrentPrice, HistoricalPrice, get_address_balance, get_historical_transactions
 
 parser = argparse.ArgumentParser() #version='1.0.2')
 
@@ -24,16 +24,19 @@ historical_price_parser.add_argument('--verbose', action='store_true', help='Inc
 address_balance_parser = subparsers.add_parser('address-balance', help='Get total amount of coin in wallet.')
 address_balance_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 address_balance_parser.add_argument('address', action='store', help='Wallet address')
+address_balance_parser.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 address_balance_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
 historical_tx_parser = subparsers.add_parser('historical-transactions', help='Get list of all transactions for this address.')
 historical_tx_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 historical_tx_parser.add_argument('address', action='store', help='Wallet address')
+historical_tx_parser.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 historical_tx_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
 historical_tx_parser = subparsers.add_parser('wallet-balance', help='Get current value in fiat of a set of crypo addresses.')
 historical_tx_parser.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='Wallet file')
 historical_tx_parser.add_argument('fiat', action='store', help='Fiat currency')
+historical_tx_parser.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 historical_tx_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
 argz = parser.parse_args()
@@ -47,10 +50,24 @@ elif argz.subparser_name == 'historical-price':
     print(price, source, date)
 
 elif argz.subparser_name == 'address-balance':
-    print(AddressBalance(verbose=argz.verbose).get(argz.crypto, argz.address))
+    if argz.paranoid:
+        mode = 'paranoid-%s' % argz.paranoid
+    else:
+        mode = 'default'
+
+    print(get_address_balance(
+        argz.crypto, argz.address, service_mode=mode, verbose=argz.verbose
+    ))
 
 elif argz.subparser_name == 'historical-transactions':
-    print(HistoricalTransactions(verbose=argz.verbose).get(argz.crypto, argz.address))
+    if argz.paranoid:
+        mode = 'paranoid-%s' % argz.paranoid
+    else:
+        mode = 'default'
+
+    print(get_historical_transactions(
+        argz.crypto, argz.address, service_mode=mode, verbose=argz.verbose
+    ))
 
 elif argz.subparser_name == 'wallet-balance':
     current_price = CurrentPrice(verbose=argz.verbose) #defined here to cache api calls

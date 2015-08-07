@@ -31,7 +31,7 @@ class Service(object):
         self.last_raw_response = None
 
     def __repr__(self):
-        return "%s (%s in cache)" % (self.__class__.__name__, len(self.responses))
+        return "<Service: %s (%s in cache)>" % (self.__class__.__name__, len(self.responses))
 
     def get_url(self, url, *args, **kwargs):
         return self._external_request('get', url, *args, **kwargs)
@@ -65,23 +65,39 @@ class Service(object):
         self.last_raw_response = response
         return response
 
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         """
         Makes call to external service, and returns the price for given
         fiat/crypto pair. Returns two item tuple: (price, best_market)
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            "This service does not support getting the current fiat exchange rate."
+            "Or rather it has no defined 'get_current_price' method."
+        )
 
     def get_historical_price(self, crypto, fiat, at_time):
         """
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            "This service does not support getting historical price."
+            "Or rather it has no defined 'get_historical_price' method."
+        )
 
-    def get_transactions(self, crypto, address):
+    def get_transactions(self, crypto, address, confirmations=1):
         """
         Must be returned with the most recent transaction at the top.
+        Returned is a list of dicts that have the following keys:
+
+        `amount`: Number of units of currency moved. Always in base units (not satoshis).
+        `date`: a datetime object of when the transaction was made.
+        `txid`: The transaction ID, looks like a hash.
+        `confirmations`: integer of the number of confirmations this transaction has on top of it.
+
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            "This service does not support getting historical transactions."
+            "Or rather it has no defined 'get_transactions' method."
+        )
 
     def get_unspent_outputs(self, crypto, address):
         """
@@ -94,22 +110,31 @@ class Service(object):
                 unspend.append(tx)
         return unspent
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         """
         Get the amount of coin in the address passed in.
         Always returns a single float.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            "This service does not support getting address balances,"
+            "Or rather it has no defined 'get_balance' method."
+        )
 
     def push_tx(self, crypto, tx_hex):
         """
-        Push transaction to the miner network. Returns nothing if done
+        Push transaction to the miner network. Returns txid if done
         successfully.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            "This service does not support pushing transactions to the network."
+            "Or rather it has no defined 'push_tx' method."
+        )
 
     def get_optimal_fee(self, crypto, tx_bytes, acceptable_block_delay):
-        raise NotImplementedError()
+        raise NotImplementedError(
+            "This service does not support getting optimal fee."
+            "Or rather it has no defined 'get_optimal_fee' method."
+        )
 
 
 class AutoFallback(object):

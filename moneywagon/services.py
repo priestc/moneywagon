@@ -30,7 +30,7 @@ class Blockr(Service):
         response = self.get_url(url)
         return response.json()['data']['balance']
 
-    def get_transactions(self, crypto, address):
+    def get_transactions(self, crypto, address, confirmations=1):
         url = 'http://%s.blockr.io/api/v1/address/txs/%s' % (crypto, address)
         response = self.get_url(url)
 
@@ -60,15 +60,20 @@ class Toshi(Service):
         response = self.get_url(url).json()
         return response['balance'] / 1e8
 
-    def get_transactions(self, crypto, address):
+    def get_transactions(self, crypto, address, confirmations=1):
         """
         This call also returns unconfirmed transactions.
         """
         url = "%s/addresses/%s/transactions" % (self.url, address)
-        response = self.get_url(url)
+        response = self.get_url(url).json()
+
+        if confirmations == 0:
+            to_iterate = response['transactions'] + response['unconfirmed_transactions']
+        else:
+            to_iterate = response['transactions']
 
         transactions = []
-        for tx in response.json()['transactions']:
+        for tx in to_iterate:
             transactions.append(dict(
                 amount=tx['amount'],
                 txid=tx['hash'],
@@ -113,7 +118,7 @@ class BlockStrap(Service):
     domain = 'api.blockstrap.com'
     supported_cryptos = ['btc', 'ltc', 'drk', 'doge']
 
-    def address_balance(self, crypto, address, confirmations=None):
+    def get_balance(self, crypto, address, confirmations=None):
         url = "http://%s/v0/%s/address/id/%s" % (self.domain, crypto, address)
         response = self.get_url(url).json()
         return response['data']['address']['inputs_value_confirmed'] / 1e8
@@ -290,7 +295,7 @@ class ChainSo(Service):
         resp = self.get_url(url).json()
         items = resp['data']['prices']
         if len(items) == 0:
-            raise SkipThisService("Chain.so returned no results")
+            raise SkipThisService("Chain.so can't get price for %s/%s" % (crypto, fiat))
         return float(items[0]['price']), "%s via Chain.so" % items[0]['exchange']
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -298,7 +303,7 @@ class ChainSo(Service):
             self.base_url, crypto, address, confirmations
         )
         response = self.get_url(url)
-        return float(response.json()['confirmed_balance'])
+        return float(response.json()['data']['confirmed_balance'])
 
     def get_transactions(self, crypto, address, confirmations=1):
         url = "%s/get_tx_received/%s/%s" % (self.base_url, crypto, address)
@@ -324,6 +329,12 @@ class ChainSo(Service):
         url = "%s/send_tx/%s" % (self.base_url, crypto)
         resp = self.post_url(url, {'tx_hex': tx})
         return resp.json()['txid']
+
+    def get_block(self, block_number=None, block_hash=None):
+        url = "%s/get_block/%s/%s%s" % (
+            self.base_url, crypto, block_number, block_hash
+        )
+        resp = self.get_url(url).json()
 
 
 class ExCoIn(Service):
