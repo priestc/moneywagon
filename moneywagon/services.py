@@ -4,7 +4,7 @@ import arrow
 class Bitstamp(Service):
     supported_cryptos = ['btc']
 
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         if fiat.lower() != 'usd':
             raise SkipThisService('Bitstamp only does USD->BTC')
 
@@ -81,7 +81,7 @@ class Toshi(Service):
 
 
 class BTCE(Service):
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto, fiat)
         url = "https://btc-e.com/api/3/ticker/" + pair
         response = self.get_url(url).json()
@@ -89,7 +89,7 @@ class BTCE(Service):
 
 
 class Cryptonator(Service):
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         pair = "%s-%s" % (crypto, fiat)
         url = "https://www.cryptonator.com/api/ticker/%s" % pair
         response = self.get_url(url).json()
@@ -99,7 +99,7 @@ class Cryptonator(Service):
 class Winkdex(Service):
     supported_cryptos = ['btc']
 
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         if fiat != 'usd':
             raise SkipThisService("winkdex is btc->usd only")
         url = "https://winkdex.com/api/v0/price"
@@ -248,7 +248,7 @@ class CryptapUS(Service):
 
 
 class BTER(Service):
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         url_template = "http://data.bter.com/api/1/ticker/%s_%s"
         url = url_template % (crypto, fiat)
 
@@ -274,7 +274,7 @@ class BTER(Service):
 
 
 class CoinSwap(Service):
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         chunk = ("%s/%s" % (crypto, fiat)).upper()
         url = "https://api.coin-swap.net/market/stats/%s" % chunk
         response = self.get_url(url).json()
@@ -285,7 +285,7 @@ class ChainSo(Service):
     base_url = "https://chain.so/api/v2"
     supported_cryptos = ['doge', 'btc', 'ltc']
 
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         url = "%s/get_price/%s/%s" % (self.base_url, crypto, fiat)
         resp = self.get_url(url).json()
         first_item = float(resp['data']['prices'][0])
@@ -323,9 +323,10 @@ class ChainSo(Service):
         resp = self.post_url(url, {'tx_hex': tx})
         return resp.json()['txid']
 
+
 class ExCoIn(Service):
     # decommissioned
-    def get_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat):
         url = "https://api.exco.in/v1/exchange/%s/%s" % (fiat, crypto)
         response = self.get_url(url).json()
         return float(response['last_price']), 'exco.in'

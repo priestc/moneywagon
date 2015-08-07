@@ -89,7 +89,7 @@ class UnspentOutputs(AutoFallback):
 
 
 class CurrentPrice(AutoFallback):
-    service_method_name = 'get_price'
+    service_method_name = 'get_current_price'
 
     def get(self, crypto, fiat):
         if crypto.lower() == fiat.lower():
