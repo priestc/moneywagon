@@ -29,7 +29,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 10, 7),
         'services': {
             'current_price': [
-                BTCE, BTER, Cryptonator, ChainSo
+                BTCE, ChainSo, BTER, Cryptonator
             ],
             'address_balance': [
                 BlockCypher, Blockr, BlockStrap, LitecoinAbe, ChainSo
@@ -47,7 +47,7 @@ crypto_data = {
         'genesis_date': datetime(2012, 8, 19),
         'services': {
             'current_price': [
-                BTCE, BTER, Cryptonator, ChainSo
+                BTCE, ChainSo, BTER, Cryptonator
             ],
             'address_balance': [
                 Blockr
@@ -65,7 +65,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 12, 6),
         'services': {
             'current_price': [
-                BTCE, BTER, Cryptonator, ChainSo
+                BTCE, BTER, ChainSo, Cryptonator
             ],
             'address_balance': [
                 DogeChainInfo, BlockStrap
@@ -83,7 +83,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 10, 29),
         'services': {
             'current_price': [
-                Cryptonator, ChainSo
+                ChainSo, Cryptonator
             ],
             'address_balance': [
                 NXTPortal
@@ -137,7 +137,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 4, 16),
         'services': {
             'current_price': [
-                Cryptonator, ChainSo
+                ChainSo, Cryptonator
             ],
             'address_balance': [
                 FTCe
@@ -155,7 +155,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 19),
         'services': {
             'current_price': [
-                Cryptonator, ChainSo
+                ChainSo, Cryptonator
             ],
             'address_balance': [
                 CryptoID

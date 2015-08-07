@@ -288,8 +288,10 @@ class ChainSo(Service):
     def get_current_price(self, crypto, fiat):
         url = "%s/get_price/%s/%s" % (self.base_url, crypto, fiat)
         resp = self.get_url(url).json()
-        first_item = float(resp['data']['prices'][0])
-        return first_item['price'], "%s via Chain.so" % first_item['source']
+        items = resp['data']['prices']
+        if len(items) == 0:
+            raise SkipThisService("Chain.so returned no results")
+        return float(items[0]['price']), "%s via Chain.so" % items[0]['exchange']
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s/get_address_balance/%s/%s/%s" % (
