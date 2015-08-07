@@ -16,7 +16,7 @@ class Bitstamp(Service):
 class BlockCypher(Service):
     supported_cryptos = ['btc', 'ltc', 'uro']
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "http://api.blockcypher.com/v1/%s/main/addrs/%s" % (crypto, address)
         response = self.get_url(url)
         return response.json()['balance'] / 1.0e8
@@ -25,7 +25,7 @@ class BlockCypher(Service):
 class Blockr(Service):
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "http://%s.blockr.io/api/v1/address/info/%s" % (crypto, address)
         response = self.get_url(url)
         return response.json()['data']['balance']
@@ -55,7 +55,7 @@ class Toshi(Service):
 
     supported_cryptos = ['btc']
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "%s/addresses/%s" % (self.url, address)
         response = self.get_url(url).json()
         return response['balance'] / 1e8
@@ -115,7 +115,6 @@ class BlockStrap(Service):
 
     def address_balance(self, crypto, address, confirmations=None):
         url = "http://%s/v0/%s/address/id/%s" % (self.domain, crypto, address)
-        print(url)
         response = self.get_url(url).json()
         return response['data']['address']['inputs_value_confirmed'] / 1e8
 
@@ -127,7 +126,6 @@ class BlockStrap(Service):
         url = "http://%s/v0/%s/address/transactions/%s" % (self.domain, crypto, address)
         txs = []
         for tx in self.get_url(url).json()['data']['address']['transactions']:
-            #print(tx)
             s_amount = tx['tx_address_input_value'] or tx['tx_address_output_value'] * -1
             txs.append(dict(
                 date=arrow.get(tx['block_time']).datetime,
@@ -145,7 +143,7 @@ class BitEasy(Service):
     """
     supported_cryptos = ['btc']
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "https://api.biteasy.com/blockchain/v1/addresses/" + address
         response = self.get_url(url)
         return response.json()['data']['balance'] / 1e8
@@ -154,7 +152,7 @@ class BitEasy(Service):
 class BlockChainInfo(Service):
     supported_cryptos = ['btc']
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "http://blockchain.info/address/%s?format=json" % address
         response = self.get_url(url)
         return float(response.json()['final_balance']) * 1e-8
@@ -165,7 +163,7 @@ class BitcoinAbe(Service):
     supported_cryptos = ['btc']
     base_url = "http://bitcoin-abe.info/chain/Bitcoin"
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = self.base_url + "/q/addressbalance/" + address
         response = self.get_url(url)
         return float(response.content)
@@ -195,7 +193,7 @@ class Atorox(BitcoinAbe):
 class FeathercoinCom(Service):
     supported_cryptos = ['ftc']
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url= "http://api.feathercoin.com/?output=balance&address=%s&json=1" % address
         response = self.get_url(url)
         return float(response.json()['balance'])
@@ -204,7 +202,7 @@ class FeathercoinCom(Service):
 class NXTPortal(Service):
     supported_cryptos = ['nxt']
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url='http://nxtportal.org/nxt?requestType=getAccount&account=' + address
         response = self.get_url(url)
         return float(response.json()['balanceNQT']) * 1e-8
@@ -235,7 +233,7 @@ class CryptoID(Service):
         'icg', 'rpc', ''
     ]
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url ="http://chainz.cryptoid.info/%s/api.dws?q=getbalance&a=%s" % (crypto, address)
         return float(self.get_url(url).content)
 
@@ -244,7 +242,7 @@ class CryptapUS(Service):
     supported_cryptos = [
         'nmc', 'wds', 'ber', 'scn', 'sc0', 'wdc', 'nvc', 'cas', 'myr'
     ]
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "http://cryptap.us/%s/explorer/q/addressbalance/%s" % (crypto, address)
         return float(self.get_url(url).content)
 
@@ -284,10 +282,18 @@ class CoinSwap(Service):
 
 
 class ChainSo(Service):
-    supported_cryptos = ['doge', 'btc']
+    base_url = "https://chain.so/api/v2"
+    supported_cryptos = ['doge', 'btc', 'ltc']
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "%s/get_address_balance/%s/%s/%s" % (
+            self.base_url, crypto, address, confirmations
+        )
+        response = self.get_url(url)
+        return float(response.json()['confirmed_balance'])
 
     def get_transactions(self, crypto, address):
-        url = "https://chain.so/api/v2/get_tx_unspent/DOGE/" + address
+        url = "%s/get_tx_received/%s/%s" % (self.base_url, crypto, address)
         response = self.get_url(url)
 
         transactions = []
@@ -301,6 +307,10 @@ class ChainSo(Service):
         transactions.reverse()
         return transactions
 
+    def pushtx(self, tx):
+        url = "%s/send_tx/%s" % (self.base_url, crypto)
+        resp = self.post_url(url, {'tx_hex': tx})
+        return resp.json()['txid']
 
 class ExCoIn(Service):
     # decommissioned
@@ -315,7 +325,7 @@ class BitpayInsight(Service):
     supported_cryptos = ['btc']
     domain = "http://insight.bitpay.com"
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "%s/api/addr/%s/balance" % (self.domain, address)
         return float(self.get_url(url).content) / 1e8
 

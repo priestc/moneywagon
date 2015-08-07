@@ -104,11 +104,11 @@ class CurrentPrice(AutoFallback):
 class AddressBalance(AutoFallback):
     service_method_name = "get_balance"
 
-    def get(self, crypto, address):
-        return self._try_each_service(crypto, address)
+    def get(self, crypto, address, confirmations=1):
+        return self._try_each_service(crypto, address, confirmations)
 
     def no_service_msg(self, crypto, address):
-        return "Could not get address balance for: %s" % crypto
+        return "Could not get confirmed address balance for: %s" % crypto
 
 
 class PushTx(AutoFallback):

@@ -94,7 +94,7 @@ class Transaction(object):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
-        from pybitcointools import mktx, signall
+        from bitcoin import mktx, sign
         from moneywagon import get_optimal_fee
 
         total_ins = self.total_input_satoshis()

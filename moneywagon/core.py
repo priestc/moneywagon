@@ -27,6 +27,8 @@ class Service(object):
     def __init__(self, verbose=False, responses=None):
         self.responses = responses or {} # for caching
         self.verbose = verbose
+        self.last_url = None
+        self.last_raw_response = None
 
     def __repr__(self):
         return "%s (%s in cache)" % (self.__class__.__name__, len(self.responses))
@@ -42,6 +44,7 @@ class Service(object):
         Wrapper for requests.get with useragent automatically set.
         And also all requests are reponses are cached.
         """
+        self.last_url = url
         if url in self.responses.keys() and method == 'get':
             return self.responses[url] # return from cache if its there
 
@@ -58,6 +61,8 @@ class Service(object):
         response = getattr(requests, method)(url, *args, **kwargs)
         if method == 'get':
             self.responses[url] = response # cache for later
+
+        self.last_raw_response = response
         return response
 
     def get_price(self, crypto, fiat):
