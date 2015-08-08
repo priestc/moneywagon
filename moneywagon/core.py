@@ -7,10 +7,10 @@ useragent = 'moneywagon 1.3.0'
 class ServiceDisagreement(Exception):
     pass
 
-class SkipThisService(Exception):
+class NoService(Exception):
     pass
 
-class NoService(Exception):
+class SkipThisService(NoService):
     pass
 
 class NoData(Exception):
@@ -246,9 +246,14 @@ def enforce_service_mode(services, mode, FetcherClass, kwargs, verbose=False):
         # try first [depth] services and only proceed if all values agree.
         results = []
         for service in services[:depth]:
-            results.append(
-                FetcherClass(services=[service], verbose=verbose).get(**kwargs)
-            )
+            try:
+                result = FetcherClass(services=[service], verbose=verbose).get(**kwargs)
+            except NoService:
+                # this service is not available, so try one more.
+                depth += 1
+                continue
+
+            results.append(result)
 
         if FetcherClass.__name__ == "GetBlock":
             stripped = []

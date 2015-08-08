@@ -436,7 +436,7 @@ class ChainSo(Service):
             confirmations=r['confirmations'],
             time=arrow.get(r['time']).datetime,
             sent_value=float(r['sent_value']),
-            total_fees=float(r['fee']) / 1e8,
+            total_fees=float(r['fee']),
             mining_difficulty=float(r['mining_difficulty']),
             size=r['size'],
             hash=r['blockhash'],
