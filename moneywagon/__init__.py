@@ -83,13 +83,13 @@ class GetBlock(AutoFallback):
 
     def get(self, crypto, block_number='', block_hash='', latest=False):
         if sum([bool(block_number), bool(block_hash), bool(latest)]) != 1:
-            raise Exception("Only one of `block_hash`, `latest`, or `block_number` allowed.")
+            raise ValueError("Only one of `block_hash`, `latest`, or `block_number` allowed.")
         return self._try_each_service(
             crypto, block_number=block_number, block_hash=block_hash, latest=latest
         )
 
     def no_service_msg(self, crypto, block_number='', block_hash='', latest=False):
-        return "Could not get %s block for: %s%s%s" % (
+        return "Could not get %s block: %s%s%s" % (
             crypto, block_number, block_hash, 'latest' if latest else ''
         )
 

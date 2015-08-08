@@ -250,7 +250,15 @@ def enforce_service_mode(services, mode, FetcherClass, kwargs, verbose=False):
                 FetcherClass(services=[service], verbose=verbose).get(**kwargs)
             )
 
-        if FetcherClass.__name__ in ["HistoricalTransactions", "UnspentOutputs"]:
+        if FetcherClass.__name__ == "GetBlock":
+            stripped = []
+            for result in results:
+                stripped.append(
+                    "[hash: %s, number: %s]" % (result['hash'], result['block_number'])
+                )
+            to_compare = stripped
+
+        elif FetcherClass.__name__ in ["HistoricalTransactions", "UnspentOutputs"]:
             # in the case of historical transactions, not all services return the
             # same attributes, so we can't simply compare that they are all
             # equal. So instead we only compare txid and amount.
