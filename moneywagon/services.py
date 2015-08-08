@@ -123,7 +123,7 @@ class BlockStrap(Service):
         response = self.get_url(url).json()
         return response['data']['address']['balance'] / 1e8
 
-    def pushtx(self, crypto, tx):
+    def push_tx(self, crypto, tx):
         url = "http://%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx)
         return self.get_url(url)['data']['id']
 
@@ -164,7 +164,7 @@ class CoinPrism(Service):
         return transactions
         #from ipdb import set_trace; set_trace()
 
-    def pushtx(self, tx):
+    def push_tx(self, tx):
         """
         Note: This one has not been tested yet.
         http://docs.coinprism.apiary.io/#reference/transaction-signing-and-broadcasting/push-a-signed-raw-transaction-to-the-network/post
@@ -356,7 +356,7 @@ class ChainSo(Service):
         transactions.reverse()
         return transactions
 
-    def pushtx(self, tx):
+    def push_tx(self, tx):
         url = "%s/send_tx/%s" % (self.base_url, crypto)
         resp = self.post_url(url, {'tx_hex': tx})
         return resp.json()['txid']
