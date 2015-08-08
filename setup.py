@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
     name="moneywagon",
     version='1.3.1',
-    description='Toolset for getting the exchange rate for cryptocurrencies',
+    description='Next Generation Cryptocurrency Platform',
     long_description=open('README.md').read(),
     author='Chris Priest',
     author_email='cp368202@ohiou.edu',
