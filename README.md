@@ -90,7 +90,7 @@ Gets the block, according to either block number, block hash or get by latest.
 
 example:
 
-```
+```python
 $ moneywagon get-block btc --latest --paranoid=2 | python -m json.tool
 {
     "block_number": 368900,

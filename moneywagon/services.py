@@ -72,6 +72,26 @@ class Blockr(Service):
         response = self.post_url(url, {'tx': tx})
         return response.json()['data']
 
+    def get_block(self, crypto, block_hash='', block_number='', latest=False):
+        url ="http://%s.blockr.io/api/v1/block/info/%s%s%s" % (
+            crypto, block_hash, block_number, 'latest' if latest else ''
+        )
+        r = self.get_url(url).json()['data']
+        return dict(
+            block_number=r['nb'],
+            confirmations=r['confirmations'],
+            time=arrow.get(r['time_utc']).datetime,
+            sent_value=r['vout_sum'],
+            total_fees=float(r['fee']),
+            mining_difficulty=r['difficulty'],
+            size=r['size'],
+            hash=r['hash'],
+            merkle_root=r['merkleroot'],
+            previous_hash=r['prev_block_hash'],
+            next_hash=r['next_block_hash'],
+            tx_count=r['nb_txs'],
+        )
+
 
 class Toshi(Service):
     url = "https://bitcoin.toshi.io/api/v0"
@@ -126,7 +146,8 @@ class Toshi(Service):
             merkle_root=r['merkle_root'],
             previous_hash=r['previous_block_hash'],
             next_hash=r['next_blocks'][0]['hash'] if len(r['next_blocks']) else None,
-            txids=sorted(r['transaction_hashes'])
+            txids=sorted(r['transaction_hashes']),
+            tx_count=len(r['transaction_hashes'])
         )
 
 
@@ -212,7 +233,8 @@ class BlockStrap(Service):
             merkle_root=r['merkel_root'].lower(),
             previous_hash=r['prev_block_id'].lower(),
             next_hash=r['next_block_id'].lower(),
-            txids=sorted(x['id'] for x in r['transactions'])
+            txids=sorted(x['id'] for x in r['transactions']),
+            tx_count=len(r['transactions'])
         )
 
 
@@ -534,7 +556,8 @@ class BitpayInsight(Service):
             merkle_root=r['merkleroot'],
             previous_hash=r['previous_blockhash'],
             next_hash=r['next_blockhash'],
-            txids=[t['txid'] for t in r['txs']]
+            txids=[t['txid'] for t in r['txs']],
+            tx_count=len(r['txs'])
         )
 
 

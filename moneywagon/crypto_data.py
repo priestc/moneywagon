@@ -1,9 +1,6 @@
 from datetime import datetime
 from .services import *
 
-# taken from http://coinwik.org/List_of_all_DCs
-# sorted by date released, copied over on Nov 27, 2014
-
 crypto_data = {
     'btc': {
         'name': 'Bitcoin',
@@ -23,7 +20,7 @@ crypto_data = {
                 BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism
             ],
             'get_block': [
-                Toshi, ChainSo, BlockStrap
+                Toshi, Blockr, ChainSo, BlockStrap
             ]
         },
     },
@@ -44,7 +41,7 @@ crypto_data = {
                 Blockr, BlockStrap, ChainSo
             ],
             'get_block': [
-                BlockStrap, ChainSo
+                Blockr, BlockStrap, ChainSo
             ]
         },
     },
@@ -198,6 +195,8 @@ crypto_data = {
 
 
     # these ones below need to be modified to match the above format
+    # taken from http://coinwik.org/List_of_all_DCs
+    # sorted by date released, copied over on Nov 27, 2014
 
     'nmc': ['Namecoin', datetime(2011, 4, 18)],
     'tk':  ['TimeKoin', datetime(2011, 5, 27)],

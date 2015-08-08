@@ -143,6 +143,7 @@ class Service(object):
         size - size of block
         time - datetime object of when the block was made
         hash - str (must be all lowercase)
+        tx_count - int, the number of transactions included in thi block.
 
         * optional fields:
 
