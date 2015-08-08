@@ -13,11 +13,11 @@ crypto_data = {
                 Bitstamp, Winkdex, BTCE, BTER, Cryptonator, ChainSo
             ],
             'address_balance': [
-                Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BitEasy,
-                BlockChainInfo, CoinPrism, BitcoinAbe
+                Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BlockSeer,
+                BitEasy, CoinPrism, BlockChainInfo, BitcoinAbe
             ],
             'historical_transactions': [
-                Blockr, Toshi, ChainSo, CoinPrism
+                Blockr, Toshi, ChainSo, CoinPrism, BlockSeer
             ],
             'push_tx': [
                 BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism

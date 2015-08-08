@@ -22,8 +22,27 @@ class BlockCypher(Service):
         return response.json()['balance'] / 1.0e8
 
 
-class CoinBase(Service):
-    pass
+class BlockSeer(Service):
+    """
+    This service has no publically documented API, this code was written
+    from looking through chrome dev toolbar.
+    """
+    supported_cryptos = ['btc']
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "https://www.blockseer.com/api/addresses/%s" % address
+        return self.get_url(url).json()['data']['balance'] / 1e8
+
+    def get_transactions(self, crypo, address):
+        url = "https://www.blockseer.com/api/addresses/%s/transactions?filter=all" % address
+        transactions = []
+        for tx in self.get_url(url).json()['data']['address']['transactions']:
+            transactions.append(dict(
+                date=arrow.get(tx['time']).datetime,
+                amount=tx['delta'] / 1e8,
+                txid=tx['hash'],
+            ))
+        return transactions
 
 
 class Blockr(Service):
@@ -171,7 +190,6 @@ class CoinPrism(Service):
         url = "%s/addresses/%s/unspents" % (self.base_url, address)
         transactions = []
         for tx in self.get_url(url).json():
-            from ipdb import set_trace; set_trace()
             if address in tx['addresses']:
                 transactions.append(dict(
                     amount=tx['value'] / 1e8,
@@ -468,7 +486,7 @@ ALL_SERVICES = [
     Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
     BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
     AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
-    CryptapUS, BTER, CoinSwap, ChainSo, BlockStrap, CoinPrism,
+    CryptapUS, BTER, CoinSwap, ChainSo, BlockStrap, CoinPrism, BlockSeer,
 
     BitpayInsight, ThisIsVTC, BirdOnWheels, MYRCryptap, ReddcoinCom, FTCe,
 
