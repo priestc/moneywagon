@@ -4,7 +4,7 @@
 
 
 Moneywagon lets you build a bitcoin wallet application in Python without
-ever having to rely on a single blockchain API service. This library is Python 2
+ever having to rely on a single blockchain API service. This library is both Python 2
 and Python 3 compatible.
 
 For instance, lets say you are building an application in Python that
@@ -53,7 +53,7 @@ Gets the amount of currency currently assiciated with a cryptocurrency address.
 examples:
 
 ```
-moneywagon address-balance doge D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ
+$ moneywagon address-balance doge D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ
 99405.6048377
 ```
 
@@ -150,6 +150,9 @@ $ cat ~/wallets.csv
 doge,D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ
 btc,1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X
 $ moneywagon wallet-balance ~/wallets.csv usd
+doge (16.43 USD) == 99405.6048377 x 0.00016531 (cryptonator)
+btc (1.06 USD) == 0.00379546 x 279.58 (bitstamp)
+Total amount of all crypto: 17.49 USD
 ```
 
 
@@ -191,12 +194,11 @@ There are two differences:
 1. The method is named `get_historical` instead of `get_price`.
 2. It takes an extra argument `at_time`. This can be a either a `datetime` instance
 representing when you'd like to get the price, or a string that will get converted to a
-datetime object by arrow.get..
+datetime object by ``arrow.get``
 
 ```python
->>> from datetime import datetime
 >>> from moneywagon import HistoricalCryptoPrice
->>> service = HistoricalCryptoPrice(useragent="my app")
+>>> service = HistoricalCryptoPrice()
 >>> service.get('btc', 'usd', '2013-11-13')
 (354.94,
 'BITCOIN/BITSTAMPUSD',
