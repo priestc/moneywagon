@@ -84,6 +84,44 @@ URL: https://chain.so/api/v2/get_address_balance/btc/1HWpyFJ7N6rvFkq3ZCMiFnqM6hv
 0.00132132
 ```
 
+## get-block [crypto] [--block_number=n|--block_hash=hash|--latest]
+
+Gets the block, according to either block number, block hash or get by latest.
+
+example:
+
+```
+$ moneywagon get-block btc --latest --paranoid=2 | python -m json.tool
+{
+    "block_number": 368900,
+    "confirmations": 1,
+    "hash": "0000000000000000043ab9d01e2e88ff460b6205b43cf3508ddeb8461bddc2fd",
+    "merkle_root": "7205cd649ffe5645e1841ef2ba19d7c48166dc9a6f15584aa24d4af61236d96e",
+    "mining_difficulty": 52278304845.59181,
+    "next_hash": null,
+    "previous_hash": "00000000000000000f3a1d9508d69a1310a1ed41e18025f143f28c8ea5f5575e",
+    "sent_value": 8762.56646775,
+    "size": 219868,
+    "time": "2015-08-08T05:55:01+00:00",
+    "total_fees": 0.07663532
+}
+$ moneywagon get-block ltc --block_number=242 | python -m json.tool
+{
+    "block_number": 242,
+    "confirmations": 829724,
+    "hash": "3849a1aabc09d147d815652cadee10b55f8eddf63efe4174479dba7e74d76cf1",
+    "merkle_root": "30a914ec415904b0dac0cf9bf5eed275b721cbb87a757878bc6d425817c52027",
+    "mining_difficulty": 0.00024414,
+    "next_hash": "1f427c34e3d98d7d0eb205be0881ea15d49c5e41f3d783e345f30747d2baad3b",
+    "previous_hash": "a6af6882076ece122753d12c134815f33b2b3f3d9e8feeeb5529f6ec5ef3b31c",
+    "sent_value": 50.0,
+    "size": 215,
+    "time": "2011-10-13T03:13:40+00:00",
+    "total_fees": 0.0
+}
+
+```
+
 ## historical-transactions [crypto] [address]
 
 Gets a list of all transactions sent and received by the passed in cryptocurrency address.
@@ -238,6 +276,55 @@ The nature of this calculation can also be seen in the source string
 >>> from moneywagon import AddressBalance
 >>> AddressBalance().get('ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj')
 103.98
+```
+
+## Get Blocks
+
+```
+>>> from moneywagon import get_blocks
+>>> get_blocks('btc', latest=True)
+{
+    "block_number": 368900,
+    "confirmations": 1,
+    "hash": "0000000000000000043ab9d01e2e88ff460b6205b43cf3508ddeb8461bddc2fd",
+    "merkle_root": "7205cd649ffe5645e1841ef2ba19d7c48166dc9a6f15584aa24d4af61236d96e",
+    "mining_difficulty": 52278304845.59181,
+    "next_hash": null,
+    "previous_hash": "00000000000000000f3a1d9508d69a1310a1ed41e18025f143f28c8ea5f5575e",
+    "sent_value": 8762.56646775,
+    "size": 219868,
+    "time": "2015-08-08T05:55:01+00:00",
+    "total_fees": 0.07663532
+}
+>>> get_blocks('btc', block_number=242)
+{
+    "block_number": 242,
+    "confirmations": 829724,
+    "hash": "3849a1aabc09d147d815652cadee10b55f8eddf63efe4174479dba7e74d76cf1",
+    "merkle_root": "30a914ec415904b0dac0cf9bf5eed275b721cbb87a757878bc6d425817c52027",
+    "mining_difficulty": 0.00024414,
+    "next_hash": "1f427c34e3d98d7d0eb205be0881ea15d49c5e41f3d783e345f30747d2baad3b",
+    "previous_hash": "a6af6882076ece122753d12c134815f33b2b3f3d9e8feeeb5529f6ec5ef3b31c",
+    "sent_value": 50.0,
+    "size": 215,
+    "time": "2011-10-13T03:13:40+00:00",
+    "total_fees": 0.0
+}
+>>> get_blocks('doge', block_hash='a53d288822382a53250b930193562b7e61b218c8a9a449a9d003dafa2534a736')
+{
+    "block_number": 242,
+    "confirmations": 824212,
+    "hash": "a53d288822382a53250b930193562b7e61b218c8a9a449a9d003dafa2534a736",
+    "merkle_root": "83d53e8dbbfdcf9e24a1ece401801e73a430db9c80da2ca3f74dc3b73c18abbf",
+    "mining_difficulty": 0.00024414,
+    "next_hash": "1aca39498439acff59afbabb6992bf9fa178415674415283f8a127120211a3dd",
+    "previous_hash": "bb623eabcde58af2b3a412eb9866f54f414d5eef1de5f54bd6e396834c8ccc75",
+    "sent_value": 790312.0,
+    "size": 190,
+    "time": "2013-12-08T04:07:20+00:00",
+    "total_fees": 0.0
+}
+
 ```
 
 ## Historical Transactions
