@@ -6,7 +6,7 @@ import argparse
 import json
 import datetime
 
-from moneywagon import CurrentPrice, HistoricalPrice, get_address_balance, get_historical_transactions
+from moneywagon import CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance, get_historical_transactions
 
 def datetime_to_iso(obj):
     """
@@ -26,7 +26,6 @@ subparsers = parser.add_subparsers(help='commands', dest="subparser_name")
 current_price_parser = subparsers.add_parser('current-price', help='Get current price of a crypto/fiat pair.')
 current_price_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 current_price_parser.add_argument('fiat', action='store', help='Fiat currency symbol')
-current_price_parser.add_argument('--include-source', action='store_true', help='Return the source')
 current_price_parser.add_argument('--verbose', action='store_true', help='Include extra output')
 
 historical_price_parser = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
@@ -57,7 +56,7 @@ argz = parser.parse_args()
 
 if argz.subparser_name == 'current-price':
     price, source = CurrentPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat)
-    print(price, source if argz.include_source else '')
+    print(price)
 
 elif argz.subparser_name == 'historical-price':
     price, source, date = HistoricalPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat, argz.at_time)

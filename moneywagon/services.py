@@ -121,7 +121,7 @@ class BlockStrap(Service):
     def get_balance(self, crypto, address, confirmations=None):
         url = "http://%s/v0/%s/address/id/%s" % (self.domain, crypto, address)
         response = self.get_url(url).json()
-        return response['data']['address']['inputs_value_confirmed'] / 1e8
+        return response['data']['address']['balance'] / 1e8
 
     def pushtx(self, crypto, tx):
         url = "http://%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx)
