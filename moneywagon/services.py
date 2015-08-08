@@ -22,6 +22,10 @@ class BlockCypher(Service):
         return response.json()['balance'] / 1.0e8
 
 
+class CoinBase(Service):
+    pass
+
+
 class Blockr(Service):
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
 
@@ -140,6 +144,7 @@ class BlockStrap(Service):
             ))
         return txs
 
+
 class CoinPrism(Service):
     base_url = "https://api.coinprism.com/v1"
     supported_cryptos = ['btc']
@@ -151,7 +156,6 @@ class CoinPrism(Service):
 
     def get_transactions(self, crypto, address):
         url = "%s/addresses/%s/transactions" % (self.base_url, address)
-
         transactions = []
         for tx in self.get_url(url).json():
             transactions.append(dict(
@@ -162,7 +166,20 @@ class CoinPrism(Service):
             ))
 
         return transactions
-        #from ipdb import set_trace; set_trace()
+
+    def get_unspent_outputs(self, crypto, address):
+        url = "%s/addresses/%s/unspents" % (self.base_url, address)
+        transactions = []
+        for tx in self.get_url(url).json():
+            from ipdb import set_trace; set_trace()
+            if address in tx['addresses']:
+                transactions.append(dict(
+                    amount=tx['value'] / 1e8,
+                    txid=tx['transaction_hash'],
+                    confirmations=tx['confirmations']
+                ))
+
+        return transactions
 
     def push_tx(self, tx):
         """
@@ -171,6 +188,7 @@ class CoinPrism(Service):
         """
         url = "%s/sendrawtransaction"
         return self.post_url(url, tx).content
+
 
 class BitEasy(Service):
     """
@@ -204,21 +222,26 @@ class BitcoinAbe(Service):
         response = self.get_url(url)
         return float(response.content)
 
+
 class LitecoinAbe(BitcoinAbe):
     supported_cryptos = ['ltc']
     base_url = "http://bitcoin-abe.info/chain/Litecoin"
+
 
 class NamecoinAbe(BitcoinAbe):
     supported_cryptos = ['nmc']
     base_url = "http://bitcoin-abe.info/chain/Namecoin"
 
+
 class DogeChainInfo(BitcoinAbe):
     supported_cryptos = ['doge']
     base_url = "https://dogechain.info/chain/Dogecoin"
 
+
 class AuroraCoinEU(BitcoinAbe):
     supported_cryptos = ['aur']
     base_url = 'http://blockexplorer.auroracoin.eu/chain/AuroraCoin'
+
 
 class Atorox(BitcoinAbe):
     supported_cryptos = ['aur']
@@ -403,25 +426,31 @@ class BitpayInsight(Service):
 
         return transactions
 
+
 class MYRCryptap(BitpayInsight):
     supported_cryptos = ['myr']
     domain = "http://insight-myr.cryptap.us/"
+
 
 class BirdOnWheels(BitpayInsight):
     supported_cryptos = ['myr']
     domain = "http://birdonwheels5.no-ip.org:3000"
 
+
 class ThisIsVTC(BitpayInsight):
     supported_cryptos = ['vtc']
     domain = "http://explorer.thisisvtc.com"
+
 
 class ReddcoinCom(BitpayInsight):
     supported_cryptos = ['rdd']
     domain = "http://live.reddcoin.com"
 
+
 class FTCe(BitpayInsight):
     supported_cryptos = ['ftc']
     domain = "http://block.ftc-c.com"
+
 
 class CoinTape(Service):
     supported_cryptos = ['btc']
