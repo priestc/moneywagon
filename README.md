@@ -14,19 +14,6 @@ bitstamp to get the current price. If the bitstamp API were ever to change, your
 code would break, wasting development time. With moneywagon, you code your application
 to the moneywagon API (which doesn't change), and under the hood you can swap between services.
 
-This tool is still being developed, but currently has 5 principle functions:
-
-1. Getting the **current** exchange rate of any cryptocurrency (LTC, BTC, PPC, etc) and a
-fiat currency (USD, EUR, RUR, etc.)
-2. Getting the exchange rate between a cryptocurrency and a fiat currency **at an
-arbitrary point in time**.
-3. Getting the balance of an address for any cryptocurrency.
-4. Getting a list of historical transaction from an address for any cryptocurrency.
-5. A Bitcore-esque wrapper class for making transactions (BTC only for now).
-6. Command line interface for accessing all of moneywagon's functionality from the shell.
-
-There is a sixth planned part of moneywagon that has not yet been built.
-This section will be a fancy API for creating transactions.
 
 # Installation
 
@@ -97,7 +84,7 @@ URL: https://chain.so/api/v2/get_address_balance/btc/1HWpyFJ7N6rvFkq3ZCMiFnqM6hv
 0.00132132
 ```
 
-## moneywagon historical-transactions [crypto] [address]
+## historical-transactions [crypto] [address]
 
 Gets a list of all transactions sent and received by the passed in cryptocurrency address.
 The resulting output is always valid json. The most recent transaction is always at the top.
@@ -152,7 +139,7 @@ $ moneywagon historical-transactions doge D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ | p
 
 This command also supports the `--verbose` and `--paranoid=n` flags (see above).
 
-## moneywagon wallet-balance [wallet path] [fiat]
+## wallet-balance [wallet path] [fiat]
 
 Get the fiat total of a group of cryptocurrency addresses from a "csv wallet" file.
 
