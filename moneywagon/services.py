@@ -126,6 +126,7 @@ class Toshi(Service):
             merkle_root=r['merkle_root'],
             previous_hash=r['previous_block_hash'],
             next_hash=r['next_blocks'][0]['hash'] if len(r['next_blocks']) else None,
+            txids=r['transaction_hashes']
         )
 
 
@@ -443,6 +444,7 @@ class ChainSo(Service):
             merkle_root=r['merkleroot'],
             previous_hash=r['previous_blockhash'],
             next_hash=r['next_blockhash'],
+            txids=[t['txid'] for t in r['txs']]
         )
 
 

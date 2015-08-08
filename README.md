@@ -103,7 +103,12 @@ $ moneywagon get-block btc --latest --paranoid=2 | python -m json.tool
     "sent_value": 8762.56646775,
     "size": 219868,
     "time": "2015-08-08T05:55:01+00:00",
-    "total_fees": 0.07663532
+    "total_fees": 0.07663532,
+    "txids": [
+      "da8812c9c7e02d4c159bc2c9978aa50dd295d88fe14f10e07101c729e771510e",
+      "ce6c456ecf46be306eb65eb9ac8210466d6aacd0e44b8dfdeaf100d9aaadca47",
+      ...
+    ]
 }
 $ moneywagon get-block ltc --block_number=242 | python -m json.tool
 {
@@ -117,7 +122,12 @@ $ moneywagon get-block ltc --block_number=242 | python -m json.tool
     "sent_value": 50.0,
     "size": 215,
     "time": "2011-10-13T03:13:40+00:00",
-    "total_fees": 0.0
+    "total_fees": 0.0,
+    "txids": [
+      "da8812c9c7e02d4c159bc2c9978aa50dd295d88fe14f10e07101c729e771510e",
+      "ce6c456ecf46be306eb65eb9ac8210466d6aacd0e44b8dfdeaf100d9aaadca47",
+      ...
+    ]
 }
 
 ```
@@ -294,7 +304,12 @@ The nature of this calculation can also be seen in the source string
     "sent_value": 8762.56646775,
     "size": 219868,
     "time": "2015-08-08T05:55:01+00:00",
-    "total_fees": 0.07663532
+    "total_fees": 0.07663532,
+    "txids": [
+      "da8812c9c7e02d4c159bc2c9978aa50dd295d88fe14f10e07101c729e771510e",
+      "ce6c456ecf46be306eb65eb9ac8210466d6aacd0e44b8dfdeaf100d9aaadca47",
+      ...
+    ]
 }
 >>> get_blocks('btc', block_number=242)
 {
@@ -308,7 +323,12 @@ The nature of this calculation can also be seen in the source string
     "sent_value": 50.0,
     "size": 215,
     "time": "2011-10-13T03:13:40+00:00",
-    "total_fees": 0.0
+    "total_fees": 0.0,
+    "txids": [
+      "da8812c9c7e02d4c159bc2c9978aa50dd295d88fe14f10e07101c729e771510e",
+      "ce6c456ecf46be306eb65eb9ac8210466d6aacd0e44b8dfdeaf100d9aaadca47",
+      ...
+    ]
 }
 >>> get_blocks('doge', block_hash='a53d288822382a53250b930193562b7e61b218c8a9a449a9d003dafa2534a736')
 {
@@ -322,7 +342,12 @@ The nature of this calculation can also be seen in the source string
     "sent_value": 790312.0,
     "size": 190,
     "time": "2013-12-08T04:07:20+00:00",
-    "total_fees": 0.0
+    "total_fees": 0.0,
+    "txids": [
+      "da8812c9c7e02d4c159bc2c9978aa50dd295d88fe14f10e07101c729e771510e",
+      "ce6c456ecf46be306eb65eb9ac8210466d6aacd0e44b8dfdeaf100d9aaadca47",
+      ...
+    ]
 }
 
 ```
