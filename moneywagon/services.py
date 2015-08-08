@@ -208,10 +208,10 @@ class BlockStrap(Service):
             sent_value=r["output_value"] / 1e8,
             total_fees=r["fees"] / 1e8,
             size=r['size'],
-            hash=r['id'],
-            merkle_root=r['merkel_root'],
-            previous_hash=r['prev_block_id'],
-            next_hash=r['next_block_id'],
+            hash=r['id'].lower(),
+            merkle_root=r['merkel_root'].lower(),
+            previous_hash=r['prev_block_id'].lower(),
+            next_hash=r['next_block_id'].lower(),
             txids=sorted(x['id'] for x in r['transactions'])
         )
 

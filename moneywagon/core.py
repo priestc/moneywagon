@@ -137,17 +137,22 @@ class Service(object):
 
         Returned is a dictionary object with the following keys:
 
+        * required fields:
+
         block_number - int
-        confirmations - int
+        size - size of block
         time - datetime object of when the block was made
+        hash - str (must be all lowercase)
+
+        * optional fields:
+
+        confirmations - int
         sent_value - total value moved from all included transactions
         total_fees - total amount of tx fees from all included transactions
-        mining_difficulty - what the difficulty was when this block was made
-        size - size of block
-        hash - str
-        merkle_root - str
-        previous_hash - str
-        next_hash - str (or `None` of its the latest block)
+        mining_difficulty - what the difficulty was when this block was made.
+        merkle_root - str (lower case)
+        previous_hash - str (lower case)
+        next_hash - str (lower case) (or `None` of its the latest block)
         """
         raise NotImplementedError(
             "This service does not support getting getting block data."
