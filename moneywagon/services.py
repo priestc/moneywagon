@@ -126,7 +126,7 @@ class Toshi(Service):
             merkle_root=r['merkle_root'],
             previous_hash=r['previous_block_hash'],
             next_hash=r['next_blocks'][0]['hash'] if len(r['next_blocks']) else None,
-            txids=r['transaction_hashes']
+            txids=sorted(r['transaction_hashes'])
         )
 
 
@@ -184,6 +184,104 @@ class BlockStrap(Service):
                 txid=tx['id'],
             ))
         return txs
+
+    def get_block(self, crypto, block_hash='', block_number='', latest=False):
+        if block_hash:
+            url = "http://%s/v0/%s/block/id/%s" % (self.domain, crypto, block_hash)
+            b = "block"
+        elif block_number:
+            url = "http://%s/v0/%s/block/height/%s" % (self.domain, crypto, block_number)
+            b = "blocks"
+        elif latest:
+            url = "http://%s/v0/%s/block/latest" % (self.domain, crypto)
+            b = 'block'
+
+        r = self.get_url(url).json()['data'][b]
+
+        if block_number:
+            r = r[0]
+
+        return dict(
+            block_number=r['height'],
+            confirmations=r["confirmations"],
+            time=arrow.get(r['time_display']).datetime,
+            sent_value=r["output_value"] / 1e8,
+            total_fees=r["fees"] / 1e8,
+            size=r['size'],
+            hash=r['id'],
+            merkle_root=r['merkel_root'],
+            previous_hash=r['prev_block_id'],
+            next_hash=r['next_block_id'],
+            txids=sorted(x['id'] for x in r['transactions'])
+        )
+
+
+class ChainSo(Service):
+    base_url = "https://chain.so/api/v2"
+    supported_cryptos = ['doge', 'btc', 'ltc']
+
+    def get_current_price(self, crypto, fiat):
+        url = "%s/get_price/%s/%s" % (self.base_url, crypto, fiat)
+        resp = self.get_url(url).json()
+        items = resp['data']['prices']
+        if len(items) == 0:
+            raise SkipThisService("Chain.so can't get price for %s/%s" % (crypto, fiat))
+        return float(items[0]['price']), "%s via Chain.so" % items[0]['exchange']
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "%s/get_address_balance/%s/%s/%s" % (
+            self.base_url, crypto, address, confirmations
+        )
+        response = self.get_url(url)
+        return float(response.json()['data']['confirmed_balance'])
+
+    def get_transactions(self, crypto, address, confirmations=1):
+        url = "%s/get_tx_received/%s/%s" % (self.base_url, crypto, address)
+        response = self.get_url(url)
+
+        transactions = []
+        for tx in response.json()['data']['txs']:
+            tx_cons = int(tx['confirmations'])
+            if tx_cons < confirmations:
+                continue
+            transactions.append(dict(
+                date=arrow.get(tx['time']).datetime,
+                amount=float(tx['value']),
+                txid=tx['txid'],
+                confirmations=tx_cons,
+            ))
+
+        # to conform with monewagon standards, most recent must be first.
+        transactions.reverse()
+        return transactions
+
+    def push_tx(self, tx):
+        url = "%s/send_tx/%s" % (self.base_url, crypto)
+        resp = self.post_url(url, {'tx_hex': tx})
+        return resp.json()['txid']
+
+    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        if latest:
+            raise SkipThisService("This service can't get block by latest")
+        else:
+            url = "%s/block/%s/%s%s" % (
+                self.base_url, crypto, block_number, block_hash
+            )
+        r = self.get_url(url).json()['data']
+        return dict(
+            block_number=r['block_no'],
+            confirmations=r['confirmations'],
+            time=arrow.get(r['time']).datetime,
+            sent_value=float(r['sent_value']),
+            total_fees=float(r['fee']),
+            mining_difficulty=float(r['mining_difficulty']),
+            size=r['size'],
+            hash=r['blockhash'],
+            merkle_root=r['merkleroot'],
+            previous_hash=r['previous_blockhash'],
+            next_hash=r['next_blockhash'],
+            txids=sorted([t['txid'] for t in r['txs']])
+        )
 
 
 class CoinPrism(Service):
@@ -380,74 +478,6 @@ class CoinSwap(Service):
         return float(response['lastprice']), 'coin-swap'
 
 
-class ChainSo(Service):
-    base_url = "https://chain.so/api/v2"
-    supported_cryptos = ['doge', 'btc', 'ltc']
-
-    def get_current_price(self, crypto, fiat):
-        url = "%s/get_price/%s/%s" % (self.base_url, crypto, fiat)
-        resp = self.get_url(url).json()
-        items = resp['data']['prices']
-        if len(items) == 0:
-            raise SkipThisService("Chain.so can't get price for %s/%s" % (crypto, fiat))
-        return float(items[0]['price']), "%s via Chain.so" % items[0]['exchange']
-
-    def get_balance(self, crypto, address, confirmations=1):
-        url = "%s/get_address_balance/%s/%s/%s" % (
-            self.base_url, crypto, address, confirmations
-        )
-        response = self.get_url(url)
-        return float(response.json()['data']['confirmed_balance'])
-
-    def get_transactions(self, crypto, address, confirmations=1):
-        url = "%s/get_tx_received/%s/%s" % (self.base_url, crypto, address)
-        response = self.get_url(url)
-
-        transactions = []
-        for tx in response.json()['data']['txs']:
-            tx_cons = int(tx['confirmations'])
-            if tx_cons < confirmations:
-                continue
-            transactions.append(dict(
-                date=arrow.get(tx['time']).datetime,
-                amount=float(tx['value']),
-                txid=tx['txid'],
-                confirmations=tx_cons,
-            ))
-
-        # to conform with monewagon standards, most recent must be first.
-        transactions.reverse()
-        return transactions
-
-    def push_tx(self, tx):
-        url = "%s/send_tx/%s" % (self.base_url, crypto)
-        resp = self.post_url(url, {'tx_hex': tx})
-        return resp.json()['txid']
-
-    def get_block(self, crypto, block_number='', block_hash='', latest=False):
-        if latest:
-            raise SkipThisService("This service can't get block by latest")
-        else:
-            url = "%s/block/%s/%s%s" % (
-                self.base_url, crypto, block_number, block_hash
-            )
-        r = self.get_url(url).json()['data']
-        return dict(
-            block_number=r['block_no'],
-            confirmations=r['confirmations'],
-            time=arrow.get(r['time']).datetime,
-            sent_value=float(r['sent_value']),
-            total_fees=float(r['fee']),
-            mining_difficulty=float(r['mining_difficulty']),
-            size=r['size'],
-            hash=r['blockhash'],
-            merkle_root=r['merkleroot'],
-            previous_hash=r['previous_blockhash'],
-            next_hash=r['next_blockhash'],
-            txids=[t['txid'] for t in r['txs']]
-        )
-
-
 class ExCoIn(Service):
     # decommissioned
     def get_current_price(self, crypto, fiat):
@@ -482,6 +512,30 @@ class BitpayInsight(Service):
             ))
 
         return transactions
+
+    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        if block_number:
+            url = "%s/api/block-index/%s" % (self.domain, block_number)
+        elif block_hash:
+            url = "%s/api/block/%s" % (self.domain, block_hash)
+        elif latest:
+            raise ValueError("Can't get current block.")
+
+        r = self.get_url(url).json()
+        return dict(
+            block_number=r['block_no'],
+            confirmations=r['confirmations'],
+            time=arrow.get(r['time']).datetime,
+            sent_value=float(r['sent_value']),
+            total_fees=float(r['fee']),
+            mining_difficulty=float(r['mining_difficulty']),
+            size=r['size'],
+            hash=r['blockhash'],
+            merkle_root=r['merkleroot'],
+            previous_hash=r['previous_blockhash'],
+            next_hash=r['next_blockhash'],
+            txids=[t['txid'] for t in r['txs']]
+        )
 
 
 class MYRCryptap(BitpayInsight):

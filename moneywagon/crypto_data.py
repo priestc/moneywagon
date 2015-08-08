@@ -23,7 +23,7 @@ crypto_data = {
                 BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism
             ],
             'get_block': [
-                Toshi, ChainSo
+                Toshi, ChainSo, BlockStrap
             ]
         },
     },
@@ -44,7 +44,7 @@ crypto_data = {
                 Blockr, BlockStrap, ChainSo
             ],
             'get_block': [
-                ChainSo
+                BlockStrap, ChainSo
             ]
         },
     },
@@ -86,7 +86,7 @@ crypto_data = {
                 BlockStrap
             ],
             'get_block': [
-                ChainSo
+                BlockStrap, ChainSo
             ]
         },
     },
@@ -128,7 +128,7 @@ crypto_data = {
                 MYRCryptap
             ],
             'get_block': [
-
+                MYRCryptap
             ]
         },
     },
@@ -149,7 +149,7 @@ crypto_data = {
                 ThisIsVTC
             ],
             'get_block': [
-
+                ThisIsVTC
             ]
         },
     },
@@ -170,7 +170,7 @@ crypto_data = {
                 FTCe
             ],
             'get_block': [
-
+                FTCe
             ]
         },
     },
@@ -191,7 +191,7 @@ crypto_data = {
 
             ],
             'get_block': [
-            
+
             ]
         },
     },
