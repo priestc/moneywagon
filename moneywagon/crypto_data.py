@@ -14,13 +14,13 @@ crypto_data = {
             ],
             'address_balance': [
                 Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BitEasy,
-                BlockChainInfo, BitcoinAbe
+                BlockChainInfo, CoinPrism, BitcoinAbe
             ],
             'historical_transactions': [
-                Blockr, Toshi, ChainSo
+                Blockr, Toshi, ChainSo, CoinPrism
             ],
             'push_tx': [
-                BlockChainInfo, Blockr, BlockStrap, ChainSo
+                BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism
             ]
         },
     },

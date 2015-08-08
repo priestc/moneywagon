@@ -140,6 +140,37 @@ class BlockStrap(Service):
             ))
         return txs
 
+class CoinPrism(Service):
+    base_url = "https://api.coinprism.com/v1"
+    supported_cryptos = ['btc']
+
+    def get_balance(self, crypto, address, confirmations=None):
+        url = "%s/addresses/%s" % (self.base_url, address)
+        resp = self.get_url(url).json()
+        return resp['balance'] / 1e8
+
+    def get_transactions(self, crypto, address):
+        url = "%s/addresses/%s/transactions" % (self.base_url, address)
+
+        transactions = []
+        for tx in self.get_url(url).json():
+            transactions.append(dict(
+                amount=sum([x['value'] / 1e8 for x in tx['outputs'] if address in x['addresses']]),
+                txid=tx['hash'],
+                date=arrow.get(tx['block_time']).datetime,
+                confirmations=tx['confirmations']
+            ))
+
+        return transactions
+        #from ipdb import set_trace; set_trace()
+
+    def pushtx(self, tx):
+        """
+        Note: This one has not been tested yet.
+        http://docs.coinprism.apiary.io/#reference/transaction-signing-and-broadcasting/push-a-signed-raw-transaction-to-the-network/post
+        """
+        url = "%s/sendrawtransaction"
+        return self.post_url(url, tx).content
 
 class BitEasy(Service):
     """
@@ -408,7 +439,7 @@ ALL_SERVICES = [
     Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
     BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
     AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
-    CryptapUS, BTER, CoinSwap, ChainSo, BlockStrap,
+    CryptapUS, BTER, CoinSwap, ChainSo, BlockStrap, CoinPrism,
 
     BitpayInsight, ThisIsVTC, BirdOnWheels, MYRCryptap, ReddcoinCom, FTCe,
 

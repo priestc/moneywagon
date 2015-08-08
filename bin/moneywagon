@@ -8,17 +8,6 @@ import datetime
 
 from moneywagon import CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance, get_historical_transactions
 
-def datetime_to_iso(obj):
-    """
-    Python's default json encoder will blow up when it encounters datetime objects.
-    So this work around is needed in order to just handle making datetime
-    objects into iso8601 string format.
-    """
-    if isinstance(obj, datetime.datetime):
-        serial = obj.isoformat()
-        return serial
-    raise TypeError ("Type not serializable")
-
 parser = argparse.ArgumentParser() #version='1.0.2')
 
 subparsers = parser.add_subparsers(help='commands', dest="subparser_name")
@@ -77,6 +66,17 @@ elif argz.subparser_name == 'historical-transactions':
         mode = 'paranoid-%s' % argz.paranoid
     else:
         mode = 'default'
+
+    def datetime_to_iso(obj):
+        """
+        Python's default json encoder will blow up when it encounters datetime objects.
+        So this work around is needed in order to just handle making datetime
+        objects into iso8601 string format.
+        """
+        if isinstance(obj, datetime.datetime):
+            serial = obj.isoformat()
+            return serial
+        raise TypeError("Type not serializable")
 
     print(json.dumps(get_historical_transactions(
         argz.crypto, argz.address, service_mode=mode, verbose=argz.verbose
