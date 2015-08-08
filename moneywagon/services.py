@@ -107,6 +107,27 @@ class Toshi(Service):
         url = "%s/transactions/%s" % (self.url, tx)
         return self.get_url(url).json()['hash']
 
+    def get_block(self, crypto, block_hash='', block_number='', latest=False):
+        if latest:
+            url = "%s/blocks/latest" % self.url
+        else:
+            url = "%s/blocks/%s%s" % (self.url, block_hash, block_number)
+
+        r = self.get_url(url).json()
+        return dict(
+            block_number=r['height'],
+            confirmations=r['confirmations'],
+            time=arrow.get(r['time']).datetime,
+            sent_value=r['total_out'] / 1e8,
+            total_fees=r['fees'],
+            mining_difficulty=r['difficulty'],
+            size=r['size'],
+            hash=r['hash'],
+            merkle_root=r['merkle_root'],
+            previous_hash=r['previous_block_hash'],
+            next_hash=r['next_blocks'][0]['hash'] if len(r['next_blocks']) else None,
+        )
+
 
 class BTCE(Service):
     def get_current_price(self, crypto, fiat):
@@ -402,11 +423,27 @@ class ChainSo(Service):
         resp = self.post_url(url, {'tx_hex': tx})
         return resp.json()['txid']
 
-    def get_block(self, block_number=None, block_hash=None):
-        url = "%s/get_block/%s/%s%s" % (
-            self.base_url, crypto, block_number, block_hash
+    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        if latest:
+            raise SkipThisService("This service can't get block by latest")
+        else:
+            url = "%s/block/%s/%s%s" % (
+                self.base_url, crypto, block_number, block_hash
+            )
+        r = self.get_url(url).json()['data']
+        return dict(
+            block_number=r['block_no'],
+            confirmations=r['confirmations'],
+            time=arrow.get(r['time']).datetime,
+            sent_value=float(r['sent_value']),
+            total_fees=float(r['fee']),
+            mining_difficulty=float(r['mining_difficulty']),
+            size=r['size'],
+            hash=r['blockhash'],
+            merkle_root=r['merkleroot'],
+            previous_hash=r['previous_blockhash'],
+            next_hash=r['next_blockhash'],
         )
-        resp = self.get_url(url).json()
 
 
 class ExCoIn(Service):

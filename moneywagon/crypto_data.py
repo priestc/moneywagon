@@ -21,6 +21,9 @@ crypto_data = {
             ],
             'push_tx': [
                 BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism
+            ],
+            'get_block': [
+                Toshi, ChainSo
             ]
         },
     },
@@ -39,6 +42,9 @@ crypto_data = {
             ],
             'push_tx': [
                 Blockr, BlockStrap, ChainSo
+            ],
+            'get_block': [
+                ChainSo
             ]
         },
     },
@@ -56,6 +62,9 @@ crypto_data = {
                 Blockr
             ],
             'push_tx': [
+                Blockr
+            ],
+            'get_block': [
                 Blockr
             ]
         },
@@ -75,6 +84,9 @@ crypto_data = {
             ],
             'push_tx': [
                 BlockStrap
+            ],
+            'get_block': [
+                ChainSo
             ]
         },
     },
@@ -92,6 +104,9 @@ crypto_data = {
                 NXTPortal
             ],
             'push_tx': [
+
+            ],
+            'get_block': [
 
             ]
         },
@@ -111,6 +126,9 @@ crypto_data = {
             ],
             'push_tx': [
                 MYRCryptap
+            ],
+            'get_block': [
+
             ]
         },
     },
@@ -129,6 +147,9 @@ crypto_data = {
             ],
             'push_tx': [
                 ThisIsVTC
+            ],
+            'get_block': [
+
             ]
         },
     },
@@ -147,6 +168,9 @@ crypto_data = {
             ],
             'push_tx': [
                 FTCe
+            ],
+            'get_block': [
+
             ]
         },
     },
@@ -165,6 +189,9 @@ crypto_data = {
             ],
             'push_tx': [
 
+            ],
+            'get_block': [
+            
             ]
         },
     },

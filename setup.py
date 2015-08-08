@@ -11,7 +11,7 @@ setup(
     author_email='cp368202@ohiou.edu',
     url='https://github.com/priestc/moneywagon',
     packages=find_packages(),
-    scripts=['bin/moneywagon'], # coming soon
+    scripts=['bin/moneywagon'],
     include_package_data=True,
     license='LICENSE',
     classifiers=[

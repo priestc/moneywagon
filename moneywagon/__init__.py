@@ -23,7 +23,7 @@ def get_address_balance(crypto, address, service_mode='default', services=None, 
         services = crypto_data[crypto]['services']['address_balance'] # get best services
 
     return enforce_service_mode(
-        services, service_mode, AddressBalance, [crypto, address], verbose
+        services, service_mode, AddressBalance, {'crypto': crypto, 'address': address}, verbose
     )
 
 
@@ -32,7 +32,7 @@ def get_historical_transactions(crypto, address, service_mode='default', service
         services = crypto_data[crypto]['services']['historical_transactions'] # get best services
 
     return enforce_service_mode(
-        services, service_mode, HistoricalTransactions, [crypto, address], verbose
+        services, service_mode, HistoricalTransactions, {'crypto': crypto, 'address': address}, verbose
     )
 
 
@@ -40,7 +40,7 @@ def get_utxos(crypto, address, service_mode='default', verbose=False):
     if not services:
         services = crypto_data[crypto]['services']['unspent_outputs'] # get best services
     return enforce_service_mode(
-        services, service_mode, UnspentOutputs, [crypto, address], verbose
+        services, service_mode, UnspentOutputs, {'crypto': crypto, 'address': address}, verbose
     )
 
 
@@ -52,8 +52,17 @@ def push_tx(crypto, tx_hex, service_mode='default', verbose=False, services=None
     if not services:
         services = crypto_data[crypto]['services']['push_tx'] # get best services
     return enforce_service_mode(
-        services, service_mode, PushTx, [crypto, tx_hex], verbose
+        services, service_mode, PushTx, {'crypto': crypto, 'tx_hex': tx_hex}, verbose
     )
+
+def get_block(crypto, block_number='', block_hash='', latest=False, service_mode='default', verbose=False, services=None):
+    if not services:
+        services = crypto_data[crypto]['services']['get_block'] # get best services
+    kwargs = dict(crypto=crypto, block_number=block_number, block_hash=block_hash, latest=latest)
+    return enforce_service_mode(
+        services, service_mode, GetBlock, kwargs, verbose
+    )
+
 
 def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay):
     return OptimalFee().get(crypto, tx_bytes, acceptable_block_delay)
@@ -69,6 +78,20 @@ class OptimalFee(AutoFallback):
     def no_service_msg(self, crypto, tx_bytes, acceptable_block_delay):
         return "Could not get optimal fee for: %s" % crypto
 
+class GetBlock(AutoFallback):
+    service_method_name = 'get_block'
+
+    def get(self, crypto, block_number='', block_hash='', latest=False):
+        if sum([bool(block_number), bool(block_hash), bool(latest)]) != 1:
+            raise Exception("Only one of `block_hash`, `latest`, or `block_number` allowed.")
+        return self._try_each_service(
+            crypto, block_number=block_number, block_hash=block_hash, latest=latest
+        )
+
+    def no_service_msg(self, crypto, block_number='', block_hash='', latest=False):
+        return "Could not get %s block for: %s%s%s" % (
+            crypto, block_number, block_hash, 'latest' if latest else ''
+        )
 
 class HistoricalTransactions(AutoFallback):
     service_method_name = 'get_transactions'

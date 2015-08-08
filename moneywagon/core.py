@@ -130,6 +130,30 @@ class Service(object):
             "Or rather it has no defined 'push_tx' method."
         )
 
+    def get_block(self, crypto, block_height='', block_number='', latest=False):
+        """
+        Get block based on either block height, block number or get the latest
+        block. Only one of the previous arguments must be passed on.
+
+        Returned is a dictionary object with the following keys:
+
+        block_number - int
+        confirmations - int
+        time - datetime object of when the block was made
+        sent_value - total value moved from all included transactions
+        total_fees - total amount of tx fees from all included transactions
+        mining_difficulty - what the difficulty was when this block was made
+        size - size of block
+        hash - str
+        merkle_root - str
+        previous_hash - str
+        next_hash - str (or `None` of its the latest block)
+        """
+        raise NotImplementedError(
+            "This service does not support getting getting block data."
+            "Or rather it has no defined 'get_block' method."
+        )
+
     def get_optimal_fee(self, crypto, tx_bytes, acceptable_block_delay):
         raise NotImplementedError(
             "This service does not support getting optimal fee."
@@ -198,21 +222,21 @@ class AutoFallback(object):
         """
         return "All either skipped or failed."
 
-def enforce_service_mode(services, mode, FetcherClass, args, verbose=False):
+def enforce_service_mode(services, mode, FetcherClass, kwargs, verbose=False):
     """
     Fetches the value according to the mode of execution desired.
     `FetcherClass` must be a class that is subclassed from AutoFallback.
     `services` must be a list of Service classes.
-    `args` is a list of arguments used to make the service call, usually
-      something like ['btc', '1HwY...'] or ['ltc', 'rur'], (depends on the what
-      FetcherClass.get takes)
+    `kwargs` is a list of arguments used to make the service call, usually
+      something like {crypto: 'btc', address: '1HwY...'} or
+      {crypto: 'ltc', fiat: 'rur'}, (depends on the what FetcherClass.get takes)
     """
     if mode == 'default':
-        return FetcherClass(services=services, verbose=verbose).get(*args)
+        return FetcherClass(services=services, verbose=verbose).get(**kwargs)
 
     if mode == 'random':
         random.shuffle(services)
-        return FetcherClass(services=services, verbose=verbose).get(*args)
+        return FetcherClass(services=services, verbose=verbose).get(**kwargs)
 
     if mode.startswith('paranoid'):
         depth = int(mode[9:]) # 'paranoid-3' -> 3
@@ -223,7 +247,7 @@ def enforce_service_mode(services, mode, FetcherClass, args, verbose=False):
         results = []
         for service in services[:depth]:
             results.append(
-                FetcherClass(services=[service], verbose=verbose).get(*args)
+                FetcherClass(services=[service], verbose=verbose).get(**kwargs)
             )
 
         if FetcherClass.__name__ in ["HistoricalTransactions", "UnspentOutputs"]:
