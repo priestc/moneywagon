@@ -265,7 +265,6 @@ class BlockStrap(Service):
                 output="%s:%s" % (utxo['id'].lower(), utxo['tx_address_tx_pos']),
                 confirmations=utxo['confirmations']
             ))
-
         return utxos
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
@@ -661,6 +660,10 @@ class BitpayInsight(Service):
             tx_count=len(r['txs'])
         )
 
+
+class TheBitInfo(BitpayInsight):
+    supported_cryptos = ['btc']
+    domain = "http://insight.thebit.info/"
 
 class MYRCryptap(BitpayInsight):
     supported_cryptos = ['myr']
