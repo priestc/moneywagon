@@ -11,13 +11,16 @@ crypto_data = {
             ],
             'address_balance': [
                 Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BlockSeer,
-                BitEasy, CoinPrism, BlockChainInfo, BitcoinAbe
+                BitEasy, CoinPrism, SmartBitAU, BlockChainInfo, BitcoinAbe
             ],
             'historical_transactions': [
-                Blockr, Toshi, ChainSo, CoinPrism, BlockSeer
+                Blockr, Toshi, SmartBitAU, ChainSo, CoinPrism, BlockSeer
             ],
             'push_tx': [
                 BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism
+            ],
+            'unspent_outputs': [
+                Blockr, BlockChainInfo, CoinPrism
             ],
             'get_block': [
                 Toshi, Blockr, ChainSo, BlockStrap
@@ -40,6 +43,9 @@ crypto_data = {
             'push_tx': [
                 Blockr, BlockStrap, ChainSo
             ],
+            'unspent_outputs': [
+                Blockr
+            ],
             'get_block': [
                 Blockr, BlockStrap, ChainSo
             ]
@@ -59,6 +65,9 @@ crypto_data = {
                 Blockr
             ],
             'push_tx': [
+                Blockr
+            ],
+            'unspent_outputs': [
                 Blockr
             ],
             'get_block': [
@@ -82,6 +91,9 @@ crypto_data = {
             'push_tx': [
                 BlockStrap
             ],
+            'unspent_outputs': [
+
+            ],
             'get_block': [
                 BlockStrap, ChainSo
             ]
@@ -101,6 +113,9 @@ crypto_data = {
                 NXTPortal
             ],
             'push_tx': [
+
+            ],
+            'unspent_outputs': [
 
             ],
             'get_block': [
@@ -124,6 +139,9 @@ crypto_data = {
             'push_tx': [
                 MYRCryptap
             ],
+            'unspent_outputs': [
+
+            ],
             'get_block': [
                 MYRCryptap
             ]
@@ -144,6 +162,9 @@ crypto_data = {
             ],
             'push_tx': [
                 ThisIsVTC
+            ],
+            'unspent_outputs': [
+
             ],
             'get_block': [
                 ThisIsVTC
@@ -166,6 +187,9 @@ crypto_data = {
             'push_tx': [
                 FTCe
             ],
+            'unspent_outputs': [
+
+            ],
             'get_block': [
                 FTCe
             ]
@@ -185,6 +209,9 @@ crypto_data = {
 
             ],
             'push_tx': [
+
+            ],
+            'unspent_outputs': [
 
             ],
             'get_block': [

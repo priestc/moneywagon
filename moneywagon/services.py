@@ -45,6 +45,43 @@ class BlockSeer(Service):
         return transactions
 
 
+class SmartBitAU(Service):
+    base_url = "https://api.smartbit.com.au/v1/blockchain"
+    supported_cryptos = ['btc']
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "%s/address/%s" % (self.base_url, address)
+        r = self.get_url(url).json()
+
+        confirmed = float(r['address']['confirmed']['balance'])
+        if confirmations > 1:
+            return confirmed
+        else:
+            return confirmed + float(r['address']['unconfirmed']['balance'])
+
+    def get_transactions(self, crypto, address, confirmations=1):
+        url = "%s/address/%s" % (self.base_url, address)
+        transactions = []
+        for tx in self.get_url(url).json()['address']['transactions']:
+            out_amount = sum(float(x['value']) for x in tx['outputs'] if address in x['addresses'])
+            in_amount = sum(float(x['value']) for x in tx['inputs'] if address in x['addresses'])
+            transactions.append(dict(
+                amount=out_amount - in_amount,
+                date=arrow.get(tx['time']).datetime,
+                fee=float(tx['fee']),
+                txid=tx['txid'],
+                confirmations=tx['confirmations'],
+            ))
+        return transactions
+
+    def push_tx(self, tx):
+        """
+        This method is untested.
+        """
+        url = "%s/pushtx" % self.base_url
+        return self.post_url(url, {'hex': tx}).content
+
+
 class Blockr(Service):
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
 
@@ -66,6 +103,18 @@ class Blockr(Service):
                 confirmations=tx['confirmations'],
             ))
         return transactions
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "http://%s.blockr.io/api/v1/address/unspent/%s" % (crypto, address)
+        utxos = []
+        for utxo in self.get_url(url).json()['data']['unspent']:
+            utxos.append(dict(
+                amount=int(utxo['amount'].replace('.', '')),
+                address=address,
+                output="%s:%s" % (utxo['tx'], utxo['n']),
+                confirmations=utxo['confirmations']
+            ))
+        return utxos
 
     def push_tx(self, crypto, tx):
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto
@@ -334,8 +383,9 @@ class CoinPrism(Service):
         for tx in self.get_url(url).json():
             if address in tx['addresses']:
                 transactions.append(dict(
-                    amount=tx['value'] / 1e8,
-                    txid=tx['transaction_hash'],
+                    amount=tx['value'],
+                    address=address,
+                    output="%s:%s" % (tx['transaction_hash'], tx['output_index']),
                     confirmations=tx['confirmations']
                 ))
 
@@ -370,6 +420,21 @@ class BlockChainInfo(Service):
         url = "http://blockchain.info/address/%s?format=json" % address
         response = self.get_url(url)
         return float(response.json()['final_balance']) * 1e-8
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "https://blockchain.info/unspent?address=%s" % address
+        utxos = []
+        for utxo in self.get_url(url).json()['unspent_outputs']:
+            if utxo['confirmations'] < confirmations:
+                continue # don't return if too few confirmations
+
+            utxos.append(dict(
+                output="%s:%s" % (utxo['tx_hash_big_endian'], utxo['tx_output_n']),
+                amount=utxo['value'],
+                address=address,
+            ))
+        return utxos
+
 
 ##################################
 

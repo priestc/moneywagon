@@ -95,7 +95,7 @@ class Service(object):
 
         """
         raise NotImplementedError(
-            "This service does not support getting historical transactions."
+            "This service does not support getting historical transactions. "
             "Or rather it has no defined 'get_transactions' method."
         )
 
@@ -103,12 +103,24 @@ class Service(object):
         """
         Default implmentation of this function that uses get_transaction
         Subclasses should overwrite this with a direct call to get utxo (if applicable)
+
+        Returned will be a list of dictionaries, the keys will be:
+
+        required:
+
+        `output` - the big endian tx hash, followed by a colon, then the tx index. (for pybitcointools support)
+        `address` - the address passed in (for pybitcointools support)
+        `amount` - int, satoshi amount of the input
+
+        optional:
+
+        `confirmations` - how many confirmations this tx has so far.
+
         """
-        unspent = []
-        for tx in self.get_transactions(crypto, address):
-            if tx.amount > 0:
-                unspend.append(tx)
-        return unspent
+        raise NotImplementedError(
+            "This service does not support getting unspent outputs. "
+            "Or rather it has no defined 'get_unspent_outputs' method."
+        )
 
     def get_balance(self, crypto, address, confirmations=1):
         """
@@ -116,7 +128,7 @@ class Service(object):
         Always returns a single float.
         """
         raise NotImplementedError(
-            "This service does not support getting address balances,"
+            "This service does not support getting address balances. "
             "Or rather it has no defined 'get_balance' method."
         )
 
@@ -126,7 +138,7 @@ class Service(object):
         successfully.
         """
         raise NotImplementedError(
-            "This service does not support pushing transactions to the network."
+            "This service does not support pushing transactions to the network. "
             "Or rather it has no defined 'push_tx' method."
         )
 
@@ -156,13 +168,13 @@ class Service(object):
         next_hash - str (lower case) (or `None` of its the latest block)
         """
         raise NotImplementedError(
-            "This service does not support getting getting block data."
+            "This service does not support getting getting block data. "
             "Or rather it has no defined 'get_block' method."
         )
 
     def get_optimal_fee(self, crypto, tx_bytes, acceptable_block_delay):
         raise NotImplementedError(
-            "This service does not support getting optimal fee."
+            "This service does not support getting optimal fee. "
             "Or rather it has no defined 'get_optimal_fee' method."
         )
 
@@ -261,7 +273,19 @@ def enforce_service_mode(services, mode, FetcherClass, kwargs, verbose=False):
 
             results.append(result)
 
-        if FetcherClass.__name__ == "GetBlock":
+        if FetcherClass.__name__ == "UnspentOutputs":
+            stripped = []
+            for result in results:
+                result.sort(key=lambda x: x['output'])
+                stripped.append(
+                    ", ".join(
+                        ["[output: %s, value: %s]" % (x['output'], x['amount']) for x in result]
+                    )
+                )
+
+            to_compare = stripped
+
+        elif FetcherClass.__name__ == "GetBlock":
             stripped = []
             for result in results:
                 stripped.append(
@@ -269,7 +293,7 @@ def enforce_service_mode(services, mode, FetcherClass, kwargs, verbose=False):
                 )
             to_compare = stripped
 
-        elif FetcherClass.__name__ in ["HistoricalTransactions", "UnspentOutputs"]:
+        elif FetcherClass.__name__ == "HistoricalTransactions":
             # in the case of historical transactions, not all services return the
             # same attributes, so we can't simply compare that they are all
             # equal. So instead we only compare txid and amount.
@@ -283,7 +307,6 @@ def enforce_service_mode(services, mode, FetcherClass, kwargs, verbose=False):
             to_compare = stripped
         else:
             to_compare = results
-        #from ipdb import set_trace; set_trace()
 
         if len(set(to_compare)) == 1:
             # if all values match, return

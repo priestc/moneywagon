@@ -1,8 +1,10 @@
+from moneywagon import get_unspent_outputs, get_current_price, get_optimal_fee
+from bitcoin import mktx, sign
+
 def from_unit_to_satoshi(value, unit):
     """
     Convert a value to satoshis. units can be any fiat currency
     """
-    from moneywagon import get_current_price
     if not unit or unit == 'satoshi':
         return value
     if unit == 'bitcoin' or unit == 'btc':
@@ -14,11 +16,12 @@ def from_unit_to_satoshi(value, unit):
 
 
 class Transaction(object):
-    def __init__(self, currency, hex=None, inputs=None):
-        if not currency.lower() == 'btc':
+    def __init__(self, crypto, hex=None, paranoid=1):
+        if not crypto.lower() == 'btc':
             raise ValueError("Transaction only supports BTC at this time")
 
-        self.currency = currency
+        self.paranoid = paranoid
+        self.crypto = crypto
         self.fee_satoshi = 10000
         self.outs = []
         self.ins = []
@@ -37,24 +40,30 @@ class Transaction(object):
         for i in inputs:
             self.ins.append(dict(input=i, private_key=private_key))
 
+    def _get_utxos(self, address):
+        """
+        Using the service fallback engine, get utxos from remote service.
+        """
+        mode = "paranoid-%s" % self.paranoid
+        return get_unspent_outputs(self.crypto, address, service_mode=mode)
+
     def add_inputs_from_address(self, address, private_key=None, amount='all'):
         """
         Make call to external service to get inputs from an address.
         `amount` is the amount of [currency] worth of inputs to add from this address.
           pass in 'all' (the default) to use *all* inputs found for this address.
         """
-        from pybitcointools import history
         self.private_key = private_key
         self.change_address = address
 
         total_added = 0
         ins = []
-        for o in history(address):
-            if (amount == 'all' or total_added < amount) and not o.get('spend'):
+        for utxo in self._get_utxos(address):
+            if (amount == 'all' or total_added < amount):
                 self.ins.append(
-                    dict(input=o, private_key=private_key)
+                    dict(input=utxo, private_key=private_key)
                 )
-                total_added += o['value']
+                total_added += utxo['value']
 
     def total_input_satoshis(self):
         """
@@ -94,9 +103,6 @@ class Transaction(object):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
-        from bitcoin import mktx, sign
-        from moneywagon import get_optimal_fee
-
         total_ins = self.total_input_satoshis()
         total_outs = sum([x['value'] for x in self.outs])
 

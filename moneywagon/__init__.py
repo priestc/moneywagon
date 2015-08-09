@@ -2,7 +2,6 @@ from __future__ import print_function
 
 from .core import AutoFallback, enforce_service_mode
 from .historical_price import Quandl
-from .tx import Transaction
 from .crypto_data import crypto_data
 
 
@@ -36,7 +35,7 @@ def get_historical_transactions(crypto, address, service_mode='default', service
     )
 
 
-def get_utxos(crypto, address, service_mode='default', verbose=False):
+def get_unspent_outputs(crypto, address, service_mode='default', services=None, verbose=False):
     if not services:
         services = crypto_data[crypto]['services']['unspent_outputs'] # get best services
     return enforce_service_mode(
