@@ -20,7 +20,7 @@ crypto_data = {
                 BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism
             ],
             'unspent_outputs': [
-                Blockr, BlockChainInfo, CoinPrism
+                Blockr, BitpayInsight, BlockChainInfo, CoinPrism
             ],
             'get_block': [
                 Toshi, Blockr, ChainSo, BlockStrap
@@ -140,7 +140,7 @@ crypto_data = {
                 MYRCryptap
             ],
             'unspent_outputs': [
-
+                MYRCryptap
             ],
             'get_block': [
                 MYRCryptap
@@ -164,7 +164,7 @@ crypto_data = {
                 ThisIsVTC
             ],
             'unspent_outputs': [
-
+                ThisIsVTC
             ],
             'get_block': [
                 ThisIsVTC
@@ -188,7 +188,7 @@ crypto_data = {
                 FTCe
             ],
             'unspent_outputs': [
-
+                FTCe
             ],
             'get_block': [
                 FTCe

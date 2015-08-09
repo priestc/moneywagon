@@ -322,8 +322,6 @@ class ChainSo(Service):
                 confirmations=tx_cons,
             ))
 
-        # to conform with monewagon standards, most recent must be first.
-        transactions.reverse()
         return transactions
 
     def push_tx(self, tx):
@@ -599,6 +597,18 @@ class BitpayInsight(Service):
             ))
 
         return transactions
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "%s/api/addr/%s/utxo?noCache=1" % (self.domain, address)
+        utxos = []
+        for utxo in self.get_url(url).json():
+            utxos.append(dict(
+                output="%s:%s" % (utxo['txid'], utxo['vout']),
+                amount=int(("%.8f" % utxo['amount']).replace(".", '')), # avoiding float math
+                confirmations=utxo['confirmations'],
+                address=address
+            ))
+        return utxos
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
         if block_number:

@@ -8,48 +8,59 @@ import datetime
 
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
-    get_historical_transactions, get_block
+    get_historical_transactions, get_block, get_unspent_outputs
 )
 parser = argparse.ArgumentParser() #version='1.0.2')
 
 subparsers = parser.add_subparsers(help='commands', dest="subparser_name")
 
-current_price_parser = subparsers.add_parser('current-price', help='Get current price of a crypto/fiat pair.')
-current_price_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
-current_price_parser.add_argument('fiat', action='store', help='Fiat currency symbol')
-current_price_parser.add_argument('--verbose', action='store_true', help='Include extra output')
+x = subparsers.add_parser('current-price', help='Get current price of a crypto/fiat pair.')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('fiat', action='store', help='Fiat currency symbol')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--random-service', action='store_true', help='Use a random source')
 
-historical_price_parser = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
-historical_price_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
-historical_price_parser.add_argument('fiat', action='store', help='Fiat currency symbol')
-historical_price_parser.add_argument('at_time', action='store', help='Time when to get the price. e.g. 2014-04-03')
-historical_price_parser.add_argument('--verbose', action='store_true', help='Include extra output')
+x = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('fiat', action='store', help='Fiat currency symbol')
+x.add_argument('at_time', action='store', help='Time when to get the price. e.g. 2014-04-03')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
 
-address_balance_parser = subparsers.add_parser('address-balance', help='Get total amount of coin in wallet.')
-address_balance_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
-address_balance_parser.add_argument('address', action='store', help='Wallet address')
-address_balance_parser.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
-address_balance_parser.add_argument('--verbose', action='store_true', help='Include extra output')
+x = subparsers.add_parser('address-balance', help='Get total amount of coin in wallet.')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('address', action='store', help='Wallet address')
+x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--random-service', action='store_true', help='Use a random source')
 
-get_block_parser = subparsers.add_parser('get-block', help='Get block by either height, hash or by latest.')
-get_block_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
-get_block_parser.add_argument('--block_number', action='store', help='Get block by block number')
-get_block_parser.add_argument('--block_hash', action='store', help='Get block by block hash')
-get_block_parser.add_argument('--latest', action='store_true', help='Get the latest block.')
-get_block_parser.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
-get_block_parser.add_argument('--verbose', action='store_true', help='Include extra output')
+x = subparsers.add_parser('get-block', help='Get block by either height, hash or by latest.')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('--block_number', action='store', help='Get block by block number')
+x.add_argument('--block_hash', action='store', help='Get block by block hash')
+x.add_argument('--latest', action='store_true', help='Get the latest block.')
+x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--random-service', action='store_true', help='Use a random source')
 
-historical_tx_parser = subparsers.add_parser('historical-transactions', help='Get list of all transactions for this address.')
-historical_tx_parser.add_argument('crypto', action='store', help='Cryptocurrency symbol')
-historical_tx_parser.add_argument('address', action='store', help='Wallet address')
-historical_tx_parser.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
-historical_tx_parser.add_argument('--verbose', action='store_true', help='Include extra output')
+x = subparsers.add_parser('historical-transactions', help='Get list of all transactions for this address.')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('address', action='store', help='Wallet address')
+x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--random-service', action='store_true', help='Use a random source')
 
-historical_tx_parser = subparsers.add_parser('wallet-balance', help='Get current value in fiat of a set of crypo addresses.')
-historical_tx_parser.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='Wallet file')
-historical_tx_parser.add_argument('fiat', action='store', help='Fiat currency')
-historical_tx_parser.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
-historical_tx_parser.add_argument('--verbose', action='store_true', help='Include extra output')
+x = subparsers.add_parser('unspent-outputs', help='Get list of unspent outputs for this address.')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('address', action='store', help='Wallet address')
+x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--random-service', action='store_true', help='Use a random source')
+
+x = subparsers.add_parser('wallet-balance', help='Get current value in fiat of a set of crypo addresses.')
+x.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='Wallet file')
+x.add_argument('fiat', action='store', help='Fiat currency')
+x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
 
 argz = parser.parse_args()
 
@@ -65,6 +76,11 @@ def datetime_to_iso(obj):
     raise TypeError("Type not serializable")
 
 
+modes = {
+    'random': bool(argz.random_service),
+    'paranoid': int(argz.paranoid or 0) or 1
+}
+
 if argz.subparser_name == 'current-price':
     price, source = CurrentPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat)
     print(price)
@@ -74,35 +90,25 @@ elif argz.subparser_name == 'historical-price':
     print(price, source, date)
 
 elif argz.subparser_name == 'address-balance':
-    if argz.paranoid:
-        mode = 'paranoid-%s' % argz.paranoid
-    else:
-        mode = 'default'
-
     print(get_address_balance(
-        argz.crypto, argz.address, service_mode=mode, verbose=argz.verbose
+        argz.crypto, argz.address, service_mode=modes, verbose=argz.verbose
     ))
 
 elif argz.subparser_name == 'get-block':
-    if argz.paranoid:
-        mode = 'paranoid-%s' % argz.paranoid
-    else:
-        mode = 'default'
-
     print(json.dumps(get_block(
         argz.crypto, block_number=argz.block_number or '', block_hash=argz.block_hash or '',
-        latest=argz.latest or '', service_mode=mode, verbose=argz.verbose
+        latest=argz.latest or '', service_mode=modes, verbose=argz.verbose
     ), default=datetime_to_iso))
 
 
 elif argz.subparser_name == 'historical-transactions':
-    if argz.paranoid:
-        mode = 'paranoid-%s' % argz.paranoid
-    else:
-        mode = 'default'
-
     print(json.dumps(get_historical_transactions(
-        argz.crypto, argz.address, service_mode=mode, verbose=argz.verbose
+        argz.crypto, argz.address, service_mode=modes, verbose=argz.verbose
+    ), default=datetime_to_iso))
+
+elif argz.subparser_name == "unspent-outputs":
+    print(json.dumps(get_unspent_outputs(
+        argz.crypto, argz.address, service_mode=modes, verbose=argz.verbose
     ), default=datetime_to_iso))
 
 elif argz.subparser_name == 'wallet-balance':

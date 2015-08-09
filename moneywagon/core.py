@@ -240,7 +240,7 @@ class AutoFallback(object):
         """
         return "All either skipped or failed."
 
-def enforce_service_mode(services, mode, FetcherClass, kwargs, verbose=False):
+def enforce_service_mode(services, modes, FetcherClass, kwargs, verbose=False):
     """
     Fetches the value according to the mode of execution desired.
     `FetcherClass` must be a class that is subclassed from AutoFallback.
@@ -249,67 +249,63 @@ def enforce_service_mode(services, mode, FetcherClass, kwargs, verbose=False):
       something like {crypto: 'btc', address: '1HwY...'} or
       {crypto: 'ltc', fiat: 'rur'}, (depends on the what FetcherClass.get takes)
     """
-    if mode == 'default':
-        return FetcherClass(services=services, verbose=verbose).get(**kwargs)
+    paranoid_level = modes['paranoid']
 
-    if mode == 'random':
+    if modes['random']:
         random.shuffle(services)
+
+    if paranoid_level == 1:
         return FetcherClass(services=services, verbose=verbose).get(**kwargs)
 
-    if mode.startswith('paranoid'):
-        depth = int(mode[9:]) # 'paranoid-3' -> 3
-        if depth < 2:
-            raise ValueError("paranoid depth must be >= 2")
+    results = []
+    for service in services[:paranoid_level]:
+        try:
+            result = FetcherClass(services=[service], verbose=verbose).get(**kwargs)
+        except NoService:
+            # this service is not available, so try one more.
+            paranoid_level += 1
+            continue
+        results.append(result)
 
-        # try first [depth] services and only proceed if all values agree.
-        results = []
-        for service in services[:depth]:
-            try:
-                result = FetcherClass(services=[service], verbose=verbose).get(**kwargs)
-            except NoService:
-                # this service is not available, so try one more.
-                depth += 1
-                continue
-
-            results.append(result)
-
-        if FetcherClass.__name__ == "UnspentOutputs":
-            stripped = []
-            for result in results:
-                result.sort(key=lambda x: x['output'])
-                stripped.append(
-                    ", ".join(
-                        ["[output: %s, value: %s]" % (x['output'], x['amount']) for x in result]
-                    )
+    if FetcherClass.__name__ == "UnspentOutputs":
+        stripped = []
+        for result in results:
+            result.sort(key=lambda x: x['output'])
+            stripped.append(
+                ", ".join(
+                    ["[output: %s, value: %s]" % (x['output'], x['amount']) for x in result]
                 )
+            )
+        to_compare = stripped
 
-            to_compare = stripped
-
-        elif FetcherClass.__name__ == "GetBlock":
-            stripped = []
-            for result in results:
-                stripped.append(
-                    "[hash: %s, number: %s]" % (result['hash'], result['block_number'])
+    elif FetcherClass.__name__ == "GetBlock":
+        stripped = []
+        for result in results:
+            stripped.append(
+                "[hash: %s, number: %s, size: %s]" % (
+                    result['hash'], result['block_number'], result['size']
                 )
-            to_compare = stripped
+            )
+        to_compare = stripped
 
-        elif FetcherClass.__name__ == "HistoricalTransactions":
-            # in the case of historical transactions, not all services return the
-            # same attributes, so we can't simply compare that they are all
-            # equal. So instead we only compare txid and amount.
-            stripped = []
-            for result in results:
-                stripped.append(
-                    ", ".join(
-                        ["[id: %s, amount: %s]" % (x['txid'], x['amount']) for x in result]
-                    )
+    elif FetcherClass.__name__ == "HistoricalTransactions":
+        # in the case of historical transactions, not all services return the
+        # same attributes, so we can't simply compare that they are all
+        # equal. So instead we only compare txid and amount.
+        stripped = []
+        for result in results:
+            result.sort(key=lambda x: x['date'])
+            stripped.append(
+                ", ".join(
+                    ["[id: %s, amount: %s]" % (x['txid'], x['amount']) for x in result]
                 )
-            to_compare = stripped
-        else:
-            to_compare = results
+            )
+        to_compare = stripped
+    else:
+        to_compare = results
 
-        if len(set(to_compare)) == 1:
-            # if all values match, return
-            return results[0]
-        else:
-            raise ServiceDisagreement("Differing values returned: %s" % results)
+    if len(set(to_compare)) == 1:
+        # if all values match, return
+        return results[0]
+    else:
+        raise ServiceDisagreement("Differing values returned: %s" % results)
