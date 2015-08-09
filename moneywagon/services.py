@@ -169,6 +169,8 @@ class Toshi(Service):
             transactions.append(dict(
                 amount=sum([x['amount'] / 1e8 for x in tx['outputs'] if address in x['addresses']]),
                 txid=tx['hash'],
+                date=arrow.get(tx['block_time']).datetime,
+                confirmations=tx['confirmations']
             ))
         return transactions
 
@@ -664,6 +666,7 @@ class BitpayInsight(Service):
 class TheBitInfo(BitpayInsight):
     supported_cryptos = ['btc']
     domain = "http://insight.thebit.info/"
+
 
 class MYRCryptap(BitpayInsight):
     supported_cryptos = ['myr']
