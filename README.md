@@ -383,8 +383,40 @@ There is a wrapper class that helps you make transactions. Here is how to use it
 >>> tx.add_inputs_from_address(address='1HWpyFJ7N...', private_key='KxDwaDis...')
 >>> tx.add_output('1Fs3...', 1.42, unit='btc')
 >>> tx.fee(4000, unit='satoshi') #defaut is 10000
->>> tx.get_hex()
+>>> tx.get_hex() # call this method to see the tx in hex format
 '00100137876876...
+>>> tx.push()
+```
+
+You can pass in a paranoid parameter to the Transaction constructor that will make
+all external service calls cross checked. By default, all service calls are
+only performed once. You can increase this value to get more assurance that your
+blockchain source has not been compromised.
+
+```python
+>>> tx = Transaction('btc', paranoid=2)
+```
+
+Or if you want more fine control over which inputs go in:
+
+```python
+>>> my_inputs = get_unpent_outputs('1PZ3Ps9Rv...')[:2] # just the first two
+>>> tx.add_raw_inputs(my_inputs, 'KdEr5D1a...')
+>>> more_inputs = [x for x in get_unpent_outputs('1HWpyFJ7N...') if x['amount'] < 10000]]
+>>> tx.add_raw_inputs(more_inputs, 'KxDwaDis...')
+>>> tx.add_output('1Fd3...', 1.42, unit='btc')
+>>> tx.push()
+```
+
+The last input that is added (either through `add_raw_inputs` or `add_inputs_from_address`)
+will be used as the change address. You can manually specify a change address by modifying
+the value of `tx.change_address` before calling `tx.push()`.
+
+
+```python
+>>> tx.add_inputs_from_address(address='1HWpyFJ7N...', private_key='KxDwaDis...')
+>>> tx.add_output('1Fd3...', 1.42, unit='btc')
+>>> tx.change_address = '1PZ3Ps9Rv...' # replace change address from 1HWpyFJ... -> 1PZ3Ps9Rv...
 >>> tx.push()
 ```
 

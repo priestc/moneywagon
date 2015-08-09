@@ -28,17 +28,18 @@ class Transaction(object):
         if hex:
             self.hex = hex
 
-    def add_raw_inputs(self, inputs, private_key=False):
+    def add_raw_inputs(self, inputs, private_key=None):
         """
         Add a set of utxo's to this transaction. This method is better to use if you
         want more fine control of which inputs get added to a transaction.
         `inputs` is a list of "unspent outputs" (they were 'outputs' to previous transactions,
           and 'inputs' to subsiquent transactions).
 
-        `private_key` - All inputs must be signable by the passed in private key.
+        `private_key` - All inputs will be signed by the passed in private key.
         """
         for i in inputs:
             self.ins.append(dict(input=i, private_key=private_key))
+            self.change_address = i['address']
 
     def _get_utxos(self, address):
         """
