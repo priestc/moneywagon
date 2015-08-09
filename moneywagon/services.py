@@ -255,6 +255,19 @@ class BlockStrap(Service):
             ))
         return txs
 
+    def get_unspent_outputs(self, crypto, address):
+        url = "http://%s/v0/%s/address/unspents/%s" % (self.domain, crypto, address)
+        utxos = []
+        for utxo in self.get_url(url).json()['data']['address']['transactions']:
+            utxos.append(dict(
+                amount=utxo['tx_address_value'],
+                address=address,
+                output="%s:%s" % (utxo['id'].lower(), utxo['tx_address_tx_pos']),
+                confirmations=utxo['confirmations']
+            ))
+
+        return utxos
+
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
         if block_hash:
             url = "http://%s/v0/%s/block/id/%s" % (self.domain, crypto, block_hash)

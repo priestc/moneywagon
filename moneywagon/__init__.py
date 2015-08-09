@@ -92,6 +92,17 @@ class GetBlock(AutoFallback):
             crypto, block_number, block_hash, 'latest' if latest else ''
         )
 
+    @classmethod
+    def strip_for_consensus(self, results):
+        stripped = []
+        for result in results:
+            stripped.append(
+                "[hash: %s, number: %s, size: %s]" % (
+                    result['hash'], result['block_number'], result['size']
+                )
+            )
+        return stripped
+
 class HistoricalTransactions(AutoFallback):
     service_method_name = 'get_transactions'
 
@@ -101,6 +112,17 @@ class HistoricalTransactions(AutoFallback):
     def no_service_msg(self, crypto, address):
         return "Could not get transactions for: %s" % crypto
 
+    @classmethod
+    def strip_for_consensus(cls, results):
+        stripped = []
+        for result in results:
+            result.sort(key=lambda x: x['date'])
+            stripped.append(
+                ", ".join(
+                    ["[id: %s, amount: %s]" % (x['txid'], x['amount']) for x in result]
+                )
+            )
+        return stripped
 
 class UnspentOutputs(AutoFallback):
     service_method_name = 'get_unspent_outputs'
@@ -110,6 +132,18 @@ class UnspentOutputs(AutoFallback):
 
     def no_service_msg(self, crypto, address):
         return "Could not get unspent outputs for: %s" % crypto
+
+    @classmethod
+    def strip_for_consensus(cls, results):
+        stripped = []
+        for result in results:
+            result.sort(key=lambda x: x['output'])
+            stripped.append(
+                ", ".join(
+                    ["[output: %s, value: %s]" % (x['output'], x['amount']) for x in result]
+                )
+            )
+        return stripped
 
 
 class CurrentPrice(AutoFallback):

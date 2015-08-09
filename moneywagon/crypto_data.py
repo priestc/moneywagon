@@ -20,7 +20,7 @@ crypto_data = {
                 BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism
             ],
             'unspent_outputs': [
-                Blockr, BitpayInsight, BlockChainInfo, CoinPrism, ChainSo
+                Blockr, BitpayInsight, BlockChainInfo, CoinPrism, ChainSo, BlockStrap
             ],
             'get_block': [
                 Toshi, Blockr, ChainSo, BlockStrap
@@ -44,10 +44,10 @@ crypto_data = {
                 Blockr, BlockStrap, ChainSo
             ],
             'unspent_outputs': [
-                Blockr
+                BlockStrap, ChainSo, Blockr
             ],
             'get_block': [
-                Blockr, BlockStrap, ChainSo
+                ChainSo, Blockr, BlockStrap
             ]
         },
     },

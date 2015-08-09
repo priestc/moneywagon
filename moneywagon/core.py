@@ -267,45 +267,13 @@ def enforce_service_mode(services, modes, FetcherClass, kwargs, verbose=False):
             continue
         results.append(result)
 
-    if FetcherClass.__name__ == "UnspentOutputs":
-        stripped = []
-        for result in results:
-            result.sort(key=lambda x: x['output'])
-            stripped.append(
-                ", ".join(
-                    ["[output: %s, value: %s]" % (x['output'], x['amount']) for x in result]
-                )
-            )
-        to_compare = stripped
-
-    elif FetcherClass.__name__ == "GetBlock":
-        stripped = []
-        for result in results:
-            stripped.append(
-                "[hash: %s, number: %s, size: %s]" % (
-                    result['hash'], result['block_number'], result['size']
-                )
-            )
-        to_compare = stripped
-
-    elif FetcherClass.__name__ == "HistoricalTransactions":
-        # in the case of historical transactions, not all services return the
-        # same attributes, so we can't simply compare that they are all
-        # equal. So instead we only compare txid and amount.
-        stripped = []
-        for result in results:
-            result.sort(key=lambda x: x['date'])
-            stripped.append(
-                ", ".join(
-                    ["[id: %s, amount: %s]" % (x['txid'], x['amount']) for x in result]
-                )
-            )
-        to_compare = stripped
+    if hasattr(FetcherClass, "strip_for_consensus"):
+        to_compare = FetcherClass.strip_for_consensus(results)
     else:
         to_compare = results
 
     if len(set(to_compare)) == 1:
-        # if all values match, return
+        # if all values match, return any one (in this case the first one).
         return results[0]
     else:
         raise ServiceDisagreement("Differing values returned: %s" % results)
