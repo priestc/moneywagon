@@ -309,3 +309,25 @@ def enforce_service_mode(services, modes, FetcherClass, kwargs, verbose=False):
         return results[0]
     else:
         raise ServiceDisagreement("Differing values returned: %s" % results)
+
+def currency_to_protocol(amount):
+    """
+    Convert a string of 'currency units' to 'protocol units'. For instance
+    converts 19.1 bitcoin to 1910000000 satoshis.
+
+    Input is a float, output is an integer that is 1e8 times larger.
+
+    It is hard to do this conversion because multiplying
+    floats causes rounding nubers which will mess up the transactions creation
+    process.
+
+    examples:
+
+    19.1 -> 1910000000
+    0.001 -> 100000
+
+    """
+    if type(amount) == float:
+        amount = "%.8f" % amount
+
+    return int(amount.replace(".", '')) # avoiding float math

@@ -1,4 +1,4 @@
-from .core import Service, NoService, NoData, SkipThisService
+from .core import Service, NoService, NoData, SkipThisService, currency_to_protocol
 import arrow
 
 class Bitstamp(Service):
@@ -109,7 +109,7 @@ class Blockr(Service):
         utxos = []
         for utxo in self.get_url(url).json()['data']['unspent']:
             utxos.append(dict(
-                amount=int(utxo['amount'].replace('.', '')),
+                amount=currency_to_protocol(utxo['amount']),
                 address=address,
                 output="%s:%s" % (utxo['tx'], utxo['n']),
                 confirmations=utxo['confirmations']
@@ -323,6 +323,19 @@ class ChainSo(Service):
             ))
 
         return transactions
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "%s/get_tx_unspent/%s/%s" %(self.base_url, crypto, address)
+        utxos = []
+        for utxo in self.get_url(url).json()['data']['txs']:
+            utxos.append(dict(
+                amount=currency_to_protocol(utxo['value']),
+                address=address,
+                output="%s:%s" % (utxo['txid'], utxo['output_no']),
+                confirmations=utxo['confirmations']
+            ))
+        return utxos
+
 
     def push_tx(self, tx):
         url = "%s/send_tx/%s" % (self.base_url, crypto)
@@ -604,7 +617,7 @@ class BitpayInsight(Service):
         for utxo in self.get_url(url).json():
             utxos.append(dict(
                 output="%s:%s" % (utxo['txid'], utxo['vout']),
-                amount=int(("%.8f" % utxo['amount']).replace(".", '')), # avoiding float math
+                amount=currency_to_protocol(utxo['amount']),
                 confirmations=utxo['confirmations'],
                 address=address
             ))
