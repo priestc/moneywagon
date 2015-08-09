@@ -430,6 +430,8 @@ You can also specify the `amount` argument to `add_output` with a unit argument:
 
 All exchange rates are taken from the `get_current_price` function defined above.
 
+Currently there is no way to decode transactions using moneywagon.
+One day this feature will get added.
 
 ## Push Transaction
 
