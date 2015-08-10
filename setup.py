@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="moneywagon",
-    version='1.3.1',
+    version='1.4.0',
     description='Next Generation Cryptocurrency Platform',
     long_description=open('README.md').read(),
     author='Chris Priest',
@@ -22,6 +22,7 @@ setup(
     ],
     install_requires=[
         'requests',
+        'futures',
         'pytz',
         'arrow',
         'pybitcointools'
