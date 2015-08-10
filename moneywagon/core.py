@@ -2,6 +2,8 @@ from __future__ import print_function
 import random
 import requests
 
+from concurrent import futures
+
 useragent = 'moneywagon 1.3.0'
 
 class ServiceDisagreement(Exception):
@@ -257,15 +259,16 @@ def enforce_service_mode(services, modes, FetcherClass, kwargs, verbose=False):
     if paranoid_level == 1:
         return FetcherClass(services=services, verbose=verbose).get(**kwargs)
 
-    results = []
-    for service in services[:paranoid_level]:
-        try:
-            result = FetcherClass(services=[service], verbose=verbose).get(**kwargs)
-        except NoService:
-            # this service is not available, so try one more.
-            paranoid_level += 1
-            continue
-        results.append(result)
+    with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
+        fetches = [
+            executor.submit(
+                FetcherClass(services=[service], verbose=verbose).get, **kwargs
+            ) for service in services
+        ]
+
+        results = []
+        for future in futures.as_completed(fetches):
+            results.append(future.result())
 
     if hasattr(FetcherClass, "strip_for_consensus"):
         to_compare = FetcherClass.strip_for_consensus(results)

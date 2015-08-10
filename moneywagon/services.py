@@ -74,6 +74,17 @@ class SmartBitAU(Service):
             ))
         return transactions
 
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "%s/address/%s/unspent" % (self.base_url, address)
+        utxos = []
+        for utxo in self.get_url(url).json()['unspent']:
+            utxos.append(dict(
+                amount=utxo['value_int'],
+                output="%s:%s" % (utxo['txid'], utxo['n']),
+                address=address,
+            ))
+        return utxos
+
     def push_tx(self, tx):
         """
         This method is untested.
