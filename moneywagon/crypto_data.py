@@ -199,7 +199,7 @@ crypto_data = {
             ]
         },
     },
-    'drk': {
+    'dash': {
         'name': 'Dash',
         'genesis_date': datetime(2014, 1, 19),
         'services': {

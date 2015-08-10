@@ -5,16 +5,16 @@ from .historical_price import Quandl
 from .crypto_data import crypto_data
 
 
+def _get_optimal_services(crypto, type_of_service):
+    try:
+        # get best services from curated list
+        return crypto_data[crypto]['services'][type_of_service]
+    except KeyError:
+        raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
+
 def get_current_price(crypto, fiat, services=None, **modes):
-    """
-    Modes can be:
-
-       random = [True|False] False by default
-       fast = [True|False] False by default
-
-    """
     if not services:
-        services = crypto_data[crypto]['services']['current_price'] # get best services
+        services = _get_optimal_services(crypto, 'current_price')
 
     return enforce_service_mode(
         services, CurrentPrice, {'crypto': crypto, 'fiat': fiat}, modes=modes
@@ -22,16 +22,8 @@ def get_current_price(crypto, fiat, services=None, **modes):
 
 
 def get_address_balance(crypto, address, services=None, **modes):
-    """
-    Modes can be:
-
-       random = [True|False] False by default
-       paranoid = int greater than one. 1 by default.
-       fast = [True|False] False by default
-
-    """
     if not services:
-        services = crypto_data[crypto]['services']['address_balance'] # get best services
+        services = _get_optimal_services(crypto, 'address_balance')
 
     return enforce_service_mode(
         services, AddressBalance, {'crypto': crypto, 'address': address}, modes=modes
@@ -40,7 +32,7 @@ def get_address_balance(crypto, address, services=None, **modes):
 
 def get_historical_transactions(crypto, address, services=None, **modes):
     if not services:
-        services = crypto_data[crypto]['services']['historical_transactions'] # get best services
+        services = _get_optimal_services(crypto, 'historical_transactions')
 
     return enforce_service_mode(
         services, HistoricalTransactions, {'crypto': crypto, 'address': address}, modes=modes
@@ -49,7 +41,7 @@ def get_historical_transactions(crypto, address, services=None, **modes):
 
 def get_unspent_outputs(crypto, address, services=None, **modes):
     if not services:
-        services = crypto_data[crypto]['services']['unspent_outputs'] # get best services
+        services = _get_optimal_services(crypto, 'unspent_outputs')
     return enforce_service_mode(
         services, UnspentOutputs, {'crypto': crypto, 'address': address}, modes=modes
     )
@@ -65,14 +57,14 @@ def get_historical_price(crypto, fiat, date):
 
 def push_tx(crypto, tx_hex, verbose=False, **modes):
     if not services:
-        services = crypto_data[crypto]['services']['push_tx'] # get best services
+        services = _get_optimal_services(crypto, 'push_tx')
     return enforce_service_mode(
         services, PushTx, {'crypto': crypto, 'tx_hex': tx_hex}, modes=modes
     )
 
-def get_block(crypto, block_number='', block_hash='', latest=False, service_mode='default', services=None, **modes):
+def get_block(crypto, block_number='', block_hash='', latest=False, services=None, **modes):
     if not services:
-        services = crypto_data[crypto]['services']['get_block'] # get best services
+        services = _get_optimal_services(crypto, 'get_block')
     kwargs = dict(crypto=crypto, block_number=block_number, block_hash=block_hash, latest=latest)
     return enforce_service_mode(
         services, GetBlock, kwargs, modes=modes

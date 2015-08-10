@@ -58,9 +58,10 @@ class Service(object):
         else:
             kwargs['headers'] = custom
 
-        if self.verbose: print("URL: %s" % url)
-
         response = getattr(requests, method)(url, *args, **kwargs)
+
+        if self.verbose: print("Got Response: %s" % url)
+
         if method == 'get':
             self.responses[url] = response # cache for later
 
@@ -73,7 +74,7 @@ class Service(object):
         fiat/crypto pair. Returns two item tuple: (price, best_market)
         """
         raise NotImplementedError(
-            "This service does not support getting the current fiat exchange rate."
+            "This service does not support getting the current fiat exchange rate. "
             "Or rather it has no defined 'get_current_price' method."
         )
 
@@ -250,21 +251,28 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
     `kwargs` is a list of arguments used to make the service call, usually
       something like {crypto: 'btc', address: '1HwY...'} or
       {crypto: 'ltc', fiat: 'rur'}, (depends on the what FetcherClass.get takes)
+
+    Modes can be:
+
+         random = [True|False] False by default
+         paranoid = positive int. 1 by default.
+         fast = [True|False] False by default
+
     """
-    paranoid_level = modes.get('paranoid', 1)
+    paranoid_level = modes.get('paranoid', 0)
     verbose = modes.get('verbose', False)
-    
+
     if modes.get('random', False):
         random.shuffle(services)
 
-    if paranoid_level == 1:
+    if paranoid_level == 0:
         return FetcherClass(services=services, verbose=verbose).get(**kwargs)
 
     with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
         fetches = [
             executor.submit(
                 FetcherClass(services=[service], verbose=verbose).get, **kwargs
-            ) for service in services
+            ) for service in services[:paranoid_level+2]
         ]
 
         results = []

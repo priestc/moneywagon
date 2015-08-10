@@ -6,10 +6,14 @@ import argparse
 import json
 import datetime
 
+from concurrent import futures
+
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
     get_historical_transactions, get_block, get_unspent_outputs
 )
+from moneywagon.wallet import fetch_wallet_balances
+
 parser = argparse.ArgumentParser() #version='1.0.2')
 
 subparsers = parser.add_subparsers(help='commands', dest="subparser_name")
@@ -61,6 +65,7 @@ x.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='W
 x.add_argument('fiat', action='store', help='Fiat currency')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--random-service', action='store_true', help='Use a random source')
 
 argz = parser.parse_args()
 
@@ -75,10 +80,9 @@ def datetime_to_iso(obj):
         return serial
     raise TypeError("Type not serializable")
 
-
 modes = {
     'random': bool(argz.random_service),
-    'paranoid': int(argz.paranoid or 0) or 1
+    'paranoid': int(argz.paranoid or 0)
 }
 
 if argz.subparser_name == 'current-price':
@@ -91,58 +95,41 @@ elif argz.subparser_name == 'historical-price':
 
 elif argz.subparser_name == 'address-balance':
     print(get_address_balance(
-        argz.crypto, argz.address, service_mode=modes, verbose=argz.verbose
+        argz.crypto, argz.address, **modes
     ))
 
 elif argz.subparser_name == 'get-block':
     print(json.dumps(get_block(
         argz.crypto, block_number=argz.block_number or '', block_hash=argz.block_hash or '',
-        latest=argz.latest or '', service_mode=modes, verbose=argz.verbose
+        latest=argz.latest or False, modes=modes
     ), default=datetime_to_iso))
-
 
 elif argz.subparser_name == 'historical-transactions':
     print(json.dumps(get_historical_transactions(
-        argz.crypto, argz.address, service_mode=modes, verbose=argz.verbose
+        argz.crypto, argz.address, **modes
     ), default=datetime_to_iso))
 
 elif argz.subparser_name == "unspent-outputs":
     print(json.dumps(get_unspent_outputs(
-        argz.crypto, argz.address, service_mode=modes, verbose=argz.verbose
+        argz.crypto, argz.address, **modes
     ), default=datetime_to_iso))
 
 elif argz.subparser_name == 'wallet-balance':
-    current_price = CurrentPrice(verbose=argz.verbose) #defined here to cache api calls
-    balance = AddressBalance(verbose=argz.verbose)
-    wallets = argz.wallet
+    wallets = [
+        (x.split(",")[0], x.split(",")[1].strip())
+        for x in argz.wallet.readlines()
+        if not x.startswith("#")
+    ]
     fiat = argz.fiat.upper()
+    balances = fetch_wallet_balances(wallets, fiat, **modes)
 
     cumm_amount = 0
-    for line in wallets.readlines():
-        if line.startswith("#"):
-            continue
-
-        currency, address = line.split(",")
-        address = address.strip()
-        try:
-            price, price_source = current_price.get(currency, fiat)
-        except Exception as exc:
-            print("Can't get price for " + currency, exc)
-            continue
-
-        try:
-            amount = balance.get(currency, address)
-        except Exception as exc:
-            print("Can't get balance for " + currency, exc)
-            continue
-
-        usd_amount = amount * price
-        cumm_amount += usd_amount
-
+    for d in balances:
+        cumm_amount += d['fiat_value']
         print(
             "%s (%.2f %s) == %s x %s (%s)" % (
-                currency, usd_amount, fiat, amount, price, price_source
+                d['crypto'], d['fiat_value'], d['fiat'],
+                d['crypto_value'], d['conversion_price'], d['price_source'],
             )
         )
-
     print("Total amount of all crypto: %.2f %s" % (cumm_amount, fiat))
