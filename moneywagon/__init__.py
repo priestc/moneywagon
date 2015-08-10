@@ -5,61 +5,77 @@ from .historical_price import Quandl
 from .crypto_data import crypto_data
 
 
-def get_current_price(crypto, fiat, service_mode='default', services=None, verbose=False):
-    if service_mode.startswith('paranoid'):
-        raise ValueError("paranoid mode not applicable for current price")
+def get_current_price(crypto, fiat, services=None, **modes):
+    """
+    Modes can be:
 
+       random = [True|False] False by default
+       fast = [True|False] False by default
+
+    """
     if not services:
         services = crypto_data[crypto]['services']['current_price'] # get best services
 
     return enforce_service_mode(
-        services, service_mode, CurrentPrice, [crypto, fiat], verbose
+        services, CurrentPrice, {'crypto': crypto, 'fiat': fiat}, modes=modes
     )
 
 
-def get_address_balance(crypto, address, service_mode='default', services=None, verbose=False):
+def get_address_balance(crypto, address, services=None, **modes):
+    """
+    Modes can be:
+
+       random = [True|False] False by default
+       paranoid = int greater than one. 1 by default.
+       fast = [True|False] False by default
+
+    """
     if not services:
         services = crypto_data[crypto]['services']['address_balance'] # get best services
 
     return enforce_service_mode(
-        services, service_mode, AddressBalance, {'crypto': crypto, 'address': address}, verbose
+        services, AddressBalance, {'crypto': crypto, 'address': address}, modes=modes
     )
 
 
-def get_historical_transactions(crypto, address, service_mode='default', services=None, verbose=False):
+def get_historical_transactions(crypto, address, services=None, **modes):
     if not services:
         services = crypto_data[crypto]['services']['historical_transactions'] # get best services
 
     return enforce_service_mode(
-        services, service_mode, HistoricalTransactions, {'crypto': crypto, 'address': address}, verbose
+        services, HistoricalTransactions, {'crypto': crypto, 'address': address}, modes=modes
     )
 
 
-def get_unspent_outputs(crypto, address, service_mode='default', services=None, verbose=False):
+def get_unspent_outputs(crypto, address, services=None, **modes):
     if not services:
         services = crypto_data[crypto]['services']['unspent_outputs'] # get best services
     return enforce_service_mode(
-        services, service_mode, UnspentOutputs, {'crypto': crypto, 'address': address}, verbose
+        services, UnspentOutputs, {'crypto': crypto, 'address': address}, modes=modes
     )
 
 
 def get_historical_price(crypto, fiat, date):
+    """
+    Only one service is defined fr geting historical price, so no fetching modes
+    are needed.
+    """
     return HistoricalPrice().get(crypto, fiat, date)
 
 
-def push_tx(crypto, tx_hex, service_mode='default', verbose=False, services=None):
+def push_tx(crypto, tx_hex, verbose=False, **modes):
     if not services:
         services = crypto_data[crypto]['services']['push_tx'] # get best services
     return enforce_service_mode(
-        services, service_mode, PushTx, {'crypto': crypto, 'tx_hex': tx_hex}, verbose
+        services, PushTx, {'crypto': crypto, 'tx_hex': tx_hex}, modes=modes
     )
 
-def get_block(crypto, block_number='', block_hash='', latest=False, service_mode='default', verbose=False, services=None):
+def get_block(crypto, block_number='', block_hash='', latest=False, service_mode='default', services=None, **modes):
     if not services:
         services = crypto_data[crypto]['services']['get_block'] # get best services
     kwargs = dict(crypto=crypto, block_number=block_number, block_hash=block_hash, latest=latest)
     return enforce_service_mode(
-        services, service_mode, GetBlock, kwargs, verbose
+        services, GetBlock, kwargs, modes=modes
     )
 
 

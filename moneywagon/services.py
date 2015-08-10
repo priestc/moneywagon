@@ -243,20 +243,20 @@ class BlockStrap(Service):
     """
     Documentation here: http://docs.blockstrap.com/en/api/
     """
-    domain = 'api.blockstrap.com'
+    domain = 'http://api.blockstrap.com'
     supported_cryptos = ['btc', 'ltc', 'drk', 'doge']
 
     def get_balance(self, crypto, address, confirmations=None):
-        url = "http://%s/v0/%s/address/id/%s" % (self.domain, crypto, address)
+        url = "%s/v0/%s/address/id/%s" % (self.domain, crypto, address)
         response = self.get_url(url).json()
         return response['data']['address']['balance'] / 1e8
 
     def push_tx(self, crypto, tx):
-        url = "http://%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx)
+        url = "%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx)
         return self.get_url(url)['data']['id']
 
     def get_transactions(self, crypto, address):
-        url = "http://%s/v0/%s/address/transactions/%s" % (self.domain, crypto, address)
+        url = "%s/v0/%s/address/transactions/%s" % (self.domain, crypto, address)
         txs = []
         for tx in self.get_url(url).json()['data']['address']['transactions']:
             s_amount = tx['tx_address_input_value'] or tx['tx_address_output_value'] * -1
@@ -269,7 +269,7 @@ class BlockStrap(Service):
         return txs
 
     def get_unspent_outputs(self, crypto, address):
-        url = "http://%s/v0/%s/address/unspents/%s" % (self.domain, crypto, address)
+        url = "%s/v0/%s/address/unspents/%s" % (self.domain, crypto, address)
         utxos = []
         for utxo in self.get_url(url).json()['data']['address']['transactions']:
             utxos.append(dict(
@@ -282,13 +282,13 @@ class BlockStrap(Service):
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
         if block_hash:
-            url = "http://%s/v0/%s/block/id/%s" % (self.domain, crypto, block_hash)
+            url = "%s/v0/%s/block/id/%s" % (self.domain, crypto, block_hash)
             b = "block"
         elif block_number:
-            url = "http://%s/v0/%s/block/height/%s" % (self.domain, crypto, block_number)
+            url = "%s/v0/%s/block/height/%s" % (self.domain, crypto, block_number)
             b = "blocks"
         elif latest:
-            url = "http://%s/v0/%s/block/latest" % (self.domain, crypto)
+            url = "%s/v0/%s/block/latest" % (self.domain, crypto)
             b = 'block'
 
         r = self.get_url(url).json()['data'][b]
@@ -453,7 +453,7 @@ class BlockChainInfo(Service):
     supported_cryptos = ['btc']
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "http://blockchain.info/address/%s?format=json" % address
+        url = "https://blockchain.info/address/%s?format=json" % address
         response = self.get_url(url)
         return float(response.json()['final_balance']) * 1e-8
 

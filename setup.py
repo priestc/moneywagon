@@ -2,6 +2,13 @@
 
 from setuptools import setup, find_packages
 
+import sys
+
+if sys.version_info <= (3,1):
+    extra_install = ['future',]
+else:
+    extra_install = []
+
 setup(
     name="moneywagon",
     version='1.4.0',
@@ -22,9 +29,8 @@ setup(
     ],
     install_requires=[
         'requests',
-        'futures',
         'pytz',
         'arrow',
         'pybitcointools'
-    ]
+    ] + extra_install
 )

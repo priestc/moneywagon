@@ -242,7 +242,7 @@ class AutoFallback(object):
         """
         return "All either skipped or failed."
 
-def enforce_service_mode(services, modes, FetcherClass, kwargs, verbose=False):
+def enforce_service_mode(services, FetcherClass, kwargs, modes):
     """
     Fetches the value according to the mode of execution desired.
     `FetcherClass` must be a class that is subclassed from AutoFallback.
@@ -251,9 +251,10 @@ def enforce_service_mode(services, modes, FetcherClass, kwargs, verbose=False):
       something like {crypto: 'btc', address: '1HwY...'} or
       {crypto: 'ltc', fiat: 'rur'}, (depends on the what FetcherClass.get takes)
     """
-    paranoid_level = modes['paranoid']
-
-    if modes['random']:
+    paranoid_level = modes.get('paranoid', 1)
+    verbose = modes.get('verbose', False)
+    
+    if modes.get('random', False):
         random.shuffle(services)
 
     if paranoid_level == 1:
