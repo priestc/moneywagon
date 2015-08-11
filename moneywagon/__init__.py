@@ -136,7 +136,7 @@ class UnspentOutputs(AutoFallback):
     service_method_name = 'get_unspent_outputs'
 
     def get(self, crypto, address):
-        return self._try_each_service(crypto, address)
+        return self._try_each_service(crypto=crypto, address=address)
 
     def no_service_msg(self, crypto, address):
         return "Could not get unspent outputs for: %s" % crypto
@@ -161,7 +161,7 @@ class CurrentPrice(AutoFallback):
         if crypto.lower() == fiat.lower():
             return (1.0, 'math')
 
-        return self._try_each_service(crypto, fiat)
+        return self._try_each_service(crypto=crypto, fiat=fiat)
 
     def no_service_msg(self, crypto, fiat):
         return "Can not find price for %s->%s" % (crypto, fiat)
@@ -171,7 +171,7 @@ class AddressBalance(AutoFallback):
     service_method_name = "get_balance"
 
     def get(self, crypto, address, confirmations=1):
-        return self._try_each_service(crypto, address, confirmations)
+        return self._try_each_service(crypto=crypto, address=address, confirmations=confirmations)
 
     def no_service_msg(self, crypto, address, confirmations=1):
         return "Could not get confirmed address balance for: %s" % crypto
@@ -181,7 +181,7 @@ class PushTx(AutoFallback):
     service_method_name = "push_tx"
 
     def push(self, crypto, tx_hex):
-        return self._try_each_service(crypto, tx_hex)
+        return self._try_each_service(crypto=crypto, tx_hex=tx_hex)
 
     def no_service_msg(self, crypto, hex):
         return "Could not push this %s transaction." % crypto

@@ -215,12 +215,15 @@ class AutoFallback(object):
         """
         for service in self.services:
             crypto = ((args and args[0]) or kwargs['crypto']).lower()
+            address= kwargs.get('address', '').lower()
+            fiat = kwargs.get('fiat', '').lower()
+
             if service.supported_cryptos and (crypto not in service.supported_cryptos):
                 if self.verbose:
                     print("SKIP:", "%s not supported for %s" % (crypto, service.__class__.__name__))
                 continue
             try:
-                if self.verbose: print("* Trying:", service)
+                if self.verbose: print("* Trying:", service, crypto, "%s%s" % (address, fiat))
                 return getattr(service, self.service_method_name)(*args, **kwargs)
             except (KeyError, IndexError, TypeError, ValueError) as exc:
                 # API has probably changed, therefore service class broken
