@@ -84,7 +84,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 12, 6),
         'services': {
             'current_price': [
-                BTCE, BTER, ChainSo, Cryptonator
+                BTER, ChainSo, Cryptonator
             ],
             'address_balance': [
                 DogeChainInfo, BlockStrap
@@ -224,6 +224,56 @@ crypto_data = {
         },
     },
 
+    'rdd': {
+        'name': 'Reddcoin',
+        'genesis_date': datetime(2014, 1, 20),
+        'services': {
+            'current_price': [
+                ChainSo, Cryptonator
+            ],
+            'address_balance': [
+                ReddcoinCom
+            ],
+            'historical_transactions': [
+                ReddcoinCom
+            ],
+            'push_tx': [
+                ReddcoinCom
+            ],
+            'unspent_outputs': [
+                ReddcoinCom
+            ],
+            'get_block': [
+                ReddcoinCom
+            ]
+        },
+    },
+
+    # TEMPLATE
+    '': {
+        'name': '',
+        'genesis_date': datetime(2014, 1, 2),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+
+            ],
+            'historical_transactions': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
 
     # these ones below need to be modified to match the above format
     # taken from http://coinwik.org/List_of_all_DCs
@@ -389,7 +439,7 @@ crypto_data = {
     'tes': ['Teslacoin', datetime(2014, 1, 18)],
     'con': ['Coino', datetime(2014, 1, 18)],
     'plc': ['PolCoin', datetime(2014, 1, 19)],
-    'rdd': ['Reddcoin', datetime(2014, 1, 20)],
+
     'cash':['CashCoin', datetime(2014, 1, 20)],
     'mry': ['MurrayCoin', datetime(2014, 1, 20)],
     'pot': ['Potcoin', datetime(2014, 1, 21)],

@@ -60,7 +60,11 @@ class Service(object):
 
         response = getattr(requests, method)(url, *args, **kwargs)
 
-        if self.verbose: print("Got Response: %s" % url)
+        if self.verbose:
+            print("Got Response: %s" % url)
+
+        if response.status_code == 503:
+            raise SkipThisService("Service returned 503 - Temporarily out of service.")
 
         if method == 'get':
             self.responses[url] = response # cache for later
