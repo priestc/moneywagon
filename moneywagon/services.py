@@ -92,6 +92,18 @@ class SmartBitAU(Service):
         url = "%s/pushtx" % self.base_url
         return self.post_url(url, {'hex': tx}).content
 
+    def get_mempool(self):
+        url = "%s/transactions/unconfirmed?limit=1000" % self.base_url
+        txs = []
+        for tx in self.get_url(url).json()['transactions']:
+            txs.append(dict(
+                first_seen=arrow.get(tx['first_seen']).datetime,
+                size=tx['size'],
+                txid=tx['txid'],
+                fee=float(tx['fee']),
+            ))
+        return txs
+
 
 class Blockr(Service):
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']

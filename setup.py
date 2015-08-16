@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 import sys
 
 if sys.version_info <= (3,1):
-    extra_install = ['future',]
+    extra_install = ['futures',]
 else:
     extra_install = []
 
