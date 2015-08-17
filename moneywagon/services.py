@@ -240,7 +240,7 @@ class Toshi(Service):
 
 class BTCE(Service):
     def get_current_price(self, crypto, fiat):
-        pair = "%s_%s" % (crypto, fiat)
+        pair = "%s_%s" % (crypto.lower(), fiat.lower())
         url = "https://btc-e.com/api/3/ticker/" + pair
         response = self.get_url(url).json()
         return (response[pair]['last'], 'btc-e')
