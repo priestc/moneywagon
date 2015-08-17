@@ -1,4 +1,6 @@
-from moneywagon import get_unspent_outputs, get_current_price, get_optimal_fee
+from moneywagon import (
+    get_unspent_outputs, get_current_price, get_optimal_fee, push_tx
+)
 from bitcoin import mktx, sign
 
 def from_unit_to_satoshi(value, unit):
@@ -49,9 +51,8 @@ class Transaction(object):
         """
         Using the service fallback engine, get utxos from remote service.
         """
-        mode = "paranoid-%s" % self.paranoid
         return get_unspent_outputs(
-            self.crypto, address, service_mode=mode, services=self.utxo_services
+            self.crypto, address, services=self.utxo_services
         )
 
     def add_inputs_from_address(self, address, private_key=None, amount='all'):
@@ -136,5 +137,4 @@ class Transaction(object):
         return tx
 
     def push(self):
-        from moneywagon import push_tx
         return push_tx(self.currency, self.get_hex(), services=self.pushtx_services)

@@ -65,7 +65,8 @@ x.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='W
 x.add_argument('fiat', action='store', help='Fiat currency')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
-x.add_argument('--random-service', action='store_true', help='Use a random source')
+x.add_argument('--async', action='store_true', help='Fetch prices and balances asynchronously')
+x.add_argument('--random-service', action='store_true', help='Use random sources')
 
 argz = parser.parse_args()
 
@@ -82,7 +83,8 @@ def datetime_to_iso(obj):
 
 modes = {
     'random': bool(argz.random_service),
-    'paranoid': int(argz.paranoid or 0)
+    'paranoid': int(argz.paranoid or 0),
+    'verbose': argz.verbose
 }
 
 if argz.subparser_name == 'current-price':
@@ -120,6 +122,10 @@ elif argz.subparser_name == 'wallet-balance':
         for x in argz.wallet.readlines()
         if not x.startswith("#")
     ]
+
+    if argz.async:
+        modes['async'] = True
+
     fiat = argz.fiat.upper()
     balances = fetch_wallet_balances(wallets, fiat, **modes)
 
@@ -128,7 +134,7 @@ elif argz.subparser_name == 'wallet-balance':
         cumm_amount += d['fiat_value']
         print(
             "%s (%.2f %s) == %s x %s (%s)" % (
-                d['crypto'], d['fiat_value'], d['fiat'],
+                d['crypto'], d['fiat_value'], fiat,
                 d['crypto_value'], d['conversion_price'], d['price_source'],
             )
         )

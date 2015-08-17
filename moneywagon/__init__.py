@@ -76,23 +76,21 @@ def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay):
 
 
 class OptimalFee(AutoFallback):
-    service_method_name = "get_optimal_fee"
 
     def get(self, crypto, tx_bytes, acceptable_block_delay=0):
         crypto = crypto.lower()
-        return self._try_each_service(crypto, tx_bytes, acceptable_block_delay)
+        return self._try_each_service("get_optimal_fee", crypto, tx_bytes, acceptable_block_delay)
 
     def no_service_msg(self, crypto, tx_bytes, acceptable_block_delay):
         return "Could not get optimal fee for: %s" % crypto
 
 class GetBlock(AutoFallback):
-    service_method_name = 'get_block'
 
     def get(self, crypto, block_number='', block_hash='', latest=False):
         if sum([bool(block_number), bool(block_hash), bool(latest)]) != 1:
             raise ValueError("Only one of `block_hash`, `latest`, or `block_number` allowed.")
         return self._try_each_service(
-            crypto, block_number=block_number, block_hash=block_hash, latest=latest
+            'get_block', crypto, block_number=block_number, block_hash=block_hash, latest=latest
         )
 
     def no_service_msg(self, crypto, block_number='', block_hash='', latest=False):
@@ -112,10 +110,9 @@ class GetBlock(AutoFallback):
         return stripped
 
 class HistoricalTransactions(AutoFallback):
-    service_method_name = 'get_transactions'
 
     def get(self, crypto, address):
-        return self._try_each_service(crypto, address)
+        return self._try_each_service('get_transactions', crypto, address)
 
     def no_service_msg(self, crypto, address):
         return "Could not get transactions for: %s" % crypto
@@ -133,10 +130,9 @@ class HistoricalTransactions(AutoFallback):
         return stripped
 
 class UnspentOutputs(AutoFallback):
-    service_method_name = 'get_unspent_outputs'
 
     def get(self, crypto, address):
-        return self._try_each_service(crypto=crypto, address=address)
+        return self._try_each_service('get_unspent_outputs', crypto=crypto, address=address)
 
     def no_service_msg(self, crypto, address):
         return "Could not get unspent outputs for: %s" % crypto
@@ -155,33 +151,40 @@ class UnspentOutputs(AutoFallback):
 
 
 class CurrentPrice(AutoFallback):
-    service_method_name = 'get_current_price'
 
     def get(self, crypto, fiat):
         if crypto.lower() == fiat.lower():
             return (1.0, 'math')
 
-        return self._try_each_service(crypto=crypto, fiat=fiat)
+        return self._try_each_service('get_current_price', crypto=crypto, fiat=fiat)
 
     def no_service_msg(self, crypto, fiat):
         return "Can not find price for %s->%s" % (crypto, fiat)
 
 
 class AddressBalance(AutoFallback):
-    service_method_name = "get_balance"
 
-    def get(self, crypto, address, confirmations=1):
-        return self._try_each_service(crypto=crypto, address=address, confirmations=confirmations)
+    def get(self, crypto, address=None, addresses=None, confirmations=1):
+        kwargs = dict(crypto=crypto, confirmations=confirmations)
+
+        if address:
+            method_name = "get_balance"
+            kwargs['address'] = address
+
+        if addresses:
+            method_name = "get_balance_multi"
+            kwargs['addresses'] = addresses
+
+        return self._try_each_service(method_name, **kwargs)
 
     def no_service_msg(self, crypto, address, confirmations=1):
         return "Could not get confirmed address balance for: %s" % crypto
 
 
 class PushTx(AutoFallback):
-    service_method_name = "push_tx"
 
     def push(self, crypto, tx_hex):
-        return self._try_each_service(crypto=crypto, tx_hex=tx_hex)
+        return self._try_each_service("push_tx", crypto=crypto, tx_hex=tx_hex)
 
     def no_service_msg(self, crypto, hex):
         return "Could not push this %s transaction." % crypto

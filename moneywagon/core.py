@@ -4,7 +4,7 @@ import requests
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.4.2'
+useragent = 'moneywagon 1.4.3'
 
 class ServiceDisagreement(Exception):
     pass
@@ -190,7 +190,6 @@ class AutoFallback(object):
     """
     Calls a succession of services until one returns a value.
     """
-    service_method_name = None # the relevant name of the method on each service class
 
     def __init__(self, services=None, verbose=False, responses=None):
         """
@@ -210,7 +209,7 @@ class AutoFallback(object):
 
         self.verbose = verbose
 
-    def _try_each_service(self, *args, **kwargs):
+    def _try_each_service(self, method_name, *args, **kwargs):
         """
         Try each service until one returns a response. This function only
         catches the bare minimum of exceptions from the service class. We want
@@ -219,7 +218,7 @@ class AutoFallback(object):
         """
         for service in self.services:
             crypto = ((args and args[0]) or kwargs['crypto']).lower()
-            address= kwargs.get('address', '').lower()
+            address = kwargs.get('address', '').lower()
             fiat = kwargs.get('fiat', '').lower()
 
             if service.supported_cryptos and (crypto not in service.supported_cryptos):
@@ -228,7 +227,7 @@ class AutoFallback(object):
                 continue
             try:
                 if self.verbose: print("* Trying:", service, crypto, "%s%s" % (address, fiat))
-                return getattr(service, self.service_method_name)(*args, **kwargs)
+                return getattr(service, method_name)(*args, **kwargs)
             except (KeyError, IndexError, TypeError, ValueError) as exc:
                 # API has probably changed, therefore service class broken
                 if self.verbose: print("FAIL:", exc.__class__.__name__, exc)
@@ -245,7 +244,7 @@ class AutoFallback(object):
         """
         This function is called when all Services have been tried and no value
         can be returned. It much take the same args and kwargs as in the method
-        spefified in `self.method_name`. Returned is a string for the error message.
+        spefified in `method_name`. Returned is a string for the error message.
         It should say something informative.
         """
         return "All either skipped or failed."

@@ -59,6 +59,19 @@ class SmartBitAU(Service):
         else:
             return confirmed + float(r['address']['unconfirmed']['balance'])
 
+    def get_balance_muti(self, crypto, addresses, confirmations=1):
+        url = "%s/address/%s" % (self.base_url, ",".join(addresses))
+        response = self.get_url(url).json()
+
+        ret = {}
+        for data in response['addresses']:
+            bal = float(data['confirmed']['balance'])
+            if confirmations == 0:
+                bal += float(data['unconfirmed']['balance'])
+            ret[data['address']] = bal
+
+        return ret
+
     def get_transactions(self, crypto, address, confirmations=1):
         url = "%s/address/%s" % (self.base_url, address)
         transactions = []
