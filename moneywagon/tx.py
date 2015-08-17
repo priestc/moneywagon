@@ -52,7 +52,7 @@ class Transaction(object):
         Using the service fallback engine, get utxos from remote service.
         """
         return get_unspent_outputs(
-            self.crypto, address, services=self.utxo_services
+            self.crypto, address, services=self.utxo_services, paranoid=self.paranoid
         )
 
     def add_inputs_from_address(self, address, private_key=None, amount='all'):
