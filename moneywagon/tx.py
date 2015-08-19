@@ -3,7 +3,7 @@ from moneywagon import (
 )
 from bitcoin import mktx, sign
 
-def from_unit_to_satoshi(value, unit):
+def from_unit_to_satoshi(value, unit, verbose):
     """
     Convert a value to satoshis. units can be any fiat currency
     """
@@ -13,12 +13,12 @@ def from_unit_to_satoshi(value, unit):
         return value * 1e8
 
     # assume fiat currency that we can convert
-    convert = get_current_price('btc', unit)[0]
+    convert = get_current_price('btc', unit, verbose=verbose)[0]
     return int(value / convert * 1e8)
 
 
 class Transaction(object):
-    def __init__(self, crypto, hex=None, paranoid=1, utxo_services=None, pushtx_services=None):
+    def __init__(self, crypto, hex=None, paranoid=1, utxo_services=None, pushtx_services=None, verbose=False):
         if not crypto.lower() == 'btc':
             raise ValueError("Transaction only supports BTC at this time")
 
@@ -27,6 +27,7 @@ class Transaction(object):
         self.fee_satoshi = 10000
         self.outs = []
         self.ins = []
+        self.verbose = verbose
 
         self.utxo_services = utxo_services or []
         self.pushtx_services = pushtx_services or []
@@ -52,7 +53,8 @@ class Transaction(object):
         Using the service fallback engine, get utxos from remote service.
         """
         return get_unspent_outputs(
-            self.crypto, address, services=self.utxo_services, paranoid=self.paranoid
+            self.crypto, address, services=self.utxo_services,
+            paranoid=self.paranoid, verbose=self.verbose
         )
 
     def add_inputs_from_address(self, address, private_key=None, amount='all'):
@@ -71,20 +73,20 @@ class Transaction(object):
                 self.ins.append(
                     dict(input=utxo, private_key=private_key)
                 )
-                total_added += utxo['value']
+                total_added += utxo['amount']
 
     def total_input_satoshis(self):
         """
         Add up all the satoshis coming from all input tx's.
         """
         just_inputs = [x['input'] for x in self.ins]
-        return sum([x['value'] for x in just_inputs])
+        return sum([x['amount'] for x in just_inputs])
 
     def add_output(self, address, value, unit=None):
         """
         Add an output (a person who will receive funds via this tx)
         """
-        value_satoshi = from_unit_to_satoshi(value, unit)
+        value_satoshi = from_unit_to_satoshi(value, unit, self.verbose)
         self.outs.append({
             'address': address,
             'value': value_satoshi
@@ -97,7 +99,7 @@ class Transaction(object):
         if value == 'optimal':
             self.fee_satoshi = 'optimal'
         else:
-            self.fee_satoshi = from_unit_to_satoshi(value, unit)
+            self.fee_satoshi = from_unit_to_satoshi(value, unit, self.verbose)
 
     def estimate_size(self):
         """
@@ -117,7 +119,7 @@ class Transaction(object):
         fee = self.fee_satoshi
         if fee == 'optimal':
             # makes call to external service to get optimal fee
-            fee = get_optimal_fee(self.currency, self.estimate_size(), 0)
+            fee = get_optimal_fee(self.crypto, self.estimate_size(), 0, verbose=self.verbose)
 
         change_satoshi = total_ins - (total_outs + fee)
 
@@ -137,4 +139,7 @@ class Transaction(object):
         return tx
 
     def push(self):
-        return push_tx(self.currency, self.get_hex(), services=self.pushtx_services)
+        return push_tx(
+            self.crypto, self.get_hex(), services=self.pushtx_services,
+            verbose=self.verbose
+        )

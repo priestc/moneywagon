@@ -71,8 +71,8 @@ def get_block(crypto, block_number='', block_hash='', latest=False, services=Non
     )
 
 
-def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay):
-    return OptimalFee().get(crypto, tx_bytes, acceptable_block_delay)
+def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
+    return OptimalFee(verbose=verbose).get(crypto, tx_bytes, acceptable_block_delay)
 
 
 class OptimalFee(AutoFallback):
