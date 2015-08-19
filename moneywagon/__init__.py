@@ -55,7 +55,7 @@ def get_historical_price(crypto, fiat, date):
     return HistoricalPrice().get(crypto, fiat, date)
 
 
-def push_tx(crypto, tx_hex, verbose=False, **modes):
+def push_tx(crypto, tx_hex, verbose=False, services=None, **modes):
     if not services:
         services = _get_optimal_services(crypto, 'push_tx')
     return enforce_service_mode(
@@ -183,10 +183,10 @@ class AddressBalance(AutoFallback):
 
 class PushTx(AutoFallback):
 
-    def push(self, crypto, tx_hex):
+    def get(self, crypto, tx_hex):
         return self._try_each_service("push_tx", crypto=crypto, tx_hex=tx_hex)
 
-    def no_service_msg(self, crypto, hex):
+    def no_service_msg(self, crypto, tx_hex):
         return "Could not push this %s transaction." % crypto
 
 

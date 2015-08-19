@@ -98,12 +98,12 @@ class SmartBitAU(Service):
             ))
         return utxos
 
-    def push_tx(self, tx):
+    def push_tx(self, crypto, tx_hex):
         """
         This method is untested.
         """
         url = "%s/pushtx" % self.base_url
-        return self.post_url(url, {'hex': tx}).content
+        return self.post_url(url, {'hex': tx_hex}).content
 
     def get_mempool(self):
         url = "%s/transactions/unconfirmed?limit=1000" % self.base_url
@@ -152,9 +152,9 @@ class Blockr(Service):
             ))
         return utxos
 
-    def push_tx(self, crypto, tx):
+    def push_tx(self, crypto, tx_hex):
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto
-        response = self.post_url(url, {'tx': tx})
+        response = self.post_url(url, {'tx': tx_hex})
         return response.json()['data']
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
@@ -210,8 +210,8 @@ class Toshi(Service):
             ))
         return transactions
 
-    def push_tx(self, tx):
-        url = "%s/transactions/%s" % (self.url, tx)
+    def push_tx(self, crypto, tx_hex):
+        url = "%s/transactions/%s" % (self.url, tx_hex)
         return self.get_url(url).json()['hash']
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
@@ -276,8 +276,8 @@ class BlockStrap(Service):
         response = self.get_url(url).json()
         return response['data']['address']['balance'] / 1e8
 
-    def push_tx(self, crypto, tx):
-        url = "%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx)
+    def push_tx(self, crypto, tx_hex):
+        url = "%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx_hex)
         return self.get_url(url)['data']['id']
 
     def get_transactions(self, crypto, address):
@@ -387,9 +387,9 @@ class ChainSo(Service):
         return utxos
 
 
-    def push_tx(self, tx):
+    def push_tx(self, crypto, tx_hex):
         url = "%s/send_tx/%s" % (self.base_url, crypto)
-        resp = self.post_url(url, {'tx_hex': tx})
+        resp = self.post_url(url, {'tx_hex': tx_hex})
         return resp.json()['txid']
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
@@ -452,13 +452,13 @@ class CoinPrism(Service):
 
         return transactions
 
-    def push_tx(self, tx):
+    def push_tx(self, crypto, tx_hex):
         """
         Note: This one has not been tested yet.
         http://docs.coinprism.apiary.io/#reference/transaction-signing-and-broadcasting/push-a-signed-raw-transaction-to-the-network/post
         """
         url = "%s/sendrawtransaction"
-        return self.post_url(url, tx).content
+        return self.post_url(url, tx_hex).content
 
 
 class BitEasy(Service):

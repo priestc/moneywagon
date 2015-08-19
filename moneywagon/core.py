@@ -265,13 +265,13 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
          fast = [True|False] False by default
 
     """
-    paranoid_level = modes.get('paranoid', 0)
+    paranoid_level = modes.get('paranoid', 1)
     verbose = modes.get('verbose', False)
 
     if modes.get('random', False):
         random.shuffle(services)
 
-    if paranoid_level == 0:
+    if paranoid_level == 1:
         return FetcherClass(services=services, verbose=verbose).get(**kwargs)
 
     with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:

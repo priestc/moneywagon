@@ -131,10 +131,10 @@ class Transaction(object):
         tx = mktx(ins, self.outs + [{'address': self.change_address, 'value': change_satoshi}])
 
         if signed:
-            for i, private_key in self.ins:
-                if not private_key:
+            for i, input_data in enumerate(self.ins):
+                if not input_data['private_key']:
                     raise Exception("Can't sign transaction, missing private key")
-                tx = sign(tx, private_key, i)
+                tx = sign(tx, i, input_data['private_key'])
 
         return tx
 
