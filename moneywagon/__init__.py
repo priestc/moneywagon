@@ -3,7 +3,7 @@ from __future__ import print_function
 from .core import AutoFallback, enforce_service_mode
 from .historical_price import Quandl
 from .crypto_data import crypto_data
-from bitcoin import sha256, pubtoaddr, privtopub
+from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey
 
 def _get_optimal_services(crypto, type_of_service):
     try:
@@ -93,8 +93,15 @@ def generate_address(crypto, seed):
     pub_byte, priv_byte = _get_magic_bytes(crypto)
     priv = sha256(seed)
     pub = privtopub(priv)
-    return pubtoaddr(pub, pub_byte), priv
 
+    if priv_byte >= 128:
+        priv_byte -= 128 #pybitcointools bug
+
+    return {
+        'address': pubtoaddr(pub, pub_byte),
+        'private_hex': priv,
+        'private_wif': encode_privkey(priv, 'wif', vbyte=priv_byte)
+    }
 
 class OptimalFee(AutoFallback):
 
