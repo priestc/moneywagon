@@ -86,13 +86,16 @@ def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
 
 
 def generate_address(crypto, seed):
+    """
+    Generate a private key and publickey for any currency, given a seed.
+    That seed can be random, or a brainwallet phrase.
+    """
     pub_byte, priv_byte = _get_magic_bytes(crypto)
     priv = sha256(seed)
     pub = privtopub(priv)
-    return (
-        pubtoaddr(pub, pub_byte), priv
+    return pubtoaddr(pub, pub_byte), priv
 
-    )
+
 class OptimalFee(AutoFallback):
 
     def get(self, crypto, tx_bytes, acceptable_block_delay=0):
