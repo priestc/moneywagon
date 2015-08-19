@@ -4,6 +4,7 @@ from .services import *
 crypto_data = {
     'btc': {
         'name': 'Bitcoin',
+        'address_version_byte': 0,
         'genesis_date': datetime(2009, 1, 12),
         'services': {
             'current_price': [
@@ -33,6 +34,7 @@ crypto_data = {
     },
     'ltc': {
         'name': 'Litecoin',
+        'address_version_byte': 48,
         'genesis_date': datetime(2011, 10, 7),
         'services': {
             'current_price': [
@@ -57,6 +59,7 @@ crypto_data = {
     },
     'ppc': {
         'name': 'Peercoin',
+        'address_version_byte': 55,
         'genesis_date': datetime(2012, 8, 19),
         'services': {
             'current_price': [
@@ -82,6 +85,7 @@ crypto_data = {
     'doge': {
         'name': 'Dogecoin',
         'genesis_date': datetime(2013, 12, 6),
+        'address_version_byte': 30,
         'services': {
             'current_price': [
                 BTER, ChainSo, Cryptonator
@@ -106,6 +110,7 @@ crypto_data = {
     'nxt': {
         'name': 'Nxt',
         'genesis_date': datetime(2013, 10, 29),
+        'address_version_byte': None,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -130,6 +135,7 @@ crypto_data = {
     'myr': {
         'name': 'MyriadCoin',
         'genesis_date': datetime(2014, 2, 23),
+        'address_version_byte': 50,
         'services': {
             'current_price': [
                 Cryptonator, ChainSo
@@ -154,6 +160,7 @@ crypto_data = {
     'vtc': {
         'name': 'Vertcoin',
         'genesis_date': datetime(2014, 1, 8),
+        'address_version_byte': 71,
         'services': {
             'current_price': [
                 Cryptonator, ChainSo
@@ -178,6 +185,7 @@ crypto_data = {
     'ftc': {
         'name': 'Feathercoin',
         'genesis_date': datetime(2013, 4, 16),
+        'address_version_byte': 14,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -202,6 +210,7 @@ crypto_data = {
     'dash': {
         'name': 'Dash',
         'genesis_date': datetime(2014, 1, 19),
+        'address_version_byte': 76,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -223,10 +232,10 @@ crypto_data = {
             ]
         },
     },
-
     'rdd': {
         'name': 'Reddcoin',
         'genesis_date': datetime(2014, 1, 20),
+        'address_version_byte': 61,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -247,6 +256,17 @@ crypto_data = {
                 ReddcoinCom
             ]
         },
+    },
+
+    'nmc': {
+        'name': 'Namecoin',
+        'version_byte': 52,
+        'genesis_date': datetime(2011, 4, 18),
+    },
+    'aur': {
+        'name': 'Auroracoin',
+        'address_version_byte': 17,
+        'genesis_date': datetime(2014, 2, 2),
     },
 
     # TEMPLATE
@@ -279,7 +299,6 @@ crypto_data = {
     # taken from http://coinwik.org/List_of_all_DCs
     # sorted by date released, copied over on Nov 27, 2014
 
-    'nmc': ['Namecoin', datetime(2011, 4, 18)],
     'tk':  ['TimeKoin', datetime(2011, 5, 27)],
     'dvc': ['DevCoin', datetime(2011, 8, 5)],
     'ixc': ['IxCoin', datetime(2011, 8, 10)],
@@ -453,7 +472,7 @@ crypto_data = {
     'max': ['Maxcoin', datetime(2014, 1, 29)],
     'utc': ['Ultracoin', datetime(2014, 2, 1)],
     'ben': ['Benjamins', datetime(2014, 2, 1)],
-    'aur': ['Auroracoin', datetime(2014, 2, 2)],
+
     'pop': ['PopularCoin', datetime(2014, 2, 2)],
     'lbt': ['Litebar', datetime(2014, 2, 2)],
     'corg':['CorgiCoin', datetime(2014, 2, 2)],
