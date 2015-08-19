@@ -3,12 +3,22 @@ from __future__ import print_function
 from .core import AutoFallback, enforce_service_mode
 from .historical_price import Quandl
 from .crypto_data import crypto_data
-
+from bitcoin import sha256, pubtoaddr, privtopub
 
 def _get_optimal_services(crypto, type_of_service):
     try:
         # get best services from curated list
         return crypto_data[crypto]['services'][type_of_service]
+    except KeyError:
+        raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
+
+def _get_magic_bytes(crypto):
+    try:
+        return (
+            crypto_data[crypto]['address_version_byte'],
+            crypto_data[crypto]['private_key_prefix']
+        )
+
     except KeyError:
         raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
 
@@ -75,6 +85,14 @@ def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
     return OptimalFee(verbose=verbose).get(crypto, tx_bytes, acceptable_block_delay)
 
 
+def generate_address(crypto, seed):
+    pub_byte, priv_byte = _get_magic_bytes(crypto)
+    priv = sha256(seed)
+    pub = privtopub(priv)
+    return (
+        pubtoaddr(pub, pub_byte), priv
+
+    )
 class OptimalFee(AutoFallback):
 
     def get(self, crypto, tx_bytes, acceptable_block_delay=0):

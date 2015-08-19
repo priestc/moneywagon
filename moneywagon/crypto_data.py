@@ -1,10 +1,16 @@
 from datetime import datetime
 from .services import *
 
+# instructions for getting version byte:
+# https://github.com/MichaelMure/WalletGenerator.net/wiki/How-to-add-a-new-currency#step-two-find-the-prefixes-for-the-address-format-of-your-currency
+
+# also here: https://github.com/MichaelMure/WalletGenerator.net/blob/master/src/janin.currency.js#L78
+
 crypto_data = {
     'btc': {
         'name': 'Bitcoin',
         'address_version_byte': 0,
+        'private_key_prefix': 128,
         'genesis_date': datetime(2009, 1, 12),
         'services': {
             'current_price': [
@@ -35,6 +41,7 @@ crypto_data = {
     'ltc': {
         'name': 'Litecoin',
         'address_version_byte': 48,
+        'private_key_prefix': 176,
         'genesis_date': datetime(2011, 10, 7),
         'services': {
             'current_price': [
@@ -60,6 +67,7 @@ crypto_data = {
     'ppc': {
         'name': 'Peercoin',
         'address_version_byte': 55,
+        'private_key_prefix': 183,
         'genesis_date': datetime(2012, 8, 19),
         'services': {
             'current_price': [
@@ -86,6 +94,7 @@ crypto_data = {
         'name': 'Dogecoin',
         'genesis_date': datetime(2013, 12, 6),
         'address_version_byte': 30,
+        'private_key_prefix': 158,
         'services': {
             'current_price': [
                 BTER, ChainSo, Cryptonator
@@ -111,6 +120,7 @@ crypto_data = {
         'name': 'Nxt',
         'genesis_date': datetime(2013, 10, 29),
         'address_version_byte': None,
+        'private_key_prefix': None,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -136,6 +146,7 @@ crypto_data = {
         'name': 'MyriadCoin',
         'genesis_date': datetime(2014, 2, 23),
         'address_version_byte': 50,
+        'private_key_prefix': 178,
         'services': {
             'current_price': [
                 Cryptonator, ChainSo
@@ -161,6 +172,7 @@ crypto_data = {
         'name': 'Vertcoin',
         'genesis_date': datetime(2014, 1, 8),
         'address_version_byte': 71,
+        'private_key_prefix': None,
         'services': {
             'current_price': [
                 Cryptonator, ChainSo
@@ -186,6 +198,7 @@ crypto_data = {
         'name': 'Feathercoin',
         'genesis_date': datetime(2013, 4, 16),
         'address_version_byte': 14,
+        'private_key_prefix': 0x8e,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -211,6 +224,7 @@ crypto_data = {
         'name': 'Dash',
         'genesis_date': datetime(2014, 1, 19),
         'address_version_byte': 76,
+        'private_key_prefix': 204,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -236,6 +250,7 @@ crypto_data = {
         'name': 'Reddcoin',
         'genesis_date': datetime(2014, 1, 20),
         'address_version_byte': 61,
+        'private_key_prefix': 0xbd,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -260,12 +275,14 @@ crypto_data = {
 
     'nmc': {
         'name': 'Namecoin',
-        'version_byte': 52,
+        'address_version_byte': 52,
+        'private_key_prefix': 0x80,
         'genesis_date': datetime(2011, 4, 18),
     },
     'aur': {
         'name': 'Auroracoin',
         'address_version_byte': 17,
+        'private_key_prefix': 0x97,
         'genesis_date': datetime(2014, 2, 2),
     },
 
