@@ -25,6 +25,41 @@ $ pip install moneywagon
 
 There are currently 6 functions available through the command line interface:
 
+## generate-keypair [crypto] [seed]
+
+Generates a new private amd public keys, including hex and WIF encodings.
+
+```
+$ moneywagon generate-keypair btc SomERanDoMTexT | python -mjson.tool
+{
+    "private": {
+        "hex": "c1fb6c4ccd6e6646e2ffea8608f67450ac98e64b26b748ad963ae22fc13367ed",
+        "wif": "5KHibRy9gcTqr9Ajhd1r8NAx2FHxC8PKdcZEsG4ZE19iepmCS8x"
+    },
+    "public": {
+        "address": "1ACQLPrD3674whw5AP37T5NjbYdQ3XSuEF",
+        "hex": "047a7e546b2d9ecd9aa99d63c5d6eb4b4cc6880a6a7df8a02a2d83bc4e6b1022abcd2a6af5c8e36d74779e23d6be11fc0aaf923b7269d2d43b39dc970df8e98449"
+    }
+}
+```
+
+The seed can be any string, preferably with a lot of entropy.
+You can also pipe in entropy via standard input by specifying a dash for the seed:
+
+```
+$ date | md5sum | moneywagon generate-keypair ppc - | python -mjson.tool
+{
+    "private": {
+        "hex": "feb07aad450159cd9ead9bb702a6151fae93a02f88d19001ebc425ec350c04de",
+        "wif": "7AfPyvoLenqb1KAD78JdGvfJecm3ZkEoks9mjj1wqdkDKsC4BUS"
+    },
+    "public": {
+        "address": "PWmtVPtoXmYDEixmCTFvwd4eNRCYEZaGgQ",
+        "hex": "044cfaadd71d8c90fc0f5ef73eb47dd2c0fa74d6259476e0aa23e0c4fe10418cc6a68694665cd56f3222118249e40fafffa55239390d65f168bdfb837726f97e09"
+    }
+}
+```
+
 ## current-price [crypto] [fiat]
 
 This gets the current exchange rate between any cryptocurrency and any fiat currency.

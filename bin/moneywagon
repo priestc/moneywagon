@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import sys
 import argparse
 import json
 import datetime
@@ -11,7 +12,7 @@ from concurrent import futures
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
     get_historical_transactions, get_block, get_unspent_outputs,
-    generate_address
+    generate_keypair
 )
 from moneywagon.wallet import fetch_wallet_balances
 
@@ -25,7 +26,7 @@ x.add_argument('fiat', action='store', help='Fiat currency symbol')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
 
-x = subparsers.add_parser('generate-address', help='Generate Private/Public key pair')
+x = subparsers.add_parser('generate-keypair', help='Generate Private/Public key pair')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('seed', action='store', help='Random seed string.'),
 x.add_argument('--verbose', action='store_true', help='Include extra output')
@@ -97,17 +98,20 @@ if argz.subparser_name == 'current-price':
     price, source = CurrentPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat)
     print(price)
 
-elif argz.subparser_name == 'generate-address':
-    print(json.dumps(generate_address(argz.crypto, argz.seed)))
+elif argz.subparser_name == 'generate-keypair':
+    if argz.seed == '-':
+        seed =  "".join(sys.stdin)  #"".join(fileinput.input())
+    else:
+        seed = argz.seed
+
+    print(json.dumps(generate_keypair(argz.crypto, seed)))
 
 elif argz.subparser_name == 'historical-price':
     price, source, date = HistoricalPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat, argz.at_time)
     print(price, source, date)
 
 elif argz.subparser_name == 'address-balance':
-    print(get_address_balance(
-        argz.crypto, argz.address, **modes
-    ))
+    print(get_address_balance(argz.crypto, argz.address, **modes))
 
 elif argz.subparser_name == 'get-block':
     print(json.dumps(get_block(
@@ -136,10 +140,9 @@ elif argz.subparser_name == 'wallet-balance':
         modes['async'] = True
 
     fiat = argz.fiat.upper()
-    balances = fetch_wallet_balances(wallets, fiat, **modes)
 
     cumm_amount = 0
-    for d in balances:
+    for d in fetch_wallet_balances(wallets, fiat, **modes):
         cumm_amount += d['fiat_value']
         print(
             "%s (%.2f %s) == %s x %s (%s)" % (

@@ -94,7 +94,7 @@ def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
     return OptimalFee(verbose=verbose).get(crypto, tx_bytes, acceptable_block_delay)
 
 
-def generate_address(crypto, seed):
+def generate_keypair(crypto, seed):
     """
     Generate a private key and publickey for any currency, given a seed.
     That seed can be random, or a brainwallet phrase.
