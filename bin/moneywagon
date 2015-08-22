@@ -10,7 +10,8 @@ from concurrent import futures
 
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
-    get_historical_transactions, get_block, get_unspent_outputs
+    get_historical_transactions, get_block, get_unspent_outputs,
+    generate_address
 )
 from moneywagon.wallet import fetch_wallet_balances
 
@@ -23,6 +24,11 @@ x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('fiat', action='store', help='Fiat currency symbol')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
+
+x = subparsers.add_parser('generate-address', help='Generate Private/Public key pair')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('seed', action='store', help='Random seed string.'),
+x.add_argument('--verbose', action='store_true', help='Include extra output')
 
 x = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -82,14 +88,17 @@ def datetime_to_iso(obj):
     raise TypeError("Type not serializable")
 
 modes = {
-    'random': bool(argz.random_service),
-    'paranoid': int(argz.paranoid or 0),
+    'random': argz.random_service if hasattr(argz, "random_service") else False,
+    'paranoid': argz.paranoid if hasattr(argz, 'paranoid') else 0,
     'verbose': argz.verbose
 }
 
 if argz.subparser_name == 'current-price':
     price, source = CurrentPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat)
     print(price)
+
+elif argz.subparser_name == 'generate-address':
+    print(json.dumps(generate_address(argz.crypto, argz.seed)))
 
 elif argz.subparser_name == 'historical-price':
     price, source, date = HistoricalPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat, argz.at_time)

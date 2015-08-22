@@ -72,7 +72,7 @@ class Service(object):
         self.last_raw_response = response
         return response
 
-    def get_current_price(self, crypto, fiat):
+    def get_current_price(self, crypto, fiat, confirmations=1):
         """
         Makes call to external service, and returns the price for given
         fiat/crypto pair. Returns two item tuple: (price, best_market)
@@ -82,11 +82,21 @@ class Service(object):
             "Or rather it has no defined 'get_current_price' method."
         )
 
+    def get_balance_multi(self, crypto, addresses, confirmations=1):
+        """
+        Same as above, except addresses are passed in as a list instead of
+        just a single string.
+        """
+        raise NotImplementedError(
+            "This service does not support getting multiple address balances. "
+            "Or rather it has no defined 'get_balance_multi' method."
+        )
+
     def get_historical_price(self, crypto, fiat, at_time):
         """
         """
         raise NotImplementedError(
-            "This service does not support getting historical price."
+            "This service does not support getting historical price. "
             "Or rather it has no defined 'get_historical_price' method."
         )
 
@@ -208,6 +218,8 @@ class AutoFallback(object):
             )
 
         self.verbose = verbose
+        self._successful_service = None # gets filled in after success
+        self._failed_services = []
 
     def _try_each_service(self, method_name, *args, **kwargs):
         """
@@ -227,10 +239,13 @@ class AutoFallback(object):
                 continue
             try:
                 if self.verbose: print("* Trying:", service, crypto, "%s%s" % (address, fiat))
-                return getattr(service, method_name)(*args, **kwargs)
+                ret =  getattr(service, method_name)(*args, **kwargs)
+                self._successful_service = service
+                return ret
             except (KeyError, IndexError, TypeError, ValueError) as exc:
                 # API has probably changed, therefore service class broken
                 if self.verbose: print("FAIL:", exc.__class__.__name__, exc)
+                self._failed_services.append(service)
             except SkipThisService as exc:
                 # service classes can raise this exception if for whatever reason
                 # that service can't return a response, but maybe another one can.

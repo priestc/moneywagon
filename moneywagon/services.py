@@ -59,7 +59,7 @@ class SmartBitAU(Service):
         else:
             return confirmed + float(r['address']['unconfirmed']['balance'])
 
-    def get_balance_muti(self, crypto, addresses, confirmations=1):
+    def get_balance_multi(self, crypto, addresses, confirmations=1):
         url = "%s/address/%s" % (self.base_url, ",".join(addresses))
         response = self.get_url(url).json()
 
@@ -154,8 +154,14 @@ class Blockr(Service):
 
     def push_tx(self, crypto, tx_hex):
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto
-        response = self.post_url(url, {'tx': tx_hex})
-        return response.json()['data']
+        resp = self.post_url(url, {'tx': tx_hex})
+        if resp['status'] == 'fail':
+            raise ValueError(
+                "Blockr returned error: %s %s %s" % (
+                    resp['code'], resp['data'], resp['message']
+                )
+            )
+        return resp.json()['data']
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
         url ="http://%s.blockr.io/api/v1/block/info/%s%s%s" % (

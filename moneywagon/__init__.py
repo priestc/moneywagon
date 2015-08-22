@@ -31,12 +31,21 @@ def get_current_price(crypto, fiat, services=None, **modes):
     )
 
 
-def get_address_balance(crypto, address, services=None, **modes):
+def get_address_balance(crypto, address=None, addresses=None, services=None, **modes):
     if not services:
         services = _get_optimal_services(crypto, 'address_balance')
 
+    args = {'crypto': crypto}
+
+    if address:
+        args['address'] = address
+    elif addresses:
+        args['addresses'] = addresses
+    else:
+        raise Exception("Either address or addresses but not both")
+
     return enforce_service_mode(
-        services, AddressBalance, {'crypto': crypto, 'address': address}, modes=modes
+        services, AddressBalance, args, modes=modes
     )
 
 
@@ -65,7 +74,7 @@ def get_historical_price(crypto, fiat, date):
     return HistoricalPrice().get(crypto, fiat, date)
 
 
-def push_tx(crypto, tx_hex, verbose=False, services=None, **modes):
+def push_tx(crypto, tx_hex, services=None, **modes):
     if not services:
         services = _get_optimal_services(crypto, 'push_tx')
     return enforce_service_mode(
@@ -98,9 +107,14 @@ def generate_address(crypto, seed):
         priv_byte -= 128 #pybitcointools bug
 
     return {
-        'address': pubtoaddr(pub, pub_byte),
-        'private_hex': priv,
-        'private_wif': encode_privkey(priv, 'wif', vbyte=priv_byte)
+        'public': {
+            'hex': pub,
+            'address': pubtoaddr(pub, pub_byte)
+        },
+        'private': {
+            'hex': priv,
+            'wif': encode_privkey(priv, 'wif', vbyte=priv_byte)
+        }
     }
 
 class OptimalFee(AutoFallback):

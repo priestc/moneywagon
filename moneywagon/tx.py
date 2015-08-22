@@ -1,39 +1,39 @@
 from moneywagon import (
-    get_unspent_outputs, get_current_price, get_optimal_fee, push_tx
+    get_unspent_outputs, CurrentPrice, get_optimal_fee, PushTx
 )
 from bitcoin import mktx, sign
-
-def from_unit_to_satoshi(value, unit, verbose):
-    """
-    Convert a value to satoshis. units can be any fiat currency
-    """
-    if not unit or unit == 'satoshi':
-        return value
-    if unit == 'bitcoin' or unit == 'btc':
-        return value * 1e8
-
-    # assume fiat currency that we can convert
-    convert = get_current_price('btc', unit, verbose=verbose)[0]
-    return int(value / convert * 1e8)
+from .crypto_data import crypto_data
 
 
 class Transaction(object):
-    def __init__(self, crypto, hex=None, paranoid=1, utxo_services=None, pushtx_services=None, verbose=False):
-        if not crypto.lower() == 'btc':
-            raise ValueError("Transaction only supports BTC at this time")
+    def __init__(self, crypto, hex=None, paranoid=1, verbose=False):
+        if crypto.lower() in ['nxt']:
+            raise NotImplementedError("%s not yet supported" % crypto.upper())
 
         self.paranoid = paranoid
         self.crypto = crypto
-        self.fee_satoshi = 10000
+        self.fee_satoshi = None
         self.outs = []
         self.ins = []
         self.verbose = verbose
 
-        self.utxo_services = utxo_services or []
-        self.pushtx_services = pushtx_services or []
+        self.price_getter = CurrentPrice(verbose=verbose)
 
         if hex:
             self.hex = hex
+
+    def from_unit_to_satoshi(self, value, unit):
+        """
+        Convert a value to satoshis. units can be any fiat currency
+        """
+        if not unit or unit == 'satoshi':
+            return value
+        if unit == 'bitcoin' or unit == 'btc':
+            return value * 1e8
+
+        # assume fiat currency that we can convert
+        convert = self.price_getter.get(self.crypto, unit)[0]
+        return int(value / convert * 1e8)
 
     def add_raw_inputs(self, inputs, private_key=None):
         """
@@ -48,16 +48,16 @@ class Transaction(object):
             self.ins.append(dict(input=i, private_key=private_key))
             self.change_address = i['address']
 
-    def _get_utxos(self, address):
+    def _get_utxos(self, address, services):
         """
         Using the service fallback engine, get utxos from remote service.
         """
         return get_unspent_outputs(
-            self.crypto, address, services=self.utxo_services,
+            self.crypto, address, services=services,
             paranoid=self.paranoid, verbose=self.verbose
         )
 
-    def add_inputs_from_address(self, address, private_key=None, amount='all'):
+    def add_inputs_from_address(self, address, private_key=None, amount='all', services=None):
         """
         Make call to external service to get inputs from an address.
         `amount` is the amount of [currency] worth of inputs to add from this address.
@@ -68,7 +68,7 @@ class Transaction(object):
 
         total_added = 0
         ins = []
-        for utxo in self._get_utxos(address):
+        for utxo in self._get_utxos(address, services or []):
             if (amount == 'all' or total_added < amount):
                 self.ins.append(
                     dict(input=utxo, private_key=private_key)
@@ -86,7 +86,7 @@ class Transaction(object):
         """
         Add an output (a person who will receive funds via this tx)
         """
-        value_satoshi = from_unit_to_satoshi(value, unit, self.verbose)
+        value_satoshi = self.from_unit_to_satoshi(value, unit)
         self.outs.append({
             'address': address,
             'value': value_satoshi
@@ -121,6 +121,12 @@ class Transaction(object):
             # makes call to external service to get optimal fee
             fee = get_optimal_fee(self.crypto, self.estimate_size(), 0, verbose=self.verbose)
 
+        if not fee:
+            # no fee was specified, use $0.02 as default.
+            convert = self.price_getter.get(self.crypto, "usd")[0]
+            fee = int(0.02 * convert * 1e8)
+            if self.verbose: print("Using default fee of %s satoshi ($0.02)" % fee)
+
         change_satoshi = total_ins - (total_outs + fee)
 
         if change_satoshi < 0:
@@ -138,8 +144,6 @@ class Transaction(object):
 
         return tx
 
-    def push(self):
-        return push_tx(
-            self.crypto, self.get_hex(), services=self.pushtx_services,
-            verbose=self.verbose
-        )
+    def push(self, services=None):
+        self.pusher = PushTx(verbose=self.verbose, services=services or [])
+        return self.pusher.get(self.crypto, self.get_hex())
