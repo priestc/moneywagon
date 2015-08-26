@@ -745,15 +745,3 @@ class CoinTape(Service):
             if sample['maxDelay'] <= acceptable_block_delay:
                 rate = sample['maxFee']
                 return tx_bytes * rate
-
-
-ALL_SERVICES = [
-    Bitstamp, BlockCypher, Blockr, BTCE, Cryptonator, Winkdex,
-    BitEasy, BlockChainInfo, BitcoinAbe, LitecoinAbe, NamecoinAbe, DogeChainInfo,
-    AuroraCoinEU, Atorox, FeathercoinCom, NXTPortal, CryptoID,
-    CryptapUS, BTER, CoinSwap, ChainSo, BlockStrap, CoinPrism, BlockSeer,
-
-    BitpayInsight, ThisIsVTC, BirdOnWheels, MYRCryptap, ReddcoinCom, FTCe,
-
-    CoinTape
-]

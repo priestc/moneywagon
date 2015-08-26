@@ -4,7 +4,7 @@ import requests
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.5.0'
+useragent = 'moneywagon 1.5.1'
 
 class ServiceDisagreement(Exception):
     pass
@@ -208,7 +208,7 @@ class AutoFallback(object):
         objects can cache responses.
         """
         if not services:
-            from moneywagon.services import ALL_SERVICES
+            from moneywagon import ALL_SERVICES
             services = ALL_SERVICES
 
         self.services = []

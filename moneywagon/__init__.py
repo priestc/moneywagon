@@ -255,3 +255,24 @@ class HistoricalPrice(object):
     @property
     def responses(self):
         return self.service.responses
+
+def _get_all_services():
+    """
+    Go through the crypto_data structure and return all list of all
+    installed services.
+    """
+    services = []
+    for currency, data in crypto_data.items():
+        if hasattr(data, 'append'):
+            continue
+        if 'services' not in data:
+            continue
+
+        services.append([
+            item for sublist in data['services'].values() for item in sublist
+        ])
+
+    return set([item for sublist in services for item in sublist])
+
+
+ALL_SERVICES = _get_all_services()
