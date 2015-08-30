@@ -1,7 +1,8 @@
 from moneywagon import (
-    get_unspent_outputs, CurrentPrice, get_optimal_fee, PushTx
+    get_unspent_outputs, CurrentPrice, get_optimal_fee, PushTx,
+    get_optimal_services
 )
-from bitcoin import mktx, sign
+from bitcoin import mktx, sign, pubtoaddr, privtopub
 from .crypto_data import crypto_data
 
 
@@ -16,6 +17,7 @@ class Transaction(object):
         self.outs = []
         self.ins = []
         self.verbose = verbose
+        self.change_address = None
 
         self.price_getter = CurrentPrice(verbose=verbose)
 
@@ -58,23 +60,48 @@ class Transaction(object):
             paranoid=self.paranoid, verbose=self.verbose
         )
 
-    def add_inputs_from_address(self, address, private_key=None, amount='all', services=None):
+    def private_key_to_address(self, pk):
         """
-        Make call to external service to get inputs from an address.
-        `amount` is the amount of [currency] worth of inputs to add from this address.
-          pass in 'all' (the default) to use *all* inputs found for this address.
+        Convert a private key (in hex format) into an address.
         """
-        self.private_key = private_key
-        self.change_address = address
+        pub = privtopub(pk)
+        pub_byte, priv_byte = get_magic_bytes(self.crypto)
 
-        total_added = 0
+        if priv_byte >= 128:
+            priv_byte -= 128 #pybitcointools bug
+
+        return pubtoaddr(pub, pub_byte)
+
+    def add_inputs(self, address=None, private_key=None, amount='all', services=None):
+        """
+        Make call to external service to get inputs from an address and/or private_key.
+        `amount` is the amount of [currency] worth of inputs (in satoshis) to add from
+        this address. Pass in 'all' (the default) to use *all* inputs found for this address.
+         Returned is the number of units (in satoshis) that were added as inputs to this tx.
+        """
+        if private_key:
+            address_from_priv = self.private_key_to_address(private_key)
+            if address and address != address_from_priv:
+                raise Exception("Invalid Private key")
+            address = address_from_priv
+            self.change_address = address
+
+        if not services:
+            services = get_optimal_services(self.crypto, 'get_unspent_outputs')
+
+        total_added_satoshi = 0
         ins = []
-        for utxo in self._get_utxos(address, services or []):
-            if (amount == 'all' or total_added < amount):
+        for utxo in self._get_utxos(address, services):
+            if (amount == 'all' or total_added_satoshi < amount):
                 self.ins.append(
                     dict(input=utxo, private_key=private_key)
                 )
-                total_added += utxo['amount']
+                total_added_satoshi += utxo['amount']
+
+        if total_added_satoshi == 0:
+            raise Exception("No inputs available for: %s" % address)
+
+        return total_added_satoshi
 
     def total_input_satoshis(self):
         """
@@ -91,11 +118,9 @@ class Transaction(object):
         value_satoshi = self.from_unit_to_satoshi(value, unit)
 
         if self.verbose:
-            print(
-                "Adding output of: %s satoshi (%.8f)" % (
-                    value_satoshi, (value_satoshi / 1e8)
-                )
-            )
+            print("Adding output of: %s satoshi (%.8f)" % (
+                value_satoshi, (value_satoshi / 1e8)
+            ))
 
         self.outs.append({
             'address': address,
@@ -104,12 +129,28 @@ class Transaction(object):
 
     def fee(self, value, unit='satoshi'):
         """
-        Set the miner fee, if unit is not set, assumes value is satoshi
+        Set the miner fee, if unit is not set, assumes value is satoshi.
+        If using 'optimal', make sure you have already added all outputs.
         """
-        if value == 'optimal':
-            self.fee_satoshi = 'optimal'
+        convert = None
+        if not value:
+            # no fee was specified, use $0.02 as default.
+            convert = self.price_getter.get(self.crypto, "usd")[0]
+            self.fee_satoshi = int(0.02 * convert * 1e8)
+            verbose = "Using default fee of:"
+
+        elif value == 'optimal':
+            self.fee_satoshi = get_optimal_fee(self.crypto, self.estimate_size(), 0, verbose=self.verbose)
+            verbose = "Using optimal fee of:"
         else:
             self.fee_satoshi = self.from_unit_to_satoshi(value, unit)
+            verbose = "Using manually set fee of:"
+
+        if self.verbose:
+            if not convert:
+                convert = self.price_getter.get(self.crypto, "usd")[0]
+            fee_dollar = convert * fee_satoshi / 1e8
+            print(verbose + "%s satoshis ($%.2f)" % (self.fee_satoshi, fee_dollar))
 
     def estimate_size(self):
         """
@@ -117,27 +158,26 @@ class Transaction(object):
         and outputs.
         Formula taken from: http://bitcoin.stackexchange.com/a/3011/18150
         """
-        return len(self.outs) * 148 + 34 * len(self.ins) + 10
+        # if there are no outs use 1 (because the change will be an out)
+        outs = len(self.outs) or 1
+
+        return outs * 148 + 34 * len(self.ins) + 10
 
     def get_hex(self, signed=True):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
         total_ins_satoshi = self.total_input_satoshis()
+        if total_ins_satoshi == 0:
+            raise ValueError("Can't make transaction, there are zero inputs")
+
+        # Note: there can be zero outs (sweep or coalesc transactions)
         total_outs_satoshi = sum([x['value'] for x in self.outs])
 
-        fee_satoshi = self.fee_satoshi
-        if fee_satoshi == 'optimal':
-            # makes call to external service to get optimal fee
-            fee_satoshi = get_optimal_fee(self.crypto, self.estimate_size(), 0, verbose=self.verbose)
+        if not self.fee_satoshi:
+            self.fee() # use default of $0.02
 
-        if not fee_satoshi:
-            # no fee was specified, use $0.02 as default.
-            convert = self.price_getter.get(self.crypto, "usd")[0]
-            fee_satoshi = int(0.02 * convert * 1e8)
-            if self.verbose: print("Using default fee of %s satoshi ($0.02)" % fee_satoshi)
-
-        change_satoshi = total_ins_satoshi - (total_outs_satoshi + fee_satoshi)
+        change_satoshi = total_ins_satoshi - (total_outs_satoshi + self.fee_satoshi)
 
         if change_satoshi < 0:
             raise ValueError(
@@ -147,16 +187,26 @@ class Transaction(object):
 
         ins = [x['input'] for x in self.ins]
 
-        tx = mktx(ins, self.outs + [{'address': self.change_address, 'value': change_satoshi}])
+        if change_satoshi > 0:
+            if self.verbose:
+                print("Adding change address of %s satoshis to %s" % (change_satoshi, self.change_address))
+            change = [{'amount': change_satoshi 'address': self.change_address}]
+        else:
+            change = [] # no change ?!
+            if self.verbose: print("Inputs == Outputs, no change address needed.")
+
+        tx = mktx(ins, self.outs + change)
 
         if signed:
             for i, input_data in enumerate(self.ins):
                 if not input_data['private_key']:
-                    raise Exception("Can't sign transaction, missing private key")
+                    raise Exception("Can't sign transaction, missing private key for input %s" % i)
                 tx = sign(tx, i, input_data['private_key'])
 
         return tx
 
     def push(self, services=None):
-        self.pusher = PushTx(verbose=self.verbose, services=services or [])
+        if not services:
+            services = get_optimal_services(self.crypto, "push_tx")
+        self.pusher = PushTx(verbose=self.verbose, services=services)
         return self.pusher.get(self.crypto, self.get_hex())
