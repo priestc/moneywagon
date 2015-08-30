@@ -1,6 +1,6 @@
 from moneywagon import (
     get_unspent_outputs, CurrentPrice, get_optimal_fee, PushTx,
-    get_optimal_services
+    get_optimal_services, get_magic_bytes
 )
 from bitcoin import mktx, sign, pubtoaddr, privtopub
 from .crypto_data import crypto_data
@@ -19,7 +19,8 @@ class Transaction(object):
         self.verbose = verbose
         self.change_address = None
 
-        self.price_getter = CurrentPrice(verbose=verbose)
+        services = get_optimal_services(self.crypto, 'current_price')
+        self.price_getter = CurrentPrice(services=services, verbose=verbose)
 
         if hex:
             self.hex = hex
@@ -87,7 +88,7 @@ class Transaction(object):
             self.change_address = address
 
         if not services:
-            services = get_optimal_services(self.crypto, 'get_unspent_outputs')
+            services = get_optimal_services(self.crypto, 'unspent_outputs')
 
         total_added_satoshi = 0
         ins = []
@@ -127,7 +128,7 @@ class Transaction(object):
             'value': value_satoshi
         })
 
-    def fee(self, value, unit='satoshi'):
+    def fee(self, value=None, unit='satoshi'):
         """
         Set the miner fee, if unit is not set, assumes value is satoshi.
         If using 'optimal', make sure you have already added all outputs.
@@ -136,7 +137,7 @@ class Transaction(object):
         if not value:
             # no fee was specified, use $0.02 as default.
             convert = self.price_getter.get(self.crypto, "usd")[0]
-            self.fee_satoshi = int(0.02 * convert * 1e8)
+            self.fee_satoshi = int(0.02 / convert * 1e8)
             verbose = "Using default fee of:"
 
         elif value == 'optimal':
@@ -149,8 +150,8 @@ class Transaction(object):
         if self.verbose:
             if not convert:
                 convert = self.price_getter.get(self.crypto, "usd")[0]
-            fee_dollar = convert * fee_satoshi / 1e8
-            print(verbose + "%s satoshis ($%.2f)" % (self.fee_satoshi, fee_dollar))
+            fee_dollar = convert * self.fee_satoshi / 1e8
+            print(verbose + " %s satoshis ($%.2f)" % (self.fee_satoshi, fee_dollar))
 
     def estimate_size(self):
         """
@@ -181,8 +182,8 @@ class Transaction(object):
 
         if change_satoshi < 0:
             raise ValueError(
-                "Input amount (%s) must be more than all output amounts (%s). You need more %s."
-                % (total_ins_satoshi, total_outs_satoshi, self.crypto)
+                "Input amount (%s) must be more than all output amounts (%s) plus fees (%s). You need more %s."
+                % (total_ins_satoshi, total_outs_satoshi, self.fee_satoshi, self.crypto)
             )
 
         ins = [x['input'] for x in self.ins]
@@ -190,7 +191,7 @@ class Transaction(object):
         if change_satoshi > 0:
             if self.verbose:
                 print("Adding change address of %s satoshis to %s" % (change_satoshi, self.change_address))
-            change = [{'amount': change_satoshi 'address': self.change_address}]
+            change = [{'value': change_satoshi, 'address': self.change_address}]
         else:
             change = [] # no change ?!
             if self.verbose: print("Inputs == Outputs, no change address needed.")

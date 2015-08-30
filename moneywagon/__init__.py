@@ -8,7 +8,7 @@ from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey
 def get_optimal_services(crypto, type_of_service):
     try:
         # get best services from curated list
-        return crypto_data[crypto]['services'][type_of_service]
+        return crypto_data[crypto.lower()]['services'][type_of_service]
     except KeyError:
         raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
 
