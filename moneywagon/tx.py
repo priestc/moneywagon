@@ -141,7 +141,8 @@ class Transaction(object):
 
         if change_satoshi < 0:
             raise ValueError(
-                "Input amount must be more than all Output amounts. You need more %s." % self.crypto
+                "Input amount (%s) must be more than all output amounts (%s). You need more %s."
+                % (total_ins_satoshi, total_outs_satoshi, self.crypto)
             )
 
         ins = [x['input'] for x in self.ins]
