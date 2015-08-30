@@ -415,7 +415,7 @@ There is a wrapper class that helps you make transactions. Here is how to use it
 ```python
 >>> from moneywagon.tx import Transaction
 >>> tx = Transaction('btc')
->>> tx.add_inputs_from_address(address='1HWpyFJ7N...', private_key='KxDwaDis...')
+>>> tx.add_inputs(private_key='KxDwaDis...')
 >>> tx.add_output('1Fs3...', 1.42, unit='btc')
 >>> tx.fee(4000, unit='satoshi') #defaut is 10000
 >>> tx.get_hex() # call this method to see the tx in hex format
@@ -443,19 +443,19 @@ Or if you want more fine control over which inputs go in:
 >>> tx.push()
 ```
 
-The last input that is added (either through `add_raw_inputs` or `add_inputs_from_address`)
+The last input that is added (either through `add_raw_inputs` or `add_inputs`)
 will be used as the change address. You can manually specify a change address by modifying
 the value of `tx.change_address` before calling `tx.push()`.
 
 
 ```python
->>> tx.add_inputs_from_address(address='1HWpyFJ7N...', private_key='KxDwaDis...')
+>>> tx.add_inputs(address='1HWpyFJ7N...', private_key='KxDwaDis...')
 >>> tx.add_output('1Fd3...', 1.42, unit='btc')
 >>> tx.change_address = '1PZ3Ps9Rv...' # replace change address from 1HWpyFJ... -> 1PZ3Ps9Rv...
 >>> tx.push()
 ```
 
-The private key argument should be a string in WIF format.
+The private key argument should be a string in hex format.
 You can also specify the `amount` argument to `add_output` with a unit argument:
 
 ```python
@@ -467,6 +467,17 @@ All exchange rates are taken from the `get_current_price` function defined above
 
 Currently there is no way to decode transactions using moneywagon.
 One day this feature will get added.
+
+You can also make unsigned transactions by passing in just the address to the
+`add_inputs` function. You must also pass in `signed=False` to the `get_hex`
+function. This hex can't be pushed to the network until it has been signed.
+
+```python
+>>> tx.add_inputs(address='1HWpyFJ7N...')
+>>> tx.add_output('1Fd3...', 1.42, unit='btc')
+>>> tx.get_hex(signed=False)
+'00100137876876...
+```
 
 ## Push Transaction
 
