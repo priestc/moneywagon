@@ -22,9 +22,10 @@ class Transaction(object):
         if hex:
             self.hex = hex
 
-    def from_unit_to_satoshi(self, value, unit):
+    def from_unit_to_satoshi(self, value, unit='satoshi'):
         """
-        Convert a value to satoshis. units can be any fiat currency
+        Convert a value to satoshis. units can be any fiat currency.
+        By default the unit is satoshi.
         """
         if not unit or unit == 'satoshi':
             return value
@@ -82,24 +83,33 @@ class Transaction(object):
         just_inputs = [x['input'] for x in self.ins]
         return sum([x['amount'] for x in just_inputs])
 
-    def add_output(self, address, value, unit=None):
+    def add_output(self, address, value, unit='satoshi'):
         """
-        Add an output (a person who will receive funds via this tx)
+        Add an output (a person who will receive funds via this tx).
+        If no unit is specified, satoshi is implied.
         """
         value_satoshi = self.from_unit_to_satoshi(value, unit)
+
+        if self.verbose:
+            print(
+                "Adding output of: %s satoshi (%.8f)" % (
+                    value_satoshi, (value_satoshi / 1e8)
+                )
+            )
+
         self.outs.append({
             'address': address,
             'value': value_satoshi
         })
 
-    def fee(self, value, unit=None):
+    def fee(self, value, unit='satoshi'):
         """
         Set the miner fee, if unit is not set, assumes value is satoshi
         """
         if value == 'optimal':
             self.fee_satoshi = 'optimal'
         else:
-            self.fee_satoshi = from_unit_to_satoshi(value, unit, self.verbose)
+            self.fee_satoshi = self.from_unit_to_satoshi(value, unit)
 
     def estimate_size(self):
         """
@@ -113,24 +123,26 @@ class Transaction(object):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
-        total_ins = self.total_input_satoshis()
-        total_outs = sum([x['value'] for x in self.outs])
+        total_ins_satoshi = self.total_input_satoshis()
+        total_outs_satoshi = sum([x['value'] for x in self.outs])
 
-        fee = self.fee_satoshi
-        if fee == 'optimal':
+        fee_satoshi = self.fee_satoshi
+        if fee_satoshi == 'optimal':
             # makes call to external service to get optimal fee
-            fee = get_optimal_fee(self.crypto, self.estimate_size(), 0, verbose=self.verbose)
+            fee_satoshi = get_optimal_fee(self.crypto, self.estimate_size(), 0, verbose=self.verbose)
 
-        if not fee:
+        if not fee_satoshi:
             # no fee was specified, use $0.02 as default.
             convert = self.price_getter.get(self.crypto, "usd")[0]
-            fee = int(0.02 * convert * 1e8)
-            if self.verbose: print("Using default fee of %s satoshi ($0.02)" % fee)
+            fee_satoshi = int(0.02 * convert * 1e8)
+            if self.verbose: print("Using default fee of %s satoshi ($0.02)" % fee_satoshi)
 
-        change_satoshi = total_ins - (total_outs + fee)
+        change_satoshi = total_ins_satoshi - (total_outs_satoshi + fee_satoshi)
 
         if change_satoshi < 0:
-            raise ValueError("Input amount must be more than all Output amounts. You need more bitcoin.")
+            raise ValueError(
+                "Input amount must be more than all Output amounts. You need more %s." % self.crypto
+            )
 
         ins = [x['input'] for x in self.ins]
 

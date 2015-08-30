@@ -80,7 +80,7 @@ crypto_data = {
                 Blockr
             ],
             'push_tx': [
-                Blockr
+                
             ],
             'unspent_outputs': [
                 Blockr

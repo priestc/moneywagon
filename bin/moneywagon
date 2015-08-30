@@ -100,7 +100,7 @@ if argz.subparser_name == 'current-price':
 
 elif argz.subparser_name == 'generate-keypair':
     if argz.seed == '-':
-        seed =  "".join(sys.stdin)  #"".join(fileinput.input())
+        seed =  "".join(sys.stdin)
     else:
         seed = argz.seed
 

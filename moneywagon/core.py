@@ -221,6 +221,7 @@ class AutoFallback(object):
         self._successful_service = None # gets filled in after success
         self._failed_services = []
 
+
     def _try_each_service(self, method_name, *args, **kwargs):
         """
         Try each service until one returns a response. This function only
@@ -244,14 +245,24 @@ class AutoFallback(object):
                 return ret
             except (KeyError, IndexError, TypeError, ValueError) as exc:
                 # API has probably changed, therefore service class broken
-                if self.verbose: print("FAIL:", exc.__class__.__name__, exc)
-                self._failed_services.append(service)
+                if self.verbose: print("FAIL:", service, exc.__class__.__name__, exc)
+                self._failed_services.append({
+                    'service': service,
+                    'error': "%s %s" % (exc.__class__.__name__, exc)
+                })
             except SkipThisService as exc:
                 # service classes can raise this exception if for whatever reason
                 # that service can't return a response, but maybe another one can.
                 if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
+                self._failed_services.append({'service': service, 'error': "Skipped"})
             except NotImplementedError as exc:
                 if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
+                self._failed_services.append({'service': service, 'error': "Not Implemented"})
+
+        if not self._failed_services:
+            raise NotImplementedError(
+                "No Services defined for %s and %s" % (crypto, method_name)
+            )
 
         raise NoService(self.no_service_msg(*args, **kwargs))
 

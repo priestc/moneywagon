@@ -396,7 +396,7 @@ class ChainSo(Service):
     def push_tx(self, crypto, tx_hex):
         url = "%s/send_tx/%s" % (self.base_url, crypto)
         resp = self.post_url(url, {'tx_hex': tx_hex})
-        return resp.json()['txid']
+        return resp.json()['data']['txid']
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
         if latest:
