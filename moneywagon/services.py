@@ -284,7 +284,7 @@ class BlockStrap(Service):
 
     def push_tx(self, crypto, tx_hex):
         url = "%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx_hex)
-        return self.get_url(url)['data']['id']
+        return self.get_url(url).json()['data']['id']
 
     def get_transactions(self, crypto, address):
         url = "%s/v0/%s/address/transactions/%s" % (self.domain, crypto, address)
