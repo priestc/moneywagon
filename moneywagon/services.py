@@ -154,14 +154,14 @@ class Blockr(Service):
 
     def push_tx(self, crypto, tx_hex):
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto
-        resp = self.post_url(url, {'tx': tx_hex})
+        resp = self.post_url(url, {'tx': tx_hex}).json()
         if resp['status'] == 'fail':
             raise ValueError(
                 "Blockr returned error: %s %s %s" % (
                     resp['code'], resp['data'], resp['message']
                 )
             )
-        return resp.json()['data']
+        return resp['data']
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
         url ="http://%s.blockr.io/api/v1/block/info/%s%s%s" % (
