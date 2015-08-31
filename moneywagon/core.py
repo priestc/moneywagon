@@ -221,8 +221,7 @@ class AutoFallback(object):
         self._successful_service = None # gets filled in after success
         self._failed_services = []
 
-
-    def _try_each_service(self, method_name, *args, **kwargs):
+    def _try_services(self, method_name, *args, **kwargs):
         """
         Try each service until one returns a response. This function only
         catches the bare minimum of exceptions from the service class. We want
@@ -275,6 +274,7 @@ class AutoFallback(object):
         """
         return "All either skipped or failed."
 
+
 def enforce_service_mode(services, FetcherClass, kwargs, modes):
     """
     Fetches the value according to the mode of execution desired.
@@ -282,45 +282,69 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
     `services` must be a list of Service classes.
     `kwargs` is a list of arguments used to make the service call, usually
       something like {crypto: 'btc', address: '1HwY...'} or
-      {crypto: 'ltc', fiat: 'rur'}, (depends on the what FetcherClass.get takes)
+      {crypto: 'ltc', fiat: 'rur'}, (depends on the what FetcherClass.action takes)
 
     Modes can be:
 
-         random = [True|False] False by default
-         paranoid = positive int. 1 by default.
-         fast = [True|False] False by default
+         average = positive int. 1 by default. Takes average of n fetches.
+         verbose = [True|False] False by default. Extra output.
+         random = [True|False] False by default. Randomizes service order.
+         paranoid = positive int. 1 by default. Redundant Fetching.
+         fast = [True|False] False by default. Return as soon as recieved first result.
 
     """
+    average_level = modes.get('average', 1)
     paranoid_level = modes.get('paranoid', 1)
     verbose = modes.get('verbose', False)
 
     if modes.get('random', False):
         random.shuffle(services)
 
-    if paranoid_level == 1:
+    if paranoid_level == 1 and average_level == 1:
         return FetcherClass(services=services, verbose=verbose).action(**kwargs)
 
-    with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
-        fetches = [
-            executor.submit(
-                FetcherClass(services=[service], verbose=verbose).action, **kwargs
-            ) for service in services[:paranoid_level+2]
-        ]
+    if average_level > 1:
+        with futures.ThreadPoolExecutor(max_workers=average_level) as executor:
+            fetches = [
+                executor.submit(
+                    FetcherClass(services=[service], verbose=verbose).action, **kwargs
+                ) for service in services[:average_level]
+            ]
 
-        results = []
-        for future in futures.as_completed(fetches):
-            results.append(future.result())
+            results = []
+            for future in futures.as_completed(fetches):
+                results.append(future.result())
 
-    if hasattr(FetcherClass, "strip_for_consensus"):
-        to_compare = FetcherClass.strip_for_consensus(results)
-    else:
-        to_compare = results
+            if hasattr(FetcherClass, "simplify_for_average"):
+                simplified = [FetcherClass.simplify_for_average(x) for x in results]
+            else:
+                simplified = results
 
-    if len(set(to_compare)) == 1:
-        # if all values match, return any one (in this case the first one).
-        return results[0]
-    else:
-        raise ServiceDisagreement("Differing values returned: %s" % results)
+            return sum(simplified) / len(simplified)
+
+    if paranoid_level > 1:
+        with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
+            fetches = [
+                executor.submit(
+                    FetcherClass(services=[service], verbose=verbose).action, **kwargs
+                ) for service in services[:paranoid_level]
+            ]
+
+            results = []
+            for future in futures.as_completed(fetches):
+                results.append(future.result())
+
+        if hasattr(FetcherClass, "strip_for_consensus"):
+            to_compare = FetcherClass.strip_for_consensus(results)
+        else:
+            to_compare = results
+
+        if len(set(to_compare)) == 1:
+            # if all values match, return any one (in this case the first one).
+            return results[0]
+        else:
+            raise ServiceDisagreement("Differing values returned: %s" % results)
+
 
 def currency_to_protocol(amount):
     """

@@ -7,17 +7,17 @@ from .crypto_data import crypto_data
 
 
 class Transaction(object):
-    def __init__(self, crypto, hex=None, paranoid=1, verbose=False):
+    def __init__(self, crypto, hex=None, verbose=False):
         if crypto.lower() in ['nxt']:
             raise NotImplementedError("%s not yet supported" % crypto.upper())
 
-        self.paranoid = paranoid
+        self.change_address = None
         self.crypto = crypto
         self.fee_satoshi = None
         self.outs = []
         self.ins = []
-        self.verbose = verbose
-        self.change_address = None
+
+        self.verbose = modes.get('verbose', False)
 
         services = get_optimal_services(self.crypto, 'current_price')
         self.price_getter = CurrentPrice(services=services, verbose=verbose)
@@ -36,7 +36,7 @@ class Transaction(object):
             return value * 1e8
 
         # assume fiat currency that we can convert
-        convert = self.price_getter.get(self.crypto, unit)[0]
+        convert = self.price_getter.action(self.crypto, unit)[0]
         return int(value / convert * 1e8)
 
     def add_raw_inputs(self, inputs, private_key=None):
@@ -52,13 +52,13 @@ class Transaction(object):
             self.ins.append(dict(input=i, private_key=private_key))
             self.change_address = i['address']
 
-    def _get_utxos(self, address, services):
+    def _get_utxos(self, address, services, **modes):
         """
         Using the service fallback engine, get utxos from remote service.
         """
         return get_unspent_outputs(
             self.crypto, address, services=services,
-            paranoid=self.paranoid, verbose=self.verbose
+            **modes
         )
 
     def private_key_to_address(self, pk):
@@ -73,7 +73,7 @@ class Transaction(object):
 
         return pubtoaddr(pub, pub_byte)
 
-    def add_inputs(self, address=None, private_key=None, amount='all', services=None):
+    def add_inputs(self, address=None, private_key=None, amount='all', services=None, **modes):
         """
         Make call to external service to get inputs from an address and/or private_key.
         `amount` is the amount of [currency] worth of inputs (in satoshis) to add from
@@ -92,7 +92,7 @@ class Transaction(object):
 
         total_added_satoshi = 0
         ins = []
-        for utxo in self._get_utxos(address, services):
+        for utxo in self._get_utxos(address, services, **modes):
             if (amount == 'all' or total_added_satoshi < amount):
                 self.ins.append(
                     dict(input=utxo, private_key=private_key)
@@ -161,7 +161,6 @@ class Transaction(object):
         """
         # if there are no outs use 1 (because the change will be an out)
         outs = len(self.outs) or 1
-
         return outs * 148 + 34 * len(self.ins) + 10
 
     def get_hex(self, signed=True):
@@ -206,8 +205,20 @@ class Transaction(object):
 
         return tx
 
-    def push(self, services=None):
+    def push(self, services=None, redundancy=1):
         if not services:
             services = get_optimal_services(self.crypto, "push_tx")
-        self.pusher = PushTx(verbose=self.verbose, services=services)
-        return self.pusher.get(self.crypto, self.get_hex())
+
+        self.pushers = []
+        pusher = PushTx(services=services, verbose=self.verbose)
+        results = [pusher.action(self.crypto, self.get_hex())]
+
+        try:
+            for service in services[1:redundancy-1]
+                pusher = PushTx(services=[service], verbose=self.verbose)
+                results.append(self.pusher.action(self.crypto, self.get_hex()))
+                self.pushers.append(pusher)
+        except:
+            raise Exception("Partial push. Some services returned success, some failed.")
+
+        return results

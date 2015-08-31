@@ -12,7 +12,7 @@ from concurrent import futures
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
     get_historical_transactions, get_block, get_unspent_outputs,
-    generate_keypair
+    generate_keypair, sweep
 )
 from moneywagon.wallet import fetch_wallet_balances
 
@@ -60,6 +60,15 @@ x.add_argument('--paranoid', action='store', help='How many services to use when
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
 
+x = subparsers.add_parser('sweep', help='Sweep funds from a private key to another address')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('private_key', action='store', help='Private key to draw funds from')
+x.add_argument('to_address', action='store', help='Address to send funds to.')
+x.add_argument('--fee', action='store', help='Fee to use for tx (in satoshi). Defaults to $0.02', default=None)
+x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--random-service', action='store_true', help='Use a random source')
+
 x = subparsers.add_parser('unspent-outputs', help='Get list of unspent outputs for this address.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('address', action='store', help='Wallet address')
@@ -90,7 +99,7 @@ def datetime_to_iso(obj):
 
 modes = {
     'random': argz.random_service if hasattr(argz, "random_service") else False,
-    'paranoid': argz.paranoid if hasattr(argz, 'paranoid') else 0,
+    'paranoid': int(argz.paranoid) if hasattr(argz, 'paranoid') else 0,
     'verbose': argz.verbose
 }
 
@@ -128,6 +137,9 @@ elif argz.subparser_name == "unspent-outputs":
     print(json.dumps(get_unspent_outputs(
         argz.crypto, argz.address, **modes
     ), default=datetime_to_iso))
+
+elif argz.subparser_name == 'sweep':
+    print(sweep(argz.crypto, argz.private_key, argz.to_address, argz.fee, **modes))
 
 elif argz.subparser_name == 'wallet-balance':
     wallets = [
