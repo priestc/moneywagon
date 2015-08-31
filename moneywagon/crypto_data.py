@@ -35,6 +35,9 @@ crypto_data = {
             ],
             'get_block': [
                 BitpayInsight,Toshi, Blockr, ChainSo, BlockStrap, TheBitInfo
+            ],
+            "get_optimal_fee": [
+                CoinTape
             ]
         },
     },
@@ -80,7 +83,7 @@ crypto_data = {
                 Blockr
             ],
             'push_tx': [
-                
+
             ],
             'unspent_outputs': [
                 Blockr

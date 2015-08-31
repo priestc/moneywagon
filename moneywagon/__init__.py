@@ -95,8 +95,15 @@ def get_block(crypto, block_number='', block_hash='', latest=False, services=Non
 
 
 def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
-    return OptimalFee(verbose=verbose).get(crypto, tx_bytes, acceptable_block_delay)
-
+    """
+    Get the optimal fee based on how big the transaction is. Currently this
+    isonly providerfor BTC. Other currencies will return $0.02 in satoshi.
+    """
+    if crypto == 'btc':
+        return OptimalFee(verbose=verbose).action(crypto, tx_bytes, acceptable_block_delay)
+    else:
+        convert = get_current_price(crypto, 'usd')[0]
+        return int(0.02 / convert * 1e8)
 
 def generate_keypair(crypto, seed):
     """
@@ -127,8 +134,8 @@ def sweep(crypto, private_key, to_address, fee=None, **modes):
     Move all funds by private key to another address.
     """
     from moneywagon.tx import Transaction
-    tx = Transaction(crypto, **modes)
-    tx.add_inputs(private_key=private_key)
+    tx = Transaction(crypto, verbose=modes.get('verbose', False))
+    tx.add_inputs(private_key=private_key, **modes)
     tx.change_address = to_address
     tx.fee(fee)
 

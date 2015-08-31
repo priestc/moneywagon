@@ -17,7 +17,7 @@ class Transaction(object):
         self.outs = []
         self.ins = []
 
-        self.verbose = modes.get('verbose', False)
+        self.verbose = verbose
 
         services = get_optimal_services(self.crypto, 'current_price')
         self.price_getter = CurrentPrice(services=services, verbose=verbose)
@@ -136,7 +136,7 @@ class Transaction(object):
         convert = None
         if not value:
             # no fee was specified, use $0.02 as default.
-            convert = self.price_getter.get(self.crypto, "usd")[0]
+            convert = self.price_getter.action(self.crypto, "usd")[0]
             self.fee_satoshi = int(0.02 / convert * 1e8)
             verbose = "Using default fee of:"
 
@@ -149,7 +149,7 @@ class Transaction(object):
 
         if self.verbose:
             if not convert:
-                convert = self.price_getter.get(self.crypto, "usd")[0]
+                convert = self.price_getter.action(self.crypto, "usd")[0]
             fee_dollar = convert * self.fee_satoshi / 1e8
             print(verbose + " %s satoshis ($%.2f)" % (self.fee_satoshi, fee_dollar))
 
@@ -214,7 +214,7 @@ class Transaction(object):
         results = [pusher.action(self.crypto, self.get_hex())]
 
         try:
-            for service in services[1:redundancy-1]
+            for service in services[1:redundancy-1]:
                 pusher = PushTx(services=[service], verbose=self.verbose)
                 results.append(self.pusher.action(self.crypto, self.get_hex()))
                 self.pushers.append(pusher)

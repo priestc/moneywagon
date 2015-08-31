@@ -99,7 +99,7 @@ def datetime_to_iso(obj):
 
 modes = {
     'random': argz.random_service if hasattr(argz, "random_service") else False,
-    'paranoid': int(argz.paranoid) if hasattr(argz, 'paranoid') else 0,
+    'paranoid': int(argz.paranoid or 1) if hasattr(argz, 'paranoid') else 1,
     'verbose': argz.verbose
 }
 
