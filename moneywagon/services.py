@@ -144,13 +144,18 @@ class Blockr(Service):
         url = "http://%s.blockr.io/api/v1/address/unspent/%s" % (crypto, address)
         utxos = []
         for utxo in self.get_url(url).json()['data']['unspent']:
+            cons = utxo['confirmations']
+            if cons < confirmations:
+                continue
             utxos.append(dict(
                 amount=currency_to_protocol(utxo['amount']),
                 address=address,
                 output="%s:%s" % (utxo['tx'], utxo['n']),
-                confirmations=utxo['confirmations']
+                confirmations=cons
             ))
         return utxos
+    get_unspent_outputs.obeys_confirmations = True
+
 
     def push_tx(self, crypto, tx_hex):
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto

@@ -298,12 +298,12 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
         random.shuffle(services)
 
     if paranoid_level == 1:
-        return FetcherClass(services=services, verbose=verbose).get(**kwargs)
+        return FetcherClass(services=services, verbose=verbose).action(**kwargs)
 
     with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
         fetches = [
             executor.submit(
-                FetcherClass(services=[service], verbose=verbose).get, **kwargs
+                FetcherClass(services=[service], verbose=verbose).action, **kwargs
             ) for service in services[:paranoid_level+2]
         ]
 

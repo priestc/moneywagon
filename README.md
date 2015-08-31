@@ -516,32 +516,25 @@ Currently, btc is the only currency supported for fee estimation.
 
 # Advanced
 
-## Controlling Service Redundancy via `service_mode`
+## Finer control via "service modes"
 
 Since all cryptocurrencies are open source, many of them have multiple instances
-of block explorers running for public consumtion. These multiple services can
+of block explorers running for public consumption. These multiple services can
 be utilized in various ways to gain various advantages.
 
-Each blockchain function's high level API function call contains an optional keyword argument `service_mode`.
-The mods are as follows:
+Each blockchain function's high level API function call accepts additional mode arguments.
 
-* **default** - This method tris each service in order until it gets a valid response,
-and then returns that response.
+* **random** - This method will randomize all sources so it doesn't always call the best service.
 
-* **random** - This method is the same as the first, except the sources are randomized.
+* **paranoid** - Integer 1 or greater - Paranoid mode means multiple services will be checked
+and a result will only be returned if all services agree. The number passed in
+is the number of services contacted. Default is 1.
 
-* **paranoid-2** - This method will call the first service, then the second service,
-and then returns a response if the two responses are the same. If one API returns
-a different value than another sevice, a `ServiceDisagreement` exception is raised.
-
-* **paranoid-3...n** - Same as paranoid-2, except it calls three services and returns the value
-if all three services agree. The number '3' an be replaced with any integer. You pass
-in a number larger than the number of services programmed for that currency, then all
-effectively all services are required to agree in order for a result to be returned.
+* **verbose** - True or False - If set to true, there will be extra debugging output
 
 ```python
 >>> from moneywagon import get_address_balance
->>> get_address_balance('btc', '1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X', service_mode='paranoid-2')
+>>> get_address_balance('btc', '1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X', paranoid=2, random=True)
 0.0002
 ```
 
@@ -557,7 +550,7 @@ You can also pass in an explicit set of services:
 >>> from moneywagon import get_address_balance
 >>> from moneywagon.services import Toshi, BlockchainInfo
 >>> s = [Toshi, BlockchainInfo]
->>> get_address_balance('btc', '1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X', services=s, service_mode='random')
+>>> get_address_balance('btc', '1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X', services=s, random=True)
 0.0002
 ```
 
@@ -589,7 +582,7 @@ Or rather it has no defined 'get_historical_transactions' method.
 BTER is an exchange, not a block explorer, so it does not have a public API endpoint for getting
 historical transactions. Most bock explorers don't have current price functionalities, etc.
 
-If you use the `CurrentPrice` class, the `get` method will try all services
+If you use the `CurrentPrice` class, the `action` method will try all services
 until a value is returned (same as the high level API). If you use a service class
 that is limited to one API service, such as "BTER",
 then only that service will be called.
@@ -601,7 +594,7 @@ services will be used:
 >>> from moneywagon.services import BTCE, Bitstamp
 >>> from moneywagon import CurrentPrice
 >>> service = CurrentPrice(services=[BTCE, Bitstamp])
->>> service.get('btc', 'usd')
+>>> service.action('btc', 'usd')
 (377.2, 'btce')
 ```
 
@@ -615,9 +608,9 @@ For instance, consider the following example:
 ```python
 >>> from moneywagon.services import BTER
 >>> service = BTER()
->>> service.get('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
+>>> service.get_current_price('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
 (1.33535, 'bter')
->>> service.get('btc', 'rur') # makes zero external calls (uses btc-> rur result from last call)
+>>> service.get_current_price('btc', 'rur') # makes zero external calls (uses btc-> rur result from last call)
 (1.33535, 'bter')
 ```
 
@@ -632,7 +625,7 @@ If you keep the original service instance around and make more calls to get_pric
 it will use the result of previous calls:
 
 ```python
->>> service.get('btc', 'rur') # will make no external calls
+>>> service.get_current_price('btc', 'rur') # will make no external calls
 (17865.4210346, 'cryptonator')
 ```
 

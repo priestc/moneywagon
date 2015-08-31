@@ -5,12 +5,14 @@ from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey
 
+
 def get_optimal_services(crypto, type_of_service):
     try:
         # get best services from curated list
         return crypto_data[crypto.lower()]['services'][type_of_service]
     except KeyError:
         raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
+
 
 def get_magic_bytes(crypto):
     try:
@@ -21,6 +23,7 @@ def get_magic_bytes(crypto):
 
     except KeyError:
         raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
+
 
 def get_current_price(crypto, fiat, services=None, **modes):
     if not services:
@@ -81,6 +84,7 @@ def push_tx(crypto, tx_hex, services=None, **modes):
         services, PushTx, {'crypto': crypto, 'tx_hex': tx_hex}, modes=modes
     )
 
+
 def get_block(crypto, block_number='', block_hash='', latest=False, services=None, **modes):
     if not services:
         services = get_optimal_services(crypto, 'get_block')
@@ -118,18 +122,30 @@ def generate_keypair(crypto, seed):
     }
 
 
-class OptimalFee(AutoFallback):
+def sweep(crypto, private_key, to_address, fee=None, **modes):
+    """
+    Move all funds by private key to another address.
+    """
+    from moneywagon.tx import Transaction
+    tx = Transaction(crypto, **modes)
+    tx.add_inputs(private_key=private_key)
+    tx.change_address = to_address
+    tx.fee(fee)
 
-    def get(self, crypto, tx_bytes, acceptable_block_delay=0):
+    return tx.push()
+
+
+class OptimalFee(AutoFallback):
+    def action(self, crypto, tx_bytes, acceptable_block_delay=0):
         crypto = crypto.lower()
         return self._try_each_service("get_optimal_fee", crypto, tx_bytes, acceptable_block_delay)
 
     def no_service_msg(self, crypto, tx_bytes, acceptable_block_delay):
         return "Could not get optimal fee for: %s" % crypto
 
-class GetBlock(AutoFallback):
 
-    def get(self, crypto, block_number='', block_hash='', latest=False):
+class GetBlock(AutoFallback):
+    def action(self, crypto, block_number='', block_hash='', latest=False):
         if sum([bool(block_number), bool(block_hash), bool(latest)]) != 1:
             raise ValueError("Only one of `block_hash`, `latest`, or `block_number` allowed.")
         return self._try_each_service(
@@ -154,7 +170,7 @@ class GetBlock(AutoFallback):
 
 class HistoricalTransactions(AutoFallback):
 
-    def get(self, crypto, address):
+    def action(self, crypto, address):
         return self._try_each_service('get_transactions', crypto, address)
 
     def no_service_msg(self, crypto, address):
@@ -174,7 +190,7 @@ class HistoricalTransactions(AutoFallback):
 
 class UnspentOutputs(AutoFallback):
 
-    def get(self, crypto, address):
+    def action(self, crypto, address):
         return self._try_each_service('get_unspent_outputs', crypto=crypto, address=address)
 
     def no_service_msg(self, crypto, address):
@@ -195,7 +211,7 @@ class UnspentOutputs(AutoFallback):
 
 class CurrentPrice(AutoFallback):
 
-    def get(self, crypto, fiat):
+    def action(self, crypto, fiat):
         if crypto.lower() == fiat.lower():
             return (1.0, 'math')
 
@@ -207,7 +223,7 @@ class CurrentPrice(AutoFallback):
 
 class AddressBalance(AutoFallback):
 
-    def get(self, crypto, address=None, addresses=None, confirmations=1):
+    def action(self, crypto, address=None, addresses=None, confirmations=1):
         kwargs = dict(crypto=crypto, confirmations=confirmations)
 
         if address:
@@ -226,7 +242,7 @@ class AddressBalance(AutoFallback):
 
 class PushTx(AutoFallback):
 
-    def get(self, crypto, tx_hex):
+    def action(self, crypto, tx_hex):
         return self._try_each_service("push_tx", crypto=crypto, tx_hex=tx_hex)
 
     def no_service_msg(self, crypto, tx_hex):
@@ -241,7 +257,7 @@ class HistoricalPrice(object):
     def __init__(self, responses=None, verbose=False):
         self.service = Quandl(responses, verbose=verbose)
 
-    def get(self, crypto, fiat, at_time):
+    def action(self, crypto, fiat, at_time):
         crypto = crypto.lower()
         fiat = fiat.lower()
 
@@ -259,7 +275,7 @@ class HistoricalPrice(object):
 
 def _get_all_services():
     """
-    Go through the crypto_data structure and return all list of all
+    Go through the crypto_data structure and return all list of all (unique)
     installed services.
     """
     services = []
