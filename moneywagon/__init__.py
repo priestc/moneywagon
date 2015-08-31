@@ -100,7 +100,9 @@ def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
     isonly providerfor BTC. Other currencies will return $0.02 in satoshi.
     """
     if crypto == 'btc':
-        return OptimalFee(verbose=verbose).action(crypto, tx_bytes, acceptable_block_delay)
+        services = get_optimal_services(crypto, 'get_optimal_fee')
+        of = OptimalFee(services=services, verbose=verbose)
+        return of.action(crypto, tx_bytes, acceptable_block_delay)
     else:
         convert = get_current_price(crypto, 'usd')[0]
         return int(0.02 / convert * 1e8)

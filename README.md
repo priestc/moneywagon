@@ -167,6 +167,18 @@ $ moneywagon get-block ltc --block_number=242 | python -m json.tool
 
 ```
 
+## sweep [crypto] [private_key] [to_address] [--fee=optimal|n]
+
+Send all funds associated with `private_key` and send them to `to_address`.
+Optionally specify what fee you would like to include. Can either be an integer
+in satoshis, or the string 'optimal'. Returned is the txid of the broadcasted
+transaction.
+
+```
+moneywagon moneywagon sweep btc 812b... 1Coq3qrShpWQNZ7yGCREo6EqUCdem4EdtJ --fee=optimal --verbose
+['02491bdced5e48734de7c922547f1e73b4706d3747143ed01934d75313161c42']
+```
+
 ## historical-transactions [crypto] [address]
 
 Gets a list of all transactions sent and received by the passed in cryptocurrency address.
