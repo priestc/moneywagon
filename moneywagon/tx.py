@@ -141,7 +141,9 @@ class Transaction(object):
             verbose = "Using default fee of:"
 
         elif value == 'optimal':
-            self.fee_satoshi = get_optimal_fee(self.crypto, self.estimate_size(), 0, verbose=self.verbose)
+            self.fee_satoshi = get_optimal_fee(
+                self.crypto, self.estimate_size(), 0, verbose=self.verbose
+            )
             verbose = "Using optimal fee of:"
         else:
             self.fee_satoshi = self.from_unit_to_satoshi(value, unit)
@@ -182,7 +184,7 @@ class Transaction(object):
         if change_satoshi < 0:
             raise ValueError(
                 "Input amount (%s) must be more than all output amounts (%s) plus fees (%s). You need more %s."
-                % (total_ins_satoshi, total_outs_satoshi, self.fee_satoshi, self.crypto)
+                % (total_ins_satoshi, total_outs_satoshi, self.fee_satoshi, self.crypto.upper())
             )
 
         ins = [x['input'] for x in self.ins]
