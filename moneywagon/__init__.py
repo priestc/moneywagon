@@ -3,7 +3,7 @@ from __future__ import print_function
 from .core import AutoFallback, enforce_service_mode
 from .historical_price import Quandl
 from .crypto_data import crypto_data
-from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey
+from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey
 
 
 def get_optimal_services(crypto, type_of_service):
@@ -107,6 +107,7 @@ def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
         convert = get_current_price(crypto, 'usd')[0]
         return int(0.02 / convert * 1e8)
 
+
 def generate_keypair(crypto, seed):
     """
     Generate a private key and publickey for any currency, given a seed.
@@ -121,12 +122,15 @@ def generate_keypair(crypto, seed):
 
     return {
         'public': {
-            'hex': pub,
+            'hex_uncompressed': pub,
+            'hex': encode_pubkey(pub,'hex_compressed'),
             'address': pubtoaddr(pub, pub_byte)
         },
         'private': {
-            'hex': priv,
-            'wif': encode_privkey(priv, 'wif', vbyte=priv_byte)
+            'hex': encode_privkey(priv, 'hex_compressed', vbyte=priv_byte),
+            'hex_uncompressed': priv,
+            'wif_uncompressed': encode_privkey(priv, 'wif', vbyte=priv_byte),
+            'wif': encode_privkey(priv, 'wif_compressed', vbyte=priv_byte)
         }
     }
 
