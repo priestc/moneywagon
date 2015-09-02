@@ -3,7 +3,7 @@
 # moneywagon
 
 
-Moneywagon is a partial implementation of the bitcoin protocol written in Python.
+Moneywagon is a partial implementation of the bitcoin protocol for both Python 2 and 3.
 At it's current state, it is mostly a tool for building lightweight wallets,
 but in the future there is plans for it to include all bitcoin operations such
 as mining new blocks and relaying transaction as a full node.
@@ -12,7 +12,7 @@ In it's present form, think of moneywagon as a set of wrapper classes on top of
 pybitcointools.
 
 ## Features
-A. Lightweight wallet functionality - Use monewagon to build a bitcoin enabled device
+* Lightweight wallet functionality - Use monewagon to build a bitcoin enabled device
 Works on all crytocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.
     1. Get current crypto/fiat exchange rate
     2. Get crypto balance for address
@@ -20,9 +20,9 @@ Works on all crytocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.
     4. Get unspent outputs
     5. Get historical crypto/fiat price.
 
-B. Bip38 support - coming soon
-C. Multi-sig support - coming soon
-D. DHwallet support - coming soon
+* Bip38 support - coming soon
+* Multi-sig support - coming soon
+* HD-wallet support - coming soon
 
 # Installation
 
