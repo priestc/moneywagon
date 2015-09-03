@@ -11,7 +11,16 @@ try:
 except ImportError:
     raise ImportError("Scrypt is required for BIP38 support: pip install scrypt")
 
-long = int
+import sys
+
+is_py2 = False
+if sys.version_info <= (3,0):
+    # py2
+    is_py2 = True
+else:
+    # py3
+    long = int
+
 
 def bip38_encrypt(privkey, passphrase):
     """
@@ -34,7 +43,12 @@ def bip38_encrypt(privkey, passphrase):
     pubkey = privtopub(privkey)
     addr = pubtoaddr(pubkey)
 
-    salt = sha256(sha256(bytes(addr,'ascii')).digest()).digest()[0:4]
+    if is_py2:
+        ascii_key = addr
+    else:
+        ascii_key = bytes(addr,'ascii')
+
+    salt = sha256(sha256(ascii_key).digest()).digest()[0:4]
     key = scrypt.hash(passphrase, salt, 16384, 8, 8)
     derivedhalf1, derivedhalf2 = key[:32], key[32:]
 
@@ -79,7 +93,13 @@ def bip38_decrypt(encrypted_privkey, passphrase):
     if compressed:
         pub = encode_pubkey(pub,'hex_compressed')
     addr = pubtoaddr(pub)
-    if sha256(sha256(bytes(addr,'ascii')).digest()).digest()[0:4] != addresshash:
+
+    if is_py2:
+        ascii_key = addr
+    else:
+        ascii_key = bytes(addr,'ascii')
+
+    if sha256(sha256(ascii_key).digest()).digest()[0:4] != addresshash:
         raise Exception('Bip38 password decrypt failed: Wrong password?')
     else:
         if compressed:
