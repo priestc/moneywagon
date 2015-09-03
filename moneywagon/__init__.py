@@ -4,7 +4,7 @@ from .core import AutoFallback, enforce_service_mode
 from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey
-
+from .bip38 import bip38_encrypt
 
 def get_optimal_services(crypto, type_of_service):
     try:
@@ -108,7 +108,7 @@ def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
         return int(0.02 / convert * 1e8)
 
 
-def generate_keypair(crypto, seed):
+def generate_keypair(crypto, seed, password=None):
     """
     Generate a private key and publickey for any currency, given a seed.
     That seed can be random, or a brainwallet phrase.
@@ -120,20 +120,29 @@ def generate_keypair(crypto, seed):
     if priv_byte >= 128:
         priv_byte -= 128 #pybitcointools bug
 
-    return {
+    priv_wif = encode_privkey(priv, 'wif_compressed', vbyte=priv_byte)
+    if password:
+        priv_wif = bip38_encrypt(priv_wif, password)
+
+    #from ipdb import set_trace; set_trace()
+
+    ret = {
         'public': {
             'hex_uncompressed': pub,
             'hex': encode_pubkey(pub,'hex_compressed'),
             'address': pubtoaddr(pub, pub_byte)
         },
         'private': {
-            'hex': encode_privkey(priv, 'hex_compressed', vbyte=priv_byte),
-            'hex_uncompressed': priv,
-            'wif_uncompressed': encode_privkey(priv, 'wif', vbyte=priv_byte),
-            'wif': encode_privkey(priv, 'wif_compressed', vbyte=priv_byte)
+            'wif': priv_wif
         }
     }
+    if not password:
+        # only these are valid when no bip38 password is supplied
+        ret['private']['hex'] = encode_privkey(priv, 'hex_compressed', vbyte=priv_byte)
+        ret['private']['hex_uncompressed'] = encode_privkey(priv, 'hex', vbyte=priv_byte)
+        ret['private']['wif_uncompressed'] = encode_privkey(priv, 'wif', vbyte=priv_byte)
 
+    return ret
 
 def sweep(crypto, private_key, to_address, fee=None, **modes):
     """

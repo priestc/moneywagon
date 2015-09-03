@@ -3,7 +3,7 @@ from hashlib import sha256
 from binascii import unhexlify, hexlify
 from bitcoin import (
     privtopub, pubtoaddr, encode_privkey, get_privkey_format,
-    hex_to_b58check, b58check_to_hex, encode_pubkey
+    hex_to_b58check, b58check_to_hex, encode_pubkey, changebase
 )
 
 try:
@@ -13,7 +13,7 @@ except ImportError:
 
 long = int
 
-def encrypt(privkey,passphrase):
+def bip38_encrypt(privkey, passphrase):
     """
     BIP0038 non-ec-multiply encryption. Returns BIP0038 encrypted privkey.
     """
@@ -34,25 +34,25 @@ def encrypt(privkey,passphrase):
     pubkey = privtopub(privkey)
     addr = pubtoaddr(pubkey)
 
-    salt          = sha256(sha256(bytes(addr,'ascii')).digest()).digest()[0:4]
-    key           = scrypt.hash(passphrase, salt, 16384, 8, 8)
-    (derivedhalf1, derivedhalf2) = (key[:32], key[32:])
+    salt = sha256(sha256(bytes(addr,'ascii')).digest()).digest()[0:4]
+    key = scrypt.hash(passphrase, salt, 16384, 8, 8)
+    derivedhalf1, derivedhalf2 = key[:32], key[32:]
 
-    aes             = AES.new(derivedhalf2)
+    aes = AES.new(derivedhalf2)
     encryptedhalf1 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[0:32], 16) ^ long(hexlify(derivedhalf1[0:16]), 16))))
     encryptedhalf2 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[32:64], 16) ^ long(hexlify(derivedhalf1[16:32]), 16))))
 
-    payload    = b'\x01' + b'\x42' + flagbyte + salt + encryptedhalf1 + encryptedhalf2
+    payload = b'\x01' + b'\x42' + flagbyte + salt + encryptedhalf1 + encryptedhalf2
     checksum   = sha256(sha256(payload).digest()).digest()[:4] # b58check for encrypted privkey
     privatkey  = hexlify(payload + checksum).decode('ascii')
-    return hex_to_b58check(privatkey)
+    return changebase(privatkey, 16, 58)
 
 
 
-
-def decrypt(encrypted_privkey,passphrase):
+def bip38_decrypt(encrypted_privkey, passphrase):
     '''BIP0038 non-ec-multiply decryption. Returns hex privkey.'''
-    d = unhexlify(b58check_to_hex(encrypted_privkey))
+    d = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
+
     d = d[2:]
     flagbyte = d[0:1]
     d = d[1:]
@@ -62,6 +62,7 @@ def decrypt(encrypted_privkey,passphrase):
         compressed = False
     if flagbyte == b'\xe0':
         compressed = True
+
     addresshash = d[0:4]
     d = d[4:-4]
     key = scrypt.hash(passphrase,addresshash, 16384, 8, 8)
