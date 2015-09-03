@@ -79,7 +79,7 @@ def decrypt(encrypted_privkey,passphrase):
         pub = encode_pubkey(pub,'hex_compressed')
     addr = pubtoaddr(pub)
     if sha256(sha256(bytes(addr,'ascii')).digest()).digest()[0:4] != addresshash:
-        raise Exception('Addresshash Error')
+        raise Exception('Bip38 password decrypt failed: Wrong password?')
     else:
         if compressed:
             return encode_privkey(priv, 'hex_compressed')
