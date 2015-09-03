@@ -29,6 +29,7 @@ x.add_argument('--random-service', action='store_true', help='Use a random sourc
 x = subparsers.add_parser('generate-keypair', help='Generate Private/Public key pair')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('seed', action='store', help='Random seed string.'),
+x.add_argument('--password', action='store', help='Encrypt private key with Bip38 password.')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 
 x = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
@@ -64,6 +65,7 @@ x = subparsers.add_parser('sweep', help='Sweep funds from a private key to anoth
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('private_key', action='store', help='Private key to draw funds from')
 x.add_argument('to_address', action='store', help='Address to send funds to.')
+x.add_argument('--password', action='store', help='Decrypt private key with Bip38 password.')
 x.add_argument('--fee', action='store', help='Fee to use for tx (in satoshi). Defaults to $0.02', default=None)
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
@@ -113,7 +115,7 @@ elif argz.subparser_name == 'generate-keypair':
     else:
         seed = argz.seed
 
-    print(json.dumps(generate_keypair(argz.crypto, seed)))
+    print(json.dumps(generate_keypair(argz.crypto, seed, password=argz.password)))
 
 elif argz.subparser_name == 'historical-price':
     price, source, date = HistoricalPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat, argz.at_time)

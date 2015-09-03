@@ -40,19 +40,31 @@ There are currently 6 functions available through the command line interface:
 Generates a new private amd public keys, including hex and WIF encodings.
 Optionally pass in a password that will be used to BIP38 encode the private key.
 
-```
+$ moneywagon generate-keypair btc SomERanDoMTexT --password=123 | python -mjson.tool
+{
+    "private": {
+        "wif": "6PYVdYvBaMXD7bFNJwMh8DCTxcBQjzyPmqWDQDp2PBKYyFUACph7vzjeaN"
+    },
+    "public": {
+        "address": "1BrUfC75qyLQxxp7qcisfaMmwRMECo4ETC",
+        "hex": "037a7e546b2d9ecd9aa99d63c5d6eb4b4cc6880a6a7df8a02a2d83bc4e6b1022ab",
+        "hex_uncompressed": "047a7e546b2d9ecd9aa99d63c5d6eb4b4cc6880a6a7df8a02a2d83bc4e6b1022abcd2a6af5c8e36d74779e23d6be11fc0aaf923b7269d2d43b39dc970df8e98449"
+    }
+}
 $ moneywagon generate-keypair btc SomERanDoMTexT | python -mjson.tool
 {
     "private": {
-        "hex": "c1fb6c4ccd6e6646e2ffea8608f67450ac98e64b26b748ad963ae22fc13367ed",
-        "wif": "5KHibRy9gcTqr9Ajhd1r8NAx2FHxC8PKdcZEsG4ZE19iepmCS8x"
+        "hex": "c1fb6c4ccd6e6646e2ffea8608f67450ac98e64b26b748ad963ae22fc13367ed01",
+        "hex_uncompressed": "c1fb6c4ccd6e6646e2ffea8608f67450ac98e64b26b748ad963ae22fc13367ed",
+        "wif": "L3inayCqKqXUbu3yUHxjqWSurW5pc7bXEbwJCqUhEPfUqkTzhsgz",
+        "wif_uncompressed": "5KHibRy9gcTqr9Ajhd1r8NAx2FHxC8PKdcZEsG4ZE19iepmCS8x"
     },
     "public": {
-        "address": "1ACQLPrD3674whw5AP37T5NjbYdQ3XSuEF",
-        "hex": "047a7e546b2d9ecd9aa99d63c5d6eb4b4cc6880a6a7df8a02a2d83bc4e6b1022abcd2a6af5c8e36d74779e23d6be11fc0aaf923b7269d2d43b39dc970df8e98449"
+        "address": "1BrUfC75qyLQxxp7qcisfaMmwRMECo4ETC",
+        "hex": "037a7e546b2d9ecd9aa99d63c5d6eb4b4cc6880a6a7df8a02a2d83bc4e6b1022ab",
+        "hex_uncompressed": "047a7e546b2d9ecd9aa99d63c5d6eb4b4cc6880a6a7df8a02a2d83bc4e6b1022abcd2a6af5c8e36d74779e23d6be11fc0aaf923b7269d2d43b39dc970df8e98449"
     }
 }
-```
 
 The seed can be any string, preferably with a lot of entropy.
 You can also pipe in entropy via standard input by specifying a dash for the seed:
@@ -61,12 +73,15 @@ You can also pipe in entropy via standard input by specifying a dash for the see
 $ date | md5sum | moneywagon generate-keypair ppc - | python -mjson.tool
 {
     "private": {
-        "hex": "feb07aad450159cd9ead9bb702a6151fae93a02f88d19001ebc425ec350c04de",
-        "wif": "7AfPyvoLenqb1KAD78JdGvfJecm3ZkEoks9mjj1wqdkDKsC4BUS"
+        "hex": "a937be15ff2e7b9313c38714d608180d2ae9a8732e91adead3f666da51bee03301",
+        "hex_uncompressed": "a937be15ff2e7b9313c38714d608180d2ae9a8732e91adead3f666da51bee033",
+        "wif": "UAnKzDUDpKorVCCLcL4yjPvVM3RstB8NaqE5VSVvipg1DSyEB7WU",
+        "wif_uncompressed": "7A1kixqm91BcgU1JaqGrZGAQBtJRDW2fsiHZHQuKWsDv4nGD5jq"
     },
     "public": {
-        "address": "PWmtVPtoXmYDEixmCTFvwd4eNRCYEZaGgQ",
-        "hex": "044cfaadd71d8c90fc0f5ef73eb47dd2c0fa74d6259476e0aa23e0c4fe10418cc6a68694665cd56f3222118249e40fafffa55239390d65f168bdfb837726f97e09"
+        "address": "PWCL5zURy3aeGdpH4tu1NBVMkPyKMm3Hwk",
+        "hex": "0392a2b02487ae4b0a0a23aaab27573d40643e9aa64fe2b8822b190c01b0b04311",
+        "hex_uncompressed": "0492a2b02487ae4b0a0a23aaab27573d40643e9aa64fe2b8822b190c01b0b0431149b353eecdd3cac0de024835a22021b84a12ba820918786e67c185e13d8b4887"
     }
 }
 ```
@@ -184,6 +199,8 @@ Send all funds associated with `private_key` and send them to `to_address`.
 Optionally specify what fee you would like to include. Can either be an integer
 in satoshis, or the string 'optimal'. Returned is the txid of the broadcasted
 transaction.
+
+Use `--password` if your private key is encoded with a BIP38 password.
 
 ```
 moneywagon moneywagon sweep btc 812b... 1Coq3qrShpWQNZ7yGCREo6EqUCdem4EdtJ --fee=optimal --verbose
