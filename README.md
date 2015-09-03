@@ -20,7 +20,8 @@ Works on all crytocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.
     4. Get unspent outputs
     5. Get historical crypto/fiat price.
 
-* Bip38 support - coming soon
+General Cryptocurrency Features:
+* Bip38 support
 * Multi-sig support - coming soon
 * HD-wallet support - coming soon
 
@@ -34,9 +35,10 @@ $ pip install moneywagon
 
 There are currently 6 functions available through the command line interface:
 
-## generate-keypair [crypto] [seed]
+## generate-keypair [crypto] [seed] [--password]
 
 Generates a new private amd public keys, including hex and WIF encodings.
+Optionally pass in a password that will be used to BIP38 encode the private key.
 
 ```
 $ moneywagon generate-keypair btc SomERanDoMTexT | python -mjson.tool
@@ -176,7 +178,7 @@ $ moneywagon get-block ltc --block_number=242 | python -m json.tool
 
 ```
 
-## sweep [crypto] [private_key] [to_address] [--fee=optimal|n]
+## sweep [crypto] [private_key] [to_address] [--fee=optimal|n] [--password]
 
 Send all funds associated with `private_key` and send them to `to_address`.
 Optionally specify what fee you would like to include. Can either be an integer
