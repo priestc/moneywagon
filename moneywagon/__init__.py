@@ -124,8 +124,6 @@ def generate_keypair(crypto, seed, password=None):
     if password:
         priv_wif = bip38_encrypt(priv_wif, password)
 
-    #from ipdb import set_trace; set_trace()
-
     compressed_pub = encode_pubkey(pub, 'hex_compressed')
     ret = {
         'public': {
