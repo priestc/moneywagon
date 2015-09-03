@@ -4,7 +4,7 @@ from moneywagon import (
 )
 from bitcoin import mktx, sign, pubtoaddr, privtopub
 from .crypto_data import crypto_data
-
+from .bip38 import bip38_decrypt
 
 class Transaction(object):
     def __init__(self, crypto, hex=None, verbose=False):
@@ -73,14 +73,20 @@ class Transaction(object):
 
         return pubtoaddr(pub, pub_byte)
 
-    def add_inputs(self, address=None, private_key=None, amount='all', services=None, **modes):
+    def add_inputs(self, private_key=None, address=None, amount='all', password=None, services=None, **modes):
         """
         Make call to external service to get inputs from an address and/or private_key.
         `amount` is the amount of [currency] worth of inputs (in satoshis) to add from
         this address. Pass in 'all' (the default) to use *all* inputs found for this address.
          Returned is the number of units (in satoshis) that were added as inputs to this tx.
         """
+        #from ipdb import set_trace; set_trace()
         if private_key:
+            if private_key.startswith('6P'):
+                if not password:
+                    raise Exception("Password required for BIP38 encoded private keys")
+                private_key = bip38_decrypt(private_key, password)
+
             address_from_priv = self.private_key_to_address(private_key)
             if address and address != address_from_priv:
                 raise Exception("Invalid Private key")

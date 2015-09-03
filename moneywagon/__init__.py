@@ -126,11 +126,12 @@ def generate_keypair(crypto, seed, password=None):
 
     #from ipdb import set_trace; set_trace()
 
+    compressed_pub = encode_pubkey(pub, 'hex_compressed')
     ret = {
         'public': {
             'hex_uncompressed': pub,
-            'hex': encode_pubkey(pub,'hex_compressed'),
-            'address': pubtoaddr(pub, pub_byte)
+            'hex': compressed_pub,
+            'address': pubtoaddr(compressed_pub, pub_byte)
         },
         'private': {
             'wif': priv_wif
@@ -144,13 +145,13 @@ def generate_keypair(crypto, seed, password=None):
 
     return ret
 
-def sweep(crypto, private_key, to_address, fee=None, **modes):
+def sweep(crypto, private_key, to_address, fee=None, password=None, **modes):
     """
     Move all funds by private key to another address.
     """
     from moneywagon.tx import Transaction
     tx = Transaction(crypto, verbose=modes.get('verbose', False))
-    tx.add_inputs(private_key=private_key, **modes)
+    tx.add_inputs(private_key=private_key, password=password, **modes)
     tx.change_address = to_address
     tx.fee(fee)
 
