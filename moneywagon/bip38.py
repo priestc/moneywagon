@@ -132,11 +132,23 @@ def test():
         '5Jajm8eQ22H3pGWLEVCXyvND8dQZhiQhoLJNKjYXk9roUFTMSZ4',
         '\u03D2\u0301\u0000\U00010400\U0001F4A9',
         True,
+        ],[
+        '6PYNKZ1EAgYgmQfmNVamxyXVWHzK5s6DGhwP4J5o44cvXdoY7sRzhtpUeo',
+        'L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP',
+        'TestingOneTwoThree',
+        True
+        ],[
+        '6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7',
+        'KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7',
+        'Satoshi',
+        True
     ]]
 
-
+    index = 1
     for encrypted, key, password, use_wif in cases:
         test_encrypted = bip38_encrypt(key, password)
         test_decrypted = bip38_decrypt(encrypted, password, wif=use_wif)
-        assert encrypted == test_encrypted
-        assert key == test_decrypted
+        assert encrypted == test_encrypted, "encrypt failed"
+        assert key == test_decrypted, 'decrypt failed'
+        print("Test #%s passed" % index)
+        index += 1
