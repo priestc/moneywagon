@@ -367,7 +367,7 @@ The nature of this calculation can also be seen in the source string
 
 ## Get Blocks
 
-```
+```python
 >>> from moneywagon import get_blocks
 >>> get_blocks('btc', latest=True)
 {

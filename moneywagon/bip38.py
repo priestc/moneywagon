@@ -1,3 +1,4 @@
+import unicodedata
 from Crypto.Cipher import AES
 from hashlib import sha256
 from binascii import unhexlify, hexlify
@@ -40,6 +41,8 @@ def bip38_encrypt(privkey, passphrase):
         privkey = encode_privkey(privkey,'hex')
         privformat = get_privkey_format(privkey)
 
+    passphrase = unicodedata.normalize('NFC', passphrase)
+
     pubkey = privtopub(privkey)
     addr = pubtoaddr(pubkey)
 
@@ -63,8 +66,11 @@ def bip38_encrypt(privkey, passphrase):
 
 
 
-def bip38_decrypt(encrypted_privkey, passphrase):
-    '''BIP0038 non-ec-multiply decryption. Returns hex privkey.'''
+def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
+    """
+    BIP0038 non-ec-multiply decryption. Returns hex privkey.
+    """
+    passphrase = unicodedata.normalize('NFC', passphrase)
     d = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
 
     d = d[2:]
@@ -102,7 +108,35 @@ def bip38_decrypt(encrypted_privkey, passphrase):
     if sha256(sha256(ascii_key).digest()).digest()[0:4] != addresshash:
         raise Exception('Bip38 password decrypt failed: Wrong password?')
     else:
+        formatt = 'wif' if wif else 'hex'
         if compressed:
-            return encode_privkey(priv, 'hex_compressed')
+            return encode_privkey(priv, formatt + '_compressed')
         else:
-            return encode_privkey(priv, 'hex')
+            return encode_privkey(priv, formatt)
+
+def test():
+
+    # takes directly from the BIP38 whitepaper
+    cases = [[
+        '6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg',
+        'cbf4b9f70470856bb4f40f80b87edb90865997ffee6df315ab166d713af433a5',
+        'TestingOneTwoThree',
+        False
+        ], [
+        '6PRNFFkZc2NZ6dJqFfhRoFNMR9Lnyj7dYGrzdgXXVMXcxoKTePPX1dWByq',
+        '09c2686880095b1a4c249ee3ac4eea8a014f11e6f986d0b5025ac1f39afbd9ae',
+        'Satoshi',
+        False
+        ],[
+        '6PRW5o9FLp4gJDDVqJQKJFTpMvdsSGJxMYHtHaQBF3ooa8mwD69bapcDQn',
+        '5Jajm8eQ22H3pGWLEVCXyvND8dQZhiQhoLJNKjYXk9roUFTMSZ4',
+        '\u03D2\u0301\u0000\U00010400\U0001F4A9',
+        True,
+    ]]
+
+
+    for encrypted, key, password, use_wif in cases:
+        test_encrypted = bip38_encrypt(key, password)
+        test_decrypted = bip38_decrypt(encrypted, password, wif=use_wif)
+        assert encrypted == test_encrypted
+        assert key == test_decrypted
