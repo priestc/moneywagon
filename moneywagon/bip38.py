@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import unicodedata
 from Crypto.Cipher import AES
 from hashlib import sha256
@@ -41,15 +43,16 @@ def bip38_encrypt(privkey, passphrase):
         privkey = encode_privkey(privkey,'hex')
         privformat = get_privkey_format(privkey)
 
-    passphrase = unicodedata.normalize('NFC', passphrase)
-
     pubkey = privtopub(privkey)
     addr = pubtoaddr(pubkey)
 
+    passphrase = unicodedata.normalize('NFC', passphrase)
     if is_py2:
         ascii_key = addr
+        passphrase = passphrase.encode('utf8')
     else:
         ascii_key = bytes(addr,'ascii')
+
 
     salt = sha256(sha256(ascii_key).digest()).digest()[0:4]
     key = scrypt.hash(passphrase, salt, 16384, 8, 8)
@@ -71,6 +74,9 @@ def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
     BIP0038 non-ec-multiply decryption. Returns hex privkey.
     """
     passphrase = unicodedata.normalize('NFC', passphrase)
+    if is_py2:
+        passphrase = passphrase.encode('utf8')
+
     d = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
 
     d = d[2:]
@@ -116,31 +122,31 @@ def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
 
 def test():
 
-    # takes directly from the BIP38 whitepaper
+    # taken directly from the BIP38 whitepaper
     cases = [[
         '6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg',
         'cbf4b9f70470856bb4f40f80b87edb90865997ffee6df315ab166d713af433a5',
-        'TestingOneTwoThree',
+        u'TestingOneTwoThree',
         False
         ], [
         '6PRNFFkZc2NZ6dJqFfhRoFNMR9Lnyj7dYGrzdgXXVMXcxoKTePPX1dWByq',
         '09c2686880095b1a4c249ee3ac4eea8a014f11e6f986d0b5025ac1f39afbd9ae',
-        'Satoshi',
+        u'Satoshi',
         False
         ],[
         '6PRW5o9FLp4gJDDVqJQKJFTpMvdsSGJxMYHtHaQBF3ooa8mwD69bapcDQn',
         '5Jajm8eQ22H3pGWLEVCXyvND8dQZhiQhoLJNKjYXk9roUFTMSZ4',
-        '\u03D2\u0301\u0000\U00010400\U0001F4A9',
+        u'\u03D2\u0301\u0000\U00010400\U0001F4A9',
         True,
         ],[
         '6PYNKZ1EAgYgmQfmNVamxyXVWHzK5s6DGhwP4J5o44cvXdoY7sRzhtpUeo',
         'L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP',
-        'TestingOneTwoThree',
+        u'TestingOneTwoThree',
         True
         ],[
         '6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7',
         'KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7',
-        'Satoshi',
+        u'Satoshi',
         True
     ]]
 
