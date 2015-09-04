@@ -19,6 +19,8 @@ Works on all crytocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.
     3. Get historical transactions for crypto address
     4. Get unspent outputs
     5. Get historical crypto/fiat price.
+    6. Get optimal transaction fee (BTC only)
+    7. Generate new crypto private/pubic keys supporting both 'WIF' and 'compressed' encodings.
 
 General Cryptocurrency Features:
 * Bip38 support
@@ -33,13 +35,12 @@ $ pip install moneywagon
 
 # Command Line Interface
 
-There are currently 6 functions available through the command line interface:
-
 ## generate-keypair [crypto] [seed] [--password]
 
 Generates a new private amd public keys, including hex and WIF encodings.
 Optionally pass in a password that will be used to BIP38 encode the private key.
 
+```
 $ moneywagon generate-keypair btc SomERanDoMTexT --password=123 | python -mjson.tool
 {
     "private": {
@@ -65,6 +66,7 @@ $ moneywagon generate-keypair btc SomERanDoMTexT | python -mjson.tool
         "hex_uncompressed": "047a7e546b2d9ecd9aa99d63c5d6eb4b4cc6880a6a7df8a02a2d83bc4e6b1022abcd2a6af5c8e36d74779e23d6be11fc0aaf923b7269d2d43b39dc970df8e98449"
     }
 }
+```
 
 The seed can be any string, preferably with a lot of entropy.
 You can also pipe in entropy via standard input by specifying a dash for the seed:
