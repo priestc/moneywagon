@@ -27,6 +27,7 @@ if sys.version_info <= (3,0):
 else:
     # py3
     long = int
+    unicode = str
 
 
 def bip38_encrypt(privkey, passphrase):
@@ -50,7 +51,7 @@ def bip38_encrypt(privkey, passphrase):
     pubkey = privtopub(privkey)
     addr = pubtoaddr(pubkey)
 
-    passphrase = normalize('NFC', passphrase)
+    passphrase = normalize('NFC', unicode(passphrase))
     if is_py2:
         ascii_key = addr
         passphrase = passphrase.encode('utf8')
@@ -76,7 +77,7 @@ def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
     """
     BIP0038 non-ec-multiply decryption. Returns hex privkey.
     """
-    passphrase = normalize('NFC', passphrase)
+    passphrase = normalize('NFC', unicode(passphrase))
     if is_py2:
         passphrase = passphrase.encode('utf8')
 
@@ -124,7 +125,6 @@ def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
             return encode_privkey(priv, formatt)
 
 def test():
-
     # taken directly from the BIP38 whitepaper
     cases = [[
         '6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg',
