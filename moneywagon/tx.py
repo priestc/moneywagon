@@ -85,7 +85,7 @@ class Transaction(object):
             if private_key.startswith('6P'):
                 if not password:
                     raise Exception("Password required for BIP38 encoded private keys")
-                private_key = bip38_decrypt(private_key, password)
+                private_key = bip38_decrypt(self.crypto, private_key, password)
 
             address_from_priv = self.private_key_to_address(private_key)
             if address and address != address_from_priv:
