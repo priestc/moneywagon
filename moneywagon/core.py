@@ -367,3 +367,23 @@ def currency_to_protocol(amount):
         amount = "%.8f" % amount
 
     return int(amount.replace(".", '')) # avoiding float math
+
+def get_optimal_services(crypto, type_of_service):
+    from .crypto_data import crypto_data
+    try:
+        # get best services from curated list
+        return crypto_data[crypto.lower()]['services'][type_of_service]
+    except KeyError:
+        raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
+
+def get_magic_bytes(crypto):
+    from .crypto_data import crypto_data
+    try:
+        pub_byte = crypto_data[crypto]['address_version_byte']
+        priv_byte = crypto_data[crypto]['private_key_prefix']
+        if priv_byte >= 128:
+            priv_byte -= 128 #pybitcointools bug
+        return pub_byte, priv_byte
+
+    except KeyError:
+        raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)

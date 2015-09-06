@@ -1,7 +1,7 @@
 from moneywagon import (
     get_unspent_outputs, CurrentPrice, get_optimal_fee, PushTx,
-    get_optimal_services, get_magic_bytes
 )
+from moneywagon.core import get_optimal_services, get_magic_bytes
 from bitcoin import mktx, sign, pubtoaddr, privtopub
 from .crypto_data import crypto_data
 from .bip38 import bip38_decrypt

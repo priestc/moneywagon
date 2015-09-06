@@ -5,6 +5,7 @@ from hashlib import sha256
 from unicodedata import normalize
 import sys
 
+from moneywagon.core import get_magic_bytes
 from bitcoin import (
     privtopub, pubtoaddr, encode_privkey, get_privkey_format,
     hex_to_b58check, b58check_to_hex, encode_pubkey, changebase
@@ -30,10 +31,11 @@ else:
     unicode = str
 
 
-def bip38_encrypt(privkey, passphrase):
+def bip38_encrypt(crypto, privkey, passphrase):
     """
     BIP0038 non-ec-multiply encryption. Returns BIP0038 encrypted privkey.
     """
+    pub_byte, priv_byte = get_magic_bytes(crypto)
     privformat = get_privkey_format(privkey)
     if privformat in ['wif_compressed','hex_compressed']:
         compressed = True
@@ -49,7 +51,7 @@ def bip38_encrypt(privkey, passphrase):
         privformat = get_privkey_format(privkey)
 
     pubkey = privtopub(privkey)
-    addr = pubtoaddr(pubkey)
+    addr = pubtoaddr(pubkey, pub_byte)
 
     passphrase = normalize('NFC', unicode(passphrase))
     if is_py2:
@@ -72,11 +74,11 @@ def bip38_encrypt(privkey, passphrase):
     return changebase(privatkey, 16, 58)
 
 
-
-def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
+def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
     """
     BIP0038 non-ec-multiply decryption. Returns hex privkey.
     """
+    pub_byte, priv_byte = get_magic_bytes(crypto)
     passphrase = normalize('NFC', unicode(passphrase))
     if is_py2:
         passphrase = passphrase.encode('utf8')
@@ -87,6 +89,8 @@ def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
     flagbyte = d[0:1]
     d = d[1:]
     # respect flagbyte, return correct pair
+
+    #import ipdb; ipdb.set_trace()
 
     if flagbyte == b'\xc0':
         compressed = False
@@ -108,7 +112,7 @@ def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
     pub = privtopub(priv)
     if compressed:
         pub = encode_pubkey(pub,'hex_compressed')
-    addr = pubtoaddr(pub)
+    addr = pubtoaddr(pub, pub_byte)
 
     if is_py2:
         ascii_key = addr
@@ -127,37 +131,48 @@ def bip38_decrypt(encrypted_privkey, passphrase, wif=False):
 def test():
     # taken directly from the BIP38 whitepaper
     cases = [[
+        'btc',
         '6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg',
         'cbf4b9f70470856bb4f40f80b87edb90865997ffee6df315ab166d713af433a5',
         u'TestingOneTwoThree',
         False
         ], [
+        'btc',
         '6PRNFFkZc2NZ6dJqFfhRoFNMR9Lnyj7dYGrzdgXXVMXcxoKTePPX1dWByq',
         '09c2686880095b1a4c249ee3ac4eea8a014f11e6f986d0b5025ac1f39afbd9ae',
         u'Satoshi',
         False
         ],[
+        'btc',
         '6PRW5o9FLp4gJDDVqJQKJFTpMvdsSGJxMYHtHaQBF3ooa8mwD69bapcDQn',
         '5Jajm8eQ22H3pGWLEVCXyvND8dQZhiQhoLJNKjYXk9roUFTMSZ4',
         u'\u03D2\u0301\u0000\U00010400\U0001F4A9',
         True,
         ],[
+        'btc',
         '6PYNKZ1EAgYgmQfmNVamxyXVWHzK5s6DGhwP4J5o44cvXdoY7sRzhtpUeo',
         'L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP',
         u'TestingOneTwoThree',
         True
         ],[
+        'btc',
         '6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7',
         'KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7',
         u'Satoshi',
         True
+        ],[
+        'ltc',
+        '6PfQ31ycwn3HALREcJvKz9xUDoEstPX9KqYuaFXBfc7Qnk6WSgP7xnXmB1',
+        'not yet',
+        'arise',
+        False
     ]]
 
     index = 1
-    for encrypted, key, password, use_wif in cases:
-        test_encrypted = bip38_encrypt(key, password)
-        test_decrypted = bip38_decrypt(encrypted, password, wif=use_wif)
-        assert encrypted == test_encrypted, "encrypt failed"
-        assert key == test_decrypted, 'decrypt failed'
+    for crypto, encrypted_key, unencrypted_key, password, use_wif in cases:
+        test_encrypted = bip38_encrypt(crypto, unencrypted_key, password)
+        test_decrypted = bip38_decrypt(crypto, encrypted_key, password, wif=use_wif)
+        assert encrypted_key == test_encrypted, "encrypt failed"
+        assert unencrypted_key == test_decrypted, 'decrypt failed'
         print("Test #%s passed" % index)
         index += 1

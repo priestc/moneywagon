@@ -10,6 +10,7 @@ crypto_data = {
     'btc': {
         'name': 'Bitcoin',
         'address_version_byte': 0,
+        'bip44_coin_type': 0x80000000,
         'private_key_prefix': 128,
         'genesis_date': datetime(2009, 1, 12),
         'services': {
@@ -44,6 +45,7 @@ crypto_data = {
     'ltc': {
         'name': 'Litecoin',
         'address_version_byte': 48,
+        'bip44_coin_type': 0x80000002,
         'private_key_prefix': 176,
         'genesis_date': datetime(2011, 10, 7),
         'services': {
@@ -70,6 +72,7 @@ crypto_data = {
     'ppc': {
         'name': 'Peercoin',
         'address_version_byte': 55,
+        'bip44_coin_type': 0x80000006,
         'private_key_prefix': 183,
         'genesis_date': datetime(2012, 8, 19),
         'services': {
@@ -95,9 +98,10 @@ crypto_data = {
     },
     'doge': {
         'name': 'Dogecoin',
-        'genesis_date': datetime(2013, 12, 6),
         'address_version_byte': 30,
+        'bip44_coin_type': 0x80000003,
         'private_key_prefix': 158,
+        'genesis_date': datetime(2013, 12, 6),
         'services': {
             'current_price': [
                 BTER, ChainSo, Cryptonator
@@ -121,9 +125,10 @@ crypto_data = {
     },
     'nxt': {
         'name': 'Nxt',
-        'genesis_date': datetime(2013, 10, 29),
         'address_version_byte': None,
+        'bip44_coin_type': 0x8000001d,
         'private_key_prefix': None,
+        'genesis_date': datetime(2013, 10, 29),
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -147,9 +152,10 @@ crypto_data = {
     },
     'myr': {
         'name': 'MyriadCoin',
-        'genesis_date': datetime(2014, 2, 23),
         'address_version_byte': 50,
+        'bip44_coin_type': None,
         'private_key_prefix': 178,
+        'genesis_date': datetime(2014, 2, 23),
         'services': {
             'current_price': [
                 Cryptonator, ChainSo
@@ -173,9 +179,10 @@ crypto_data = {
     },
     'vtc': {
         'name': 'Vertcoin',
-        'genesis_date': datetime(2014, 1, 8),
         'address_version_byte': 71,
+        'bip44_coin_type': 0x8000001c,
         'private_key_prefix': None,
+        'genesis_date': datetime(2014, 1, 8),
         'services': {
             'current_price': [
                 Cryptonator, ChainSo
@@ -199,9 +206,10 @@ crypto_data = {
     },
     'ftc': {
         'name': 'Feathercoin',
-        'genesis_date': datetime(2013, 4, 16),
         'address_version_byte': 14,
+        'bip44_coin_type': 0x80000008,
         'private_key_prefix': 0x8e,
+        'genesis_date': datetime(2013, 4, 16),
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -225,9 +233,10 @@ crypto_data = {
     },
     'dash': {
         'name': 'Dash',
-        'genesis_date': datetime(2014, 1, 19),
         'address_version_byte': 76,
+        'bip44_coin_type': 0x80000005,
         'private_key_prefix': 204,
+        'genesis_date': datetime(2014, 1, 19),
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -251,9 +260,10 @@ crypto_data = {
     },
     'rdd': {
         'name': 'Reddcoin',
-        'genesis_date': datetime(2014, 1, 20),
         'address_version_byte': 61,
+        'bip44_coin_type': 0x80000004,
         'private_key_prefix': 0xbd,
+        'genesis_date': datetime(2014, 1, 20),
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -279,12 +289,14 @@ crypto_data = {
     'nmc': {
         'name': 'Namecoin',
         'address_version_byte': 52,
+        'bip44_coin_type': 0x80000007,
         'private_key_prefix': 0x80,
         'genesis_date': datetime(2011, 4, 18),
     },
     'aur': {
         'name': 'Auroracoin',
         'address_version_byte': 17,
+        'bip44_coin_type': None,
         'private_key_prefix': 0x97,
         'genesis_date': datetime(2014, 2, 2),
     },
@@ -292,7 +304,10 @@ crypto_data = {
     # TEMPLATE
     '': {
         'name': '',
-        'genesis_date': datetime(2014, 1, 2),
+        'address_version_byte': 0,
+        'bip44_coin_type': 0,
+        'private_key_prefix': 0,
+        'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
 

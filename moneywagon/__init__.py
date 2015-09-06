@@ -1,28 +1,12 @@
 from __future__ import print_function
 
-from .core import AutoFallback, enforce_service_mode
+from .core import (
+    AutoFallback, enforce_service_mode, get_optimal_services, get_magic_bytes
+)
 from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey
 from .bip38 import bip38_encrypt
-
-def get_optimal_services(crypto, type_of_service):
-    try:
-        # get best services from curated list
-        return crypto_data[crypto.lower()]['services'][type_of_service]
-    except KeyError:
-        raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
-
-
-def get_magic_bytes(crypto):
-    try:
-        return (
-            crypto_data[crypto]['address_version_byte'],
-            crypto_data[crypto]['private_key_prefix']
-        )
-
-    except KeyError:
-        raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
 
 
 def get_current_price(crypto, fiat, services=None, **modes):
@@ -117,12 +101,11 @@ def generate_keypair(crypto, seed, password=None):
     priv = sha256(seed)
     pub = privtopub(priv)
 
-    if priv_byte >= 128:
-        priv_byte -= 128 #pybitcointools bug
-
     priv_wif = encode_privkey(priv, 'wif_compressed', vbyte=priv_byte)
     if password:
-        priv_wif = bip38_encrypt(priv_wif, password)
+        priv_wif = bip38_encrypt(crypto, priv_wif, password)
+
+    #import ipdb; ipdb.set_trace()
 
     compressed_pub = encode_pubkey(pub, 'hex_compressed')
     ret = {
