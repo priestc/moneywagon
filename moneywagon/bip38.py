@@ -8,7 +8,8 @@ import sys
 from moneywagon.core import get_magic_bytes
 from bitcoin import (
     privtopub, pubtoaddr, encode_privkey, get_privkey_format,
-    hex_to_b58check, b58check_to_hex, encode_pubkey, changebase
+    hex_to_b58check, b58check_to_hex, encode_pubkey, changebase,
+    fast_multiply, G
 )
 
 try:
@@ -85,17 +86,18 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
 
     d = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
 
+    # trim off first 2 bytes (0x01c) (\x01\x42)
     d = d[2:]
     flagbyte = d[0:1]
     d = d[1:]
     # respect flagbyte, return correct pair
 
-    #import ipdb; ipdb.set_trace()
-
     if flagbyte == b'\xc0':
         compressed = False
     if flagbyte == b'\xe0':
         compressed = True
+    else:
+        raise Exception("Only non-ec mode at this time.")
 
     addresshash = d[0:4]
     d = d[4:-4]
@@ -127,6 +129,34 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
             return encode_privkey(priv, formatt + '_compressed')
         else:
             return encode_privkey(priv, formatt)
+
+
+def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None):
+    if not is_py2:
+        seed = bytes(seed, 'ascii')
+
+    if lot and sequence:
+        ownersalt = sha256(seed).digest()[:8]
+        ownerentropy = ownersalt + bytes(4096 * lot + sequence)
+    else:
+        ownersalt = ownerentropy = sha256(seed).digest()[:4]
+
+    prefactor = scrypt.hash(passphrase, ownersalt, 16384, 8, 8)
+
+    if not lot and sequence:
+        passfactor = prefactor
+    else:
+        passfactor = sha256(sha256(prefactor + ownerentropy).digest()).digest()
+
+    #import ipdb; ipdb.set_trace()
+    ppx, ppy = fast_multiply(G, int.from_bytes(prefactor, byteorder='big'))
+    
+
+
+    checksum = sha256(sha256(passpoint).digest()).digest()[:4]
+    b58check = changebase(hexlify(payload + checksum).decode('ascii'), 16, 58)
+    return b58check
+
 
 def test():
     # taken directly from the BIP38 whitepaper
