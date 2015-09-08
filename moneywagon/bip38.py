@@ -32,7 +32,7 @@ else:
 
 def base58check(payload):
     checksum = sha256(sha256(payload).digest()).digest()[:4] # b58check for encrypted privkey
-    return changebase(hexlify(payload).decode('ascii'), 16, 58)
+    return changebase(hexlify(payload + checksum).decode('ascii'), 16, 58)
 
 
 def bip38_encrypt(crypto, privkey, passphrase):
@@ -142,24 +142,29 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
     passphrase = normalize('NFC', unicode(passphrase))
     if is_py2:
         passphrase = passphrase.encode('utf8')
-    
+
     if not is_py2:
         seed = bytes(seed, 'ascii')
 
     if lot and sequence:
-        ownersalt = sha256(seed).digest()[:8]
-        ownerentropy = ownersalt + unhexlify("%0.8x" % (4096 * lot + sequence))
+        ownersalt = sha256(seed).digest()[:4]
+        lotseq = unhexlify("%0.8x" % (4096 * lot + sequence))
+        #print("lotseq:", lotseq, len(lotseq))
+        ownerentropy = ownersalt + lotseq
     else:
-        ownersalt = ownerentropy = sha256(seed).digest()[:12]
+        ownersalt = ownerentropy = sha256(seed).digest()[:8]
 
-    #import debug
+    #print("ownersalt:", ownersalt, len(ownersalt))
+    #print("ownerentropy:", ownerentropy, len(ownerentropy))
 
-    prefactor = scrypt.hash(passphrase, ownersalt, 16384, 8, 8)
+    prefactor = scrypt.hash(passphrase, ownersalt, 16384, 8, 8, 32)
 
-    if not lot and not sequence:
-        passfactor = prefactor
-    else:
+    if lot and sequence:
         passfactor = sha256(sha256(prefactor + ownerentropy).digest()).digest()
+    else:
+        passfactor = prefactor
+
+    #print("passfactor:", passfactor, len(passfactor))
 
     if is_py2:
         as_int = int(prefactor.encode('hex'), 16)
@@ -172,9 +177,17 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
     if not is_py2:
         passpoint = bytes(passpoint, 'ascii')
 
-    last_byte = b'\x53' if not lot and not sequence else b'\x51'
+    passpoint = unhexlify(passpoint)
+
+    #print("passpoint", passpoint, len(passpoint))
+
+    last_byte = b'\x53' if not lot and not sequence else b'\x52'
     magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
-    return base58check(magic_bytes + ownerentropy + unhexlify(passpoint))
+    payload = magic_bytes + ownerentropy + passpoint
+
+    #print("payload:", len(payload))
+
+    return base58check(payload)
 
 
 def test():
