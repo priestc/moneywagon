@@ -154,17 +154,12 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
     else:
         ownersalt = ownerentropy = sha256(seed).digest()[:8]
 
-    #print("ownersalt:", ownersalt, len(ownersalt))
-    #print("ownerentropy:", ownerentropy, len(ownerentropy))
-
     prefactor = scrypt.hash(passphrase, ownersalt, 16384, 8, 8, 32)
 
     if lot and sequence:
         passfactor = sha256(sha256(prefactor + ownerentropy).digest()).digest()
     else:
         passfactor = prefactor
-
-    #print("passfactor:", passfactor, len(passfactor))
 
     if is_py2:
         as_int = int(prefactor.encode('hex'), 16)
@@ -179,14 +174,9 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
 
     passpoint = unhexlify(passpoint)
 
-    #print("passpoint", passpoint, len(passpoint))
-
-    last_byte = b'\x53' if not lot and not sequence else b'\x52'
+    last_byte = b'\x53' if not lot and not sequence else b'\x51'
     magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
     payload = magic_bytes + ownerentropy + passpoint
-
-    #print("payload:", len(payload))
-
     return base58check(payload)
 
 
