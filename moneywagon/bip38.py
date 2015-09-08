@@ -8,8 +8,7 @@ import sys
 from moneywagon.core import get_magic_bytes
 from bitcoin import (
     privtopub, pubtoaddr, encode_privkey, get_privkey_format,
-    hex_to_b58check, b58check_to_hex, encode_pubkey, changebase,
-    fast_multiply, G
+    encode_pubkey, changebase, fast_multiply, G
 )
 
 try:
@@ -30,6 +29,10 @@ else:
     # py3
     long = int
     unicode = str
+
+def base58check(payload):
+    checksum = sha256(sha256(payload).digest()).digest()[:4] # b58check for encrypted privkey
+    return changebase(hexlify(payload).decode('ascii'), 16, 58)
 
 
 def bip38_encrypt(crypto, privkey, passphrase):
@@ -69,10 +72,8 @@ def bip38_encrypt(crypto, privkey, passphrase):
     encryptedhalf1 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[0:32], 16) ^ long(hexlify(derivedhalf1[0:16]), 16))))
     encryptedhalf2 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[32:64], 16) ^ long(hexlify(derivedhalf1[16:32]), 16))))
 
-    payload = b'\x01' + b'\x42' + flagbyte + salt + encryptedhalf1 + encryptedhalf2
-    checksum   = sha256(sha256(payload).digest()).digest()[:4] # b58check for encrypted privkey
-    privatkey  = hexlify(payload + checksum).decode('ascii')
-    return changebase(privatkey, 16, 58)
+    payload = b'\x01\x42' + flagbyte + salt + encryptedhalf1 + encryptedhalf2
+    return base58check(payload)
 
 
 def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
@@ -130,6 +131,12 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
         else:
             return encode_privkey(priv, formatt)
 
+def compress(x, y):
+    """
+    Given a x,y coordinate, encode in "compressed format"
+    """
+    polarity = "02" if y % 2 == 0 else "03"
+    return "%s%x" % (polarity, x)
 
 def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None):
     if not is_py2:
@@ -137,7 +144,7 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
 
     if lot and sequence:
         ownersalt = sha256(seed).digest()[:8]
-        ownerentropy = ownersalt + bytes(4096 * lot + sequence)
+        ownerentropy = ownersalt + unhexlify("%0.8x" % (4096 * lot + sequence))
     else:
         ownersalt = ownerentropy = sha256(seed).digest()[:4]
 
@@ -148,14 +155,21 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
     else:
         passfactor = sha256(sha256(prefactor + ownerentropy).digest()).digest()
 
-    #import ipdb; ipdb.set_trace()
-    ppx, ppy = fast_multiply(G, int.from_bytes(prefactor, byteorder='big'))
-    
+    if is_py2:
+        as_int = int(prefactor.encode('hex'), 16)
+    else:
+        as_int = int.from_bytes(prefactor, byteorder='big')
 
+    ppx, ppy = fast_multiply(G, as_int)
+    passpoint = compress(ppx, ppy)
 
-    checksum = sha256(sha256(passpoint).digest()).digest()[:4]
-    b58check = changebase(hexlify(payload + checksum).decode('ascii'), 16, 58)
-    return b58check
+    if is_py2:
+        pap = passpoint
+    else:
+        pap = bytes(passpoint, 'ascii')
+
+    magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2\x51' # 'passphrase' prefix
+    return base58check(magic_bytes + ownerentropy + unhexlify(pap))
 
 
 def test():
