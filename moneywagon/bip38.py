@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 
 from binascii import unhexlify, hexlify
@@ -95,7 +96,7 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
 
     if flagbyte == b'\xc0':
         compressed = False
-    if flagbyte == b'\xe0':
+    elif flagbyte == b'\xe0':
         compressed = True
     else:
         raise Exception("Only non-ec mode at this time.")
@@ -149,7 +150,6 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
     if lot and sequence:
         ownersalt = sha256(seed).digest()[:4]
         lotseq = unhexlify("%0.8x" % (4096 * lot + sequence))
-        #print("lotseq:", lotseq, len(lotseq))
         ownerentropy = ownersalt + lotseq
     else:
         ownersalt = ownerentropy = sha256(seed).digest()[:8]
@@ -167,20 +167,60 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
         as_int = int.from_bytes(prefactor, byteorder='big')
 
     ppx, ppy = fast_multiply(G, as_int)
-    passpoint = compress(ppx, ppy)
+    passpoint = compress(ppx, ppy) # 33 byte compressed format starting with 02 or 03
 
     if not is_py2:
         passpoint = bytes(passpoint, 'ascii')
 
-    passpoint = unhexlify(passpoint)
-
     last_byte = b'\x53' if not lot and not sequence else b'\x51'
     magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
-    payload = magic_bytes + ownerentropy + passpoint
+    payload = magic_bytes + ownerentropy + unhexlify(passpoint)
     return base58check(payload)
 
+def ec_test():
+    """
+    Tests the ec-multiply sections. Cases taken from the bip38 document.
+    """
+    cases = [[
+        'btc',
+        'TestingOneTwoThree',
+        'passphrasepxFy57B9v8HtUsszJYKReoNDV6VHjUSGt8EVJmux9n1J3Ltf1gRxyDGXqnf9qm',
+        '6PfQu77ygVyJLZjfvMLyhLMQbYnu5uguoJJ4kMCLqWwPEdfpwANVS76gTX',
+        '1PE6TQi6HTVNz5DLwB1LcpMBALubfuN2z2',
+        '5K4caxezwjGCGfnoPTZ8tMcJBLB7Jvyjv4xxeacadhq8nLisLR2',
+        ],[
+        'btc',
+        'Satoshi',
+        'passphraseoRDGAXTWzbp72eVbtUDdn1rwpgPUGjNZEc6CGBo8i5EC1FPW8wcnLdq4ThKzAS',
+        '6PfLGnQs6VZnrNpmVKfjotbnQuaJK4KZoPFrAjx1JMJUa1Ft8gnf5WxfKd',
+        '1CqzrtZC6mXSAhoxtFwVjz8LtwLJjDYU3V',
+        '5KJ51SgxWaAYR13zd9ReMhJpwrcX47xTJh2D3fGPG9CM8vkv5sH',
+    ]]
 
-def test():
+    cases = [[
+        'btc',
+        'MOLON LABE',
+        'passphraseaB8feaLQDENqCgr4gKZpmf4VoaT6qdjJNJiv7fsKvjqavcJxvuR1hy25aTu5sX',
+        '6PgNBNNzDkKdhkT6uJntUXwwzQV8Rr2tZcbkDcuC9DZRsS6AtHts4Ypo1j',
+        '1Jscj8ALrYu2y9TD8NrpvDBugPedmbj4Yh',
+        '5JLdxTtcTHcfYcmJsNVy1v2PMDx432JPoYcBTVVRHpPaxUrdtf8',
+        'cfrm38V8aXBn7JWA1ESmFMUn6erxeBGZGAxJPY4e36S9QWkzZKtaVqLNMgnifETYw7BPwWC9aPD',
+        263183,
+        1
+        ],[
+        'btc',
+        'ΜΟΛΩΝ ΛΑΒΕ',
+        'passphrased3z9rQJHSyBkNBwTRPkUGNVEVrUAcfAXDyRU1V28ie6hNFbqDwbFBvsTK7yWVK',
+        '6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH',
+        '1Lurmih3KruL4xDB5FmHof38yawNtP9oGf'
+        '5KMKKuUmAkiNbA3DazMQiLfDq47qs8MAEThm4yL8R2PhV1ov33D',
+        'cfrm38V8G4qq2ywYEFfWLD5Cc6msj9UwsG2Mj4Z6QdGJAFQpdatZLavkgRd1i4iBMdRngDqDs51',
+        806938,
+        1
+    ]]
+
+
+def non_ec_test():
     # taken directly from the BIP38 whitepaper
     cases = [[
         'btc',
@@ -212,12 +252,6 @@ def test():
         'KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7',
         u'Satoshi',
         True
-        ],[
-        'ltc',
-        '6PfQ31ycwn3HALREcJvKz9xUDoEstPX9KqYuaFXBfc7Qnk6WSgP7xnXmB1',
-        'not yet',
-        'arise',
-        False
     ]]
 
     index = 1
@@ -228,3 +262,7 @@ def test():
         assert unencrypted_key == test_decrypted, 'decrypt failed'
         print("Test #%s passed" % index)
         index += 1
+
+def test():
+    #ec_test()
+    non_ec_test()
