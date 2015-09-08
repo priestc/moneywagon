@@ -139,6 +139,10 @@ def compress(x, y):
     return "%s%x" % (polarity, x)
 
 def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None):
+    passphrase = normalize('NFC', unicode(passphrase))
+    if is_py2:
+        passphrase = passphrase.encode('utf8')
+    
     if not is_py2:
         seed = bytes(seed, 'ascii')
 
