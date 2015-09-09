@@ -31,10 +31,20 @@ else:
     long = int
     unicode = str
 
+
 def base58check(payload):
     checksum = sha256(sha256(payload).digest()).digest()[:4] # b58check for encrypted privkey
     return changebase(hexlify(payload + checksum).decode('ascii'), 16, 58)
 
+def unbase58check(encoded, payload_len):
+    """
+    Returns the paylod of a base58check encoded string. Verifies that the
+    checksum is correct.
+    """
+    payload = unhexlify(changebase(encoded.encode('ascii'), 58, 16))
+    passed = payload[-4:] == sha256(sha256(payload[:-4]).digest()).digest()[:4]
+    assert passed, "Base58 checksum failed, did you mistype something?"
+    return hexlify(payload)
 
 def bip38_encrypt(crypto, privkey, passphrase):
     """
@@ -103,7 +113,7 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
 
     addresshash = d[0:4]
     d = d[4:-4]
-    key = scrypt.hash(passphrase,addresshash, 16384, 8, 8)
+    key = scrypt.hash(passphrase, addresshash, 16384, 8, 8)
     derivedhalf1 = key[0:32]
     derivedhalf2 = key[32:64]
     encryptedhalf1 = d[0:16]
@@ -132,12 +142,14 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
         else:
             return encode_privkey(priv, formatt)
 
+
 def compress(x, y):
     """
     Given a x,y coordinate, encode in "compressed format"
     """
     polarity = "02" if y % 2 == 0 else "03"
     return "%s%x" % (polarity, x)
+
 
 def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None):
     passphrase = normalize('NFC', unicode(passphrase))
@@ -176,6 +188,19 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
     magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
     payload = magic_bytes + ownerentropy + unhexlify(passpoint)
     return base58check(payload)
+
+
+def generate_bip38_encrypted_address(crypto, intermediate_point, seed):
+    payload = unbase58check(intermediate_point, 49)
+    ownerentropy = payload[16:32]
+    passpoint = payload[32:-8]
+
+    if not is_py2:
+        seed = bytes(seed, 'ascii')
+
+    factorb = sha256(sha256(seed).digest()).digest()
+    return ownerentropy, passpoint
+
 
 def ec_test():
     """
@@ -262,6 +287,7 @@ def non_ec_test():
         assert unencrypted_key == test_decrypted, 'decrypt failed'
         print("Test #%s passed" % index)
         index += 1
+
 
 def test():
     #ec_test()
