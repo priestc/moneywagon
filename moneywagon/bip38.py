@@ -9,7 +9,7 @@ import sys
 from moneywagon.core import get_magic_bytes
 from bitcoin import (
     privtopub, pubtoaddr, encode_privkey, get_privkey_format,
-    encode_pubkey, changebase, fast_multiply, G
+    encode_pubkey, changebase, fast_multiply, G, P, A, B
 )
 
 try:
@@ -96,28 +96,26 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
     if is_py2:
         passphrase = passphrase.encode('utf8')
 
-    d = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
+    payload = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
+    #return payload
 
-    # trim off first 2 bytes (0x01c) (\x01\x42)
-    d = d[2:]
-    flagbyte = d[0:1]
-    d = d[1:]
-    # respect flagbyte, return correct pair
-
-    if flagbyte == b'\xc0':
-        compressed = False
-    elif flagbyte == b'\xe0':
-        compressed = True
+    ec_multiply = payload[1:2] == b'\x43'
+    if not ec_multiply:
+        flagbyte = payload[2:3]
+        if flagbyte == b'\xc0':
+            compressed = False
+        elif flagbyte == b'\xe0':
+            compressed = True
     else:
-        raise Exception("Only non-ec mode at this time.")
+        raise Exception("Only non-ec mode decryption supported at this time.")
 
-    addresshash = d[0:4]
-    d = d[4:-4]
+    addresshash = payload[3:7]
     key = scrypt.hash(passphrase, addresshash, 16384, 8, 8)
     derivedhalf1 = key[0:32]
     derivedhalf2 = key[32:64]
-    encryptedhalf1 = d[0:16]
-    encryptedhalf2 = d[16:32]
+    encryptedhalf1 = payload[7:23] # 16 bytes
+    encryptedhalf2 = payload[23:39] # 16 bytes
+
     aes = AES.new(derivedhalf2)
     decryptedhalf2 = aes.decrypt(encryptedhalf2)
     decryptedhalf1 = aes.decrypt(encryptedhalf1)
@@ -125,7 +123,7 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
     priv = unhexlify('%064x' % (long(hexlify(priv), 16) ^ long(hexlify(derivedhalf1), 16)))
     pub = privtopub(priv)
     if compressed:
-        pub = encode_pubkey(pub,'hex_compressed')
+        pub = encode_pubkey(pub, 'hex_compressed')
     addr = pubtoaddr(pub, pub_byte)
 
     if is_py2:
@@ -149,6 +147,16 @@ def compress(x, y):
     """
     polarity = "02" if y % 2 == 0 else "03"
     return "%s%x" % (polarity, x)
+
+def uncompress(payload):
+    """
+    Given a compressed ec key, uncompress it using math and return (x, y)
+    """
+    even = payload[:2] == b"02"
+    x = int(payload[2:], 16)
+    beta = pow(int(x ** 3 + A * x + B), int((P + 1) // 4), int(P))
+    y = (P-beta) if even else beta
+    return x, y
 
 
 def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None):
@@ -190,16 +198,39 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
     return base58check(payload)
 
 
-def generate_bip38_encrypted_address(crypto, intermediate_point, seed):
+def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compressed=True):
+    flagbyte = b'\x20'if compressed else b'\x00'
     payload = unbase58check(intermediate_point, 49)
-    ownerentropy = payload[16:32]
+    ownerentropy = unhexlify(payload[16:32])
+
     passpoint = payload[32:-8]
+    x, y = uncompress(passpoint)
 
     if not is_py2:
         seed = bytes(seed, 'ascii')
 
-    factorb = sha256(sha256(seed).digest()).digest()
-    return ownerentropy, passpoint
+    seedb = hexlify(sha256(seed).digest())[:24]
+    factorb = int(hexlify(sha256(sha256(seedb).digest()).digest()), 16)
+    generatedaddress = pubtoaddr(fast_multiply((x, y), factorb))
+
+    wrap = lambda x: x
+    if not is_py2:
+        wrap = lambda x: bytes(x, 'ascii')
+
+    addresshash = sha256(sha256(wrap(generatedaddress)).digest()).digest()[:4]
+    encrypted_seedb = scrypt.hash(passpoint, addresshash + ownerentropy, 1024, 1, 1, 64)
+    derivedhalf1, derivedhalf2 = encrypted_seedb[:32], encrypted_seedb[32:]
+
+    aes = AES.new(derivedhalf2)
+    block1 = '%0.32x' % (long(seedb[0:16], 16) ^ long(hexlify(derivedhalf1[0:16]), 16))
+    encryptedpart1 = aes.encrypt(unhexlify(block1))
+
+    block2 = '%0.32x' % (long(hexlify(encryptedpart1[8:16]) + seedb[16:24], 16) ^ long(hexlify(derivedhalf1[16:32]), 16))
+    encryptedpart2 = aes.encrypt(unhexlify(block2))
+
+    payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
+    #return base58check(payload)
+    return generatedaddress, base58check(payload)
 
 
 def ec_test():
