@@ -199,6 +199,11 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
 
 
 def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compressed=True):
+    """
+    Given an intermediate point, given to us by "owner", generate an address
+    and encrypted private key that can be decoded by the passphrase used to generate
+    the intermediate point.
+    """
     flagbyte = b'\x20'if compressed else b'\x00'
     payload = unbase58check(intermediate_point, 49)
     ownerentropy = unhexlify(payload[16:32])
@@ -229,7 +234,6 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
     encryptedpart2 = aes.encrypt(unhexlify(block2))
 
     payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
-    #return base58check(payload)
     return generatedaddress, base58check(payload)
 
 
