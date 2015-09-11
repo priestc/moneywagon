@@ -73,14 +73,13 @@ class Transaction(object):
 
         return pubtoaddr(pub, pub_byte)
 
-    def add_inputs(self, private_key=None, address=None, amount='all', password=None, services=None, **modes):
+    def add_inputs(self, private_key=None, address=None, amount='all', max_ins=None, password=None, services=None, **modes):
         """
         Make call to external service to get inputs from an address and/or private_key.
         `amount` is the amount of [currency] worth of inputs (in satoshis) to add from
         this address. Pass in 'all' (the default) to use *all* inputs found for this address.
          Returned is the number of units (in satoshis) that were added as inputs to this tx.
         """
-        #from ipdb import set_trace; set_trace()
         if private_key:
             if private_key.startswith('6P'):
                 if not password:
@@ -97,9 +96,12 @@ class Transaction(object):
             services = get_optimal_services(self.crypto, 'unspent_outputs')
 
         total_added_satoshi = 0
-        ins = []
+        ins = 0
         for utxo in self._get_utxos(address, services, **modes):
+            if max_ins and ins >= max_ins:
+                break
             if (amount == 'all' or total_added_satoshi < amount):
+                ins += 1
                 self.ins.append(
                     dict(input=utxo, private_key=private_key)
                 )
@@ -108,7 +110,7 @@ class Transaction(object):
         if total_added_satoshi == 0:
             raise Exception("No inputs available for: %s" % address)
 
-        return total_added_satoshi
+        return total_added_satoshi, ins
 
     def total_input_satoshis(self):
         """
@@ -149,7 +151,7 @@ class Transaction(object):
         elif value == 'optimal':
             self.fee_satoshi = get_optimal_fee(
                 self.crypto, self.estimate_size(), 0, verbose=self.verbose
-            )
+            )[0]
             verbose = "Using optimal fee of:"
         else:
             self.fee_satoshi = self.from_unit_to_satoshi(value, unit)

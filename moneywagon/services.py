@@ -746,7 +746,8 @@ class CoinTape(Service):
     def get_optimal_fee(self, crypto, tx_bytes, acceptable_block_delay=0):
         url = "http://www.cointape.com/fees"
         response = self.get_url(url).json()
-        for sample in response['fees']:
-            if sample['maxDelay'] <= acceptable_block_delay:
-                rate = sample['maxFee']
-                return tx_bytes * rate
+        for extra_delay in [0, 1, 2, 3, 4, 10, 20, 50, 100, 1000]:
+            for sample in response['fees']:
+                if sample['maxDelay'] <= acceptable_block_delay + extra_delay:
+                    rate = sample['maxFee']
+                    return tx_bytes * rate, sample['maxDelay']
