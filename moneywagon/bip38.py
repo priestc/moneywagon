@@ -33,10 +33,14 @@ else:
 
 
 def base58check(payload):
-    checksum = sha256(sha256(payload).digest()).digest()[:4] # b58check for encrypted privkey
+    """
+    Convert bytes object into "base 58" encoded string.
+    """
+    checksum = sha256(sha256(payload).digest()).digest()[:4]
     return changebase(hexlify(payload + checksum).decode('ascii'), 16, 58)
 
-def unbase58check(encoded, payload_len):
+
+def unbase58check(encoded):
     """
     Returns the paylod of a base58check encoded string. Verifies that the
     checksum is correct.
@@ -45,6 +49,7 @@ def unbase58check(encoded, payload_len):
     passed = payload[-4:] == sha256(sha256(payload[:-4]).digest()).digest()[:4]
     assert passed, "Base58 checksum failed, did you mistype something?"
     return hexlify(payload)
+
 
 def bip38_encrypt(crypto, privkey, passphrase):
     """
@@ -142,9 +147,15 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
 def compress(x, y):
     """
     Given a x,y coordinate, encode in "compressed format"
+    Returned is always 33 bytes.
     """
     polarity = "02" if y % 2 == 0 else "03"
-    return "%s%x" % (polarity, x)
+
+    wrap = lambda x: x
+    if not is_py2:
+        wrap = lambda x: bytes(x, 'ascii')
+
+    return unhexlify(wrap("%s%0.64x" % (polarity, x)))
 
 
 def uncompress(payload):
@@ -186,14 +197,11 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
         as_int = int.from_bytes(prefactor, byteorder='big')
 
     ppx, ppy = fast_multiply(G, as_int)
-    passpoint = compress(ppx, ppy) # 33 byte compressed format starting with 02 or 03
-
-    if not is_py2:
-        passpoint = bytes(passpoint, 'ascii')
+    passpoint = compress(ppx, ppy) # 33 byte compressed format starting with \x02 or \x03
 
     last_byte = b'\x53' if not lot and not sequence else b'\x51'
     magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
-    payload = magic_bytes + ownerentropy + unhexlify(passpoint)
+    payload = magic_bytes + ownerentropy + passpoint
     return base58check(payload)
 
 
@@ -204,7 +212,7 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
     the intermediate point.
     """
     flagbyte = b'\x20'if compressed else b'\x00'
-    payload = unbase58check(intermediate_point, 49)
+    payload = unbase58check(intermediate_point)
     ownerentropy = unhexlify(payload[16:32])
 
     passpoint = payload[32:-8]
@@ -234,17 +242,28 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
 
     #               2          1           4              8                8                 16
     payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
-    confirmation_code = _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2)
+    confirmation_code = _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash)
     return generatedaddress, base58check(payload), confirmation_code
 
 
 def _decrypt_ec_multiply(crypto, payload, passphrase):
     ownerentropy = payload[7:15]
-
     return ownerentropy
 
-def _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2):
-    pass
+def _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash):
+    pointb = compress(*fast_multiply(G, factorb))
+    pointbprefix = bytes([ord(pointb[:1]) ^ (ord(derivedhalf2[-1:]) & 1)])
+
+    aes = AES.new(derivedhalf2)
+    block1 = "%0.32x" % (long(hexlify(pointb[1:17]), 16) ^ long(hexlify(derivedhalf1[:16]), 16))
+    pointbx1 = aes.encrypt(unhexlify(block1))
+    block2 = "%0.32x" % (long(hexlify(pointb[17:]), 16) ^ long(hexlify(derivedhalf1[16:]), 16))
+    pointbx2 = aes.encrypt(unhexlify(block2))
+
+    encryptedpointb = pointbprefix + pointbx1 + pointbx2
+
+    payload = b'\x64\x3B\xF6\xA8\x9A' + flagbyte + addresshash + ownerentropy + encryptedpointb
+    return base58check(payload)
 
 def ec_test():
     """
@@ -266,11 +285,15 @@ def ec_test():
         '5KJ51SgxWaAYR13zd9ReMhJpwrcX47xTJh2D3fGPG9CM8vkv5sH',
     ]]
 
+    i = 1
     for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk in cases:
-        test_inter_point = bip38_generate_intermediate_point(crypto, passphrase, 'sasasass')
-        test_generated_address, test_encrypted_pk = generate_bip38_encrypted_address(crypto, inter_point)
+        test_inter_point = bip38_generate_intermediate_point(passphrase, 'sasasass')
+        test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, 'weewqweqw')
+        print("EC multiply test #%s passed!" % i)
+        i+= 1
 
-    cases = [[
+
+    cases2 = [[
         'btc',
         'MOLON LABE',
         'passphraseaB8feaLQDENqCgr4gKZpmf4VoaT6qdjJNJiv7fsKvjqavcJxvuR1hy25aTu5sX',
@@ -285,12 +308,19 @@ def ec_test():
         'ΜΟΛΩΝ ΛΑΒΕ',
         'passphrased3z9rQJHSyBkNBwTRPkUGNVEVrUAcfAXDyRU1V28ie6hNFbqDwbFBvsTK7yWVK',
         '6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH',
-        '1Lurmih3KruL4xDB5FmHof38yawNtP9oGf'
+        '1Lurmih3KruL4xDB5FmHof38yawNtP9oGf',
         '5KMKKuUmAkiNbA3DazMQiLfDq47qs8MAEThm4yL8R2PhV1ov33D',
         'cfrm38V8G4qq2ywYEFfWLD5Cc6msj9UwsG2Mj4Z6QdGJAFQpdatZLavkgRd1i4iBMdRngDqDs51',
         806938,
         1
     ]]
+
+    i = 3
+    for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk, confirm, lot, sequence in cases2:
+        test_inter_point = bip38_generate_intermediate_point(passphrase, 'sasasass')
+        test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, 'weewqweqw')
+        print("EC multiply test #%s passed!" % i)
+        i += 1
 
 
 def non_ec_test():
@@ -333,10 +363,10 @@ def non_ec_test():
         test_decrypted = bip38_decrypt(crypto, encrypted_key, password, wif=use_wif)
         assert encrypted_key == test_encrypted, "encrypt failed"
         assert unencrypted_key == test_decrypted, 'decrypt failed'
-        print("Test #%s passed" % index)
+        print("Non-ec test #%s passed" % index)
         index += 1
 
 
 def test():
-    #ec_test()
+    ec_test()
     non_ec_test()
