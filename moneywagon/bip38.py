@@ -97,17 +97,15 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
         passphrase = passphrase.encode('utf8')
 
     payload = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
-    #return payload
 
-    ec_multiply = payload[1:2] == b'\x43'
-    if not ec_multiply:
+    if payload[1:2] == b'\x42':
         flagbyte = payload[2:3]
-        if flagbyte == b'\xc0':
+        if flagbyte == b'\xC0':
             compressed = False
-        elif flagbyte == b'\xe0':
+        elif flagbyte == b'\xE0':
             compressed = True
-    else:
-        raise Exception("Only non-ec mode decryption supported at this time.")
+    elif payload[1:2] == b'\x43':
+        return _decrypt_ec_multiply(crypto, payload, passphrase)
 
     addresshash = payload[3:7]
     key = scrypt.hash(passphrase, addresshash, 16384, 8, 8)
@@ -147,6 +145,7 @@ def compress(x, y):
     """
     polarity = "02" if y % 2 == 0 else "03"
     return "%s%x" % (polarity, x)
+
 
 def uncompress(payload):
     """
@@ -233,9 +232,19 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
     block2 = '%0.32x' % (long(hexlify(encryptedpart1[8:16]) + seedb[16:24], 16) ^ long(hexlify(derivedhalf1[16:32]), 16))
     encryptedpart2 = aes.encrypt(unhexlify(block2))
 
+    #               2          1           4              8                8                 16
     payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
-    return generatedaddress, base58check(payload)
+    confirmation_code = _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2)
+    return generatedaddress, base58check(payload), confirmation_code
 
+
+def _decrypt_ec_multiply(crypto, payload, passphrase):
+    ownerentropy = payload[7:15]
+
+    return ownerentropy
+
+def _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2):
+    pass
 
 def ec_test():
     """
@@ -256,6 +265,10 @@ def ec_test():
         '1CqzrtZC6mXSAhoxtFwVjz8LtwLJjDYU3V',
         '5KJ51SgxWaAYR13zd9ReMhJpwrcX47xTJh2D3fGPG9CM8vkv5sH',
     ]]
+
+    for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk in cases:
+        test_inter_point = bip38_generate_intermediate_point(crypto, passphrase, 'sasasass')
+        test_generated_address, test_encrypted_pk = generate_bip38_encrypted_address(crypto, inter_point)
 
     cases = [[
         'btc',
