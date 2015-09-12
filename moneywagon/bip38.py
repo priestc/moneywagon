@@ -160,8 +160,9 @@ def compress(x, y):
 
 def uncompress(payload):
     """
-    Given a compressed ec key, uncompress it using math and return (x, y)
+    Given a compressed ec key in bytes, uncompress it using math and return (x, y)
     """
+    payload = hexlify(payload)
     even = payload[:2] == b"02"
     x = int(payload[2:], 16)
     beta = pow(int(x ** 3 + A * x + B), int((P + 1) // 4), int(P))
@@ -192,12 +193,11 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
         passfactor = prefactor
 
     if is_py2:
-        as_int = int(prefactor.encode('hex'), 16)
+        passfactor_as_int = int(passfactor.encode('hex'), 16)
     else:
-        as_int = int.from_bytes(prefactor, byteorder='big')
+        passfactor_as_int = int.from_bytes(passfactor, byteorder='big')
 
-    ppx, ppy = fast_multiply(G, as_int)
-    passpoint = compress(ppx, ppy) # 33 byte compressed format starting with \x02 or \x03
+    passpoint = compress(*fast_multiply(G, passfactor_as_int))
 
     last_byte = b'\x53' if not lot and not sequence else b'\x51'
     magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
@@ -216,7 +216,7 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
     ownerentropy = payload[8:16]
 
     passpoint = payload[16:-4]
-    x, y = uncompress(hexlify(passpoint))
+    x, y = uncompress(passpoint)
 
     if not is_py2:
         seed = bytes(seed, 'ascii')
@@ -242,12 +242,13 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
 
     #               2          1           4              8                8                 16
     payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
+    encrypted_pk = base58check(payload)
 
     if not include_cfrm:
-        return generatedaddress, base58check(payload)
+        return generatedaddress, encrypted_pk
 
     confirmation_code = _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash)
-    return generatedaddress, base58check(payload), confirmation_code
+    return generatedaddress, encrypted_pk, confirmation_code
 
 
 def _decrypt_ec_multiply(crypto, payload, passphrase):
@@ -284,6 +285,14 @@ def confirm_generated_address(crypto, confirm_code, address, passphrase):
     """
     payload = unbase58check(confirm_code)
     ownerentropy = payload[10:18]
+
+    prefactor = scrypt.hash(passphrase, ownerentropy, 16384, 8, 8, 32)
+
+    if is_py2:
+        prefactor_as_int = int(prefactor.encode('hex'), 16)
+    else:
+        prefactor_as_int = int.from_bytes(prefactor, byteorder='big')
+
     return ownerentropy
 
 ## tests below
