@@ -45,8 +45,9 @@ def unbase58check(encoded):
     Returns the paylod of a base58check encoded string. Verifies that the
     checksum is correct.
     """
-    payload = unhexlify(changebase(encoded.encode('ascii'), 58, 16))
-    passed = payload[-4:] == sha256(sha256(payload[:-4]).digest()).digest()[:4]
+    full_payload = unhexlify(changebase(encoded.encode('ascii'), 58, 16))
+    payload, checksum = full_payload[:-4], full_payload[-4:]
+    passed = checksum == sha256(sha256(payload).digest()).digest()[:4]
     assert passed, "Base58 checksum failed, did you mistype something?"
     return payload
 
@@ -88,6 +89,7 @@ def bip38_encrypt(crypto, privkey, passphrase):
     encryptedhalf1 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[0:32], 16) ^ long(hexlify(derivedhalf1[0:16]), 16))))
     encryptedhalf2 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[32:64], 16) ^ long(hexlify(derivedhalf1[16:32]), 16))))
 
+    # 39 bytes    2 (6P)      1(R/Y)    4          16               16
     payload = b'\x01\x42' + flagbyte + salt + encryptedhalf1 + encryptedhalf2
     return base58check(payload)
 
@@ -102,15 +104,20 @@ def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
         passphrase = passphrase.encode('utf8')
 
     payload = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
+    flagbyte = payload[2:3]
 
+    ec_multiply = False
     if payload[1:2] == b'\x42':
-        flagbyte = payload[2:3]
         if flagbyte == b'\xC0':
             compressed = False
         elif flagbyte == b'\xE0':
             compressed = True
     elif payload[1:2] == b'\x43':
-        return _decrypt_ec_multiply(crypto, payload, passphrase)
+        ec_multiply = True
+        if flagbyte == b'\x00':
+            compressed = False
+        elif flagbyte == b'\x20':
+            compressed == True
 
     addresshash = payload[3:7]
     key = scrypt.hash(passphrase, addresshash, 16384, 8, 8)
@@ -234,13 +241,13 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
     derivedhalf1, derivedhalf2 = encrypted_seedb[:32], encrypted_seedb[32:]
 
     aes = AES.new(derivedhalf2)
-    block1 = '%0.32x' % (long(seedb[0:16], 16) ^ long(hexlify(derivedhalf1[0:16]), 16))
-    encryptedpart1 = aes.encrypt(unhexlify(block1))
+    block1 = long(seedb[0:16], 16) ^ long(hexlify(derivedhalf1[0:16]), 16)
+    encryptedpart1 = aes.encrypt(unhexlify('%0.32x' % block1))
 
-    block2 = '%0.32x' % (long(hexlify(encryptedpart1[8:16]) + seedb[16:24], 16) ^ long(hexlify(derivedhalf1[16:32]), 16))
-    encryptedpart2 = aes.encrypt(unhexlify(block2))
+    block2 = long(hexlify(encryptedpart1[8:16]) + seedb[16:24], 16) ^ long(hexlify(derivedhalf1[16:32]), 16)
+    encryptedpart2 = aes.encrypt(unhexlify('%0.32x' % block2))
 
-    #               2          1           4              8                8                 16
+    # 39 bytes      2           1           4              8                8                 16
     payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
     encrypted_pk = base58check(payload)
 
@@ -249,11 +256,6 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
 
     confirmation_code = _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash)
     return generatedaddress, encrypted_pk, confirmation_code
-
-
-def _decrypt_ec_multiply(crypto, payload, passphrase):
-    ownerentropy = payload[7:15]
-    return ownerentropy
 
 
 def _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash):
@@ -266,10 +268,10 @@ def _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, deriv
     pointbprefix = bytes([ord(pointb[:1]) ^ (ord(derivedhalf2[-1:]) & 1)])
 
     aes = AES.new(derivedhalf2)
-    block1 = "%0.32x" % (long(hexlify(pointb[1:17]), 16) ^ long(hexlify(derivedhalf1[:16]), 16))
-    pointbx1 = aes.encrypt(unhexlify(block1))
-    block2 = "%0.32x" % (long(hexlify(pointb[17:]), 16) ^ long(hexlify(derivedhalf1[16:]), 16))
-    pointbx2 = aes.encrypt(unhexlify(block2))
+    block1 = long(hexlify(pointb[1:17]), 16) ^ long(hexlify(derivedhalf1[:16]), 16)
+    pointbx1 = aes.encrypt(unhexlify("%0.32x" % block1))
+    block2 = long(hexlify(pointb[17:]), 16) ^ long(hexlify(derivedhalf1[16:]), 16)
+    pointbx2 = aes.encrypt(unhexlify("%0.32x" % block2))
 
     encryptedpointb = pointbprefix + pointbx1 + pointbx2
 
@@ -400,7 +402,7 @@ def non_ec_test():
         test_decrypted = bip38_decrypt(crypto, encrypted_key, password, wif=use_wif)
         assert encrypted_key == test_encrypted, "encrypt failed"
         assert unencrypted_key == test_decrypted, 'decrypt failed'
-        print("Non-ec test #%s passed" % index)
+        print("Non-ec multiply test #%s passed" % index)
         index += 1
 
 
