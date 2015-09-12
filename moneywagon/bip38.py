@@ -48,7 +48,7 @@ def unbase58check(encoded):
     payload = unhexlify(changebase(encoded.encode('ascii'), 58, 16))
     passed = payload[-4:] == sha256(sha256(payload[:-4]).digest()).digest()[:4]
     assert passed, "Base58 checksum failed, did you mistype something?"
-    return hexlify(payload)
+    return payload
 
 
 def bip38_encrypt(crypto, privkey, passphrase):
@@ -205,7 +205,7 @@ def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None)
     return base58check(payload)
 
 
-def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compressed=True):
+def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compressed=True, include_cfrm=True):
     """
     Given an intermediate point, given to us by "owner", generate an address
     and encrypted private key that can be decoded by the passphrase used to generate
@@ -213,10 +213,10 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
     """
     flagbyte = b'\x20'if compressed else b'\x00'
     payload = unbase58check(intermediate_point)
-    ownerentropy = unhexlify(payload[16:32])
+    ownerentropy = payload[8:16]
 
-    passpoint = payload[32:-8]
-    x, y = uncompress(passpoint)
+    passpoint = payload[16:-4]
+    x, y = uncompress(hexlify(passpoint))
 
     if not is_py2:
         seed = bytes(seed, 'ascii')
@@ -242,6 +242,10 @@ def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compresse
 
     #               2          1           4              8                8                 16
     payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
+
+    if not include_cfrm:
+        return generatedaddress, base58check(payload)
+
     confirmation_code = _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash)
     return generatedaddress, base58check(payload), confirmation_code
 
@@ -250,7 +254,13 @@ def _decrypt_ec_multiply(crypto, payload, passphrase):
     ownerentropy = payload[7:15]
     return ownerentropy
 
+
 def _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash):
+    """
+    This is an extension to the `generate_bip38_encrypted_address` that allows
+    the owner to verify that his address and passphrase are valid.
+    Check validity with `confirm_generated_address`.
+    """
     pointb = compress(*fast_multiply(G, factorb))
     pointbprefix = bytes([ord(pointb[:1]) ^ (ord(derivedhalf2[-1:]) & 1)])
 
@@ -262,13 +272,30 @@ def _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, deriv
 
     encryptedpointb = pointbprefix + pointbx1 + pointbx2
 
+    #             5 (cfrm prefix)          1            4             8               33
     payload = b'\x64\x3B\xF6\xA8\x9A' + flagbyte + addresshash + ownerentropy + encryptedpointb
+
     return base58check(payload)
+
+
+def confirm_generated_address(crypto, confirm_code, address, passphrase):
+    """
+    Make sure the confirm code is valid for the gven password and address.
+    """
+    payload = unbase58check(confirm_code)
+    ownerentropy = payload[10:18]
+    return ownerentropy
+
+## tests below
+
 
 def ec_test():
     """
     Tests the ec-multiply sections. Cases taken from the bip38 document.
     """
+    seed = "dh3409sjgh3g48"
+    seed2 = "asdas8729akjbmn"
+
     cases = [[
         'btc',
         'TestingOneTwoThree',
@@ -287,8 +314,9 @@ def ec_test():
 
     i = 1
     for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk in cases:
-        test_inter_point = bip38_generate_intermediate_point(passphrase, 'sasasass')
-        test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, 'weewqweqw')
+        test_inter_point = bip38_generate_intermediate_point(passphrase, seed)
+        test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, seed2)
+        confirm_generated_address(crypto, test_cfm, test_generated_address, passphrase) #, "Verification of confirm code failed."
         print("EC multiply test #%s passed!" % i)
         i+= 1
 
@@ -305,7 +333,7 @@ def ec_test():
         1
         ],[
         'btc',
-        'ΜΟΛΩΝ ΛΑΒΕ',
+        u'ΜΟΛΩΝ ΛΑΒΕ',
         'passphrased3z9rQJHSyBkNBwTRPkUGNVEVrUAcfAXDyRU1V28ie6hNFbqDwbFBvsTK7yWVK',
         '6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH',
         '1Lurmih3KruL4xDB5FmHof38yawNtP9oGf',
@@ -317,8 +345,8 @@ def ec_test():
 
     i = 3
     for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk, confirm, lot, sequence in cases2:
-        test_inter_point = bip38_generate_intermediate_point(passphrase, 'sasasass')
-        test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, 'weewqweqw')
+        test_inter_point = bip38_generate_intermediate_point(passphrase, seed)
+        test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, seed2)
         print("EC multiply test #%s passed!" % i)
         i += 1
 
