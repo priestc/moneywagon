@@ -81,6 +81,8 @@ def uncompress(payload):
 class Bip38EncryptedPrivateKey(object):
 
     def __init__(self, crypto, b58check):
+        if not b58check.startswith('6P'):
+            raise Exception("Invalid encrypted private key. Must start wth 6P.")
         self.b58check = b58check
         self.payload = unbase58check(b58check, 86)
         second_byte = self.payload[1:2]
@@ -108,10 +110,10 @@ class Bip38EncryptedPrivateKey(object):
             else:
                 raise Exception("Unknown flagbyte: %x" % flagbyte)
 
-            self.addresshash = self.payload[3:7]
-            self.ownerentropy = self.payload[7:15]
-            self.encryptedpart1 = self.payload[15:23]
-            self.encryptedpart2 = self.payload[23:39]
+            self.addresshash = self.payload[3:7] # 4 bytes
+            self.ownerentropy = self.payload[7:15] # 8 bytes
+            self.encryptedpart1 = self.payload[15:23] # 8 bytes
+            self.encryptedpart2 = self.payload[23:] # 16 bytes
 
         else:
             raise Exception("Unknown second base58check byte: %x" % second_byte)
@@ -251,12 +253,14 @@ class Bip38EncryptedPrivateKey(object):
         if not include_cfrm:
             return generatedaddress, encrypted_pk
 
-        confirmation_code = ConfirmationCode.create(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash)
+        confirmation_code = Bip38ConfirmationCode.create(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash)
         return generatedaddress, cls(crypto, encrypted_pk), confirmation_code
 
 
 class Bip38IntermediatePoint(object):
     def __init__(self, b58check):
+        if not b58check.startswith('passphrase'):
+            raise Exception("Invalid encrypted private key. Must start wth 'passphrase'.")
         self.payload = unbase58check(b58check)
 
     @classmethod
@@ -299,9 +303,11 @@ class Bip38IntermediatePoint(object):
         return cls(base58check(payload))
 
 
-class ConfirmationCode(object):
+class Bip38ConfirmationCode(object):
 
     def __init__(self, b58check):
+        if not b58check.startswith('cfrm38'):
+            raise Exception("Invalid encrypted private key. Must start wth 6P.")
         self.payload = unbase58check(b58check)
         self.ownerentropy = self.payload[10:18]
 
@@ -401,8 +407,9 @@ def ec_test():
 
     i = 3
     for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk, confirm, lot, sequence in cases2:
-        #test_inter_point = bip38_generate_intermediate_point(passphrase, seed)
-        #test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, seed2)
+        test_inter_point = Bip38IntermediatePoint.create(passphrase, seed)
+        test_generated_address, test_encrypted_pk, test_cfm = Bip38EncryptedPrivateKey.create_from_intermediate(crypto, inter_point, seed2)
+        cfrm = Bip38ConfirmationCode(confirm)
         print("EC multiply test #%s passed!" % i)
         i += 1
 
