@@ -40,115 +40,16 @@ def base58check(payload):
     return changebase(hexlify(payload + checksum).decode('ascii'), 16, 58)
 
 
-def unbase58check(encoded):
+def unbase58check(encoded, minlength=0):
     """
     Returns the paylod of a base58check encoded string. Verifies that the
     checksum is correct.
     """
-    full_payload = unhexlify(changebase(encoded.encode('ascii'), 58, 16))
+    full_payload = unhexlify(changebase(encoded.encode('ascii'), 58, 16, minlength))
     payload, checksum = full_payload[:-4], full_payload[-4:]
     passed = checksum == sha256(sha256(payload).digest()).digest()[:4]
     assert passed, "Base58 checksum failed, did you mistype something?"
     return payload
-
-
-def bip38_encrypt(crypto, privkey, passphrase):
-    """
-    BIP0038 non-ec-multiply encryption. Returns BIP0038 encrypted privkey.
-    """
-    pub_byte, priv_byte = get_magic_bytes(crypto)
-    privformat = get_privkey_format(privkey)
-    if privformat in ['wif_compressed','hex_compressed']:
-        compressed = True
-        flagbyte = b'\xe0'
-        if privformat == 'wif_compressed':
-            privkey = encode_privkey(privkey,'hex_compressed')
-            privformat = get_privkey_format(privkey)
-    if privformat in ['wif', 'hex']:
-        compressed = False
-        flagbyte = b'\xc0'
-    if privformat == 'wif':
-        privkey = encode_privkey(privkey,'hex')
-        privformat = get_privkey_format(privkey)
-
-    pubkey = privtopub(privkey)
-    addr = pubtoaddr(pubkey, pub_byte)
-
-    passphrase = normalize('NFC', unicode(passphrase))
-    if is_py2:
-        ascii_key = addr
-        passphrase = passphrase.encode('utf8')
-    else:
-        ascii_key = bytes(addr,'ascii')
-
-    salt = sha256(sha256(ascii_key).digest()).digest()[0:4]
-    key = scrypt.hash(passphrase, salt, 16384, 8, 8)
-    derivedhalf1, derivedhalf2 = key[:32], key[32:]
-
-    aes = AES.new(derivedhalf2)
-    encryptedhalf1 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[0:32], 16) ^ long(hexlify(derivedhalf1[0:16]), 16))))
-    encryptedhalf2 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[32:64], 16) ^ long(hexlify(derivedhalf1[16:32]), 16))))
-
-    # 39 bytes    2 (6P)      1(R/Y)    4          16               16
-    payload = b'\x01\x42' + flagbyte + salt + encryptedhalf1 + encryptedhalf2
-    return base58check(payload)
-
-
-def bip38_decrypt(crypto, encrypted_privkey, passphrase, wif=False):
-    """
-    BIP0038 non-ec-multiply decryption. Returns hex privkey.
-    """
-    pub_byte, priv_byte = get_magic_bytes(crypto)
-    passphrase = normalize('NFC', unicode(passphrase))
-    if is_py2:
-        passphrase = passphrase.encode('utf8')
-
-    payload = unhexlify(changebase(encrypted_privkey, 58, 16, 86))
-    flagbyte = payload[2:3]
-
-    ec_multiply = False
-    if payload[1:2] == b'\x42':
-        if flagbyte == b'\xC0':
-            compressed = False
-        elif flagbyte == b'\xE0':
-            compressed = True
-    elif payload[1:2] == b'\x43':
-        ec_multiply = True
-        if flagbyte == b'\x00':
-            compressed = False
-        elif flagbyte == b'\x20':
-            compressed == True
-
-    addresshash = payload[3:7]
-    key = scrypt.hash(passphrase, addresshash, 16384, 8, 8)
-    derivedhalf1 = key[0:32]
-    derivedhalf2 = key[32:64]
-    encryptedhalf1 = payload[7:23] # 16 bytes
-    encryptedhalf2 = payload[23:39] # 16 bytes
-
-    aes = AES.new(derivedhalf2)
-    decryptedhalf2 = aes.decrypt(encryptedhalf2)
-    decryptedhalf1 = aes.decrypt(encryptedhalf1)
-    priv = decryptedhalf1 + decryptedhalf2
-    priv = unhexlify('%064x' % (long(hexlify(priv), 16) ^ long(hexlify(derivedhalf1), 16)))
-    pub = privtopub(priv)
-    if compressed:
-        pub = encode_pubkey(pub, 'hex_compressed')
-    addr = pubtoaddr(pub, pub_byte)
-
-    if is_py2:
-        ascii_key = addr
-    else:
-        ascii_key = bytes(addr,'ascii')
-
-    if sha256(sha256(ascii_key).digest()).digest()[0:4] != addresshash:
-        raise Exception('Bip38 password decrypt failed: Wrong password?')
-    else:
-        formatt = 'wif' if wif else 'hex'
-        if compressed:
-            return encode_privkey(priv, formatt + '_compressed')
-        else:
-            return encode_privkey(priv, formatt)
 
 
 def compress(x, y):
@@ -177,125 +78,269 @@ def uncompress(payload):
     return x, y
 
 
-def bip38_generate_intermediate_point(passphrase, seed, lot=None, sequence=None):
-    passphrase = normalize('NFC', unicode(passphrase))
-    if is_py2:
-        passphrase = passphrase.encode('utf8')
+class Bip38EncryptedPrivateKey(object):
 
-    if not is_py2:
-        seed = bytes(seed, 'ascii')
+    def __init__(self, crypto, b58check):
+        self.b58check = b58check
+        self.payload = unbase58check(b58check, 86)
+        second_byte = self.payload[1:2]
+        self.flagbyte = self.payload[2:3]
 
-    if lot and sequence:
-        ownersalt = sha256(seed).digest()[:4]
-        lotseq = unhexlify("%0.8x" % (4096 * lot + sequence))
-        ownerentropy = ownersalt + lotseq
-    else:
-        ownersalt = ownerentropy = sha256(seed).digest()[:8]
+        if second_byte == b'\x42':
+            self.ec_multiply = False
+            if self.flagbyte == b'\xC0':
+                self.compressed = False
+            elif self.flagbyte == b'\xE0':
+                self.compressed = True
+            else:
+                raise Exception("Unknown flagbyte: %x" % flagbyte)
 
-    prefactor = scrypt.hash(passphrase, ownersalt, 16384, 8, 8, 32)
+            self.addresshash = self.payload[3:7] # 4 bytes
+            self.encryptedhalf1 = self.payload[7:23] # 16 bytes
+            self.encryptedhalf2 = self.payload[23:39] # 16 bytes
 
-    if lot and sequence:
-        passfactor = sha256(sha256(prefactor + ownerentropy).digest()).digest()
-    else:
-        passfactor = prefactor
+        elif second_byte == b'\x43':
+            self.ec_multiply = True
+            if self.flagbyte == b'\x00':
+                self.compressed = False
+            elif self.flagbyte == b'\x20':
+                self.compressed = True
+            else:
+                raise Exception("Unknown flagbyte: %x" % flagbyte)
 
-    if is_py2:
-        passfactor_as_int = int(passfactor.encode('hex'), 16)
-    else:
-        passfactor_as_int = int.from_bytes(passfactor, byteorder='big')
+            self.addresshash = self.payload[3:7]
+            self.ownerentropy = self.payload[7:15]
+            self.encryptedpart1 = self.payload[15:23]
+            self.encryptedpart2 = self.payload[23:39]
 
-    passpoint = compress(*fast_multiply(G, passfactor_as_int))
+        else:
+            raise Exception("Unknown second base58check byte: %x" % second_byte)
 
-    last_byte = b'\x53' if not lot and not sequence else b'\x51'
-    magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
-    payload = magic_bytes + ownerentropy + passpoint
-    return base58check(payload)
+        self.pub_byte, self.priv_byte = get_magic_bytes(crypto)
+
+    def __str__(self):
+        return self.b58check
+
+    def decrypt(self, passphrase, wif=False):
+        """
+        BIP0038 non-ec-multiply decryption. Returns hex privkey.
+        """
+        passphrase = normalize('NFC', unicode(passphrase))
+        if is_py2:
+            passphrase = passphrase.encode('utf8')
+
+        if self.ec_multiply:
+            raise Exception("Not supported yet")
+
+        key = scrypt.hash(passphrase, self.addresshash, 16384, 8, 8)
+        derivedhalf1 = key[0:32]
+        derivedhalf2 = key[32:64]
+
+        aes = AES.new(derivedhalf2)
+        decryptedhalf2 = aes.decrypt(self.encryptedhalf2)
+        decryptedhalf1 = aes.decrypt(self.encryptedhalf1)
+        priv = decryptedhalf1 + decryptedhalf2
+        priv = unhexlify('%064x' % (long(hexlify(priv), 16) ^ long(hexlify(derivedhalf1), 16)))
+        pub = privtopub(priv)
+
+        if self.compressed:
+            pub = encode_pubkey(pub, 'hex_compressed')
+        addr = pubtoaddr(pub, self.pub_byte)
+
+        if is_py2:
+            ascii_key = addr
+        else:
+            ascii_key = bytes(addr,'ascii')
+
+        if sha256(sha256(ascii_key).digest()).digest()[0:4] != self.addresshash:
+            raise Exception('Bip38 password decrypt failed: Wrong password?')
+        else:
+            formatt = 'wif' if wif else 'hex'
+            if self.compressed:
+                return encode_privkey(priv, formatt + '_compressed', self.priv_byte)
+            else:
+                return encode_privkey(priv, formatt, self.priv_byte)
+
+    @classmethod
+    def encrypt(cls, crypto, privkey, passphrase):
+        """
+        BIP0038 non-ec-multiply encryption. Returns BIP0038 encrypted privkey.
+        """
+        pub_byte, priv_byte = get_magic_bytes(crypto)
+        privformat = get_privkey_format(privkey)
+        if privformat in ['wif_compressed','hex_compressed']:
+            compressed = True
+            flagbyte = b'\xe0'
+            if privformat == 'wif_compressed':
+                privkey = encode_privkey(privkey,'hex_compressed')
+                privformat = get_privkey_format(privkey)
+        if privformat in ['wif', 'hex']:
+            compressed = False
+            flagbyte = b'\xc0'
+        if privformat == 'wif':
+            privkey = encode_privkey(privkey,'hex')
+            privformat = get_privkey_format(privkey)
+
+        pubkey = privtopub(privkey)
+        addr = pubtoaddr(pubkey, pub_byte)
+
+        passphrase = normalize('NFC', unicode(passphrase))
+        if is_py2:
+            ascii_key = addr
+            passphrase = passphrase.encode('utf8')
+        else:
+            ascii_key = bytes(addr,'ascii')
+
+        salt = sha256(sha256(ascii_key).digest()).digest()[0:4]
+        key = scrypt.hash(passphrase, salt, 16384, 8, 8)
+        derivedhalf1, derivedhalf2 = key[:32], key[32:]
+
+        aes = AES.new(derivedhalf2)
+        encryptedhalf1 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[0:32], 16) ^ long(hexlify(derivedhalf1[0:16]), 16))))
+        encryptedhalf2 = aes.encrypt(unhexlify('%0.32x' % (long(privkey[32:64], 16) ^ long(hexlify(derivedhalf1[16:32]), 16))))
+
+        # 39 bytes    2 (6P)      1(R/Y)    4          16               16
+        payload = b'\x01\x42' + flagbyte + salt + encryptedhalf1 + encryptedhalf2
+        return cls(crypto, base58check(payload))
+
+    @classmethod
+    def create_from_intermediate(cls, crypto, intermediate_point, seed, compressed=True, include_cfrm=True):
+        """
+        Given an intermediate point, given to us by "owner", generate an address
+        and encrypted private key that can be decoded by the passphrase used to generate
+        the intermediate point.
+        """
+        flagbyte = b'\x20' if compressed else b'\x00'
+        payload = unbase58check(intermediate_point)
+        ownerentropy = payload[8:16]
+
+        passpoint = payload[16:-4]
+        x, y = uncompress(passpoint)
+
+        if not is_py2:
+            seed = bytes(seed, 'ascii')
+
+        seedb = hexlify(sha256(seed).digest())[:24]
+        factorb = int(hexlify(sha256(sha256(seedb).digest()).digest()), 16)
+        generatedaddress = pubtoaddr(fast_multiply((x, y), factorb))
+
+        wrap = lambda x: x
+        if not is_py2:
+            wrap = lambda x: bytes(x, 'ascii')
+
+        addresshash = sha256(sha256(wrap(generatedaddress)).digest()).digest()[:4]
+        encrypted_seedb = scrypt.hash(passpoint, addresshash + ownerentropy, 1024, 1, 1, 64)
+        derivedhalf1, derivedhalf2 = encrypted_seedb[:32], encrypted_seedb[32:]
+
+        aes = AES.new(derivedhalf2)
+        block1 = long(seedb[0:16], 16) ^ long(hexlify(derivedhalf1[0:16]), 16)
+        encryptedpart1 = aes.encrypt(unhexlify('%0.32x' % block1))
+
+        block2 = long(hexlify(encryptedpart1[8:16]) + seedb[16:24], 16) ^ long(hexlify(derivedhalf1[16:32]), 16)
+        encryptedpart2 = aes.encrypt(unhexlify('%0.32x' % block2))
+
+        # 39 bytes      2           1           4              8                8                 16
+        payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
+        encrypted_pk = base58check(payload)
+
+        #print('ah:', addresshash)
+        #print('oe:', ownerentropy)
+        #print('ec1:', encryptedpart1[:8])
+        #print('ec2:', encryptedpart2)
+
+        if not include_cfrm:
+            return generatedaddress, encrypted_pk
+
+        confirmation_code = ConfirmationCode.create(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash)
+        return generatedaddress, cls(crypto, encrypted_pk), confirmation_code
 
 
-def generate_bip38_encrypted_address(crypto, intermediate_point, seed, compressed=True, include_cfrm=True):
-    """
-    Given an intermediate point, given to us by "owner", generate an address
-    and encrypted private key that can be decoded by the passphrase used to generate
-    the intermediate point.
-    """
-    flagbyte = b'\x20'if compressed else b'\x00'
-    payload = unbase58check(intermediate_point)
-    ownerentropy = payload[8:16]
+class Bip38IntermediatePoint(object):
+    def __init__(self, b58check):
+        self.payload = unbase58check(b58check)
 
-    passpoint = payload[16:-4]
-    x, y = uncompress(passpoint)
+    @classmethod
+    def create(cls, passphrase, seed=None, ownersalt=None, lot=None, sequence=None):
+        passphrase = normalize('NFC', unicode(passphrase))
+        if is_py2:
+            passphrase = passphrase.encode('utf8')
 
-    if not is_py2:
-        seed = bytes(seed, 'ascii')
+        if not is_py2:
+            seed = bytes(seed, 'ascii')
 
-    seedb = hexlify(sha256(seed).digest())[:24]
-    factorb = int(hexlify(sha256(sha256(seedb).digest()).digest()), 16)
-    generatedaddress = pubtoaddr(fast_multiply((x, y), factorb))
+        if lot and sequence:
+            if not ownersalt:
+                ownersalt = sha256(seed).digest()[:4]
+            lotseq = unhexlify("%0.8x" % (4096 * lot + sequence))
+            ownerentropy = ownersalt + lotseq
+        else:
+            if not ownersalt:
+                ownersalt = ownerentropy = sha256(seed).digest()[:8]
+            else:
+                ownerentropy = ownersalt
 
-    wrap = lambda x: x
-    if not is_py2:
-        wrap = lambda x: bytes(x, 'ascii')
+        prefactor = scrypt.hash(passphrase, ownersalt, 16384, 8, 8, 32)
 
-    addresshash = sha256(sha256(wrap(generatedaddress)).digest()).digest()[:4]
-    encrypted_seedb = scrypt.hash(passpoint, addresshash + ownerentropy, 1024, 1, 1, 64)
-    derivedhalf1, derivedhalf2 = encrypted_seedb[:32], encrypted_seedb[32:]
+        if lot and sequence:
+            passfactor = sha256(sha256(prefactor + ownerentropy).digest()).digest()
+        else:
+            passfactor = prefactor
 
-    aes = AES.new(derivedhalf2)
-    block1 = long(seedb[0:16], 16) ^ long(hexlify(derivedhalf1[0:16]), 16)
-    encryptedpart1 = aes.encrypt(unhexlify('%0.32x' % block1))
+        if is_py2:
+            passfactor_as_int = int(passfactor.encode('hex'), 16)
+        else:
+            passfactor_as_int = int.from_bytes(passfactor, byteorder='big')
 
-    block2 = long(hexlify(encryptedpart1[8:16]) + seedb[16:24], 16) ^ long(hexlify(derivedhalf1[16:32]), 16)
-    encryptedpart2 = aes.encrypt(unhexlify('%0.32x' % block2))
+        passpoint = compress(*fast_multiply(G, passfactor_as_int))
 
-    # 39 bytes      2           1           4              8                8                 16
-    payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
-    encrypted_pk = base58check(payload)
-
-    if not include_cfrm:
-        return generatedaddress, encrypted_pk
-
-    confirmation_code = _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash)
-    return generatedaddress, encrypted_pk, confirmation_code
+        last_byte = b'\x53' if not lot and not sequence else b'\x51'
+        magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
+        payload = magic_bytes + ownerentropy + passpoint
+        return cls(base58check(payload))
 
 
-def _make_confirmation_code(flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash):
-    """
-    This is an extension to the `generate_bip38_encrypted_address` that allows
-    the owner to verify that his address and passphrase are valid.
-    Check validity with `confirm_generated_address`.
-    """
-    pointb = compress(*fast_multiply(G, factorb))
-    pointbprefix = bytes([ord(pointb[:1]) ^ (ord(derivedhalf2[-1:]) & 1)])
+class ConfirmationCode(object):
 
-    aes = AES.new(derivedhalf2)
-    block1 = long(hexlify(pointb[1:17]), 16) ^ long(hexlify(derivedhalf1[:16]), 16)
-    pointbx1 = aes.encrypt(unhexlify("%0.32x" % block1))
-    block2 = long(hexlify(pointb[17:]), 16) ^ long(hexlify(derivedhalf1[16:]), 16)
-    pointbx2 = aes.encrypt(unhexlify("%0.32x" % block2))
+    def __init__(self, b58check):
+        self.payload = unbase58check(b58check)
+        self.ownerentropy = self.payload[10:18]
 
-    encryptedpointb = pointbprefix + pointbx1 + pointbx2
+    @classmethod
+    def create(cls, flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash):
+        """
+        This is an extension to the `generate_bip38_encrypted_address` that allows
+        the owner to verify that his address and passphrase are valid.
+        Check validity with `confirm_generated_address`.
+        """
+        derivedhalf2 = derivedhalf2
+        pointb = compress(*fast_multiply(G, factorb))
+        pointbprefix = bytes([ord(pointb[:1]) ^ (ord(derivedhalf2[-1:]) & 1)])
 
-    #             5 (cfrm prefix)          1            4             8               33
-    payload = b'\x64\x3B\xF6\xA8\x9A' + flagbyte + addresshash + ownerentropy + encryptedpointb
+        aes = AES.new(derivedhalf2)
+        block1 = long(hexlify(pointb[1:17]), 16) ^ long(hexlify(derivedhalf1[:16]), 16)
+        pointbx1 = aes.encrypt(unhexlify("%0.32x" % block1))
+        block2 = long(hexlify(pointb[17:]), 16) ^ long(hexlify(derivedhalf1[16:]), 16)
+        pointbx2 = aes.encrypt(unhexlify("%0.32x" % block2))
 
-    return base58check(payload)
+        encryptedpointb = pointbprefix + pointbx1 + pointbx2
 
+        #           5 (cfrm38 prefix)          1            4             8               33
+        payload = b'\x64\x3B\xF6\xA8\x9A' + flagbyte + addresshash + ownerentropy + encryptedpointb
+        return cls(base58check(payload))
 
-def confirm_generated_address(crypto, confirm_code, address, passphrase):
-    """
-    Make sure the confirm code is valid for the gven password and address.
-    """
-    payload = unbase58check(confirm_code)
-    ownerentropy = payload[10:18]
+    def verify(self, address, passphrase):
+        """
+        Make sure the confirm code is valid for the given password and address.
+        """
+        prefactor = scrypt.hash(passphrase, self.ownerentropy, 16384, 8, 8, 32)
 
-    prefactor = scrypt.hash(passphrase, ownerentropy, 16384, 8, 8, 32)
+        if is_py2:
+            prefactor_as_int = int(prefactor.encode('hex'), 16)
+        else:
+            prefactor_as_int = int.from_bytes(prefactor, byteorder='big')
 
-    if is_py2:
-        prefactor_as_int = int(prefactor.encode('hex'), 16)
-    else:
-        prefactor_as_int = int.from_bytes(prefactor, byteorder='big')
+        return prefactor_as_int
 
-    return ownerentropy
 
 ## tests below
 
@@ -325,9 +370,9 @@ def ec_test():
 
     i = 1
     for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk in cases:
-        test_inter_point = bip38_generate_intermediate_point(passphrase, seed)
-        test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, seed2)
-        confirm_generated_address(crypto, test_cfm, test_generated_address, passphrase) #, "Verification of confirm code failed."
+        test_inter_point = Bip38IntermediatePoint.create(passphrase, seed)
+        test_generated_address, test_encrypted_pk, test_cfm = Bip38EncryptedPrivateKey.create_from_intermediate(crypto, inter_point, seed2)
+        test_cfm.verify(test_generated_address, passphrase) #, "Verification of confirm code failed."
         print("EC multiply test #%s passed!" % i)
         i+= 1
 
@@ -356,8 +401,8 @@ def ec_test():
 
     i = 3
     for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk, confirm, lot, sequence in cases2:
-        test_inter_point = bip38_generate_intermediate_point(passphrase, seed)
-        test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, seed2)
+        #test_inter_point = bip38_generate_intermediate_point(passphrase, seed)
+        #test_generated_address, test_encrypted_pk, test_cfm = generate_bip38_encrypted_address(crypto, inter_point, seed2)
         print("EC multiply test #%s passed!" % i)
         i += 1
 
@@ -398,10 +443,9 @@ def non_ec_test():
 
     index = 1
     for crypto, encrypted_key, unencrypted_key, password, use_wif in cases:
-        test_encrypted = bip38_encrypt(crypto, unencrypted_key, password)
-        test_decrypted = bip38_decrypt(crypto, encrypted_key, password, wif=use_wif)
-        assert encrypted_key == test_encrypted, "encrypt failed"
-        assert unencrypted_key == test_decrypted, 'decrypt failed'
+        pk = Bip38EncryptedPrivateKey.encrypt(crypto, unencrypted_key, password)
+        assert encrypted_key == str(pk), "encrypt failed"
+        assert unencrypted_key == pk.decrypt(password, wif=use_wif), 'decrypt failed'
         print("Non-ec multiply test #%s passed" % index)
         index += 1
 

@@ -6,7 +6,7 @@ from .core import (
 from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey
-from .bip38 import bip38_encrypt
+from .bip38 import Bip38EncryptedPrivateKey
 
 
 def get_current_price(crypto, fiat, services=None, **modes):
@@ -103,9 +103,7 @@ def generate_keypair(crypto, seed, password=None):
 
     priv_wif = encode_privkey(priv, 'wif_compressed', vbyte=priv_byte)
     if password:
-        priv_wif = bip38_encrypt(crypto, priv_wif, password)
-
-    #import ipdb; ipdb.set_trace()
+        priv_wif = str(Bip38EncryptedPrivateKey.encrypt(crypto, priv_wif, password))
 
     compressed_pub = encode_pubkey(pub, 'hex_compressed')
     ret = {
