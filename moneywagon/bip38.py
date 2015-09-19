@@ -20,7 +20,7 @@ except ImportError:
 try:
     from Crypto.Cipher import AES
 except ImportError:
-    raise ImportError("Pycrypto is required for bip38 support: pip install pycrypto")
+    raise ImportError("PyCrypto is required for bip38 support: pip install pycrypto")
 
 is_py2 = False
 if sys.version_info <= (3,0):
@@ -34,7 +34,7 @@ else:
 
 def base58check(payload):
     """
-    Convert bytes object into "base 58" encoded string.
+    Convert bytes object into "base 58" encoded string including checksum.
     """
     checksum = sha256(sha256(payload).digest()).digest()[:4]
     return changebase(hexlify(payload + checksum).decode('ascii'), 16, 58)
@@ -77,8 +77,19 @@ def uncompress(payload):
     y = (P-beta) if even else beta
     return x, y
 
+def bytes_to_int(x):
+    if is_py2:
+        return int(x.encode('hex'), 16)
+    else:
+        return int.from_bytes(x, byteorder='big')
 
-class Bip38EncryptedPrivateKey(object):
+
+class Bip38Primitive(object):
+    def __str__(self):
+        return self.b58check
+
+
+class Bip38EncryptedPrivateKey(Bip38Primitive):
 
     def __init__(self, crypto, b58check):
         if not b58check.startswith('6P'):
@@ -119,9 +130,6 @@ class Bip38EncryptedPrivateKey(object):
             raise Exception("Unknown second base58check byte: %x" % second_byte)
 
         self.pub_byte, self.priv_byte = get_magic_bytes(crypto)
-
-    def __str__(self):
-        return self.b58check
 
     def decrypt(self, passphrase, wif=False):
         """
@@ -213,7 +221,7 @@ class Bip38EncryptedPrivateKey(object):
         the intermediate point.
         """
         flagbyte = b'\x20' if compressed else b'\x00'
-        payload = unbase58check(intermediate_point)
+        payload = unbase58check(str(intermediate_point))
         ownerentropy = payload[8:16]
 
         passpoint = payload[16:-4]
@@ -231,6 +239,7 @@ class Bip38EncryptedPrivateKey(object):
             wrap = lambda x: bytes(x, 'ascii')
 
         addresshash = sha256(sha256(wrap(generatedaddress)).digest()).digest()[:4]
+
         encrypted_seedb = scrypt.hash(passpoint, addresshash + ownerentropy, 1024, 1, 1, 64)
         derivedhalf1, derivedhalf2 = encrypted_seedb[:32], encrypted_seedb[32:]
 
@@ -245,11 +254,6 @@ class Bip38EncryptedPrivateKey(object):
         payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
         encrypted_pk = base58check(payload)
 
-        #print('ah:', addresshash)
-        #print('oe:', ownerentropy)
-        #print('ec1:', encryptedpart1[:8])
-        #print('ec2:', encryptedpart2)
-
         if not include_cfrm:
             return generatedaddress, encrypted_pk
 
@@ -257,11 +261,33 @@ class Bip38EncryptedPrivateKey(object):
         return generatedaddress, cls(crypto, encrypted_pk), confirmation_code
 
 
-class Bip38IntermediatePoint(object):
+class Bip38IntermediatePoint(Bip38Primitive):
+
+    lotseq_constant = 4096
+
     def __init__(self, b58check):
+        self.lot = None
+        self.sequence = None
+        self.b58check = b58check
         if not b58check.startswith('passphrase'):
             raise Exception("Invalid encrypted private key. Must start wth 'passphrase'.")
-        self.payload = unbase58check(b58check)
+        payload = unbase58check(str(b58check))
+        self.ownerentropy = payload[8:16] # 8 bytes
+        self.passpoint = payload[16:49] # 33 bytes
+
+        flag = payload[7:8]
+
+        if flag == b'\x51':
+            self.has_lot_and_sequence = True
+            self.ownersalt = self.ownerentropy[:4] # 4 bytes
+            lotsequence = bytes_to_int(self.ownerentropy[4:]) # 4 bytes
+            self.lot = lotsequence // self.lotseq_constant
+            self.sequence = lotsequence % self.lot
+        elif flag == b'\x53':
+            self.has_lot_and_sequence = False
+            self.ownersalt = self.ownerentropy # 8 bytes
+        else:
+            raise Exception("Unknown flag byte: %s, should be either \\x51 or \\x53" % flag)
 
     @classmethod
     def create(cls, passphrase, seed=None, ownersalt=None, lot=None, sequence=None):
@@ -269,13 +295,16 @@ class Bip38IntermediatePoint(object):
         if is_py2:
             passphrase = passphrase.encode('utf8')
 
-        if not is_py2:
+        if seed and not is_py2:
             seed = bytes(seed, 'ascii')
+
+        if ownersalt and len(ownersalt) != 8:
+            raise Exception("Invalid salt")
 
         if lot and sequence:
             if not ownersalt:
                 ownersalt = sha256(seed).digest()[:4]
-            lotseq = unhexlify("%0.8x" % (4096 * lot + sequence))
+            lotseq = unhexlify("%0.8x" % (self.lotseq_constant * lot + sequence))
             ownerentropy = ownersalt + lotseq
         else:
             if not ownersalt:
@@ -290,62 +319,101 @@ class Bip38IntermediatePoint(object):
         else:
             passfactor = prefactor
 
-        if is_py2:
-            passfactor_as_int = int(passfactor.encode('hex'), 16)
-        else:
-            passfactor_as_int = int.from_bytes(passfactor, byteorder='big')
-
-        passpoint = compress(*fast_multiply(G, passfactor_as_int))
+        passpoint = compress(*fast_multiply(G, bytes_to_int(passfactor)))
 
         last_byte = b'\x53' if not lot and not sequence else b'\x51'
-        magic_bytes = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte # 'passphrase' prefix
-        payload = magic_bytes + ownerentropy + passpoint
+
+        #                  7                            1            8            33
+        payload = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte + ownerentropy + passpoint
         return cls(base58check(payload))
 
 
-class Bip38ConfirmationCode(object):
+class Bip38ConfirmationCode(Bip38Primitive):
 
     def __init__(self, b58check):
         if not b58check.startswith('cfrm38'):
-            raise Exception("Invalid encrypted private key. Must start wth 6P.")
-        self.payload = unbase58check(b58check)
-        self.ownerentropy = self.payload[10:18]
+            raise Exception("Invalid Confirm code, must start with 'cfrm38'")
+        self.b58check = b58check
+        payload = unbase58check(b58check)
+        flagbyte = payload[5:6]
+
+        if flagbyte == b'\x20':
+            self.compressed = True
+            self.sequence_and_lot = False
+        elif flagbyte == b'\x00':
+            self.compressed = False
+            self.sequence_and_lot = False
+        elif flagbyte == b'\x04':
+            self.compressed = False
+            self.sequence_and_lot = True
+        elif flagbyte == b'\x24':
+            self.compressed = True
+            self.sequence_and_lot = True
+        else:
+            raise Exception("Unknown flagbyte: %s" % flagbyte)
+
+        self.addresshash = payload[6:10] # 4 bytes
+        self.ownerentropy = payload[10:18] # 8 bytes
+        encryptedpointb = payload[18:] # 33 bytes
+
+        self.pointbprefix = encryptedpointb[0:1] # 1 byte
+        self.pointbx1 = encryptedpointb[1:17] # 16 bytes
+        self.pointbx2 = encryptedpointb[17:] # 16 bytes
+
+        if self.sequence_and_lot:
+            self.ownersalt = self.ownerentropy[:4]
+            lotsequence = bytes_to_int(self.ownerentropy[4:]) # 4 bytes
+            self.lot = lotsequence // Bip38IntermediatePoint.lotseq_constant
+            self.sequence = lotsequence % self.lot
+        else:
+            self.sequence, self.lot = None, None
+            self.ownersalt = self.ownerentropy
 
     @classmethod
     def create(cls, flagbyte, ownerentropy, factorb, derivedhalf1, derivedhalf2, addresshash):
-        """
-        This is an extension to the `generate_bip38_encrypted_address` that allows
-        the owner to verify that his address and passphrase are valid.
-        Check validity with `confirm_generated_address`.
-        """
-        derivedhalf2 = derivedhalf2
         pointb = compress(*fast_multiply(G, factorb))
-        pointbprefix = bytes([ord(pointb[:1]) ^ (ord(derivedhalf2[-1:]) & 1)])
+        pointbprefix = bytearray([ord(pointb[:1]) ^ (ord(derivedhalf2[-1:]) & 1)])
 
         aes = AES.new(derivedhalf2)
         block1 = long(hexlify(pointb[1:17]), 16) ^ long(hexlify(derivedhalf1[:16]), 16)
+
         pointbx1 = aes.encrypt(unhexlify("%0.32x" % block1))
         block2 = long(hexlify(pointb[17:]), 16) ^ long(hexlify(derivedhalf1[16:]), 16)
         pointbx2 = aes.encrypt(unhexlify("%0.32x" % block2))
 
+        #  33 bytes           1            16         16
         encryptedpointb = pointbprefix + pointbx1 + pointbx2
 
         #           5 (cfrm38 prefix)          1            4             8               33
         payload = b'\x64\x3B\xF6\xA8\x9A' + flagbyte + addresshash + ownerentropy + encryptedpointb
         return cls(base58check(payload))
 
-    def verify(self, address, passphrase):
+    def generate_address(self, passphrase):
         """
         Make sure the confirm code is valid for the given password and address.
         """
-        prefactor = scrypt.hash(passphrase, self.ownerentropy, 16384, 8, 8, 32)
 
-        if is_py2:
-            prefactor_as_int = int(prefactor.encode('hex'), 16)
-        else:
-            prefactor_as_int = int.from_bytes(prefactor, byteorder='big')
+        inter = Bip38IntermediatePoint.create(passphrase, ownersalt=self.ownersalt)
 
-        return prefactor_as_int
+        public_key = privtopub(inter.passpoint)
+
+        # from Bip38EncryptedPrivateKey.create_from_intermediate
+        derived = scrypt.hash(inter.passpoint, self.addresshash + inter.ownerentropy, 1024, 1, 1, 64)
+        derivedhalf1, derivedhalf2 = derived[:32], derived[32:]
+
+        unencrypted_prefix = bytes_to_int(self.pointbprefix) ^ (bytes_to_int(derived[63]) & 0x01);
+
+        aes = AES.new(derivedhalf2)
+        block1 = aes.decrypt(self.pointbx1)
+        block2 = aes.decrypt(self.pointbx2)
+
+
+        return
+        block2 = long(hexlify(pointb2), 16) ^ long(hexlify(derivedhalf1[16:]), 16)
+
+
+        return pubtoaddr(*fast_multiply(pointb, passfactor))
+
 
 
 ## tests below
@@ -377,8 +445,8 @@ def ec_test():
     i = 1
     for crypto, passphrase, inter_point, encrypted_pk, address, decrypted_pk in cases:
         test_inter_point = Bip38IntermediatePoint.create(passphrase, seed)
-        test_generated_address, test_encrypted_pk, test_cfm = Bip38EncryptedPrivateKey.create_from_intermediate(crypto, inter_point, seed2)
-        test_cfm.verify(test_generated_address, passphrase) #, "Verification of confirm code failed."
+        test_generated_address, test_encrypted_pk, test_cfm = Bip38EncryptedPrivateKey.create_from_intermediate(crypto, test_inter_point, seed2)
+        assert test_generated_address == test_cfm.generate_address(passphrase), "Generate address from confirm code failed."
         print("EC multiply test #%s passed!" % i)
         i+= 1
 
@@ -459,4 +527,4 @@ def non_ec_test():
 
 def test():
     ec_test()
-    non_ec_test()
+    #non_ec_test()
