@@ -182,7 +182,7 @@ class Bip38EncryptedPrivateKey(Bip38Primitive):
             compressed = True
             flagbyte = b'\xe0'
             if privformat == 'wif_compressed':
-                privkey = encode_privkey(privkey,'hex_compressed')
+                privkey = encode_privkey(privkey, 'hex_compressed')
                 privformat = get_privkey_format(privkey)
         if privformat in ['wif', 'hex']:
             compressed = False
@@ -270,7 +270,7 @@ class Bip38IntermediatePoint(Bip38Primitive):
         self.sequence = None
         self.b58check = b58check
         if not b58check.startswith('passphrase'):
-            raise Exception("Invalid encrypted private key. Must start wth 'passphrase'.")
+            raise Exception("Invalid intermediate point. Must start wth 'passphrase'.")
         payload = unbase58check(str(b58check))
         self.ownerentropy = payload[8:16] # 8 bytes
         self.passpoint = payload[16:49] # 33 bytes
@@ -407,6 +407,7 @@ class Bip38ConfirmationCode(Bip38Primitive):
         block1 = aes.decrypt(self.pointbx1)
         block2 = aes.decrypt(self.pointbx2)
 
+        raise Exception("Not done yet")
 
         return
         block2 = long(hexlify(pointb2), 16) ^ long(hexlify(derivedhalf1[16:]), 16)
