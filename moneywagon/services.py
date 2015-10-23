@@ -751,10 +751,64 @@ class CoinTape(Service):
 class BitGo(Service):
     base_url = "https://www.bitgo.com"
     optimalFeeNumBlocks = 1
+    supported_cryptos = ['btc']
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "%s/api/v1/address/%s" % (self.base_url, address)
+        response = self.get_url(url).json()
+        if confirmations == 0:
+            return response['balance'] / 1e8
+        if confirmations == 1:
+            return response['confirmedBalance'] / 1e8
+        else:
+            raise SkipThisService('Filtering by confirmation only available for 0 or 1')
+
+    def get_transactions(self, crypto, address):
+        url = "%s/api/v1/address/%s/tx" % (self.base_url, address)
+        response = self.get_url(url).json()
+
+        txs = []
+        for tx in response['transactions']:
+            my_outs = [x['value'] for x in tx['entries'] if x['account'] == address]
+
+            txs.append(dict(
+                amount=sum(my_outs),
+                date=arrow.get(tx['date']).datetime,
+                txid=tx['id'],
+                confirmations=tx['confirmations'],
+            ))
+        return txs
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "%s/api/v1/address/%s/unspents" % (self.base_url, address)
+        utxos = []
+        for utxo in self.get_url(url).json()['unspents']:
+            utxos.append(dict(
+                output="%s:%s" % (utxo['tx_hash'], utxo['tx_output_n']),
+                amount=utxo['value'],
+                confirmations=utxo['confirmations'],
+                address=address
+            ))
+        return utxos
+
+    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        if latest:
+            url = "/api/v1/block/latest"
+        else:
+            url = "/api/v1/block/" + block_number + block_hash
+
+        r = self.get_url(self.base_url + url)
+        return dict(
+            block_number=r['height'],
+            time=arrow.get(r['date']).datetime,
+            hash=r['id'],
+            previous_hash=r['previous'],
+            txids=r['transactions'],
+            tx_count=len(r['transactions'])
+        )
 
     def get_optimal_fee(self, crypto, tx_bytes):
         url = "%s/api/v1/tx/fee?numBlocks=%s" % (self.base_url, self.optimalFeeNumBlocks)
         response = self.get_url(url).json()
-        print(response)
         fee_kb = response['feePerKb']
         return int(tx_bytes * fee_kb / 1024)

@@ -20,10 +20,10 @@ crypto_data = {
             'address_balance': [
                 Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BlockSeer,
                 BitEasy, SmartBitAU, BlockChainInfo, BitcoinAbe,
-                BitpayInsight, CoinPrism
+                BitpayInsight, CoinPrism, BitGo
             ],
             'historical_transactions': [
-                Blockr, Toshi, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
+                Blockr, Toshi, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
                 BitpayInsight
             ],
             'push_tx': [
@@ -32,10 +32,10 @@ crypto_data = {
             ],
             'unspent_outputs': [
                 Blockr, BitpayInsight, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
-                BlockStrap, TheBitInfo
+                BlockStrap, TheBitInfo, BitGo
             ],
             'get_block': [
-                BitpayInsight,Toshi, Blockr, ChainSo, BlockStrap, TheBitInfo
+                BitpayInsight, Toshi, Blockr, ChainSo, BlockStrap, TheBitInfo, BitGo
             ],
             "get_optimal_fee": [
                 BitGo, CoinTape
