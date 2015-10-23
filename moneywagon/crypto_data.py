@@ -38,7 +38,7 @@ crypto_data = {
                 BitpayInsight,Toshi, Blockr, ChainSo, BlockStrap, TheBitInfo
             ],
             "get_optimal_fee": [
-                CoinTape
+                BitGo, CoinTape
             ]
         },
     },

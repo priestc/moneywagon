@@ -544,14 +544,12 @@ the current state of the network.
 
 ```python
 >>> from moneywagon import get_optimal_fee
->>> get_optimal_fee('btc', tx_bytes=213, acceptable_block_delay=0)
+>>> get_optimal_fee('btc', tx_bytes=213)
 10650
 ```
 
 In the above example, a transaction that is 213 bytes that is to be confirmed in
-the next block, will need a fee of 10650 satoshis. If you are willing to wait
-more blocks, call the function with `acceptable_block_delay` argument with the
-number of blocks you're willing to wait until confirmation.
+the next block, will need a fee of 10650 satoshis.
 
 Currently, btc is the only currency supported for fee estimation.
 

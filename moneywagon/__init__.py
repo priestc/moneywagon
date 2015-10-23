@@ -78,7 +78,7 @@ def get_block(crypto, block_number='', block_hash='', latest=False, services=Non
     )
 
 
-def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
+def get_optimal_fee(crypto, tx_bytes, verbose=False):
     """
     Get the optimal fee based on how big the transaction is. Currently this
     isonly providerfor BTC. Other currencies will return $0.02 in satoshi.
@@ -86,7 +86,7 @@ def get_optimal_fee(crypto, tx_bytes, acceptable_block_delay, verbose=False):
     if crypto == 'btc':
         services = get_optimal_services(crypto, 'get_optimal_fee')
         of = OptimalFee(services=services, verbose=verbose)
-        return of.action(crypto, tx_bytes, acceptable_block_delay)
+        return of.action(crypto, tx_bytes)
     else:
         convert = get_current_price(crypto, 'usd')[0]
         return int(0.02 / convert * 1e8)
@@ -138,11 +138,11 @@ def sweep(crypto, private_key, to_address, fee=None, password=None, **modes):
 
 
 class OptimalFee(AutoFallback):
-    def action(self, crypto, tx_bytes, acceptable_block_delay=0):
+    def action(self, crypto, tx_bytes):
         crypto = crypto.lower()
-        return self._try_services("get_optimal_fee", crypto, tx_bytes, acceptable_block_delay)
+        return self._try_services("get_optimal_fee", crypto, tx_bytes)
 
-    def no_service_msg(self, crypto, tx_bytes, acceptable_block_delay):
+    def no_service_msg(self, crypto, tx_bytes):
         return "Could not get optimal fee for: %s" % crypto
 
 

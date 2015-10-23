@@ -743,11 +743,18 @@ class FTCe(BitpayInsight):
 class CoinTape(Service):
     supported_cryptos = ['btc']
 
-    def get_optimal_fee(self, crypto, tx_bytes, acceptable_block_delay=0):
-        url = "http://www.cointape.com/fees"
+    def get_optimal_fee(self, crypto, tx_bytes):
+        url = "http://api.cointape.com/v1/fees/recommended"
         response = self.get_url(url).json()
-        for extra_delay in [0, 1, 2, 3, 4, 10, 20, 50, 100, 1000]:
-            for sample in response['fees']:
-                if sample['maxDelay'] <= acceptable_block_delay + extra_delay:
-                    rate = sample['maxFee']
-                    return tx_bytes * rate, sample['maxDelay']
+        return int(response['fastestFee'] * tx_bytes)
+
+class BitGo(Service):
+    base_url = "https://www.bitgo.com"
+    optimalFeeNumBlocks = 1
+
+    def get_optimal_fee(self, crypto, tx_bytes):
+        url = "%s/api/v1/tx/fee?numBlocks=%s" % (self.base_url, self.optimalFeeNumBlocks)
+        response = self.get_url(url).json()
+        print(response)
+        fee_kb = response['feePerKb']
+        return int(tx_bytes * fee_kb / 1024)

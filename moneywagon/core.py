@@ -189,7 +189,7 @@ class Service(object):
             "Or rather it has no defined 'get_block' method."
         )
 
-    def get_optimal_fee(self, crypto, tx_bytes, acceptable_block_delay):
+    def get_optimal_fee(self, crypto, tx_bytes):
         raise NotImplementedError(
             "This service does not support getting optimal fee. "
             "Or rather it has no defined 'get_optimal_fee' method."

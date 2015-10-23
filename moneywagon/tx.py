@@ -150,8 +150,8 @@ class Transaction(object):
 
         elif value == 'optimal':
             self.fee_satoshi = get_optimal_fee(
-                self.crypto, self.estimate_size(), 0, verbose=self.verbose
-            )[0]
+                self.crypto, self.estimate_size(), verbose=self.verbose
+            )
             verbose = "Using optimal fee of:"
         else:
             self.fee_satoshi = self.from_unit_to_satoshi(value, unit)
