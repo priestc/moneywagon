@@ -815,6 +815,8 @@ class BitGo(Service):
         return int(tx_bytes * fee_kb / 1024)
 
 class Blockonomics(Service):
+    supported_cryptos = ['btc']
+    
     def get_balance(self, crypto, address, confirmations=1):
         return self.get_balance_multi(crypto, [address], confirmations)[address]
 
