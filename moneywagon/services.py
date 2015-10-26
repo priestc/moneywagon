@@ -1,3 +1,4 @@
+import json
 from .core import Service, NoService, NoData, SkipThisService, currency_to_protocol
 import arrow
 
@@ -812,3 +813,36 @@ class BitGo(Service):
         response = self.get_url(url).json()
         fee_kb = response['feePerKb']
         return int(tx_bytes * fee_kb / 1024)
+
+class Blockonomics(Service):
+    def get_balance(self, crypto, address, confirmations=1):
+        return self.get_balance_multi(crypto, [address], confirmations)[address]
+
+    def get_balance_multi(self, crypto, addresses, confirmations=1):
+        url = "https://www.blockonomics.co/api/balance"
+        response = self.post_url(url, json.dumps({'addr': ' '.join(addresses)})).json()
+        balances = {}
+        for data in response['response']:
+            confirmed = data['confirmed'] / 1e8
+            if confirmations == 0:
+                balance = confirmed + (data['unconfirmed'] / 1e8)
+            if confirmations == 1:
+                balance = confirmed
+            else:
+                raise SkipThisService("Can't filter by confirmations")
+
+            balances[data['addr']] = balance
+
+        return balances
+
+    def get_transactions(self, crypto, address):
+        url = "https://www.blockonomics.co/api/searchhistory"
+        response = self.post_url(url, json.dumps({'addr': address})).json()
+        txs = []
+        for tx in response['history']:
+            txs.append(dict(
+                amount=tx['value'] / 1e8,
+                date=arrow.get(tx['time']).datetime,
+                txid=tx['txid'],
+            ))
+        return txs
