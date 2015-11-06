@@ -4,7 +4,6 @@ from moneywagon import (
 from moneywagon.core import get_optimal_services, get_magic_bytes
 from bitcoin import mktx, sign, pubtoaddr, privtopub
 from .crypto_data import crypto_data
-from .bip38 import Bip38EncryptedPrivateKey
 
 class Transaction(object):
     def __init__(self, crypto, hex=None, verbose=False):
@@ -84,6 +83,7 @@ class Transaction(object):
             if private_key.startswith('6P'):
                 if not password:
                     raise Exception("Password required for BIP38 encoded private keys")
+                from .bip38 import Bip38EncryptedPrivateKey
                 private_key = Bip38EncryptedPrivateKey(self.crypto, private_key).decrypt(password)
 
             address_from_priv = self.private_key_to_address(private_key)
