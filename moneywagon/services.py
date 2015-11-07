@@ -495,9 +495,14 @@ class BlockChainInfo(Service):
         return float(response.json()['final_balance']) * 1e-8
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "https://blockchain.info/unspent?address=%s" % address
+        url = "https://blockchain.info/unspent?active=%s" % address
+
+        response = self.get_url(url)
+        if response.content == 'No free outputs to spend':
+            return []
+
         utxos = []
-        for utxo in self.get_url(url).json()['unspent_outputs']:
+        for utxo in response.json()['unspent_outputs']:
             if utxo['confirmations'] < confirmations:
                 continue # don't return if too few confirmations
 
@@ -816,7 +821,7 @@ class BitGo(Service):
 
 class Blockonomics(Service):
     supported_cryptos = ['btc']
-    
+
     def get_balance(self, crypto, address, confirmations=1):
         return self.get_balance_multi(crypto, [address], confirmations)[address]
 
