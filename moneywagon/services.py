@@ -155,7 +155,6 @@ class Blockr(Service):
                 confirmations=cons
             ))
         return utxos
-    get_unspent_outputs.obeys_confirmations = True
 
 
     def push_tx(self, crypto, tx_hex):
@@ -201,9 +200,6 @@ class Toshi(Service):
         return response['balance'] / 1e8
 
     def get_transactions(self, crypto, address, confirmations=1):
-        """
-        This call also returns unconfirmed transactions.
-        """
         url = "%s/addresses/%s/transactions" % (self.url, address)
         response = self.get_url(url).json()
 
@@ -214,13 +210,33 @@ class Toshi(Service):
 
         transactions = []
         for tx in to_iterate:
+            if tx['confirmations'] < confirmations:
+                continue
             transactions.append(dict(
                 amount=sum([x['amount'] / 1e8 for x in tx['outputs'] if address in x['addresses']]),
                 txid=tx['hash'],
                 date=arrow.get(tx['block_time']).datetime,
                 confirmations=tx['confirmations']
             ))
+
         return transactions
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "%s/addresses/%s/unspent_outputs" % (self.url, address)
+        response = self.get_url(url).json()
+        utxos = []
+        for utxo in response:
+            cons = utxo['confirmations']
+            if cons < confirmations:
+                continue
+            utxos.append(dict(
+                amount=utxo['amount'],
+                address=address,
+                output="%s:%s" % (utxo['transaction_hash'], utxo['output_index']),
+                confirmations=cons
+            ))
+        return utxos
+
 
     def push_tx(self, crypto, tx_hex):
         url = "%s/transactions/%s" % (self.url, tx_hex)

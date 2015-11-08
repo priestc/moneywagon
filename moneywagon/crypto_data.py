@@ -31,7 +31,7 @@ crypto_data = {
                 TheBitInfo, BitpayInsight
             ],
             'unspent_outputs': [
-                Blockr, BitpayInsight, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
+                Blockr, BitpayInsight, SmartBitAU, BlockChainInfo, Toshi, CoinPrism, ChainSo,
                 BlockStrap, TheBitInfo, BitGo
             ],
             'get_block': [
