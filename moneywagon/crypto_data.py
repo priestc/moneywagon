@@ -19,7 +19,7 @@ crypto_data = {
             ],
             'address_balance': [
                 Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BlockSeer,
-                BitEasy, SmartBitAU, BlockChainInfo, Blockonomics, BitcoinAbe,
+                BitEasy, SmartBitAU, BlockChainInfo, Blockonomics,
                 BitpayInsight, CoinPrism, BitGo
             ],
             'historical_transactions': [
