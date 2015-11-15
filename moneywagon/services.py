@@ -26,6 +26,8 @@ class BlockCypher(Service):
     json_address_balance_url = base_api_url + "/main/addrs/{address}"
     json_txs_url = json_address_balance_url
     json_unspent_outputs_url = base_api_url + "/main/addrs/{address}?unspentOnly=true"
+    json_blockhash_url = base_api_url + "/main/blocks/{blockhash}"
+    json_blocknum_url = base_api_url + "/main/blocks/{blocknum}"
 
     def get_balance(self, crypto, address, confirmations=1):
         url = self.json_address_balance_url.format(address=address, crypto=crypto)
@@ -50,8 +52,46 @@ class BlockCypher(Service):
             ))
         return utxos
 
-    #def get_transactions(self, crypto, address, confirmations=1):
-    #    pass
+    def get_transactions(self, crypto, address, confirmations=1):
+        url = self.json_txs_url.format(address=address, crypto=crypto)
+        transactions = []
+        for tx in self.get_url(url).json()['txrefs']:
+            if utxo['confirmations'] < confirmations:
+                continue
+            transactions.append(dict(
+                date=arrow.get(tx['confirmed']).datetime,
+                amount=tx['value'] / 1e8,
+                txid=tx['tx_hash'],
+                confirmations=utxo['confirmations']
+            ))
+        return transactions
+
+    def get_optimal_fee(self, crypto, tx_bytes):
+        url = "https://api.blockcypher.com/v1/%s/main" % crypto
+        fee_kb = self.get_url(url).json()['low_fee_per_kb']
+        return int(tx_bytes * fee_kb / 1024.0)
+
+
+    def get_block(self, crypto, block_hash='', block_number='', latest=False):
+        if block_hash:
+            url = self.json_blockhash_url.format(blockhash=block_hash, crypto=crypto)
+        elif block_number:
+            url = self.json_blocknum_url.format(blocknum=block_number, crypto=crypto)
+
+        r = self.get_url(url).json()
+        return dict(
+            block_number=r['height'],
+            confirmations=r['depth'] + 1,
+            time=arrow.get(r['received_time']).datetime,
+            sent_value=r['total'] / 1e8,
+            total_fees=r['fees'] / 1e8,
+            #mining_difficulty=r['bits'],
+            hash=r['hash'],
+            merkle_root=r['mrkl_root'],
+            previous_hash=r['prev_block'],
+            tx_count=r['n_tx'],
+            txids=r['txids']
+        )
 
 class BlockSeer(Service):
     """
@@ -163,16 +203,25 @@ class SmartBitAU(Service):
 
 
 class Blockr(Service):
-    explorer_address_url = "http://blockr.io/address/info/{address}"
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
 
+    explorer_address_url = "http://blockr.io/address/info/{address}"
+    explorer_tx_url = "http://blockr.io/address/info/{txid}"
+    explorer_blockhash_url = "http://blockr.io/block/info/{blockhash}"
+    explorer_blocknum_url = "http://blockr.io/block/info/{blocknum}"
+    explorer_latest_block = "http://blockr.io/block/info/latest"
+
+    json_address_url = "http://{crypto}.blockr.io/api/v1/address/info/{address}"
+    json_txs_url = url = "http://{crypto}.blockr.io/api/v1/address/txs/{address}"
+    json_unspent_outputs_url = "http://{crypto}.blockr.io/api/v1/address/unspent/{address}"
+
     def get_balance(self, crypto, address, confirmations=1):
-        url = "http://%s.blockr.io/api/v1/address/info/%s" % (crypto, address)
+        url = self.json_address_url.format(address=address, crypto=crypto)
         response = self.get_url(url)
         return response.json()['data']['balance']
 
     def get_transactions(self, crypto, address, confirmations=1):
-        url = 'http://%s.blockr.io/api/v1/address/txs/%s' % (crypto, address)
+        url = self.json_txs_url.format(address=address, crypto=crypto)
         response = self.get_url(url)
 
         transactions = []
@@ -186,7 +235,7 @@ class Blockr(Service):
         return transactions
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "http://%s.blockr.io/api/v1/address/unspent/%s" % (crypto, address)
+        url = self.json_unspent_outputs_url.format(address=address, crypto=crypto)
         utxos = []
         for utxo in self.get_url(url).json()['data']['unspent']:
             cons = utxo['confirmations']
@@ -225,7 +274,7 @@ class Blockr(Service):
             sent_value=r['vout_sum'],
             total_fees=float(r['fee']),
             mining_difficulty=r['difficulty'],
-            size=r['size'],
+            size=int(r['size']),
             hash=r['hash'],
             merkle_root=r['merkleroot'],
             previous_hash=r['prev_block_hash'],
