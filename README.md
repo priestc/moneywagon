@@ -365,6 +365,38 @@ The nature of this calculation can also be seen in the source string
 103.98
 ```
 
+## Block Explorer URLs
+
+Some services have a web interface for viewing blockchain data in a web browser.
+To get a list of all block explorer urls, use the fllowing API:
+
+```
+$ moneywagon explorer-urls btc --address=1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X
+http://blockr.io/address/info/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://chain.so/address/btc/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://www.biteasy.com/blockchain/addresses/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://www.smartbit.com.au/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://blockchain.info/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://insight.bitpay.com/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X
+```
+
+You can pipe these URLs directly into a browser:
+
+```
+$ moneywagon explorer-urls btc --address=1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X | xargs firefox -new-tab -url "$line"
+```
+
+Or through python:
+
+```python
+>>> from moneywagon import get_explorer_url
+>>> get_explorer_url('btc', address='1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X')
+[
+ "http://blockr.io/address/info/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://chain.so/address/btc/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://www.biteasy.com/blockchain/addresses/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://www.smartbit.com.au/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://blockchain.info/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://insight.bitpay.com/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X"
+]
+
+```
+
 ## Get Blocks
 
 ```python

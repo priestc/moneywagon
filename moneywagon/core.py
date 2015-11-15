@@ -25,6 +25,10 @@ class Service(object):
     All Services should subclass this class, and implement their own `get_*` method.
     """
     supported_cryptos = None # must be a list of lower case currency codes.
+    explorer_address_url = None # url to block explerer page. Use {address} and {crypto} as placeholders.
+    explorer_tx_url = None # {txid}
+    explorer_blocknum_url = None # {blocknum}
+    explorer_blockhash_url = None # {blockhash}
 
     def __init__(self, verbose=False, responses=None):
         self.responses = responses or {} # for caching

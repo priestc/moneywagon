@@ -12,7 +12,7 @@ from concurrent import futures
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
     get_historical_transactions, get_block, get_unspent_outputs,
-    generate_keypair, sweep
+    generate_keypair, sweep, get_explorer_url
 )
 from moneywagon.wallet import fetch_wallet_balances
 
@@ -78,6 +78,13 @@ x.add_argument('--paranoid', action='store', help='How many services to use when
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
 
+x = subparsers.add_parser('explorer-urls', help='Get URLS for web-based block explorers.')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('--address', action='store', help='Wallet address')
+x.add_argument('--blocknum', action='store', help='Block Number (height)')
+x.add_argument('--blockhash', action='store', help='Block Height')
+
+
 x = subparsers.add_parser('wallet-balance', help='Get current value in fiat of a set of crypo addresses.')
 x.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='Wallet file')
 x.add_argument('fiat', action='store', help='Fiat currency')
@@ -102,7 +109,7 @@ def datetime_to_iso(obj):
 modes = {
     'random': argz.random_service if hasattr(argz, "random_service") else False,
     'paranoid': int(argz.paranoid or 1) if hasattr(argz, 'paranoid') else 1,
-    'verbose': argz.verbose
+    'verbose': argz.verbose if hasattr(argz, "verbose") else False
 }
 
 if argz.subparser_name == 'current-price':
@@ -142,6 +149,12 @@ elif argz.subparser_name == "unspent-outputs":
 
 elif argz.subparser_name == 'sweep':
     print(sweep(argz.crypto, argz.private_key, argz.to_address, argz.fee, **modes))
+
+elif argz.subparser_name == 'explorer-urls':
+    if argz.address:
+        print(" ".join(get_explorer_url(argz.crypto, address=argz.address)))
+    if argz.blocknum:
+        print(" ".join(get_explorer_url(argz.crypto, blocknum=argz.blocknum)))
 
 elif argz.subparser_name == 'wallet-balance':
     wallets = [

@@ -136,6 +136,29 @@ def sweep(crypto, private_key, to_address, fee=None, password=None, **modes):
 
     return tx.push()
 
+def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=None):
+    services = crypto_data[crypto]['services']['address_balance']
+    urls = []
+    context = {'crypto': crypto}
+    if address:
+        attr = "explorer_address_url"
+        context['address'] = address
+    elif txid:
+        attr = "explorer_tx_url"
+        context['txid'] = txid
+    elif blocknum:
+        attr = "explorer_blocknum_url"
+        context['blocknum'] = blocknum
+    elif blockhash:
+        attr = "explorer_blockhash_url"
+        context['blockhash'] = blockhash
+
+    for service in services:
+        template = getattr(service, attr)
+        if template:
+            urls.append(template.format(**context))
+
+    return urls
 
 class OptimalFee(AutoFallback):
     def action(self, crypto, tx_bytes):
@@ -276,13 +299,20 @@ class HistoricalPrice(object):
         return self.service.responses
 
 
-def _get_all_services():
+def _get_all_services(crypto=None):
     """
     Go through the crypto_data structure and return all list of all (unique)
-    installed services.
+    installed services. Optionally filter by crypto-currency.
     """
+    if not crypto:
+        # no currency specified, get all services
+        to_iterate = crypto_data.items()
+    else:
+        # limit to one currency
+        to_iterate = [(crypto, crypto_data[crypto])]
+
     services = []
-    for currency, data in crypto_data.items():
+    for currency, data in to_iterate:
         if hasattr(data, 'append'):
             continue
         if 'services' not in data:
