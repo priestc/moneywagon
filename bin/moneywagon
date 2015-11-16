@@ -43,6 +43,7 @@ x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('address', action='store', help='Wallet address')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
+#x.add_argument('--fast', action='store_true', help='Return fast as possible.')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
 
 x = subparsers.add_parser('get-block', help='Get block by either height, hash or by latest.')
@@ -109,7 +110,8 @@ def datetime_to_iso(obj):
 modes = {
     'random': argz.random_service if hasattr(argz, "random_service") else False,
     'paranoid': int(argz.paranoid or 1) if hasattr(argz, 'paranoid') else 1,
-    'verbose': argz.verbose if hasattr(argz, "verbose") else False
+    'verbose': argz.verbose if hasattr(argz, "verbose") else False,
+    'fast': 1 if hasattr(argz, "fast") else False,
 }
 
 if argz.subparser_name == 'current-price':

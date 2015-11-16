@@ -294,61 +294,85 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
          verbose = [True|False] False by default. Extra output.
          random = [True|False] False by default. Randomizes service order.
          paranoid = positive int. 1 by default. Redundant Fetching.
-         fast = [True|False] False by default. Return as soon as recieved first result.
+         fast = positive int. 0 by default. Return as soon as recieved first n results.
 
     """
-    average_level = modes.get('average', 1)
-    paranoid_level = modes.get('paranoid', 1)
+    fast_level = modes.get('fast', 0)
+    average_level = modes.get('average', 0)
+    paranoid_level = modes.get('paranoid', 0)
     verbose = modes.get('verbose', False)
 
     if modes.get('random', False):
         random.shuffle(services)
 
-    if paranoid_level == 1 and average_level == 1:
+    if average_level <= 1 and paranoid_level <= 1 and fast_level == 0:
         return FetcherClass(services=services, verbose=verbose).action(**kwargs)
 
-    if average_level > 1:
-        with futures.ThreadPoolExecutor(max_workers=average_level) as executor:
-            fetches = [
-                executor.submit(
-                    FetcherClass(services=[service], verbose=verbose).action, **kwargs
-                ) for service in services[:average_level]
-            ]
-
-            results = []
-            for future in futures.as_completed(fetches):
-                results.append(future.result())
-
-            if hasattr(FetcherClass, "simplify_for_average"):
-                simplified = [FetcherClass.simplify_for_average(x) for x in results]
-            else:
-                simplified = results
-
-            return sum(simplified) / len(simplified)
-
-    if paranoid_level > 1:
-        with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
-            fetches = [
-                executor.submit(
-                    FetcherClass(services=[service], verbose=verbose).action, **kwargs
-                ) for service in services[:paranoid_level]
-            ]
-
-            results = []
-            for future in futures.as_completed(fetches):
-                results.append(future.result())
-
-        if hasattr(FetcherClass, "strip_for_consensus"):
-            to_compare = FetcherClass.strip_for_consensus(results)
+    elif average_level > 1:
+        results = _get_results(FetcherClass, services, num_results=average_level)
+        if hasattr(FetcherClass, "simplify_for_average"):
+            simplified = [FetcherClass.simplify_for_average(x) for x in results]
         else:
-            to_compare = results
+            simplified = results
+        return sum(simplified) / len(simplified)
 
-        if len(set(to_compare)) == 1:
-            # if all values match, return any one (in this case the first one).
-            return results[0]
+    elif paranoid_level > 1:
+        results = _get_results(
+            FetcherClass, services, kwargs, num_results=paranoid_level, verbose=verbose
+        )
+
+    elif fast_level >= 1:
+        raise Exception("Fast mode not yet working")
+        results = _get_results(
+            FetcherClass, services, kwargs, fast=fast_level, verbose=verbose
+        )
+
+    else:
+        raise Exception("No mode specified.")
+
+
+    if hasattr(FetcherClass, "strip_for_consensus"):
+        to_compare = FetcherClass.strip_for_consensus(results)
+    else:
+        to_compare = results
+
+    if len(set(to_compare)) == 1:
+        # if all values match, return any one (in this case the first one).
+        return results[0]
+    else:
+        raise ServiceDisagreement("Differing values returned: %s" % results)
+
+
+def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbose=False):
+    if not num_results or fast:
+        num_results = len(services)
+
+    with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
+        fetches = [
+            executor.submit(
+                FetcherClass(services=[service], verbose=verbose).action, **kwargs
+            ) for service in services[:num_results]
+        ]
+
+        results = []
+
+        if fast == 1:
+            to_iterate, still_going = futures.wait(fetches, return_when=futures.FIRST_COMPLETED)
+            for x in still_going:
+                try:
+                    x.result(timeout=1.001)
+                except futures._base.TimeoutError:
+                    pass
+
+        elif fast > 1:
+            raise Exception("fast level greater than 1 not yet implemented")
         else:
-            raise ServiceDisagreement("Differing values returned: %s" % results)
+            to_iterate = futures.as_completed(fetches)
 
+        for future in to_iterate:
+            results.append(future.result())
+
+    return results
 
 def currency_to_protocol(amount):
     """
