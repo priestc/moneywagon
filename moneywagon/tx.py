@@ -171,7 +171,7 @@ class Transaction(object):
         """
         # if there are no outs use 1 (because the change will be an out)
         outs = len(self.outs) or 1
-        return outs * 148 + 34 * len(self.ins) + 10
+        return outs * 34 + 148 * len(self.ins) + 10
 
     def get_hex(self, signed=True):
         """
