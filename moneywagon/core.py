@@ -4,7 +4,7 @@ import requests
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.7.1'
+useragent = 'moneywagon 1.8.0'
 
 class ServiceDisagreement(Exception):
     pass
