@@ -85,7 +85,8 @@ x.add_argument('--address', action='store', help='Wallet address')
 x.add_argument('--blocknum', action='store', help='Block Number (height)')
 x.add_argument('--blockhash', action='store', help='Block Height')
 
-subparsers.add_parser('service-table', help='Get list of all currently implemented services.')
+x = subparsers.add_parser('service-table', help='Get list of all currently implemented services.')
+x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
 
 x = subparsers.add_parser('wallet-balance', help='Get current value in fiat of a set of crypo addresses.')
 x.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='Wallet file')
@@ -183,4 +184,4 @@ elif argz.subparser_name == 'wallet-balance':
     print("Total amount of all crypto: %.2f %s" % (cumm_amount, fiat))
 
 elif argz.subparser_name == 'service-table':
-    print("", service_table())
+    print(service_table(format=argz.format or 'simple'))

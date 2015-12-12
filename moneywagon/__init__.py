@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+from tabulate import tabulate
+
 from .core import (
     AutoFallback, enforce_service_mode, get_optimal_services, get_magic_bytes
 )
@@ -329,12 +331,12 @@ def _get_all_services(crypto=None):
 
 ALL_SERVICES = _get_all_services()
 
-def service_table(markdown=False):
+def service_table(format='simple'):
     """
-    Returns a list of all serices in a table.
+    Returns a string depicting all services currently installed.
     """
     ret = []
     for service in sorted(ALL_SERVICES, key=lambda x: x.service_id):
-        ret.append([service.__name__, service.service_id, service.api_homepage])
+        ret.append([service.service_id, service.__name__, service.api_homepage])
 
-    return ret
+    return tabulate(ret, headers=['ID', 'Name', 'URL'], tablefmt=format)

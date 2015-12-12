@@ -29,6 +29,7 @@ setup(
     ],
     install_requires=[
         'requests',
+        'tabulate',
         'pytz',
         'arrow',
         'bitcoin'
