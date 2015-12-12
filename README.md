@@ -33,7 +33,7 @@ General Cryptocurrency Features:
 $ pip install moneywagon
 ```
 
-# Supported cryptocurrencies
+# Supported APIs
 
 To generate this list, with the most up-to-date service list, run the following command:
 
