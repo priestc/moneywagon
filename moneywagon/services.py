@@ -3,6 +3,7 @@ from .core import Service, NoService, NoData, SkipThisService, currency_to_proto
 import arrow
 
 class Bitstamp(Service):
+    service_id = 1
     supported_cryptos = ['btc']
 
     def get_current_price(self, crypto, fiat):
@@ -15,6 +16,7 @@ class Bitstamp(Service):
 
 
 class BlockCypher(Service):
+    service_id = 2
     supported_cryptos = ['btc', 'ltc', 'uro']
 
     explorer_address_url = "https://live.blockcypher.com/{crypto}/address/{address}"
@@ -98,6 +100,7 @@ class BlockSeer(Service):
     This service has no publically documented API, this code was written
     from looking through chrome dev toolbar.
     """
+    service_id = 3
     supported_cryptos = ['btc']
 
     explorer_address_url = "https://www.blockseer.com/addresses/{address}"
@@ -125,6 +128,7 @@ class BlockSeer(Service):
 
 
 class SmartBitAU(Service):
+    service_id = 4
     base_url = "https://api.smartbit.com.au/v1/blockchain"
     explorer_address_url = "https://www.smartbit.com.au/address/{address}"
     explorer_tx_url = "https://www.smartbit.com.au/tx/{txid}"
@@ -203,6 +207,7 @@ class SmartBitAU(Service):
 
 
 class Blockr(Service):
+    service_id = 5
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
 
     explorer_address_url = "http://blockr.io/address/info/{address}"
@@ -284,6 +289,7 @@ class Blockr(Service):
 
 
 class Toshi(Service):
+    service_id = 6
     url = "https://bitcoin.toshi.io/api/v0"
 
     supported_cryptos = ['btc']
@@ -344,6 +350,7 @@ class Toshi(Service):
 
 
 class BTCE(Service):
+    service_id = 7
     def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
         url = "https://btc-e.com/api/3/ticker/" + pair
@@ -352,6 +359,7 @@ class BTCE(Service):
 
 
 class Cryptonator(Service):
+    service_id = 8
     def get_current_price(self, crypto, fiat):
         pair = "%s-%s" % (crypto, fiat)
         url = "https://www.cryptonator.com/api/ticker/%s" % pair
@@ -360,6 +368,7 @@ class Cryptonator(Service):
 
 
 class Winkdex(Service):
+    service_id = 9
     supported_cryptos = ['btc']
 
     def get_current_price(self, crypto, fiat):
@@ -373,6 +382,7 @@ class BlockStrap(Service):
     """
     Documentation here: http://docs.blockstrap.com/en/api/
     """
+    service_id = 10
     domain = 'http://api.blockstrap.com'
     supported_cryptos = ['btc', 'ltc', 'drk', 'doge']
 
@@ -443,6 +453,7 @@ class BlockStrap(Service):
 
 
 class ChainSo(Service):
+    service_id = 11
     base_url = "https://chain.so/api/v2"
     explorer_address_url = "https://chain.so/address/{crypto}/{address}"
     supported_cryptos = ['doge', 'btc', 'ltc']
@@ -523,6 +534,7 @@ class ChainSo(Service):
 
 
 class CoinPrism(Service):
+    service_id = 12
     base_url = "https://api.coinprism.com/v1"
     supported_cryptos = ['btc']
 
@@ -572,6 +584,7 @@ class BitEasy(Service):
     Most functions from this servie require an API key. therefore only
     address balance is supported at this time.
     """
+    service_id = 13
     supported_cryptos = ['btc']
     explorer_address_url = "https://www.biteasy.com/blockchain/addresses/{address}"
     explorer_tx_url = "https://www.biteasy.com/blockchain/transactions/{txid}"
@@ -584,6 +597,7 @@ class BitEasy(Service):
 
 
 class BlockChainInfo(Service):
+    service_id = 14
     supported_cryptos = ['btc']
     explorer_address_url = "https://blockchain.info/address/{address}"
     explorer_tx_url = "https://blockchain.info/tx/{txid}"
@@ -618,6 +632,7 @@ class BlockChainInfo(Service):
 ##################################
 
 class BitcoinAbe(Service):
+    service_id = 15
     supported_cryptos = ['btc']
     base_url = "http://bitcoin-abe.info/chain/Bitcoin"
 
@@ -628,32 +643,38 @@ class BitcoinAbe(Service):
 
 
 class LitecoinAbe(BitcoinAbe):
+    service_id = 16
     supported_cryptos = ['ltc']
     base_url = "http://bitcoin-abe.info/chain/Litecoin"
 
 
 class NamecoinAbe(BitcoinAbe):
+    service_id = 17
     supported_cryptos = ['nmc']
     base_url = "http://bitcoin-abe.info/chain/Namecoin"
 
 
 class DogeChainInfo(BitcoinAbe):
+    service_id = 18
     supported_cryptos = ['doge']
     base_url = "https://dogechain.info/chain/Dogecoin"
 
 
 class AuroraCoinEU(BitcoinAbe):
+    service_id = 19
     supported_cryptos = ['aur']
     base_url = 'http://blockexplorer.auroracoin.eu/chain/AuroraCoin'
 
 
 class Atorox(BitcoinAbe):
+    service_id = 20
     supported_cryptos = ['aur']
     base_url = "http://auroraexplorer.atorox.net/chain/AuroraCoin"
 
 ##################################
 
 class FeathercoinCom(Service):
+    service_id = 21
     supported_cryptos = ['ftc']
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -663,6 +684,7 @@ class FeathercoinCom(Service):
 
 
 class NXTPortal(Service):
+    service_id = 22
     supported_cryptos = ['nxt']
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -686,6 +708,7 @@ class NXTPortal(Service):
 
 
 class CryptoID(Service):
+    service_id = 23
     supported_cryptos = [
         'dash', 'bc', 'bay', 'block', 'cann', 'uno', 'vrc', 'xc', 'uro', 'aur',
         'pot', 'cure', 'arch', 'swift', 'karm', 'dgc', 'lxc', 'sync', 'byc',
@@ -702,6 +725,7 @@ class CryptoID(Service):
 
 
 class CryptapUS(Service):
+    service_id = 24
     supported_cryptos = [
         'nmc', 'wds', 'ber', 'scn', 'sc0', 'wdc', 'nvc', 'cas', 'myr'
     ]
@@ -711,6 +735,7 @@ class CryptapUS(Service):
 
 
 class BTER(Service):
+    service_id = 25
     def get_current_price(self, crypto, fiat):
         url_template = "http://data.bter.com/api/1/ticker/%s_%s"
         url = url_template % (crypto, fiat)
@@ -737,6 +762,7 @@ class BTER(Service):
 
 
 class CoinSwap(Service):
+    service_id = 26
     def get_current_price(self, crypto, fiat):
         chunk = ("%s/%s" % (crypto, fiat)).upper()
         url = "https://api.coin-swap.net/market/stats/%s" % chunk
@@ -745,6 +771,7 @@ class CoinSwap(Service):
 
 
 class ExCoIn(Service):
+    service_id = 27
     # decommissioned
     def get_current_price(self, crypto, fiat):
         url = "https://api.exco.in/v1/exchange/%s/%s" % (fiat, crypto)
@@ -754,6 +781,7 @@ class ExCoIn(Service):
 ################################################
 
 class BitpayInsight(Service):
+    service_id = 28
     supported_cryptos = ['btc']
     domain = "http://insight.bitpay.com"
     explorer_address_url = "https://insight.bitpay.com/address/{address}"
@@ -820,36 +848,43 @@ class BitpayInsight(Service):
 
 
 class TheBitInfo(BitpayInsight):
+    service_id = 29
     supported_cryptos = ['btc']
     domain = "http://insight.thebit.info/"
 
 
 class MYRCryptap(BitpayInsight):
+    service_id = 30
     supported_cryptos = ['myr']
     domain = "http://insight-myr.cryptap.us/"
 
 
 class BirdOnWheels(BitpayInsight):
+    service_id = 31
     supported_cryptos = ['myr']
     domain = "http://birdonwheels5.no-ip.org:3000"
 
 
 class ThisIsVTC(BitpayInsight):
+    service_id = 32
     supported_cryptos = ['vtc']
     domain = "http://explorer.thisisvtc.com"
 
 
 class ReddcoinCom(BitpayInsight):
+    service_id = 33
     supported_cryptos = ['rdd']
     domain = "http://live.reddcoin.com"
 
 
 class FTCe(BitpayInsight):
+    service_id = 34
     supported_cryptos = ['ftc']
     domain = "http://block.ftc-c.com"
 
 
 class CoinTape(Service):
+    service_id = 35
     supported_cryptos = ['btc']
 
     def get_optimal_fee(self, crypto, tx_bytes):
@@ -858,6 +893,7 @@ class CoinTape(Service):
         return int(response['fastestFee'] * tx_bytes)
 
 class BitGo(Service):
+    service_id = 36
     base_url = "https://www.bitgo.com"
     optimalFeeNumBlocks = 1
     supported_cryptos = ['btc']
@@ -923,6 +959,7 @@ class BitGo(Service):
         return int(tx_bytes * fee_kb / 1024)
 
 class Blockonomics(Service):
+    service_id = 37
     supported_cryptos = ['btc']
 
     def get_balance(self, crypto, address, confirmations=1):

@@ -10,6 +10,7 @@ crypto_data = {
     'btc': {
         'name': 'Bitcoin',
         'address_version_byte': 0,
+        'message_magic': 0xd9b4bef9,
         'bip44_coin_type': 0x80000000,
         'private_key_prefix': 128,
         'genesis_date': datetime(2009, 1, 12),

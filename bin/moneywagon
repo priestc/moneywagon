@@ -12,7 +12,7 @@ from concurrent import futures
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
     get_historical_transactions, get_block, get_unspent_outputs,
-    generate_keypair, sweep, get_explorer_url
+    generate_keypair, sweep, get_explorer_url, service_table
 )
 from moneywagon.wallet import fetch_wallet_balances
 
@@ -85,6 +85,7 @@ x.add_argument('--address', action='store', help='Wallet address')
 x.add_argument('--blocknum', action='store', help='Block Number (height)')
 x.add_argument('--blockhash', action='store', help='Block Height')
 
+subparsers.add_parser('service-table', help='Get list of all currently implemented services.')
 
 x = subparsers.add_parser('wallet-balance', help='Get current value in fiat of a set of crypo addresses.')
 x.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='Wallet file')
@@ -180,3 +181,6 @@ elif argz.subparser_name == 'wallet-balance':
             )
         )
     print("Total amount of all crypto: %.2f %s" % (cumm_amount, fiat))
+
+elif argz.subparser_name == 'service-table':
+    print(service_table())

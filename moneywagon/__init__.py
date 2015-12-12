@@ -124,6 +124,7 @@ def generate_keypair(crypto, seed, password=None):
 
     return ret
 
+
 def sweep(crypto, private_key, to_address, fee=None, password=None, **modes):
     """
     Move all funds by private key to another address.
@@ -135,6 +136,7 @@ def sweep(crypto, private_key, to_address, fee=None, password=None, **modes):
     tx.fee(fee)
 
     return tx.push()
+
 
 def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=None):
     services = crypto_data[crypto]['services']['address_balance']
