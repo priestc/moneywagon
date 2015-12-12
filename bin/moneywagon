@@ -183,4 +183,4 @@ elif argz.subparser_name == 'wallet-balance':
     print("Total amount of all crypto: %.2f %s" % (cumm_amount, fiat))
 
 elif argz.subparser_name == 'service-table':
-    print(service_table())
+    print("", service_table())

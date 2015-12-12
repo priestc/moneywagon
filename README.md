@@ -33,6 +33,17 @@ General Cryptocurrency Features:
 $ pip install moneywagon
 ```
 
+# Supported cryptocurrencies
+
+<table>
+<tr>
+<td>Table Test</td><td>Table Test 2</td><td>Table Test 3</td>
+</tr>
+<tr>
+<td>row</td><td>row 2</td><td>row 2</td>
+</tr>
+</table>
+
 # Command Line Interface
 
 ## generate-keypair [crypto] [seed] [--password]

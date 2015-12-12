@@ -16,27 +16,27 @@ crypto_data = {
         'genesis_date': datetime(2009, 1, 12),
         'services': {
             'current_price': [
-                Bitstamp, Winkdex, BTCE, BTER, Cryptonator, ChainSo
+                Bitstamp, Winkdex, BTCE, BTER, BlockExplorerCom, Cryptonator, ChainSo
             ],
             'address_balance': [
-                Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BlockSeer,
-                BitEasy, SmartBitAU, BlockChainInfo, Blockonomics,
+                Toshi, BlockCypher, Blockr, ChainSo, BlockSeer,
+                BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
                 BitpayInsight, CoinPrism, BitGo
             ],
             'historical_transactions': [
-                Blockr, Toshi, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
+                Blockr, Toshi, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
                 BitpayInsight, Blockonomics
             ],
             'push_tx': [
-                BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism,
+                BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
                 TheBitInfo, BitpayInsight
             ],
             'unspent_outputs': [
-                Blockr, BitpayInsight, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
-                BlockStrap, TheBitInfo, BitGo
+                Blockr, BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
+                TheBitInfo, BitGo
             ],
             'get_block': [
-                BitpayInsight, Toshi, Blockr, ChainSo, BlockStrap, TheBitInfo, BitGo
+                BitpayInsight, Toshi, Blockr, BlockExplorerCom, ChainSo, TheBitInfo, BitGo
             ],
             "get_optimal_fee": [
                 BitGo, BlockCypher, CoinTape

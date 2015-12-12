@@ -328,3 +328,13 @@ def _get_all_services(crypto=None):
 
 
 ALL_SERVICES = _get_all_services()
+
+def service_table(markdown=False):
+    """
+    Returns a list of all serices in a table.
+    """
+    ret = []
+    for service in sorted(ALL_SERVICES, key=lambda x: x.service_id):
+        ret.append([service.__name__, service.service_id, service.api_homepage])
+
+    return ret
