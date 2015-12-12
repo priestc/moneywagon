@@ -54,7 +54,7 @@ crypto_data = {
                 BTCE, ChainSo, BTER, Cryptonator
             ],
             'address_balance': [
-                BlockCypher, Blockr, BlockStrap, LitecoinAbe, ChainSo
+                BlockCypher, Blockr, BlockStrap, ChainSo
             ],
             'historical_transactions': [
                 Blockr, ChainSo
@@ -108,19 +108,19 @@ crypto_data = {
                 BTER, ChainSo, Cryptonator
             ],
             'address_balance': [
-                DogeChainInfo, BlockStrap
+                ChainSo, DogeChainInfo
             ],
             'historical_transactions': [
                 ChainSo
             ],
             'push_tx': [
-                BlockStrap, ChainSo
+                ChainSo
             ],
             'unspent_outputs': [
-                ChainSo, BlockStrap
+                ChainSo
             ],
             'get_block': [
-                BlockStrap, ChainSo
+                ChainSo
             ]
         },
     },

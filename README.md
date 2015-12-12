@@ -35,14 +35,9 @@ $ pip install moneywagon
 
 # Supported cryptocurrencies
 
-<table>
-<tr>
-<td>Table Test</td><td>Table Test 2</td><td>Table Test 3</td>
-</tr>
-<tr>
-<td>row</td><td>row 2</td><td>row 2</td>
-</tr>
-</table>
+To generate this list, with the most up-to-date service list, run the following command:
+
+    moneywagon service-table
 
 # Command Line Interface
 
