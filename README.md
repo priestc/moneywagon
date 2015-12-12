@@ -37,7 +37,43 @@ $ pip install moneywagon
 
 To generate this list, with the most up-to-date service list, run the following command:
 
-    moneywagon service-table
+```
+$ moneywagon service-table
+```
+
+<table>
+<tr><th style="text-align: right;">  ID</th><th>Name            </th><th>URL                                       </th></tr>
+<tr><td style="text-align: right;">   1</td><td>Bitstamp        </td><td>https://www.bitstamp.net/api/             </td></tr>
+<tr><td style="text-align: right;">   2</td><td>BlockCypher     </td><td>http://dev.blockcypher.com/               </td></tr>
+<tr><td style="text-align: right;">   3</td><td>BlockSeer       </td><td>https://www.blockseer.com/about           </td></tr>
+<tr><td style="text-align: right;">   4</td><td>SmartBitAU      </td><td>https://www.smartbit.com.au/api           </td></tr>
+<tr><td style="text-align: right;">   5</td><td>Blockr          </td><td>http://blockr.io/documentation/api        </td></tr>
+<tr><td style="text-align: right;">   6</td><td>Toshi           </td><td>https://toshi.io/docs/                    </td></tr>
+<tr><td style="text-align: right;">   7</td><td>BTCE            </td><td>https://btc-e.com/api/documentation       </td></tr>
+<tr><td style="text-align: right;">   8</td><td>Cryptonator     </td><td>https://www.cryptonator.com/api           </td></tr>
+<tr><td style="text-align: right;">   9</td><td>Winkdex         </td><td>http://docs.winkdex.com/                  </td></tr>
+<tr><td style="text-align: right;">  11</td><td>ChainSo         </td><td>https://chain.so/api                      </td></tr>
+<tr><td style="text-align: right;">  12</td><td>CoinPrism       </td><td>http://docs.coinprism.apiary.io/          </td></tr>
+<tr><td style="text-align: right;">  13</td><td>BitEasy         </td><td>https://support.biteasy.com/kb            </td></tr>
+<tr><td style="text-align: right;">  14</td><td>BlockChainInfo  </td><td>https://blockchain.info/api               </td></tr>
+<tr><td style="text-align: right;">  18</td><td>DogeChainInfo   </td><td>https://dogechain.info/api                </td></tr>
+<tr><td style="text-align: right;">  22</td><td>NXTPortal       </td><td>https://nxtportal.org/                    </td></tr>
+<tr><td style="text-align: right;">  23</td><td>CryptoID        </td><td>https://chainz.cryptoid.info/api.dws      </td></tr>
+<tr><td style="text-align: right;">  24</td><td>CryptapUS       </td><td>https://cryptap.us/                       </td></tr>
+<tr><td style="text-align: right;">  25</td><td>BTER            </td><td>https://bter.com/api                      </td></tr>
+<tr><td style="text-align: right;">  28</td><td>BitpayInsight   </td><td>http://insight.bitpay.com/api             </td></tr>
+<tr><td style="text-align: right;">  29</td><td>TheBitInfo      </td><td>http://insight.thebit.info/api            </td></tr>
+<tr><td style="text-align: right;">  30</td><td>MYRCryptap      </td><td>http://insight-myr.cryptap.us/api         </td></tr>
+<tr><td style="text-align: right;">  31</td><td>BirdOnWheels    </td><td>http://birdonwheels5.no-ip.org:3000/api   </td></tr>
+<tr><td style="text-align: right;">  32</td><td>ThisIsVTC       </td><td>http://explorer.thisisvtc.com/api         </td></tr>
+<tr><td style="text-align: right;">  33</td><td>ReddcoinCom     </td><td>http://live.reddcoin.com/api              </td></tr>
+<tr><td style="text-align: right;">  34</td><td>FTCe            </td><td>http://block.ftc-c.com/api                </td></tr>
+<tr><td style="text-align: right;">  35</td><td>CoinTape        </td><td>http://api.cointape.com/api               </td></tr>
+<tr><td style="text-align: right;">  36</td><td>BitGo           </td><td>https://www.bitgo.com/api/                </td></tr>
+<tr><td style="text-align: right;">  37</td><td>Blockonomics    </td><td>https://www.blockonomics.co/views/api.html</td></tr>
+<tr><td style="text-align: right;">  38</td><td>BlockExplorerCom</td><td>https://blockexplorer.com/api             </td></tr>
+</table>
+
 
 # Command Line Interface
 
