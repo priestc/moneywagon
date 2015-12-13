@@ -337,6 +337,10 @@ def service_table(format='simple'):
     """
     ret = []
     for service in sorted(ALL_SERVICES, key=lambda x: x.service_id):
-        ret.append([service.service_id, service.__name__, service.api_homepage])
+        ret.append([
+            service.service_id,
+            service.__name__, service.api_homepage,
+            ",".join(service.supported_cryptos or [])
+        ])
 
-    return tabulate(ret, headers=['ID', 'Name', 'URL'], tablefmt=format)
+    return tabulate(ret, headers=['ID', 'Name', 'URL', 'Supported Currencies'], tablefmt=format)
