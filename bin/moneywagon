@@ -191,7 +191,6 @@ elif argz.subparser_name == 'wallet-balance':
             crypto = wallet[0]
             if crypto in new_rows:
                 old_row = new_rows[crypto]
-                print (wallet, old_row)
                 new_rows[crypto] = [
                     crypto,
                     wallet[1] + old_row[1], # crypto balance
