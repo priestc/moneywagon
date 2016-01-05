@@ -3,7 +3,7 @@ from __future__ import print_function
 from tabulate import tabulate
 
 from .core import (
-    AutoFallback, enforce_service_mode, get_optimal_services, get_magic_bytes
+    AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes
 )
 from .historical_price import Quandl
 from .crypto_data import crypto_data
@@ -164,7 +164,7 @@ def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=N
 
     return urls
 
-class OptimalFee(AutoFallback):
+class OptimalFee(AutoFallbackFetcher):
     def action(self, crypto, tx_bytes):
         crypto = crypto.lower()
         return self._try_services("get_optimal_fee", crypto, tx_bytes)
@@ -173,7 +173,7 @@ class OptimalFee(AutoFallback):
         return "Could not get optimal fee for: %s" % crypto
 
 
-class GetBlock(AutoFallback):
+class GetBlock(AutoFallbackFetcher):
     def action(self, crypto, block_number='', block_hash='', latest=False):
         if sum([bool(block_number), bool(block_hash), bool(latest)]) != 1:
             raise ValueError("Only one of `block_hash`, `latest`, or `block_number` allowed.")
@@ -198,7 +198,7 @@ class GetBlock(AutoFallback):
         return stripped
 
 
-class HistoricalTransactions(AutoFallback):
+class HistoricalTransactions(AutoFallbackFetcher):
     def action(self, crypto, address):
         return self._try_services('get_transactions', crypto, address)
 
@@ -218,7 +218,7 @@ class HistoricalTransactions(AutoFallback):
         return stripped
 
 
-class UnspentOutputs(AutoFallback):
+class UnspentOutputs(AutoFallbackFetcher):
     def action(self, crypto, address):
         return self._try_services('get_unspent_outputs', crypto=crypto, address=address)
 
@@ -238,7 +238,7 @@ class UnspentOutputs(AutoFallback):
         return stripped
 
 
-class CurrentPrice(AutoFallback):
+class CurrentPrice(AutoFallbackFetcher):
     def action(self, crypto, fiat):
         if crypto.lower() == fiat.lower():
             return (1.0, 'math')
@@ -252,7 +252,7 @@ class CurrentPrice(AutoFallback):
         return "Can not find current price for %s->%s" % (crypto, fiat)
 
 
-class AddressBalance(AutoFallback):
+class AddressBalance(AutoFallbackFetcher):
     def action(self, crypto, address=None, addresses=None, confirmations=1):
         kwargs = dict(crypto=crypto, confirmations=confirmations)
 
@@ -270,7 +270,7 @@ class AddressBalance(AutoFallback):
         return "Could not get confirmed address balance for: %s" % crypto
 
 
-class PushTx(AutoFallback):
+class PushTx(AutoFallbackFetcher):
     def action(self, crypto, tx_hex):
         return self._try_services("push_tx", crypto=crypto, tx_hex=tx_hex)
 
@@ -280,7 +280,7 @@ class PushTx(AutoFallback):
 
 class HistoricalPrice(object):
     """
-    This one doesn't inherit from AutoFallback because there is only one
+    This one doesn't inherit from AutoFallbackFetcher because there is only one
     historical price API service at the moment.
     """
     def __init__(self, responses=None, verbose=False):

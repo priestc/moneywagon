@@ -31,11 +31,12 @@ class Service(object):
     explorer_blocknum_url = None # {blocknum}
     explorer_blockhash_url = None # {blockhash}
 
-    def __init__(self, verbose=False, responses=None):
+    def __init__(self, verbose=False, responses=None, timeout=None):
         self.responses = responses or {} # for caching
         self.verbose = verbose
         self.last_url = None
         self.last_raw_response = None
+        self.timeout = timeout
 
     def __repr__(self):
         return "<Service: %s (%s in cache)>" % (self.__class__.__name__, len(self.responses))
@@ -62,6 +63,10 @@ class Service(object):
             kwargs['headers'] = headers
         else:
             kwargs['headers'] = custom
+
+        if self.timeout:
+            # add timeout parameter to requests.get if one was passed in on construction...
+            kwargs['timeout'] = self.timeout
 
         response = getattr(requests, method)(url, *args, **kwargs)
 
@@ -201,12 +206,12 @@ class Service(object):
         )
 
 
-class AutoFallback(object):
+class AutoFallbackFetcher(object):
     """
     Calls a succession of services until one returns a value.
     """
 
-    def __init__(self, services=None, verbose=False, responses=None):
+    def __init__(self, services=None, verbose=False, responses=None, timeout=None):
         """
         Each service class is instantiated here so the service instances stay
         in scope for the entire life of this object. This way the service
@@ -219,7 +224,7 @@ class AutoFallback(object):
         self.services = []
         for ServiceClass in services:
             self.services.append(
-                ServiceClass(verbose=verbose, responses=responses)
+                ServiceClass(verbose=verbose, responses=responses, timeout=timeout)
             )
 
         self.verbose = verbose
@@ -284,7 +289,7 @@ class AutoFallback(object):
 def enforce_service_mode(services, FetcherClass, kwargs, modes):
     """
     Fetches the value according to the mode of execution desired.
-    `FetcherClass` must be a class that is subclassed from AutoFallback.
+    `FetcherClass` must be a class that is subclassed from AutoFallbackFetcher.
     `services` must be a list of Service classes.
     `kwargs` is a list of arguments used to make the service call, usually
       something like {crypto: 'btc', address: '1HwY...'} or
@@ -359,6 +364,7 @@ def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbo
         results = []
 
         if fast == 1:
+            # ths code is a work in progress. futures.FIRST_COMPLETED works differently than I thought...
             to_iterate, still_going = futures.wait(fetches, return_when=futures.FIRST_COMPLETED)
             for x in still_going:
                 try:
