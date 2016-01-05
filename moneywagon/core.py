@@ -308,15 +308,19 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
     average_level = modes.get('average', 0)
     paranoid_level = modes.get('paranoid', 0)
     verbose = modes.get('verbose', False)
+    timeout = modes.get('timeout', None)
 
     if modes.get('random', False):
         random.shuffle(services)
 
     if average_level <= 1 and paranoid_level <= 1 and fast_level == 0:
-        return FetcherClass(services=services, verbose=verbose).action(**kwargs)
+        # only need to make 1 external call, no need for threading...
+        return FetcherClass(services=services, verbose=verbose, timeout=timeout).action(**kwargs)
 
     elif average_level > 1:
-        results = _get_results(FetcherClass, services, num_results=average_level)
+        # instead of checking that all results are the same, we just return the average of all results.
+        # mostly useful for non-blockchain operations like price and optimal fee.
+        results = _get_results(FetcherClass, services, num_results=average_level, verbose=verbose, timeout=timeout)
         if hasattr(FetcherClass, "simplify_for_average"):
             simplified = [FetcherClass.simplify_for_average(x) for x in results]
         else:
@@ -325,7 +329,7 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
 
     elif paranoid_level > 1:
         results = _get_results(
-            FetcherClass, services, kwargs, num_results=paranoid_level, verbose=verbose
+            FetcherClass, services, kwargs, num_results=paranoid_level, verbose=verbose, timeout=timeout
         )
 
     elif fast_level >= 1:
@@ -350,14 +354,17 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
         raise ServiceDisagreement("Differing values returned: %s" % results)
 
 
-def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbose=False):
+def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbose=False, timeout=None):
+    """
+    Does the fetching in multiple threads of needed. Used by paranoid and fast mode.
+    """
     if not num_results or fast:
         num_results = len(services)
 
     with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
         fetches = [
             executor.submit(
-                FetcherClass(services=[service], verbose=verbose).action, **kwargs
+                FetcherClass(services=[service], verbose=verbose, timeout=timeout).action, **kwargs
             ) for service in services[:num_results]
         ]
 
