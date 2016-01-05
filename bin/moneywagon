@@ -26,21 +26,21 @@ x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('fiat', action='store', help='Fiat currency symbol')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
-x.add_argument('--timeout', action='store_true', help='Time until giving up when making external calls. In seconds.')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('generate-keypair', help='Generate Private/Public key pair')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('seed', action='store', help='Random seed string.'),
 x.add_argument('--password', action='store', help='Encrypt private key with Bip38 password.')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
-x.add_argument('--timeout', action='store_true', help='Time until giving up when making external calls. In seconds.')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('fiat', action='store', help='Fiat currency symbol')
 x.add_argument('at_time', action='store', help='Time when to get the price. e.g. 2014-04-03')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
-x.add_argument('--timeout', action='store_true', help='Time until giving up when making external calls. In seconds.')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('address-balance', help='Get total amount of coin in wallet.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -49,7 +49,7 @@ x.add_argument('--paranoid', action='store', help='How many services to use when
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 #x.add_argument('--fast', action='store_true', help='Return fast as possible.')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
-x.add_argument('--timeout', action='store_true', help='Time until giving up when making external calls. In seconds.')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('get-block', help='Get block by either height, hash or by latest.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -59,7 +59,7 @@ x.add_argument('--latest', action='store_true', help='Get the latest block.')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
-x.add_argument('--timeout', action='store_true', help='Time until giving up when making external calls. In seconds.')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('historical-transactions', help='Get list of all transactions for this address.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -67,7 +67,7 @@ x.add_argument('address', action='store', help='Wallet address')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
-x.add_argument('--timeout', action='store_true', help='Time until giving up when making external calls. In seconds.')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('sweep', help='Sweep funds from a private key to another address')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -85,7 +85,7 @@ x.add_argument('address', action='store', help='Wallet address')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
-x.add_argument('--timeout', action='store_true', help='Time until giving up when making external calls. In seconds.')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('explorer-urls', help='Get URLS for web-based block explorers.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -105,7 +105,7 @@ x.add_argument('--async', action='store_true', help='Fetch prices and balances a
 x.add_argument('--random-service', action='store_true', help='Use random sources')
 x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
 x.add_argument("--collapse", action='store_true', help="Collapse same cryptos into a single line.")
-x.add_argument('--timeout', action='store_true', help='Time until giving up when making external calls. In seconds.')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 argz = parser.parse_args()
 
@@ -125,7 +125,7 @@ modes = {
     'paranoid': int(argz.paranoid or 1) if hasattr(argz, 'paranoid') else 1,
     'verbose': argz.verbose if hasattr(argz, "verbose") else False,
     'fast': 1 if hasattr(argz, "fast") else False,
-    'timeout': argz.timeout if hasattr(argz, "timeout") else None
+    'timeout': float(argz.timeout) if hasattr(argz, "timeout") else None
 }
 
 if argz.subparser_name == 'current-price':
