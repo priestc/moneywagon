@@ -33,6 +33,48 @@ General Cryptocurrency Features:
 $ pip install moneywagon
 ```
 
+# Supported APIs
+
+To generate this list, with the most up-to-date service list, run the following command:
+
+```
+$ moneywagon service-table
+```
+
+<table>
+<tr><th style="text-align: right;">  ID</th><th>Name            </th><th>URL                                       </th><th>Supported Currencies                                                                                                                                                                                                                                                     </th></tr>
+<tr><td style="text-align: right;">   1</td><td>Bitstamp        </td><td>https://www.bitstamp.net/api/             </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">   2</td><td>BlockCypher     </td><td>http://dev.blockcypher.com/               </td><td>btc,ltc,uro                                                                                                                                                                                                                                                              </td></tr>
+<tr><td style="text-align: right;">   3</td><td>BlockSeer       </td><td>https://www.blockseer.com/about           </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">   4</td><td>SmartBitAU      </td><td>https://www.smartbit.com.au/api           </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">   5</td><td>Blockr          </td><td>http://blockr.io/documentation/api        </td><td>btc,ltc,ppc,mec,qrk,dgc,tbtc                                                                                                                                                                                                                                             </td></tr>
+<tr><td style="text-align: right;">   6</td><td>Toshi           </td><td>https://toshi.io/docs/                    </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">   7</td><td>BTCE            </td><td>https://btc-e.com/api/documentation       </td><td>                                                                                                                                                                                                                                                                         </td></tr>
+<tr><td style="text-align: right;">   8</td><td>Cryptonator     </td><td>https://www.cryptonator.com/api           </td><td>                                                                                                                                                                                                                                                                         </td></tr>
+<tr><td style="text-align: right;">   9</td><td>Winkdex         </td><td>http://docs.winkdex.com/                  </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  11</td><td>ChainSo         </td><td>https://chain.so/api                      </td><td>doge,btc,ltc                                                                                                                                                                                                                                                             </td></tr>
+<tr><td style="text-align: right;">  12</td><td>CoinPrism       </td><td>http://docs.coinprism.apiary.io/          </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  13</td><td>BitEasy         </td><td>https://support.biteasy.com/kb            </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  14</td><td>BlockChainInfo  </td><td>https://blockchain.info/api               </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  18</td><td>DogeChainInfo   </td><td>https://dogechain.info/api                </td><td>doge                                                                                                                                                                                                                                                                     </td></tr>
+<tr><td style="text-align: right;">  22</td><td>NXTPortal       </td><td>https://nxtportal.org/                    </td><td>nxt                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  23</td><td>CryptoID        </td><td>https://chainz.cryptoid.info/api.dws      </td><td>dash,bc,bay,block,cann,uno,vrc,xc,uro,aur,pot, cure,arch,swift,karm,dgc,lxc,sync,byc,pc,fibre,i0c, nobl,gsx,flt,ccn,rlc,rby,apex,vior,ltcd,zeit, carbon,super,dis,ac,vdo,ioc,xmg,cinni,crypt,excl, mne,seed,qslv,maryj,key,oc,ktk,voot,glc,drkc,mue, gb,piggy,jbs,grs,icg,rpc,</td></tr>
+<tr><td style="text-align: right;">  24</td><td>CryptapUS       </td><td>https://cryptap.us/                       </td><td>nmc,wds,ber,scn,sc0,wdc,nvc,cas,myr                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  25</td><td>BTER            </td><td>https://bter.com/api                      </td><td>                                                                                                                                                                                                                                                                         </td></tr>
+<tr><td style="text-align: right;">  28</td><td>BitpayInsight   </td><td>http://insight.bitpay.com/api             </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  29</td><td>TheBitInfo      </td><td>http://insight.thebit.info/api            </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  30</td><td>MYRCryptap      </td><td>http://insight-myr.cryptap.us/api         </td><td>myr                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  31</td><td>BirdOnWheels    </td><td>http://birdonwheels5.no-ip.org:3000/api   </td><td>myr                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  32</td><td>ThisIsVTC       </td><td>http://explorer.thisisvtc.com/api         </td><td>vtc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  33</td><td>ReddcoinCom     </td><td>http://live.reddcoin.com/api              </td><td>rdd                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  34</td><td>FTCe            </td><td>http://block.ftc-c.com/api                </td><td>ftc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  35</td><td>CoinTape        </td><td>http://api.cointape.com/api               </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  36</td><td>BitGo           </td><td>https://www.bitgo.com/api/                </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  37</td><td>Blockonomics    </td><td>https://www.blockonomics.co/views/api.html</td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+<tr><td style="text-align: right;">  38</td><td>BlockExplorerCom</td><td>https://blockexplorer.com/api             </td><td>btc                                                                                                                                                                                                                                                                      </td></tr>
+</table>
+
+
 # Command Line Interface
 
 ## generate-keypair [crypto] [seed] [--password]
@@ -363,6 +405,38 @@ The nature of this calculation can also be seen in the source string
 >>> from moneywagon import AddressBalance
 >>> AddressBalance().get('ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj')
 103.98
+```
+
+## Block Explorer URLs
+
+Some services have a web interface for viewing blockchain data in a web browser.
+To get a list of all block explorer urls, use the fllowing API:
+
+```
+$ moneywagon explorer-urls btc --address=1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X
+http://blockr.io/address/info/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://chain.so/address/btc/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://www.biteasy.com/blockchain/addresses/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://www.smartbit.com.au/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://blockchain.info/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X https://insight.bitpay.com/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X
+```
+
+You can pipe these URLs directly into a browser:
+
+```
+$ moneywagon explorer-urls btc --address=1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X | xargs firefox -new-tab -url "$line"
+```
+
+Or through python:
+
+```python
+>>> from moneywagon import get_explorer_url
+>>> get_explorer_url('btc', address='1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X')
+[
+ "http://blockr.io/address/info/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://chain.so/address/btc/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://www.biteasy.com/blockchain/addresses/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://www.smartbit.com.au/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://blockchain.info/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X",
+ "https://insight.bitpay.com/address/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X"
+]
+
 ```
 
 ## Get Blocks

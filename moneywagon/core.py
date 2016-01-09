@@ -4,7 +4,7 @@ import requests
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.6.4'
+useragent = 'moneywagon 1.8.2'
 
 class ServiceDisagreement(Exception):
     pass
@@ -24,13 +24,19 @@ class Service(object):
     Some `Services` subclass will only support a subset of all pissible blockchain functions.
     All Services should subclass this class, and implement their own `get_*` method.
     """
+    api_homepage = '' # link to page defining the API.
     supported_cryptos = None # must be a list of lower case currency codes.
+    explorer_address_url = None # url to block explerer page. Use {address} and {crypto} as placeholders.
+    explorer_tx_url = None # {txid}
+    explorer_blocknum_url = None # {blocknum}
+    explorer_blockhash_url = None # {blockhash}
 
-    def __init__(self, verbose=False, responses=None):
+    def __init__(self, verbose=False, responses=None, timeout=None):
         self.responses = responses or {} # for caching
         self.verbose = verbose
         self.last_url = None
         self.last_raw_response = None
+        self.timeout = timeout
 
     def __repr__(self):
         return "<Service: %s (%s in cache)>" % (self.__class__.__name__, len(self.responses))
@@ -57,6 +63,10 @@ class Service(object):
             kwargs['headers'] = headers
         else:
             kwargs['headers'] = custom
+
+        if self.timeout:
+            # add timeout parameter to requests.get if one was passed in on construction...
+            kwargs['timeout'] = self.timeout
 
         response = getattr(requests, method)(url, *args, **kwargs)
 
@@ -196,12 +206,12 @@ class Service(object):
         )
 
 
-class AutoFallback(object):
+class AutoFallbackFetcher(object):
     """
     Calls a succession of services until one returns a value.
     """
 
-    def __init__(self, services=None, verbose=False, responses=None):
+    def __init__(self, services=None, verbose=False, responses=None, timeout=None):
         """
         Each service class is instantiated here so the service instances stay
         in scope for the entire life of this object. This way the service
@@ -214,7 +224,7 @@ class AutoFallback(object):
         self.services = []
         for ServiceClass in services:
             self.services.append(
-                ServiceClass(verbose=verbose, responses=responses)
+                ServiceClass(verbose=verbose, responses=responses, timeout=timeout)
             )
 
         self.verbose = verbose
@@ -242,7 +252,7 @@ class AutoFallback(object):
                 ret =  getattr(service, method_name)(*args, **kwargs)
                 self._successful_service = service
                 return ret
-            except (KeyError, IndexError, TypeError, ValueError) as exc:
+            except (KeyError, IndexError, TypeError, ValueError, requests.exceptions.SSLError) as exc:
                 # API has probably changed, therefore service class broken
                 if self.verbose: print("FAIL:", service, exc.__class__.__name__, exc)
                 self._failed_services.append({
@@ -257,6 +267,7 @@ class AutoFallback(object):
             except NotImplementedError as exc:
                 if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
                 self._failed_services.append({'service': service, 'error': "Not Implemented"})
+
 
         if not self._failed_services:
             raise NotImplementedError(
@@ -278,7 +289,7 @@ class AutoFallback(object):
 def enforce_service_mode(services, FetcherClass, kwargs, modes):
     """
     Fetches the value according to the mode of execution desired.
-    `FetcherClass` must be a class that is subclassed from AutoFallback.
+    `FetcherClass` must be a class that is subclassed from AutoFallbackFetcher.
     `services` must be a list of Service classes.
     `kwargs` is a list of arguments used to make the service call, usually
       something like {crypto: 'btc', address: '1HwY...'} or
@@ -290,61 +301,93 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
          verbose = [True|False] False by default. Extra output.
          random = [True|False] False by default. Randomizes service order.
          paranoid = positive int. 1 by default. Redundant Fetching.
-         fast = [True|False] False by default. Return as soon as recieved first result.
+         fast = positive int. 0 by default. Return as soon as recieved first n results.
 
     """
-    average_level = modes.get('average', 1)
-    paranoid_level = modes.get('paranoid', 1)
+    fast_level = modes.get('fast', 0)
+    average_level = modes.get('average', 0)
+    paranoid_level = modes.get('paranoid', 0)
     verbose = modes.get('verbose', False)
+    timeout = modes.get('timeout', None)
 
     if modes.get('random', False):
         random.shuffle(services)
 
-    if paranoid_level == 1 and average_level == 1:
-        return FetcherClass(services=services, verbose=verbose).action(**kwargs)
+    if average_level <= 1 and paranoid_level <= 1 and fast_level == 0:
+        # only need to make 1 external call, no need for threading...
+        return FetcherClass(services=services, verbose=verbose, timeout=timeout).action(**kwargs)
 
-    if average_level > 1:
-        with futures.ThreadPoolExecutor(max_workers=average_level) as executor:
-            fetches = [
-                executor.submit(
-                    FetcherClass(services=[service], verbose=verbose).action, **kwargs
-                ) for service in services[:average_level]
-            ]
-
-            results = []
-            for future in futures.as_completed(fetches):
-                results.append(future.result())
-
-            if hasattr(FetcherClass, "simplify_for_average"):
-                simplified = [FetcherClass.simplify_for_average(x) for x in results]
-            else:
-                simplified = results
-
-            return sum(simplified) / len(simplified)
-
-    if paranoid_level > 1:
-        with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
-            fetches = [
-                executor.submit(
-                    FetcherClass(services=[service], verbose=verbose).action, **kwargs
-                ) for service in services[:paranoid_level]
-            ]
-
-            results = []
-            for future in futures.as_completed(fetches):
-                results.append(future.result())
-
-        if hasattr(FetcherClass, "strip_for_consensus"):
-            to_compare = FetcherClass.strip_for_consensus(results)
+    elif average_level > 1:
+        # instead of checking that all results are the same, we just return the average of all results.
+        # mostly useful for non-blockchain operations like price and optimal fee.
+        results = _get_results(FetcherClass, services, num_results=average_level, verbose=verbose, timeout=timeout)
+        if hasattr(FetcherClass, "simplify_for_average"):
+            simplified = [FetcherClass.simplify_for_average(x) for x in results]
         else:
-            to_compare = results
+            simplified = results
+        return sum(simplified) / len(simplified)
 
-        if len(set(to_compare)) == 1:
-            # if all values match, return any one (in this case the first one).
-            return results[0]
+    elif paranoid_level > 1:
+        results = _get_results(
+            FetcherClass, services, kwargs, num_results=paranoid_level, verbose=verbose, timeout=timeout
+        )
+
+    elif fast_level >= 1:
+        raise Exception("Fast mode not yet working")
+        results = _get_results(
+            FetcherClass, services, kwargs, fast=fast_level, verbose=verbose
+        )
+
+    else:
+        raise Exception("No mode specified.")
+
+
+    if hasattr(FetcherClass, "strip_for_consensus"):
+        to_compare = FetcherClass.strip_for_consensus(results)
+    else:
+        to_compare = results
+
+    if len(set(to_compare)) == 1:
+        # if all values match, return any one (in this case the first one).
+        return results[0]
+    else:
+        raise ServiceDisagreement("Differing values returned: %s" % results)
+
+
+def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbose=False, timeout=None):
+    """
+    Does the fetching in multiple threads of needed. Used by paranoid and fast mode.
+    """
+    if not num_results or fast:
+        num_results = len(services)
+
+    with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
+        fetches = [
+            executor.submit(
+                FetcherClass(services=[service], verbose=verbose, timeout=timeout).action, **kwargs
+            ) for service in services[:num_results]
+        ]
+
+        results = []
+
+        if fast == 1:
+            # ths code is a work in progress. futures.FIRST_COMPLETED works differently than I thought...
+            to_iterate, still_going = futures.wait(fetches, return_when=futures.FIRST_COMPLETED)
+            for x in still_going:
+                try:
+                    x.result(timeout=1.001)
+                except futures._base.TimeoutError:
+                    pass
+
+        elif fast > 1:
+            raise Exception("fast level greater than 1 not yet implemented")
         else:
-            raise ServiceDisagreement("Differing values returned: %s" % results)
+            to_iterate = futures.as_completed(fetches)
 
+        for future in to_iterate:
+            results.append(future.result())
+
+    return results
 
 def currency_to_protocol(amount):
     """

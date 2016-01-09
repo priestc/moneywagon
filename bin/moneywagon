@@ -8,11 +8,12 @@ import json
 import datetime
 
 from concurrent import futures
+from tabulate import tabulate
 
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
     get_historical_transactions, get_block, get_unspent_outputs,
-    generate_keypair, sweep
+    generate_keypair, sweep, get_explorer_url, service_table
 )
 from moneywagon.wallet import fetch_wallet_balances
 
@@ -25,25 +26,30 @@ x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('fiat', action='store', help='Fiat currency symbol')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('generate-keypair', help='Generate Private/Public key pair')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('seed', action='store', help='Random seed string.'),
 x.add_argument('--password', action='store', help='Encrypt private key with Bip38 password.')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('historical-price', help='Get price of a crypto/fiat pair at a point in time.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('fiat', action='store', help='Fiat currency symbol')
 x.add_argument('at_time', action='store', help='Time when to get the price. e.g. 2014-04-03')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('address-balance', help='Get total amount of coin in wallet.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('address', action='store', help='Wallet address')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
+#x.add_argument('--fast', action='store_true', help='Return fast as possible.')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('get-block', help='Get block by either height, hash or by latest.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -53,6 +59,7 @@ x.add_argument('--latest', action='store_true', help='Get the latest block.')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('historical-transactions', help='Get list of all transactions for this address.')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -60,6 +67,7 @@ x.add_argument('address', action='store', help='Wallet address')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('sweep', help='Sweep funds from a private key to another address')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
@@ -77,6 +85,16 @@ x.add_argument('address', action='store', help='Wallet address')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--random-service', action='store_true', help='Use a random source')
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
+
+x = subparsers.add_parser('explorer-urls', help='Get URLS for web-based block explorers.')
+x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
+x.add_argument('--address', action='store', help='Wallet address')
+x.add_argument('--blocknum', action='store', help='Block Number (height)')
+x.add_argument('--blockhash', action='store', help='Block Height')
+
+x = subparsers.add_parser('service-table', help='Get list of all currently implemented services.')
+x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
 
 x = subparsers.add_parser('wallet-balance', help='Get current value in fiat of a set of crypo addresses.')
 x.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='Wallet file')
@@ -85,6 +103,9 @@ x.add_argument('--paranoid', action='store', help='How many services to use when
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--async', action='store_true', help='Fetch prices and balances asynchronously')
 x.add_argument('--random-service', action='store_true', help='Use random sources')
+x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
+x.add_argument("--collapse", action='store_true', help="Collapse same cryptos into a single line.")
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 argz = parser.parse_args()
 
@@ -102,7 +123,9 @@ def datetime_to_iso(obj):
 modes = {
     'random': argz.random_service if hasattr(argz, "random_service") else False,
     'paranoid': int(argz.paranoid or 1) if hasattr(argz, 'paranoid') else 1,
-    'verbose': argz.verbose
+    'verbose': argz.verbose if hasattr(argz, "verbose") else False,
+    'fast': 1 if hasattr(argz, "fast") else False,
+    'timeout': float(argz.timeout) if hasattr(argz, "timeout") else None
 }
 
 if argz.subparser_name == 'current-price':
@@ -143,6 +166,12 @@ elif argz.subparser_name == "unspent-outputs":
 elif argz.subparser_name == 'sweep':
     print(sweep(argz.crypto, argz.private_key, argz.to_address, argz.fee, **modes))
 
+elif argz.subparser_name == 'explorer-urls':
+    if argz.address:
+        print(" ".join(get_explorer_url(argz.crypto, address=argz.address)))
+    if argz.blocknum:
+        print(" ".join(get_explorer_url(argz.crypto, blocknum=argz.blocknum)))
+
 elif argz.subparser_name == 'wallet-balance':
     wallets = [
         (x.split(",")[0], x.split(",")[1].strip())
@@ -155,13 +184,39 @@ elif argz.subparser_name == 'wallet-balance':
 
     fiat = argz.fiat.upper()
 
+    rows = []
     cumm_amount = 0
     for d in fetch_wallet_balances(wallets, fiat, **modes):
         cumm_amount += d['fiat_value']
-        print(
-            "%s (%.2f %s) == %s x %s (%s)" % (
-                d['crypto'], d['fiat_value'], fiat,
-                d['crypto_value'], d['conversion_price'], d['price_source'],
-            )
-        )
-    print("Total amount of all crypto: %.2f %s" % (cumm_amount, fiat))
+        rows.append([
+            d['crypto'], d['crypto_value'], d['fiat_value'],
+            d['conversion_price'], d['price_source']
+        ])
+
+    if argz.collapse:
+        # collapse similar cryptos into a single line
+        new_rows = {}
+        for wallet in rows:
+            crypto = wallet[0]
+            if crypto in new_rows:
+                old_row = new_rows[crypto]
+                new_rows[crypto] = [
+                    crypto,
+                    wallet[1] + old_row[1], # crypto balance
+                    wallet[2] + old_row[2], # fiat value
+                    old_row[3], # exchange
+                    old_row[4] # source
+                ]
+            else:
+                new_rows[crypto] = wallet
+
+        rows = new_rows.values()
+
+    # combine fiat value and exchange rate into single cell
+    rows = [[x[0], x[1], "%.2f %s" % (x[2], fiat), "%f %s/%s" % (x[3], fiat, x[0]), x[4]] for x in rows]
+
+    rows.append(['------', 'Total:', "%.2f %s" % (cumm_amount, fiat), '------'])
+    print(tabulate(rows, headers=['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Source'], tablefmt=argz.format))
+
+elif argz.subparser_name == 'service-table':
+    print(service_table(format=argz.format or 'simple'))

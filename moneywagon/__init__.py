@@ -1,7 +1,9 @@
 from __future__ import print_function
 
+from tabulate import tabulate
+
 from .core import (
-    AutoFallback, enforce_service_mode, get_optimal_services, get_magic_bytes
+    AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes
 )
 from .historical_price import Quandl
 from .crypto_data import crypto_data
@@ -124,6 +126,7 @@ def generate_keypair(crypto, seed, password=None):
 
     return ret
 
+
 def sweep(crypto, private_key, to_address, fee=None, password=None, **modes):
     """
     Move all funds by private key to another address.
@@ -137,7 +140,31 @@ def sweep(crypto, private_key, to_address, fee=None, password=None, **modes):
     return tx.push()
 
 
-class OptimalFee(AutoFallback):
+def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=None):
+    services = crypto_data[crypto]['services']['address_balance']
+    urls = []
+    context = {'crypto': crypto}
+    if address:
+        attr = "explorer_address_url"
+        context['address'] = address
+    elif txid:
+        attr = "explorer_tx_url"
+        context['txid'] = txid
+    elif blocknum:
+        attr = "explorer_blocknum_url"
+        context['blocknum'] = blocknum
+    elif blockhash:
+        attr = "explorer_blockhash_url"
+        context['blockhash'] = blockhash
+
+    for service in services:
+        template = getattr(service, attr)
+        if template:
+            urls.append(template.format(**context))
+
+    return urls
+
+class OptimalFee(AutoFallbackFetcher):
     def action(self, crypto, tx_bytes):
         crypto = crypto.lower()
         return self._try_services("get_optimal_fee", crypto, tx_bytes)
@@ -146,7 +173,7 @@ class OptimalFee(AutoFallback):
         return "Could not get optimal fee for: %s" % crypto
 
 
-class GetBlock(AutoFallback):
+class GetBlock(AutoFallbackFetcher):
     def action(self, crypto, block_number='', block_hash='', latest=False):
         if sum([bool(block_number), bool(block_hash), bool(latest)]) != 1:
             raise ValueError("Only one of `block_hash`, `latest`, or `block_number` allowed.")
@@ -171,7 +198,7 @@ class GetBlock(AutoFallback):
         return stripped
 
 
-class HistoricalTransactions(AutoFallback):
+class HistoricalTransactions(AutoFallbackFetcher):
     def action(self, crypto, address):
         return self._try_services('get_transactions', crypto, address)
 
@@ -191,7 +218,7 @@ class HistoricalTransactions(AutoFallback):
         return stripped
 
 
-class UnspentOutputs(AutoFallback):
+class UnspentOutputs(AutoFallbackFetcher):
     def action(self, crypto, address):
         return self._try_services('get_unspent_outputs', crypto=crypto, address=address)
 
@@ -211,7 +238,7 @@ class UnspentOutputs(AutoFallback):
         return stripped
 
 
-class CurrentPrice(AutoFallback):
+class CurrentPrice(AutoFallbackFetcher):
     def action(self, crypto, fiat):
         if crypto.lower() == fiat.lower():
             return (1.0, 'math')
@@ -225,7 +252,7 @@ class CurrentPrice(AutoFallback):
         return "Can not find current price for %s->%s" % (crypto, fiat)
 
 
-class AddressBalance(AutoFallback):
+class AddressBalance(AutoFallbackFetcher):
     def action(self, crypto, address=None, addresses=None, confirmations=1):
         kwargs = dict(crypto=crypto, confirmations=confirmations)
 
@@ -243,7 +270,7 @@ class AddressBalance(AutoFallback):
         return "Could not get confirmed address balance for: %s" % crypto
 
 
-class PushTx(AutoFallback):
+class PushTx(AutoFallbackFetcher):
     def action(self, crypto, tx_hex):
         return self._try_services("push_tx", crypto=crypto, tx_hex=tx_hex)
 
@@ -253,7 +280,7 @@ class PushTx(AutoFallback):
 
 class HistoricalPrice(object):
     """
-    This one doesn't inherit from AutoFallback because there is only one
+    This one doesn't inherit from AutoFallbackFetcher because there is only one
     historical price API service at the moment.
     """
     def __init__(self, responses=None, verbose=False):
@@ -276,13 +303,20 @@ class HistoricalPrice(object):
         return self.service.responses
 
 
-def _get_all_services():
+def _get_all_services(crypto=None):
     """
     Go through the crypto_data structure and return all list of all (unique)
-    installed services.
+    installed services. Optionally filter by crypto-currency.
     """
+    if not crypto:
+        # no currency specified, get all services
+        to_iterate = crypto_data.items()
+    else:
+        # limit to one currency
+        to_iterate = [(crypto, crypto_data[crypto])]
+
     services = []
-    for currency, data in crypto_data.items():
+    for currency, data in to_iterate:
         if hasattr(data, 'append'):
             continue
         if 'services' not in data:
@@ -296,3 +330,17 @@ def _get_all_services():
 
 
 ALL_SERVICES = _get_all_services()
+
+def service_table(format='simple'):
+    """
+    Returns a string depicting all services currently installed.
+    """
+    ret = []
+    for service in sorted(ALL_SERVICES, key=lambda x: x.service_id):
+        ret.append([
+            service.service_id,
+            service.__name__, service.api_homepage,
+            ",".join(service.supported_cryptos or [])
+        ])
+
+    return tabulate(ret, headers=['ID', 'Name', 'URL', 'Supported Currencies'], tablefmt=format)

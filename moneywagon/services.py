@@ -3,7 +3,9 @@ from .core import Service, NoService, NoData, SkipThisService, currency_to_proto
 import arrow
 
 class Bitstamp(Service):
+    service_id = 1
     supported_cryptos = ['btc']
+    api_homepage = "https://www.bitstamp.net/api/"
 
     def get_current_price(self, crypto, fiat):
         if fiat.lower() != 'usd':
@@ -15,27 +17,109 @@ class Bitstamp(Service):
 
 
 class BlockCypher(Service):
+    service_id = 2
     supported_cryptos = ['btc', 'ltc', 'uro']
+    api_homepage = "http://dev.blockcypher.com/"
+
+    explorer_address_url = "https://live.blockcypher.com/{crypto}/address/{address}"
+    explorer_tx_url = "https://live.blockcypher.com/{crypto}/tx/{txid}"
+    explorer_blockhash_url = "https://live.blockcypher.com/{crypto}/block/{blockhash}/"
+    explorer_blocknum_url = "https://live.blockcypher.com/{crypto}/block/{blocknum}/"
+
+    base_api_url = "https://api.blockcypher.com/v1/{crypto}"
+    json_address_balance_url = base_api_url + "/main/addrs/{address}"
+    json_txs_url = json_address_balance_url
+    json_unspent_outputs_url = base_api_url + "/main/addrs/{address}?unspentOnly=true"
+    json_blockhash_url = base_api_url + "/main/blocks/{blockhash}"
+    json_blocknum_url = base_api_url + "/main/blocks/{blocknum}"
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "http://api.blockcypher.com/v1/%s/main/addrs/%s" % (crypto, address)
+        url = self.json_address_balance_url.format(address=address, crypto=crypto)
         response = self.get_url(url)
-        return response.json()['balance'] / 1.0e8
+        if confirmations == 0:
+            return response.json()['final_balance'] / 1.0e8
+        elif confirmations == 1:
+            return response.json()['balance'] / 1.0e8
+        else:
+            raise SkipThisService("Filtering by confirmations only for 0 and 1")
 
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = self.json_unspent_outputs_url.format(address=address, crypto=crypto)
+        utxos = []
+        for utxo in self.get_url(url).json()['txrefs']:
+            if utxo['confirmations'] < confirmations:
+                continue
+            utxos.append(dict(
+                amount=utxo['value'],
+                output="%s:%s" % (utxo['tx_hash'], utxo['tx_output_n']),
+                address=address,
+            ))
+        return utxos
+
+    def get_transactions(self, crypto, address, confirmations=1):
+        url = self.json_txs_url.format(address=address, crypto=crypto)
+        transactions = []
+        for tx in self.get_url(url).json()['txrefs']:
+            if utxo['confirmations'] < confirmations:
+                continue
+            transactions.append(dict(
+                date=arrow.get(tx['confirmed']).datetime,
+                amount=tx['value'] / 1e8,
+                txid=tx['tx_hash'],
+                confirmations=utxo['confirmations']
+            ))
+        return transactions
+
+    def get_optimal_fee(self, crypto, tx_bytes):
+        url = "https://api.blockcypher.com/v1/%s/main" % crypto
+        fee_kb = self.get_url(url).json()['low_fee_per_kb']
+        return int(tx_bytes * fee_kb / 1024.0)
+
+
+    def get_block(self, crypto, block_hash='', block_number='', latest=False):
+        if block_hash:
+            url = self.json_blockhash_url.format(blockhash=block_hash, crypto=crypto)
+        elif block_number:
+            url = self.json_blocknum_url.format(blocknum=block_number, crypto=crypto)
+
+        r = self.get_url(url).json()
+        return dict(
+            block_number=r['height'],
+            confirmations=r['depth'] + 1,
+            time=arrow.get(r['received_time']).datetime,
+            sent_value=r['total'] / 1e8,
+            total_fees=r['fees'] / 1e8,
+            #mining_difficulty=r['bits'],
+            hash=r['hash'],
+            merkle_root=r['mrkl_root'],
+            previous_hash=r['prev_block'],
+            tx_count=r['n_tx'],
+            txids=r['txids']
+        )
 
 class BlockSeer(Service):
     """
     This service has no publically documented API, this code was written
     from looking through chrome dev toolbar.
     """
+    service_id = 3
     supported_cryptos = ['btc']
+    api_homepage = "https://www.blockseer.com/about"
+
+    explorer_address_url = "https://www.blockseer.com/addresses/{address}"
+    explorer_tx_url = "https://www.blockseer.com/transactions/{txid}"
+    explorer_blocknum_url = "https://www.blockseer.com/blocks/{blocknum}"
+    explorer_blockhash_url = "https://www.blockseer.com/blocks/{blockhash}"
+
+    json_address_balance_url = "https://www.blockseer.com/api/addresses/{address}"
+    json_txs_url = "https://www.blockseer.com/api/addresses/{address}/transactions?filter=all"
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "https://www.blockseer.com/api/addresses/%s" % address
+        url = self.json_address_balance_url.format(address=address, crypto=crypto)
         return self.get_url(url).json()['data']['balance'] / 1e8
 
     def get_transactions(self, crypo, address):
-        url = "https://www.blockseer.com/api/addresses/%s/transactions?filter=all" % address
+        url = self.json_txs_url.format(address=address, crypto=crypto)
         transactions = []
         for tx in self.get_url(url).json()['data']['address']['transactions']:
             transactions.append(dict(
@@ -47,7 +131,14 @@ class BlockSeer(Service):
 
 
 class SmartBitAU(Service):
+    service_id = 4
+    api_homepage = "https://www.smartbit.com.au/api"
     base_url = "https://api.smartbit.com.au/v1/blockchain"
+    explorer_address_url = "https://www.smartbit.com.au/address/{address}"
+    explorer_tx_url = "https://www.smartbit.com.au/tx/{txid}"
+    explorer_blocknum_url = "https://www.smartbit.com.au/block/{blocknum}"
+    explorer_blockhash_url = "https://www.smartbit.com.au/block/{blockhash}"
+
     supported_cryptos = ['btc']
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -120,15 +211,27 @@ class SmartBitAU(Service):
 
 
 class Blockr(Service):
+    service_id = 5
     supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
+    api_homepage = "http://blockr.io/documentation/api"
+
+    explorer_address_url = "http://blockr.io/address/info/{address}"
+    explorer_tx_url = "http://blockr.io/address/info/{txid}"
+    explorer_blockhash_url = "http://blockr.io/block/info/{blockhash}"
+    explorer_blocknum_url = "http://blockr.io/block/info/{blocknum}"
+    explorer_latest_block = "http://blockr.io/block/info/latest"
+
+    json_address_url = "http://{crypto}.blockr.io/api/v1/address/info/{address}"
+    json_txs_url = url = "http://{crypto}.blockr.io/api/v1/address/txs/{address}"
+    json_unspent_outputs_url = "http://{crypto}.blockr.io/api/v1/address/unspent/{address}"
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "http://%s.blockr.io/api/v1/address/info/%s" % (crypto, address)
+        url = self.json_address_url.format(address=address, crypto=crypto)
         response = self.get_url(url)
         return response.json()['data']['balance']
 
     def get_transactions(self, crypto, address, confirmations=1):
-        url = 'http://%s.blockr.io/api/v1/address/txs/%s' % (crypto, address)
+        url = self.json_txs_url.format(address=address, crypto=crypto)
         response = self.get_url(url)
 
         transactions = []
@@ -142,7 +245,7 @@ class Blockr(Service):
         return transactions
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "http://%s.blockr.io/api/v1/address/unspent/%s" % (crypto, address)
+        url = self.json_unspent_outputs_url.format(address=address, crypto=crypto)
         utxos = []
         for utxo in self.get_url(url).json()['data']['unspent']:
             cons = utxo['confirmations']
@@ -180,7 +283,7 @@ class Blockr(Service):
             sent_value=r['vout_sum'],
             total_fees=float(r['fee']),
             mining_difficulty=r['difficulty'],
-            size=r['size'],
+            size=int(r['size']),
             hash=r['hash'],
             merkle_root=r['merkleroot'],
             previous_hash=r['prev_block_hash'],
@@ -190,6 +293,8 @@ class Blockr(Service):
 
 
 class Toshi(Service):
+    api_homepage = "https://toshi.io/docs/"
+    service_id = 6
     url = "https://bitcoin.toshi.io/api/v0"
 
     supported_cryptos = ['btc']
@@ -267,6 +372,9 @@ class Toshi(Service):
 
 
 class BTCE(Service):
+    service_id = 7
+    api_homepage = "https://btc-e.com/api/documentation"
+
     def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
         url = "https://btc-e.com/api/3/ticker/" + pair
@@ -275,6 +383,9 @@ class BTCE(Service):
 
 
 class Cryptonator(Service):
+    service_id = 8
+    api_homepage = "https://www.cryptonator.com/api"
+
     def get_current_price(self, crypto, fiat):
         pair = "%s-%s" % (crypto, fiat)
         url = "https://www.cryptonator.com/api/ticker/%s" % pair
@@ -283,7 +394,9 @@ class Cryptonator(Service):
 
 
 class Winkdex(Service):
+    service_id = 9
     supported_cryptos = ['btc']
+    api_homepage = "http://docs.winkdex.com/"
 
     def get_current_price(self, crypto, fiat):
         if fiat != 'usd':
@@ -292,81 +405,11 @@ class Winkdex(Service):
         return self.get_url(url).json()['price'] / 100.0, 'winkdex'
 
 
-class BlockStrap(Service):
-    """
-    Documentation here: http://docs.blockstrap.com/en/api/
-    """
-    domain = 'http://api.blockstrap.com'
-    supported_cryptos = ['btc', 'ltc', 'drk', 'doge']
-
-    def get_balance(self, crypto, address, confirmations=None):
-        url = "%s/v0/%s/address/id/%s" % (self.domain, crypto, address)
-        response = self.get_url(url).json()
-        return response['data']['address']['balance'] / 1e8
-
-    def push_tx(self, crypto, tx_hex):
-        url = "%s/v0/%s/transaction/relay/%s" % (self.domain, crypto, tx_hex)
-        return self.get_url(url).json()['data']['id']
-
-    def get_transactions(self, crypto, address):
-        url = "%s/v0/%s/address/transactions/%s" % (self.domain, crypto, address)
-        txs = []
-        for tx in self.get_url(url).json()['data']['address']['transactions']:
-            s_amount = tx['tx_address_input_value'] or tx['tx_address_output_value'] * -1
-            txs.append(dict(
-                date=arrow.get(tx['block_time']).datetime,
-                amount=s_amount / 1e8,
-                confirmations=tx['confirmations'],
-                txid=tx['id'],
-            ))
-        return txs
-
-    def get_unspent_outputs(self, crypto, address):
-        url = "%s/v0/%s/address/unspents/%s" % (self.domain, crypto, address)
-        utxos = []
-        for utxo in self.get_url(url).json()['data']['address']['transactions']:
-            utxos.append(dict(
-                amount=utxo['tx_address_value'],
-                address=address,
-                output="%s:%s" % (utxo['id'].lower(), utxo['tx_address_tx_pos']),
-                confirmations=utxo['confirmations']
-            ))
-        return utxos
-
-    def get_block(self, crypto, block_hash='', block_number='', latest=False):
-        if block_hash:
-            url = "%s/v0/%s/block/id/%s" % (self.domain, crypto, block_hash)
-            b = "block"
-        elif block_number:
-            url = "%s/v0/%s/block/height/%s" % (self.domain, crypto, block_number)
-            b = "blocks"
-        elif latest:
-            url = "%s/v0/%s/block/latest" % (self.domain, crypto)
-            b = 'block'
-
-        r = self.get_url(url).json()['data'][b]
-
-        if block_number:
-            r = r[0]
-
-        return dict(
-            block_number=r['height'],
-            confirmations=r["confirmations"],
-            time=arrow.get(r['time_display']).datetime,
-            sent_value=r["output_value"] / 1e8,
-            total_fees=r["fees"] / 1e8,
-            size=r['size'],
-            hash=r['id'].lower(),
-            merkle_root=r['merkel_root'].lower(),
-            previous_hash=r['prev_block_id'].lower(),
-            next_hash=r['next_block_id'].lower(),
-            txids=sorted(x['id'] for x in r['transactions']),
-            tx_count=len(r['transactions'])
-        )
-
-
 class ChainSo(Service):
+    service_id = 11
+    api_homepage = "https://chain.so/api"
     base_url = "https://chain.so/api/v2"
+    explorer_address_url = "https://chain.so/address/{crypto}/{address}"
     supported_cryptos = ['doge', 'btc', 'ltc']
 
     def get_current_price(self, crypto, fiat):
@@ -445,6 +488,8 @@ class ChainSo(Service):
 
 
 class CoinPrism(Service):
+    service_id = 12
+    api_homepage = "http://docs.coinprism.apiary.io/"
     base_url = "https://api.coinprism.com/v1"
     supported_cryptos = ['btc']
 
@@ -494,7 +539,12 @@ class BitEasy(Service):
     Most functions from this servie require an API key. therefore only
     address balance is supported at this time.
     """
+    service_id = 13
+    api_homepage = "https://support.biteasy.com/kb"
     supported_cryptos = ['btc']
+    explorer_address_url = "https://www.biteasy.com/blockchain/addresses/{address}"
+    explorer_tx_url = "https://www.biteasy.com/blockchain/transactions/{txid}"
+    explorer_blockhash_url = "https://www.biteasy.com/blockchain/blocks/{blockhash}"
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://api.biteasy.com/blockchain/v1/addresses/" + address
@@ -503,7 +553,13 @@ class BitEasy(Service):
 
 
 class BlockChainInfo(Service):
+    service_id = 14
+    api_homepage = "https://blockchain.info/api"
     supported_cryptos = ['btc']
+    explorer_address_url = "https://blockchain.info/address/{address}"
+    explorer_tx_url = "https://blockchain.info/tx/{txid}"
+    explorer_blocknum_url = "https://blockchain.info/block-index/{blocknum}"
+    explorer_blockhash_url = "https://blockchain.info/block/{blockhash}"
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://blockchain.info/address/%s?format=json" % address
@@ -533,8 +589,10 @@ class BlockChainInfo(Service):
 ##################################
 
 class BitcoinAbe(Service):
+    service_id = 15
     supported_cryptos = ['btc']
     base_url = "http://bitcoin-abe.info/chain/Bitcoin"
+    # decomissioned, kept here because other services need it as base class
 
     def get_balance(self, crypto, address, confirmations=1):
         url = self.base_url + "/q/addressbalance/" + address
@@ -542,34 +600,30 @@ class BitcoinAbe(Service):
         return float(response.content)
 
 
-class LitecoinAbe(BitcoinAbe):
-    supported_cryptos = ['ltc']
-    base_url = "http://bitcoin-abe.info/chain/Litecoin"
-
-
-class NamecoinAbe(BitcoinAbe):
-    supported_cryptos = ['nmc']
-    base_url = "http://bitcoin-abe.info/chain/Namecoin"
-
-
 class DogeChainInfo(BitcoinAbe):
+    service_id = 18
     supported_cryptos = ['doge']
     base_url = "https://dogechain.info/chain/Dogecoin"
+    api_homepage = "https://dogechain.info/api"
 
 
 class AuroraCoinEU(BitcoinAbe):
+    service_id = 19
     supported_cryptos = ['aur']
     base_url = 'http://blockexplorer.auroracoin.eu/chain/AuroraCoin'
 
 
 class Atorox(BitcoinAbe):
+    service_id = 20
     supported_cryptos = ['aur']
     base_url = "http://auroraexplorer.atorox.net/chain/AuroraCoin"
 
 ##################################
 
 class FeathercoinCom(Service):
+    service_id = 21
     supported_cryptos = ['ftc']
+    api_homepage = "http://api.feathercoin.com/"
 
     def get_balance(self, crypto, address, confirmations=1):
         url= "http://api.feathercoin.com/?output=balance&address=%s&json=1" % address
@@ -578,7 +632,9 @@ class FeathercoinCom(Service):
 
 
 class NXTPortal(Service):
+    service_id = 22
     supported_cryptos = ['nxt']
+    api_homepage = "https://nxtportal.org/"
 
     def get_balance(self, crypto, address, confirmations=1):
         url='http://nxtportal.org/nxt?requestType=getAccount&account=' + address
@@ -601,6 +657,9 @@ class NXTPortal(Service):
 
 
 class CryptoID(Service):
+    service_id = 23
+    api_homepage = "https://chainz.cryptoid.info/api.dws"
+
     supported_cryptos = [
         'dash', 'bc', 'bay', 'block', 'cann', 'uno', 'vrc', 'xc', 'uro', 'aur',
         'pot', 'cure', 'arch', 'swift', 'karm', 'dgc', 'lxc', 'sync', 'byc',
@@ -617,15 +676,21 @@ class CryptoID(Service):
 
 
 class CryptapUS(Service):
+    service_id = 24
+    api_homepage = "https://cryptap.us/"
     supported_cryptos = [
         'nmc', 'wds', 'ber', 'scn', 'sc0', 'wdc', 'nvc', 'cas', 'myr'
     ]
+
     def get_balance(self, crypto, address, confirmations=1):
         url = "http://cryptap.us/%s/explorer/q/addressbalance/%s" % (crypto, address)
         return float(self.get_url(url).content)
 
 
 class BTER(Service):
+    service_id = 25
+    api_homepage = "https://bter.com/api"
+
     def get_current_price(self, crypto, fiat):
         url_template = "http://data.bter.com/api/1/ticker/%s_%s"
         url = url_template % (crypto, fiat)
@@ -650,27 +715,15 @@ class BTER(Service):
 
         return float(response['last'] or 0), 'bter'
 
-
-class CoinSwap(Service):
-    def get_current_price(self, crypto, fiat):
-        chunk = ("%s/%s" % (crypto, fiat)).upper()
-        url = "https://api.coin-swap.net/market/stats/%s" % chunk
-        response = self.get_url(url).json()
-        return float(response['lastprice']), 'coin-swap'
-
-
-class ExCoIn(Service):
-    # decommissioned
-    def get_current_price(self, crypto, fiat):
-        url = "https://api.exco.in/v1/exchange/%s/%s" % (fiat, crypto)
-        response = self.get_url(url).json()
-        return float(response['last_price']), 'exco.in'
-
 ################################################
 
 class BitpayInsight(Service):
+    service_id = 28
     supported_cryptos = ['btc']
     domain = "http://insight.bitpay.com"
+    api_homepage = domain + "/api"
+    explorer_address_url = "https://insight.bitpay.com/address/{address}"
+
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s/api/addr/%s/balance" % (self.domain, address)
@@ -733,36 +786,50 @@ class BitpayInsight(Service):
 
 
 class TheBitInfo(BitpayInsight):
+    service_id = 29
     supported_cryptos = ['btc']
-    domain = "http://insight.thebit.info/"
+    domain = "http://insight.thebit.info"
+    api_homepage = domain + "/api"
 
 
 class MYRCryptap(BitpayInsight):
+    service_id = 30
     supported_cryptos = ['myr']
-    domain = "http://insight-myr.cryptap.us/"
+    domain = "http://insight-myr.cryptap.us"
+    api_homepage = domain + "/api"
 
 
 class BirdOnWheels(BitpayInsight):
+    service_id = 31
     supported_cryptos = ['myr']
     domain = "http://birdonwheels5.no-ip.org:3000"
+    api_homepage = domain + "/api"
 
 
 class ThisIsVTC(BitpayInsight):
+    service_id = 32
     supported_cryptos = ['vtc']
     domain = "http://explorer.thisisvtc.com"
+    api_homepage = domain + "/api"
 
 
 class ReddcoinCom(BitpayInsight):
+    service_id = 33
     supported_cryptos = ['rdd']
     domain = "http://live.reddcoin.com"
+    api_homepage = domain + "/api"
 
 
 class FTCe(BitpayInsight):
+    service_id = 34
     supported_cryptos = ['ftc']
     domain = "http://block.ftc-c.com"
+    api_homepage = domain + "/api"
 
 
 class CoinTape(Service):
+    service_id = 35
+    api_homepage = "http://api.cointape.com/api"
     supported_cryptos = ['btc']
 
     def get_optimal_fee(self, crypto, tx_bytes):
@@ -771,6 +838,9 @@ class CoinTape(Service):
         return int(response['fastestFee'] * tx_bytes)
 
 class BitGo(Service):
+    service_id = 36
+    api_homepage = 'https://www.bitgo.com/api/'
+
     base_url = "https://www.bitgo.com"
     optimalFeeNumBlocks = 1
     supported_cryptos = ['btc']
@@ -836,7 +906,9 @@ class BitGo(Service):
         return int(tx_bytes * fee_kb / 1024)
 
 class Blockonomics(Service):
+    service_id = 37
     supported_cryptos = ['btc']
+    api_homepage = "https://www.blockonomics.co/views/api.html"
 
     def get_balance(self, crypto, address, confirmations=1):
         return self.get_balance_multi(crypto, [address], confirmations)[address]
@@ -869,3 +941,9 @@ class Blockonomics(Service):
                 txid=tx['txid'],
             ))
         return txs
+
+class BlockExplorerCom(BitpayInsight):
+    service_id = 38
+    supported_cryptos = ['btc']
+    domain = "https://blockexplorer.com"
+    api_homepage = domain + "/api"

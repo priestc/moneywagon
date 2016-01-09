@@ -10,35 +10,36 @@ crypto_data = {
     'btc': {
         'name': 'Bitcoin',
         'address_version_byte': 0,
+        'message_magic': 0xd9b4bef9,
         'bip44_coin_type': 0x80000000,
         'private_key_prefix': 128,
         'genesis_date': datetime(2009, 1, 12),
         'services': {
             'current_price': [
-                Bitstamp, Winkdex, BTCE, BTER, Cryptonator, ChainSo
+                Bitstamp, Winkdex, BTCE, BTER, BlockExplorerCom, Cryptonator, ChainSo
             ],
             'address_balance': [
-                Toshi, BlockCypher, Blockr, BlockStrap, ChainSo, BlockSeer,
-                BitEasy, SmartBitAU, BlockChainInfo, Blockonomics, BitcoinAbe,
+                Toshi, BlockCypher, Blockr, ChainSo, BlockSeer,
+                BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
                 BitpayInsight, CoinPrism, BitGo
             ],
             'historical_transactions': [
-                Blockr, Toshi, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
+                Blockr, Toshi, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
                 BitpayInsight, Blockonomics
             ],
             'push_tx': [
-                BlockChainInfo, Blockr, BlockStrap, ChainSo, CoinPrism,
+                BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
                 TheBitInfo, BitpayInsight
             ],
             'unspent_outputs': [
-                Blockr, BitpayInsight, SmartBitAU, BlockChainInfo, Toshi, CoinPrism, ChainSo,
-                BlockStrap, TheBitInfo, BitGo
+                Blockr, BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
+                TheBitInfo, BitGo
             ],
             'get_block': [
-                BitpayInsight, Toshi, Blockr, ChainSo, BlockStrap, TheBitInfo, BitGo
+                BitpayInsight, Toshi, Blockr, BlockExplorerCom, ChainSo, TheBitInfo, BitGo
             ],
             "get_optimal_fee": [
-                BitGo, CoinTape
+                BitGo, BlockCypher, CoinTape
             ]
         },
     },
@@ -53,19 +54,19 @@ crypto_data = {
                 BTCE, ChainSo, BTER, Cryptonator
             ],
             'address_balance': [
-                BlockCypher, Blockr, BlockStrap, LitecoinAbe, ChainSo
+                BlockCypher, Blockr, ChainSo
             ],
             'historical_transactions': [
                 Blockr, ChainSo
             ],
             'push_tx': [
-                Blockr, BlockStrap, ChainSo
+                Blockr, ChainSo
             ],
             'unspent_outputs': [
-                BlockStrap, ChainSo, Blockr
+                ChainSo, Blockr
             ],
             'get_block': [
-                ChainSo, Blockr, BlockStrap
+                ChainSo, Blockr
             ]
         },
     },
@@ -107,19 +108,19 @@ crypto_data = {
                 BTER, ChainSo, Cryptonator
             ],
             'address_balance': [
-                DogeChainInfo, BlockStrap
+                ChainSo, DogeChainInfo
             ],
             'historical_transactions': [
                 ChainSo
             ],
             'push_tx': [
-                BlockStrap, ChainSo
+                ChainSo
             ],
             'unspent_outputs': [
-                ChainSo, BlockStrap
+                ChainSo
             ],
             'get_block': [
-                BlockStrap, ChainSo
+                ChainSo
             ]
         },
     },
