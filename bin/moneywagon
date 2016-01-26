@@ -125,7 +125,7 @@ modes = {
     'paranoid': int(argz.paranoid or 1) if hasattr(argz, 'paranoid') else 1,
     'verbose': argz.verbose if hasattr(argz, "verbose") else False,
     'fast': 1 if hasattr(argz, "fast") else False,
-    'timeout': float(argz.timeout) if hasattr(argz, "timeout") else None
+    'timeout': float(argz.timeout or 0) if hasattr(argz, "timeout") else None
 }
 
 if argz.subparser_name == 'current-price':
