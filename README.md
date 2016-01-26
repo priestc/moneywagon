@@ -114,7 +114,7 @@ The seed can be any string, preferably with a lot of entropy.
 You can also pipe in entropy via standard input by specifying a dash for the seed:
 
 ```
-$ date | md5sum | moneywagon generate-keypair ppc - | python -mjson.tool
+$  openssl rand 10000 | moneywagon generate-keypair ppc - | python -mjson.tool
 {
     "private": {
         "hex": "a937be15ff2e7b9313c38714d608180d2ae9a8732e91adead3f666da51bee03301",
