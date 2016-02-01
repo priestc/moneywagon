@@ -366,7 +366,7 @@ datetime object by ``arrow.get``
 ```python
 >>> from moneywagon import HistoricalCryptoPrice
 >>> service = HistoricalCryptoPrice()
->>> service.get('btc', 'usd', '2013-11-13')
+>>> service.action('btc', 'usd', '2013-11-13')
 (354.94,
 'BITCOIN/BITSTAMPUSD',
 datetime.datetime(2013, 11, 13, 0, 0))
@@ -403,7 +403,7 @@ The nature of this calculation can also be seen in the source string
 
 ```python
 >>> from moneywagon import AddressBalance
->>> AddressBalance().get('ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj')
+>>> AddressBalance().action('ppc', 'PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj')
 103.98
 ```
 
@@ -508,7 +508,7 @@ Or through python:
 
 ```python
 >>> from moneywagon import HistoricalTransactions
->>> HistoricalTransactions().get('ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ')
+>>> HistoricalTransactions().action('ltc', 'Lb78JDGxMcih1gs3AirMeRW6jaG5V9hwFZ')
 [{'amount': 147.58363366,
 'confirmations': 9093,
 'date': datetime.datetime(2014, 11, 16, 23, 53, 37, tzinfo=tzutc()),
