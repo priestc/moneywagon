@@ -107,9 +107,6 @@ class Transaction(object):
                 )
                 total_added_satoshi += utxo['amount']
 
-        if total_added_satoshi == 0:
-            raise Exception("No inputs available for: %s" % address)
-
         return total_added_satoshi, ins
 
     def total_input_satoshis(self):
