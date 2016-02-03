@@ -120,7 +120,8 @@ class Transaction(object):
       '''Maximize transaction priority. Select the oldest inputs,
       that are sufficient to cover the spent amount. Then, 
       remove any unneeded inputs, starting with
-      the smallest in value.'''
+      the smallest in value. 
+      Returns sum of amounts of inputs selected'''
       sorted_txin = sorted(self.ins, key=lambda x:-x['input']['confirmations'])
       total_amount = 0
       for (idx, tx_in) in enumerate(sorted_txin):
@@ -135,6 +136,7 @@ class Transaction(object):
         else:
           total_amount -= value
       self.ins = sorted_txin[idx:]
+      return total_amount
 
     def add_output(self, address, value, unit='satoshi'):
         """
