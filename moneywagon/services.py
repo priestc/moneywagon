@@ -115,11 +115,11 @@ class BlockSeer(Service):
     json_txs_url = "https://www.blockseer.com/api/addresses/{address}/transactions?filter=all"
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = self.json_address_balance_url.format(address=address, crypto=crypto)
+        url = self.json_address_balance_url.format(address=address)
         return self.get_url(url).json()['data']['balance'] / 1e8
 
     def get_transactions(self, crypo, address):
-        url = self.json_txs_url.format(address=address, crypto=crypto)
+        url = self.json_txs_url.format(address=address)
         transactions = []
         for tx in self.get_url(url).json()['data']['address']['transactions']:
             transactions.append(dict(
