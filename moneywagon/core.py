@@ -252,7 +252,8 @@ class AutoFallbackFetcher(object):
                 ret =  getattr(service, method_name)(*args, **kwargs)
                 self._successful_service = service
                 return ret
-            except (KeyError, IndexError, TypeError, ValueError, requests.exceptions.SSLError) as exc:
+            except (KeyError, IndexError, TypeError, ValueError, 
+                    requests.exceptions.ReadTimeout, requests.exceptions.SSLError) as exc:
                 # API has probably changed, therefore service class broken
                 if self.verbose: print("FAIL:", service, exc.__class__.__name__, exc)
                 self._failed_services.append({
