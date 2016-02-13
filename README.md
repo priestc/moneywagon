@@ -386,7 +386,7 @@ Also, the Quandl service does not have every single cryptocurrency to fiat excha
 so for some pairs, moneywagon has to make two different calls to Quandl.
 
 ```python
->>> service.get('vtc', 'rur', '2014-11-13'))
+>>> service.action('vtc', 'rur', '2014-11-13'))
 (3.2636992,
 'CRYPTOCHART/VTC x BITCOIN/BTCERUR',
 datetime.datetime(2014, 11, 13, 0, 0))

@@ -947,3 +947,32 @@ class BlockExplorerCom(BitpayInsight):
     supported_cryptos = ['btc']
     domain = "https://blockexplorer.com"
     api_homepage = domain + "/api"
+
+
+class BitNodes(Service):
+    domain = "https://bitnodes.21.co"
+
+    def get_nodes(self, crypto):
+        response = self.get_url(self.domain + "/api/v1/snapshots/latest/")
+        nodes_dict = response.json()['nodes']
+
+        nodes = []
+        for address, data in nodes_dict.items():
+            nodes.append({
+                'address': address,
+                'protocol_version': data[0],
+                'user_agent': data[1],
+                'connected_since': arrow.get(data[2]).datetime,
+                'services': data[3],
+                'height': data[4],
+                'hostname': data[5],
+                'city': data[6],
+                'country': data[7],
+                'latitude': data[8],
+                'longitude': data[9],
+                'timezone': data[10],
+                'asn': data[11],
+                'organization': data[12]
+            })
+
+        return nodes
