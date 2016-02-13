@@ -4,7 +4,7 @@ import requests
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.8.3'
+useragent = 'moneywagon 1.8.4'
 
 class ServiceDisagreement(Exception):
     pass
@@ -252,7 +252,7 @@ class AutoFallbackFetcher(object):
                 ret =  getattr(service, method_name)(*args, **kwargs)
                 self._successful_service = service
                 return ret
-            except (KeyError, IndexError, TypeError, ValueError, 
+            except (KeyError, IndexError, TypeError, ValueError,
                     requests.exceptions.ReadTimeout, requests.exceptions.SSLError) as exc:
                 # API has probably changed, therefore service class broken
                 if self.verbose: print("FAIL:", service, exc.__class__.__name__, exc)
