@@ -296,7 +296,7 @@ crypto_data = {
     },
     'aur': {
         'name': 'Auroracoin',
-        'address_version_byte': 17,
+        'address_version_byte': 23,
         'bip44_coin_type': None,
         'private_key_prefix': 0x97,
         'genesis_date': datetime(2014, 2, 2),
@@ -305,9 +305,9 @@ crypto_data = {
     # TEMPLATE
     '': {
         'name': '',
-        'address_version_byte': 0,
-        'bip44_coin_type': 0,
-        'private_key_prefix': 0,
+        'address_version_byte': None,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [

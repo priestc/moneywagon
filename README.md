@@ -672,6 +672,18 @@ In this example, one single call will be made to either Blockchain.info or Toshi
 If one of those services happens to be down at the monment, then the other one will be called and its
 value returned.
 
+## Utilities
+
+```python
+>>> from moneywagon import guess_currency_from_address
+>>> guess_currency_from_address("NJwRrtKcv3ggkwh3j3yka69rH3x5d5gu5m")
+('nmc', 'Namecoin')
+>>> guess_currency_from_address("1Ng3mALXCEphwLqTZ4x5DutMcRTxpTF299")
+('btc', 'Bitcoin')
+```
+
+This can be used as an address verifier, as an exception gets raised when an invalid
+address is passed in.
 
 ## Low level API
 

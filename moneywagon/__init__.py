@@ -2,6 +2,8 @@ from __future__ import print_function
 
 from tabulate import tabulate
 
+from base58 import b58decode_check
+
 from .core import (
     AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes
 )
@@ -169,12 +171,14 @@ def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=N
 def guess_currency_from_address(address):
     """
     Given a crypto address, find which currency it likely belongs to.
+    Returns None if it can't find a match. Raises exception if address
+    is invalid.
     """
+    first_byte = b58decode_check(address)[0]
     for currency, data in crypto_data.items():
-        print(currency, data)
-        if hasattr(data, 'get'):
+        if hasattr(data, 'get'): # skip incomplete data listings
             version = data.get('address_version_byte', None)
-            if version and address.startswith(version):
+            if version is not None and first_byte == version:
                 return currency, data['name']
 
 
