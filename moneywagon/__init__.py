@@ -104,6 +104,7 @@ def generate_keypair(crypto, seed, password=None):
 
     priv_wif = encode_privkey(priv, 'wif_compressed', vbyte=priv_byte)
     if password:
+        # pycrypto etc. must be installed or this will raise ImportError, hence inline import.
         from .bip38 import Bip38EncryptedPrivateKey
         priv_wif = str(Bip38EncryptedPrivateKey.encrypt(crypto, priv_wif, password))
 
@@ -163,6 +164,19 @@ def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=N
             urls.append(template.format(**context))
 
     return urls
+
+
+def guess_currency_from_address(address):
+    """
+    Given a crypto address, find which currency it likely belongs to.
+    """
+    for currency, data in crypto_data.items():
+        print(currency, data)
+        if hasattr(data, 'get'):
+            version = data.get('address_version_byte', None)
+            if version and address.startswith(version):
+                return currency, data['name']
+
 
 class OptimalFee(AutoFallbackFetcher):
     def action(self, crypto, tx_bytes):

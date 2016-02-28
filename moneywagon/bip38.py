@@ -12,6 +12,8 @@ from bitcoin import (
     encode_pubkey, changebase, fast_multiply, G, P, A, B
 )
 
+from base58 import b58encode_check, b58decode_check
+
 try:
     import scrypt
 except ImportError:
@@ -30,27 +32,6 @@ else:
     # py3
     long = int
     unicode = str
-
-
-def base58check(payload):
-    """
-    Convert bytes object into "base 58" encoded string including checksum.
-    """
-    checksum = sha256(sha256(payload).digest()).digest()[:4]
-    return changebase(hexlify(payload + checksum).decode('ascii'), 16, 58)
-
-
-def unbase58check(encoded, minlength=0):
-    """
-    Returns the paylod of a base58check encoded string. Verifies that the
-    checksum is correct.
-    """
-    full_payload = unhexlify(changebase(encoded.encode('ascii'), 58, 16, minlength))
-    payload, checksum = full_payload[:-4], full_payload[-4:]
-    passed = checksum == sha256(sha256(payload).digest()).digest()[:4]
-    assert passed, "Base58 checksum failed, did you mistype something?"
-    return payload
-
 
 def compress(x, y):
     """
@@ -95,7 +76,7 @@ class Bip38EncryptedPrivateKey(Bip38Primitive):
         if not b58check.startswith('6P'):
             raise Exception("Invalid encrypted private key. Must start wth 6P.")
         self.b58check = b58check
-        self.payload = unbase58check(b58check, 86)
+        self.payload = b58decode_check(b58check)
         second_byte = self.payload[1:2]
         self.flagbyte = self.payload[2:3]
 
@@ -211,7 +192,7 @@ class Bip38EncryptedPrivateKey(Bip38Primitive):
 
         # 39 bytes    2 (6P)      1(R/Y)    4          16               16
         payload = b'\x01\x42' + flagbyte + salt + encryptedhalf1 + encryptedhalf2
-        return cls(crypto, base58check(payload))
+        return cls(crypto, b58encode_check(payload))
 
     @classmethod
     def create_from_intermediate(cls, crypto, intermediate_point, seed, compressed=True, include_cfrm=True):
@@ -221,7 +202,7 @@ class Bip38EncryptedPrivateKey(Bip38Primitive):
         the intermediate point.
         """
         flagbyte = b'\x20' if compressed else b'\x00'
-        payload = unbase58check(str(intermediate_point))
+        payload = b58decode_check(str(intermediate_point))
         ownerentropy = payload[8:16]
 
         passpoint = payload[16:-4]
@@ -252,7 +233,7 @@ class Bip38EncryptedPrivateKey(Bip38Primitive):
 
         # 39 bytes      2           1           4              8                8                 16
         payload = b"\x01\x43" + flagbyte + addresshash + ownerentropy + encryptedpart1[:8] + encryptedpart2
-        encrypted_pk = base58check(payload)
+        encrypted_pk = b58encode_check(payload)
 
         if not include_cfrm:
             return generatedaddress, encrypted_pk
@@ -271,7 +252,7 @@ class Bip38IntermediatePoint(Bip38Primitive):
         self.b58check = b58check
         if not b58check.startswith('passphrase'):
             raise Exception("Invalid intermediate point. Must start wth 'passphrase'.")
-        payload = unbase58check(str(b58check))
+        payload = b58decode_check(str(b58check))
         self.ownerentropy = payload[8:16] # 8 bytes
         self.passpoint = payload[16:49] # 33 bytes
 
@@ -325,7 +306,7 @@ class Bip38IntermediatePoint(Bip38Primitive):
 
         #                  7                            1            8            33
         payload = b'\x2C\xE9\xB3\xE1\xFF\x39\xE2' + last_byte + ownerentropy + passpoint
-        return cls(base58check(payload))
+        return cls(b58encode_check(payload))
 
 
 class Bip38ConfirmationCode(Bip38Primitive):
@@ -334,7 +315,7 @@ class Bip38ConfirmationCode(Bip38Primitive):
         if not b58check.startswith('cfrm38'):
             raise Exception("Invalid Confirm code, must start with 'cfrm38'")
         self.b58check = b58check
-        payload = unbase58check(b58check)
+        payload = b58decode_check(b58check)
         flagbyte = payload[5:6]
 
         if flagbyte == b'\x20':
@@ -386,7 +367,7 @@ class Bip38ConfirmationCode(Bip38Primitive):
 
         #           5 (cfrm38 prefix)          1            4             8               33
         payload = b'\x64\x3B\xF6\xA8\x9A' + flagbyte + addresshash + ownerentropy + encryptedpointb
-        return cls(base58check(payload))
+        return cls(b58encode_check(payload))
 
     def generate_address(self, passphrase):
         """

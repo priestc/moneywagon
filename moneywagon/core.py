@@ -4,7 +4,7 @@ import requests
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.8.4'
+useragent = 'moneywagon 1.8.5'
 
 class ServiceDisagreement(Exception):
     pass
@@ -430,4 +430,4 @@ def get_magic_bytes(crypto):
         return pub_byte, priv_byte
 
     except KeyError:
-        raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
+        raise ValueError("Cryptocurrency symbol not found: %s" % crypto)

@@ -11,7 +11,7 @@ else:
 
 setup(
     name="moneywagon",
-    version='1.8.4',
+    version='1.8.5',
     description='Next Generation Cryptocurrency Platform',
     long_description=open('README.md').read(),
     author='Chris Priest',
@@ -30,6 +30,7 @@ setup(
     install_requires=[
         'requests',
         'tabulate',
+        'base58',
         'pytz',
         'arrow',
         'bitcoin'
