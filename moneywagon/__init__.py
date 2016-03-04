@@ -81,15 +81,16 @@ def get_block(crypto, block_number='', block_hash='', latest=False, services=Non
     )
 
 
-def get_optimal_fee(crypto, tx_bytes, verbose=False):
+def get_optimal_fee(crypto, tx_bytes, **modes):
     """
     Get the optimal fee based on how big the transaction is. Currently this
-    isonly providerfor BTC. Other currencies will return $0.02 in satoshi.
+    is only provided for BTC. Other currencies will return $0.02 in satoshi.
     """
     if crypto == 'btc':
         services = get_optimal_services(crypto, 'get_optimal_fee')
-        of = OptimalFee(services=services, verbose=verbose)
-        return of.action(crypto, tx_bytes)
+        return int(enforce_service_mode(
+            services, OptimalFee, dict(crypto=crypto, tx_bytes=tx_bytes), modes=modes
+        ))
     else:
         convert = get_current_price(crypto, 'usd')[0]
         return int(0.02 / convert * 1e8)

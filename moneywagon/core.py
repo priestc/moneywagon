@@ -321,7 +321,9 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
     elif average_level > 1:
         # instead of checking that all results are the same, we just return the average of all results.
         # mostly useful for non-blockchain operations like price and optimal fee.
-        results = _get_results(FetcherClass, services, num_results=average_level, verbose=verbose, timeout=timeout)
+        results = _get_results(
+            FetcherClass, services, kwargs, num_results=average_level, verbose=verbose, timeout=timeout
+        )
         if hasattr(FetcherClass, "simplify_for_average"):
             simplified = [FetcherClass.simplify_for_average(x) for x in results]
         else:
