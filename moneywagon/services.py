@@ -72,7 +72,7 @@ class BlockCypher(Service):
 
     def get_optimal_fee(self, crypto, tx_bytes):
         url = "https://api.blockcypher.com/v1/%s/main" % crypto
-        fee_kb = self.get_url(url).json()['low_fee_per_kb']
+        fee_kb = self.get_url(url).json()['high_fee_per_kb']
         return int(tx_bytes * fee_kb / 1024.0)
 
 
@@ -831,11 +831,17 @@ class CoinTape(Service):
     service_id = 35
     api_homepage = "http://api.cointape.com/api"
     supported_cryptos = ['btc']
+    base_url = "http://api.cointape.com"
 
     def get_optimal_fee(self, crypto, tx_bytes):
-        url = "http://api.cointape.com/v1/fees/recommended"
+        url = self.base_url + "/v1/fees/recommended"
         response = self.get_url(url).json()
         return int(response['fastestFee'] * tx_bytes)
+
+
+class BitcoinFees21(CoinTape):
+    base_url = "https://bitcoinfees.21.co/api"
+
 
 class BitGo(Service):
     service_id = 36

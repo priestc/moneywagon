@@ -181,6 +181,8 @@ def guess_currency_from_address(address):
             if version is not None and first_byte == version:
                 return currency, data['name']
 
+    return "Unknown Currency", first_byte
+
 
 class OptimalFee(AutoFallbackFetcher):
     def action(self, crypto, tx_bytes):
