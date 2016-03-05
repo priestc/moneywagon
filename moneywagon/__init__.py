@@ -241,7 +241,8 @@ class HistoricalTransactions(AutoFallbackFetcher):
 
 class UnspentOutputs(AutoFallbackFetcher):
     def action(self, crypto, address):
-        return self._try_services('get_unspent_outputs', crypto=crypto, address=address)
+        utxos = self._try_services('get_unspent_outputs', crypto=crypto, address=address)
+        return sorted(utxos, key=lambda x: x['output'])
 
     def no_service_msg(self, crypto, address):
         return "Could not get unspent outputs for: %s" % crypto

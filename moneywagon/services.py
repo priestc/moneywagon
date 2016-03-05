@@ -192,6 +192,9 @@ class SmartBitAU(Service):
                 amount=utxo['value_int'],
                 output="%s:%s" % (utxo['txid'], utxo['n']),
                 address=address,
+                confirmations=utxo['confirmations'],
+                scriptpubkey_hex=utxo['script_pub_key']['hex'],
+                scriptpubkey_asm=utxo['script_pub_key']['asm']
             ))
         return utxos
 
