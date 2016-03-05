@@ -810,14 +810,6 @@ class BitpayInsight(Service):
         )
 
 
-class TheBitInfo(BitpayInsight):
-    service_id = 29
-    supported_cryptos = ['btc']
-    domain = "http://insight.thebit.info"
-    api_homepage = domain + "/api"
-    name = "TheBit.info"
-
-
 class MYRCryptap(BitpayInsight):
     service_id = 30
     supported_cryptos = ['myr']

@@ -409,7 +409,7 @@ def currency_to_protocol(amount):
     0.001 -> 100000
 
     """
-    if type(amount) == float:
+    if type(amount) in [float, int]:
         amount = "%.8f" % amount
 
     return int(amount.replace(".", '')) # avoiding float math

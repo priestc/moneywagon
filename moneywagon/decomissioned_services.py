@@ -1,4 +1,4 @@
-from moneywagon.services import Service, BitcoinAbe
+from moneywagon.services import Service, BitcoinAbe, BitpayInsight
 
 class BlockStrap(Service):
     """
@@ -102,3 +102,10 @@ class ExCoIn(Service):
         url = "https://api.exco.in/v1/exchange/%s/%s" % (fiat, crypto)
         response = self.get_url(url).json()
         return float(response['last_price']), 'exco.in'
+
+class TheBitInfo(BitpayInsight):
+    service_id = 29
+    supported_cryptos = ['btc']
+    domain = "http://insight.thebit.info"
+    api_homepage = domain + "/api"
+    name = "TheBit.info"

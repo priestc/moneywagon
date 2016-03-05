@@ -29,14 +29,14 @@ crypto_data = {
             ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
-                TheBitInfo, BitpayInsight
+                BitpayInsight
             ],
             'unspent_outputs': [
                 Blockr, BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
-                TheBitInfo, BitGo
+                BitGo
             ],
             'get_block': [
-                BitpayInsight, Toshi, Blockr, BlockExplorerCom, ChainSo, TheBitInfo, BitGo
+                BitpayInsight, Toshi, Blockr, BlockExplorerCom, ChainSo, BitGo
             ],
             "get_optimal_fee": [
                 BitGo, BlockCypher, CoinTape, BitcoinFees21
