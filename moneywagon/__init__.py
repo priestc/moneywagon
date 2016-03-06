@@ -362,7 +362,7 @@ def service_table(format='simple'):
         ret.append([
             service.service_id,
             service.__name__, service.api_homepage,
-            ",".join(service.supported_cryptos or [])
+            ", ".join(service.supported_cryptos or [])
         ])
 
     return tabulate(ret, headers=['ID', 'Name', 'URL', 'Supported Currencies'], tablefmt=format)
