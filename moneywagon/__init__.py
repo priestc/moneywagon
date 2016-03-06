@@ -357,11 +357,16 @@ def service_table(format='simple'):
     """
     Returns a string depicting all services currently installed.
     """
+    if format == 'html':
+        linkify = lambda x: "<a href='{0}' target='_blank'>{0}</a>".format(x)
+    else:
+        linkify = lambda x: x
+
     ret = []
     for service in sorted(ALL_SERVICES, key=lambda x: x.service_id):
         ret.append([
             service.service_id,
-            service.__name__, service.api_homepage,
+            service.__name__, linkify(service.api_homepage),
             ", ".join(service.supported_cryptos or [])
         ])
 
