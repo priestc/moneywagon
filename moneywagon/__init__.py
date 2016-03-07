@@ -1,4 +1,5 @@
 from __future__ import print_function
+import sys
 
 from tabulate import tabulate
 
@@ -10,6 +11,10 @@ from .core import (
 from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey
+
+is_py2 = False
+if sys.version_info <= (3,0):
+    is_py2 = True
 
 
 def get_current_price(crypto, fiat, services=None, **modes):
@@ -175,7 +180,12 @@ def guess_currency_from_address(address):
     Returns None if it can't find a match. Raises exception if address
     is invalid.
     """
-    first_byte = b58decode_check(address)[0]
+    if is_py2:
+        fixer = lambda x: int(x.encode('hex'), 16)
+    else:
+        fixer = lambda x: x # does nothing
+
+    first_byte = fixer(b58decode_check(address)[0])
     for currency, data in crypto_data.items():
         if hasattr(data, 'get'): # skip incomplete data listings
             version = data.get('address_version_byte', None)
