@@ -282,7 +282,10 @@ class Blockr(Service):
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
         url ="http://%s.blockr.io/api/v1/block/info/%s%s%s" % (
-            crypto, block_hash, block_number, 'latest' if latest else ''
+            crypto,
+            block_hash if block_hash else '',
+            block_number if block_number else '',
+            'latest' if latest else ''
         )
         r = self.get_url(url).json()['data']
         return dict(
@@ -361,7 +364,10 @@ class Toshi(Service):
         if latest:
             url = "%s/blocks/latest" % self.url
         else:
-            url = "%s/blocks/%s%s" % (self.url, block_hash, block_number)
+            url = "%s/blocks/%s%s" % (
+                self.url, block_hash if block_hash else '',
+                block_number if block_number else ''
+            )
 
         r = self.get_url(url).json()
         return dict(
