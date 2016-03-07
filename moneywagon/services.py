@@ -791,30 +791,36 @@ class BitpayInsight(Service):
         return utxos
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
-        if block_number:
+
+        if latest:
+            url = "%s/api/status?q=getLastBlockHash" % self.domain
+            block_hash = self.get_url(url).json()['lastblockhash']
+
+        elif block_number:
             url = "%s/api/block-index/%s" % (self.domain, block_number)
-        elif block_hash:
-            url = "%s/api/block/%s" % (self.domain, block_hash)
-        elif latest:
-            raise ValueError("Can't get current block.")
+            block_hash = self.get_url(url).json()['blockHash']
+
+        url = "%s/api/block/%s" % (self.domain, block_hash)
 
         r = self.get_url(url).json()
         return dict(
-            block_number=r['block_no'],
+            block_number=r['height'],
+            version=r['version'],
             confirmations=r['confirmations'],
             time=arrow.get(r['time']).datetime,
-            sent_value=float(r['sent_value']),
-            total_fees=float(r['fee']),
-            mining_difficulty=float(r['mining_difficulty']),
+            mining_difficulty=float(r['difficulty']),
             size=r['size'],
-            hash=r['blockhash'],
+            hash=r['hash'],
             merkle_root=r['merkleroot'],
-            previous_hash=r['previous_blockhash'],
-            next_hash=r['next_blockhash'],
-            txids=[t['txid'] for t in r['txs']],
-            tx_count=len(r['txs'])
+            previous_hash=r['previousblockhash'],
+            next_hash=r.get('nextblockhash', None),
+            txids=r['tx'],
+            tx_count=len(r['tx'])
         )
 
+    def get_optimal_fee(self, crypto, tx_bytes):
+        url = "%s/api/utils/estimatefee?nbBlocks=2" % self.domain
+        return self.get_url(url).json()
 
 class MYRCryptap(BitpayInsight):
     service_id = 30
