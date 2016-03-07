@@ -169,7 +169,7 @@ class Service(object):
             "Or rather it has no defined 'push_tx' method."
         )
 
-    def get_block(self, crypto, block_height='', block_number='', latest=False):
+    def get_block(self, crypto, block_hash='', block_number='', latest=False):
         """
         Get block based on either block height, block number or get the latest
         block. Only one of the previous arguments must be passed on.

@@ -192,7 +192,7 @@ def guess_currency_from_address(address):
             if version is not None and first_byte == version:
                 return currency, data['name']
 
-    return "Unknown Currency", first_byte
+    return None, first_byte
 
 
 class OptimalFee(AutoFallbackFetcher):
