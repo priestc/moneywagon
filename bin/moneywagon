@@ -109,7 +109,7 @@ x.add_argument('--timeout', action='store', help='Time until giving up when maki
 
 argz = parser.parse_args()
 
-def strip_out_services_for_paranoid_mode(high_level_func, *args, **kwargs):
+def prepare_json(high_level_func, *args, **kwargs):
     """
     The low-level API returns the service list along with it's results when paranid
     mode is invoked. For the command line, we don't want to show them.
@@ -126,11 +126,6 @@ def strip_out_services_for_paranoid_mode(high_level_func, *args, **kwargs):
         raise TypeError("Type not serializable")
 
     result = high_level_func(*args, **kwargs)
-
-    if kwargs['paranoid'] > 1:
-        # ignore modes returned on paranoid mode.
-        result = result[1]
-
     return json.dumps(result, default=datetime_to_iso)
 
 modes = {
@@ -158,23 +153,23 @@ elif argz.subparser_name == 'historical-price':
     print(price, source, date)
 
 elif argz.subparser_name == 'address-balance':
-    print(strip_out_services_for_paranoid_mode(
+    print(prepare_json(
         get_address_balance, argz.crypto, argz.address, **modes
     ))
 
 elif argz.subparser_name == 'get-block':
-    print(strip_out_services_for_paranoid_mode(
+    print(prepare_json(
         get_block, argz.crypto, block_number=argz.block_number or '',
         block_hash=argz.block_hash or '', latest=argz.latest or False, modes=modes
     ))
 
 elif argz.subparser_name == 'historical-transactions':
-    print(strip_out_services_for_paranoid_mode(
+    print(prepare_json(
         get_historical_transactions, argz.crypto, argz.address, **modes
     ))
 
 elif argz.subparser_name == "unspent-outputs":
-    print(strip_out_services_for_paranoid_mode(
+    print(prepare_json(
         get_unspent_outputs, argz.crypto, argz.address, **modes
     ))
 
