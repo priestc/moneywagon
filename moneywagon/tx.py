@@ -35,7 +35,7 @@ class Transaction(object):
             return value * 1e8
 
         # assume fiat currency that we can convert
-        convert = self.price_getter.action(self.crypto, unit)[0]
+        convert = self.price_getter.action(self.crypto, unit)
         return int(value / convert * 1e8)
 
     def add_raw_inputs(self, inputs, private_key=None):
@@ -118,9 +118,9 @@ class Transaction(object):
 
     def select_inputs(self, amount):
       '''Maximize transaction priority. Select the oldest inputs,
-      that are sufficient to cover the spent amount. Then, 
+      that are sufficient to cover the spent amount. Then,
       remove any unneeded inputs, starting with
-      the smallest in value. 
+      the smallest in value.
       Returns sum of amounts of inputs selected'''
       sorted_txin = sorted(self.ins, key=lambda x:-x['input']['confirmations'])
       total_amount = 0
@@ -128,7 +128,7 @@ class Transaction(object):
         total_amount += tx_in['input']['amount']
         if (total_amount >= amount):
           break
-      sorted_txin = sorted(sorted_txin[:idx+1], key=lambda x:x['input']['amount']) 
+      sorted_txin = sorted(sorted_txin[:idx+1], key=lambda x:x['input']['amount'])
       for (idx, tx_in) in enumerate(sorted_txin):
         value = tx_in['input']['amount']
         if (total_amount - value < amount):
@@ -163,7 +163,7 @@ class Transaction(object):
         convert = None
         if not value:
             # no fee was specified, use $0.02 as default.
-            convert = self.price_getter.action(self.crypto, "usd")[0]
+            convert = self.price_getter.action(self.crypto, "usd")
             self.fee_satoshi = int(0.02 / convert * 1e8)
             verbose = "Using default fee of:"
 
@@ -178,7 +178,7 @@ class Transaction(object):
 
         if self.verbose:
             if not convert:
-                convert = self.price_getter.action(self.crypto, "usd")[0]
+                convert = self.price_getter.action(self.crypto, "usd")
             fee_dollar = convert * self.fee_satoshi / 1e8
             print(verbose + " %s satoshis ($%.2f)" % (self.fee_satoshi, fee_dollar))
 
