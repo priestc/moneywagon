@@ -316,7 +316,9 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
 
     if average_level <= 1 and paranoid_level <= 1 and fast_level == 0:
         # only need to make 1 external call, no need for threading...
-        return FetcherClass(services=services, verbose=verbose, timeout=timeout).action(**kwargs)
+        fetcher = FetcherClass(services=services, verbose=verbose, timeout=timeout)
+        consensus_results = fetcher.action(**kwargs)
+        used_services = [fetcher._successful_service]
 
     elif average_level > 1:
         # instead of checking that all results are the same, we just return the average of all results.
@@ -324,16 +326,22 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
         results = _get_results(
             FetcherClass, services, kwargs, num_results=average_level, verbose=verbose, timeout=timeout
         )
-        if hasattr(FetcherClass, "simplify_for_average"):
-            simplified = [FetcherClass.simplify_for_average(x) for x in results]
-        else:
-            simplified = results
-        return sum(simplified) / len(simplified)
+
+        to_compare, used_services = _prepare_consensus(FetcherClass, results)
+        consensus_results = sum(to_compare) / len(to_compare)
 
     elif paranoid_level > 1:
         results = _get_results(
             FetcherClass, services, kwargs, num_results=paranoid_level, verbose=verbose, timeout=timeout
         )
+        to_compare, used_services = _prepare_consensus(FetcherClass, results)
+
+        if not len(set(to_compare)) == 1:
+            ServiceDisagreement("Differing values returned: %s" % results)
+
+        # if all values match, return any one (in this case the first one).
+        # also return the list of all services that confirm this result.
+        consensus_results = results[0][1]
 
     elif fast_level >= 1:
         raise Exception("Fast mode not yet working")
@@ -345,6 +353,17 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
         raise Exception("No mode specified.")
 
 
+    if modes.get('report_services'):
+        return used_services, consensus_results
+    else:
+        return consensus_results
+
+def _prepare_consensus(FetcherClass, results):
+    """
+    Given a list of results, return a list that is simplified to make consensus
+    determination possible. Returns two item tuple, first arg is simplified list,
+    the second argument is a list of all services used in making these results.
+    """
     # _get_results returns lists of 2 item list, first element is service, second is the returned value.
     # when determining consensus amoung services, only take into account values returned.
     if hasattr(FetcherClass, "strip_for_consensus"):
@@ -354,13 +373,7 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
     else:
         to_compare = [value for service, value in results]
 
-    if len(set(to_compare)) == 1:
-        # if all values match, return any one (in this case the first one).
-        # also return the list of all services that confirm this result.
-        return [service._successful_service for service, values in results], results[0][1]
-    else:
-        raise ServiceDisagreement("Differing values returned: %s" % results)
-
+    return to_compare, [service._successful_service for service, values in results]
 
 def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbose=False, timeout=None):
     """

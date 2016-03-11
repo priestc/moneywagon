@@ -63,7 +63,7 @@ def get_unspent_outputs(crypto, address, services=None, **modes):
 
 def get_historical_price(crypto, fiat, date):
     """
-    Only one service is defined fr geting historical price, so no fetching modes
+    Only one service is defined for geting historical price, so no fetching modes
     are needed.
     """
     return HistoricalPrice().action(crypto, fiat, date)
@@ -93,12 +93,21 @@ def get_optimal_fee(crypto, tx_bytes, **modes):
     """
     if crypto == 'btc':
         services = get_optimal_services(crypto, 'get_optimal_fee')
-        return int(enforce_service_mode(
+        fee = enforce_service_mode(
             services, OptimalFee, dict(crypto=crypto, tx_bytes=tx_bytes), modes=modes
-        ))
+        )
+        if modes.get('report_services'):
+            return fee[0], int(fee[1])
+        else:
+            return int(fee)
     else:
         convert = get_current_price(crypto, 'usd')[0]
-        return int(0.02 / convert * 1e8)
+        fee = int(0.02 / convert * 1e8)
+
+        if modes.get('report_services'):
+            return None, fee
+        else:
+            return fee
 
 
 def generate_keypair(crypto, seed, password=None):
