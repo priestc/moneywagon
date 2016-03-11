@@ -345,14 +345,19 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
         raise Exception("No mode specified.")
 
 
+    # _get_results returns lists of 2 item list, first element is service, second is the returned value.
+    # when determining consensus amoung services, only take into account values returned.
     if hasattr(FetcherClass, "strip_for_consensus"):
-        to_compare = FetcherClass.strip_for_consensus(results)
+        to_compare = [
+            FetcherClass.strip_for_consensus(value) for service, value in results
+        ]
     else:
-        to_compare = results
+        to_compare = [value for service, value in results]
 
     if len(set(to_compare)) == 1:
         # if all values match, return any one (in this case the first one).
-        return results[0]
+        # also return the list of all services that confirm this result.
+        return [service._successful_service for service, values in results], results[0][1]
     else:
         raise ServiceDisagreement("Differing values returned: %s" % results)
 
@@ -361,19 +366,23 @@ def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbo
     """
     Does the fetching in multiple threads of needed. Used by paranoid and fast mode.
     """
+    results = []
+
     if not num_results or fast:
         num_results = len(services)
 
     with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
-        fetches = [
-            executor.submit(
-                FetcherClass(services=[service], verbose=verbose, timeout=timeout).action, **kwargs
-            ) for service in services[:num_results]
-        ]
-
-        results = []
+        fetches = []
+        for service in services[:num_results]:
+            srv = FetcherClass(services=[service], verbose=verbose, timeout=timeout)
+            fetches.append(
+                executor.submit(
+                    lambda **k: [srv, srv.action(**k)], **kwargs
+                )
+            )
 
         if fast == 1:
+            raise NotImplementedError
             # ths code is a work in progress. futures.FIRST_COMPLETED works differently than I thought...
             to_iterate, still_going = futures.wait(fetches, return_when=futures.FIRST_COMPLETED)
             for x in still_going:

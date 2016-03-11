@@ -66,7 +66,7 @@ def get_historical_price(crypto, fiat, date):
     Only one service is defined fr geting historical price, so no fetching modes
     are needed.
     """
-    return HistoricalPrice().get(crypto, fiat, date)
+    return HistoricalPrice().action(crypto, fiat, date)
 
 
 def push_tx(crypto, tx_hex, services=None, **modes):
@@ -177,7 +177,7 @@ def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=N
 def guess_currency_from_address(address):
     """
     Given a crypto address, find which currency it likely belongs to.
-    Returns None if it can't find a match. Raises exception if address
+    Returns (None, firt_byte)  if it can't find a match. Raises exception if address
     is invalid.
     """
     if is_py2:

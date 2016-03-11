@@ -1021,3 +1021,5 @@ class BitcoinFees21(CoinTape):
     base_url = "https://bitcoinfees.21.co/api"
     service_id = 40
     name = "bitcoinfees.21.co"
+    api_homepage = "https://bitcoinfees.21.co/api"
+    supported_cryptos = ['btc']

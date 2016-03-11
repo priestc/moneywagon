@@ -109,16 +109,29 @@ x.add_argument('--timeout', action='store', help='Time until giving up when maki
 
 argz = parser.parse_args()
 
-def datetime_to_iso(obj):
+def strip_out_services_for_paranoid_mode(high_level_func, *args, **kwargs):
     """
-    Python's default json encoder will blow up when it encounters datetime objects.
-    So this work around is needed in order to just handle making datetime
-    objects into iso8601 string format.
+    The low-level API returns the service list along with it's results when paranid
+    mode is invoked. For the command line, we don't want to show them.
     """
-    if isinstance(obj, datetime.datetime):
-        serial = obj.isoformat()
-        return serial
-    raise TypeError("Type not serializable")
+    def datetime_to_iso(obj):
+        """
+        Python's default json encoder will blow up when it encounters datetime objects.
+        So this work around is needed in order to just handle making datetime
+        objects into iso8601 string format.
+        """
+        if isinstance(obj, datetime.datetime):
+            serial = obj.isoformat()
+            return serial
+        raise TypeError("Type not serializable")
+
+    result = high_level_func(*args, **kwargs)
+
+    if kwargs['paranoid'] > 1:
+        # ignore modes returned on paranoid mode.
+        result = result[1]
+
+    return json.dumps(result, default=datetime_to_iso)
 
 modes = {
     'random': argz.random_service if hasattr(argz, "random_service") else False,
@@ -141,27 +154,29 @@ elif argz.subparser_name == 'generate-keypair':
     print(json.dumps(generate_keypair(argz.crypto, seed, password=argz.password)))
 
 elif argz.subparser_name == 'historical-price':
-    price, source, date = HistoricalPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat, argz.at_time)
+    price, source, date = HistoricalPrice(verbose=argz.verbose).action(argz.crypto, argz.fiat, argz.at_time)
     print(price, source, date)
 
 elif argz.subparser_name == 'address-balance':
-    print(get_address_balance(argz.crypto, argz.address, **modes))
+    print(strip_out_services_for_paranoid_mode(
+        get_address_balance, argz.crypto, argz.address, **modes
+    ))
 
 elif argz.subparser_name == 'get-block':
-    print(json.dumps(get_block(
-        argz.crypto, block_number=argz.block_number or '', block_hash=argz.block_hash or '',
-        latest=argz.latest or False, modes=modes
-    ), default=datetime_to_iso))
+    print(strip_out_services_for_paranoid_mode(
+        get_block, argz.crypto, block_number=argz.block_number or '',
+        block_hash=argz.block_hash or '', latest=argz.latest or False, modes=modes
+    ))
 
 elif argz.subparser_name == 'historical-transactions':
-    print(json.dumps(get_historical_transactions(
-        argz.crypto, argz.address, **modes
-    ), default=datetime_to_iso))
+    print(strip_out_services_for_paranoid_mode(
+        get_historical_transactions, argz.crypto, argz.address, **modes
+    ))
 
 elif argz.subparser_name == "unspent-outputs":
-    print(json.dumps(get_unspent_outputs(
-        argz.crypto, argz.address, **modes
-    ), default=datetime_to_iso))
+    print(strip_out_services_for_paranoid_mode(
+        get_unspent_outputs, argz.crypto, argz.address, **modes
+    ))
 
 elif argz.subparser_name == 'sweep':
     print(sweep(argz.crypto, argz.private_key, argz.to_address, argz.fee, **modes))
