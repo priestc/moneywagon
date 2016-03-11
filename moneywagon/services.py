@@ -14,7 +14,7 @@ class Bitstamp(Service):
 
         url = "https://www.bitstamp.net/api/ticker/"
         response = self.get_url(url).json()
-        return (float(response['last']), 'bitstamp')
+        return float(response['last'])
 
 
 class BlockCypher(Service):
@@ -396,7 +396,7 @@ class BTCE(Service):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
         url = "https://btc-e.com/api/3/ticker/" + pair
         response = self.get_url(url).json()
-        return (response[pair]['last'], 'btc-e')
+        return response[pair]['last']
 
 
 class Cryptonator(Service):
@@ -408,7 +408,7 @@ class Cryptonator(Service):
         pair = "%s-%s" % (crypto, fiat)
         url = "https://www.cryptonator.com/api/ticker/%s" % pair
         response = self.get_url(url).json()
-        return float(response['ticker']['price']), 'cryptonator'
+        return float(response['ticker']['price'])
 
 
 class Winkdex(Service):
@@ -421,7 +421,7 @@ class Winkdex(Service):
         if fiat != 'usd':
             raise SkipThisService("winkdex is btc->usd only")
         url = "https://winkdex.com/api/v0/price"
-        return self.get_url(url).json()['price'] / 100.0, 'winkdex'
+        return self.get_url(url).json()['price'] / 100.0,
 
 
 class ChainSo(Service):
@@ -438,7 +438,9 @@ class ChainSo(Service):
         items = resp['data']['prices']
         if len(items) == 0:
             raise SkipThisService("Chain.so can't get price for %s/%s" % (crypto, fiat))
-        return float(items[0]['price']), "%s via Chain.so" % items[0]['exchange']
+
+        self.name = "%s via Chain.so" % items[0]['exchange']
+        return float(items[0]['price'])
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s/get_address_balance/%s/%s/%s" % (
@@ -742,9 +744,11 @@ class BTER(Service):
             response = self.get_url(url)
             btc_fiat = float(response['last'])
 
-            return (btc_fiat * altcoin_btc), 'bter (calculated)'
+            self.name = 'BTER (calculated)'
 
-        return float(response['last'] or 0), 'bter'
+            return (btc_fiat * altcoin_btc)
+
+        return float(response['last'] or 0)
 
 ################################################
 

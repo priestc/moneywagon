@@ -82,10 +82,10 @@ class Service(object):
         self.last_raw_response = response
         return response
 
-    def get_current_price(self, crypto, fiat, confirmations=1):
+    def get_current_price(self, crypto, fiat):
         """
         Makes call to external service, and returns the price for given
-        fiat/crypto pair. Returns two item tuple: (price, best_market)
+        fiat/crypto pair. Returned is a float.
         """
         raise NotImplementedError(
             "This service does not support getting the current fiat exchange rate. "

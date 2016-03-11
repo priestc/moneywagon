@@ -332,9 +332,9 @@ Total amount of all crypto: 17.49 USD
 ```python
 >>> from moneywagon import get_current_price
 >>> get_current_price('btc', 'usd')
-(391.324, 'bitstamp')
->>> get_current_price('ltc', 'rur')
-(169.54116322, 'cryptonator')
+391.324
+>>> get_current_price('ltc', 'rur', report_services=True)
+([<Service: BTCE (1 in cache)>], 226)
 ```
 
 A two item tuple is always returned. The first item is the exchange rate (as a float), the second
@@ -694,7 +694,7 @@ If you would rather just use one service with no automatic retrying, use the low
 >>> from moneywagon.services import BTER
 >>> service = BTER()
 >>> service.get_current_price('btc', 'usd')
-(391.324, 'BTER')
+391.324
 ```
 
 Not all services will have every single possible function defined:
@@ -735,9 +735,9 @@ For instance, consider the following example:
 >>> from moneywagon.services import BTER
 >>> service = BTER()
 >>> service.get_current_price('ltc', 'rur') # makes two external calls, one for ltc->btc, one for btc->rur
-(1.33535, 'bter')
+1.33535
 >>> service.get_current_price('btc', 'rur') # makes zero external calls (uses btc-> rur result from last call)
-(1.33535, 'bter')
+1.33535
 ```
 
 Note that the BTER exchange does not have a direct orderbook between litecoin and Russian ruble.
