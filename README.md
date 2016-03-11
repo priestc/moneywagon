@@ -338,6 +338,8 @@ Total amount of all crypto: 17.49 USD
 ```
 
 A float is always returned. Older versions of moneywagon returned a two item tuple.
+Starting with moneywagon version 1.9.0, only a float is retuened. If your application needs
+to know which service was used, set the `report_services` argument to `True`. (See example above).
 
 If an external service is down, the net service in the chain is tried, until a result is found.
 
