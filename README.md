@@ -337,11 +337,11 @@ Total amount of all crypto: 17.49 USD
 ([<Service: BTCE (1 in cache)>], 226)
 ```
 
-A two item tuple is always returned. The first item is the exchange rate (as a float), the second
-item is a string describing the source for the exchange rate.
+A float is always returned. Older versions of moneywagon returned a two item tuple.
 
-If an external service is down, or the API has changed, or the
-currency pairs is not implemented, an exception will be raised:
+If an external service is down, the net service in the chain is tried, until a result is found.
+
+If the API has changed, or the currency pairs is not implemented, an exception will be raised:
 
 ```python
 >>> get_current_price('nxt', 'mex')
@@ -752,7 +752,7 @@ it will use the result of previous calls:
 
 ```python
 >>> service.get_current_price('btc', 'rur') # will make no external calls
-(17865.4210346, 'cryptonator')
+17865.4210346
 ```
 
 In other words, if you are using the low level API and you want fresh values, you must make a new instance of the service class.
