@@ -385,14 +385,10 @@ def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbo
         num_results = len(services)
 
     with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
-        fetches = []
+        fetches = {}
         for service in services[:num_results]:
             srv = FetcherClass(services=[service], verbose=verbose, timeout=timeout)
-            fetches.append(
-                executor.submit(
-                    lambda **k: [srv, srv.action(**k)], **kwargs
-                )
-            )
+            fetches[executor.submit(srv.action, **kwargs)] = srv
 
         if fast == 1:
             raise NotImplementedError
@@ -410,7 +406,8 @@ def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbo
             to_iterate = futures.as_completed(fetches)
 
         for future in to_iterate:
-            results.append(future.result())
+            service = fetches[future]
+            results.append([service, future.result()])
 
     return results
 
