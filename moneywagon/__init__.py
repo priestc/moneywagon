@@ -105,7 +105,7 @@ def get_optimal_fee(crypto, tx_bytes, **modes):
         fee = int(0.02 / convert * 1e8)
 
         if modes.get('report_services'):
-            return None, fee
+            return [None], fee
         else:
             return fee
 
