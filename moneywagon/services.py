@@ -1027,3 +1027,27 @@ class BitcoinFees21(CoinTape):
     name = "bitcoinfees.21.co"
     api_homepage = "https://bitcoinfees.21.co/api"
     supported_cryptos = ['btc']
+
+class ChainRadar(Service):
+    api_homepage = "http://chainradar.com/api"
+    service_id = 41
+    name = "ChainRadar.com"
+    supported_cryptos = ['aeon', 'bbr', 'bcn', 'btc', 'dsh', 'fcn', 'mcn', 'qcn', 'duck', 'mro', 'rd']
+
+    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        if latest:
+            url = "http://chainradar.com/api/v1/%s/status" % crypto
+            block_number = self.get_url(url).json()['height']
+
+        url = "http://chainradar.com/api/v1/%s/blocks/%s/full" % (crypto, block_number or block_number)
+        r = self.get_url(url).json()
+        h = r['blockHeader']
+
+        return dict(
+            block_number=h['height'],
+            time=arrow.get(h['timestamp']).datetime,
+            hash=h['hash'],
+            previous_hash=h['prevBlockHash'],
+            txids=[x['hash'] for x in r['transactions']],
+            tx_count=len(r['transactions'])
+        )
