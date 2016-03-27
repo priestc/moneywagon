@@ -177,7 +177,10 @@ def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=N
 
     for service in services:
         template = getattr(service, attr)
+        context['domain'] = service.domain
+
         if template:
+            # render the explorer url temlate
             urls.append(template.format(**context))
 
     return urls

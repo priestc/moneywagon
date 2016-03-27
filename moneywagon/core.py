@@ -24,6 +24,7 @@ class Service(object):
     Some `Services` subclass will only support a subset of all pissible blockchain functions.
     All Services should subclass this class, and implement their own `get_*` method.
     """
+    domain = None # optional, useful if the service will have subclasses
     api_homepage = '' # link to page defining the API.
     supported_cryptos = None # must be a list of lower case currency codes.
     explorer_address_url = None # url to block explerer page. Use {address} and {crypto} as placeholders.

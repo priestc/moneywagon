@@ -578,21 +578,22 @@ class BitEasy(Service):
 
 class BlockChainInfo(Service):
     service_id = 14
-    api_homepage = "https://blockchain.info/api"
+    domain = "blockchain.info"
+    api_homepage = "https://{domain}/api"
     supported_cryptos = ['btc']
-    explorer_address_url = "https://blockchain.info/address/{address}"
-    explorer_tx_url = "https://blockchain.info/tx/{txid}"
-    explorer_blocknum_url = "https://blockchain.info/block-index/{blocknum}"
-    explorer_blockhash_url = "https://blockchain.info/block/{blockhash}"
+    explorer_address_url = "https://{domain}/address/{address}"
+    explorer_tx_url = "https://{domain}/tx/{txid}"
+    explorer_blocknum_url = "https://{domain}/block-index/{blocknum}"
+    explorer_blockhash_url = "https://{domain}/block/{blockhash}"
     name = "Blockchain.info"
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "https://blockchain.info/address/%s?format=json" % address
+        url = "https://%s/address/%s?format=json" % (self.domain, address)
         response = self.get_url(url)
         return float(response.json()['final_balance']) * 1e-8
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "https://blockchain.info/unspent?active=%s" % address
+        url = "https://%s/unspent?active=%s" % (self.domain, address)
 
         response = self.get_url(url)
         if response.content == 'No free outputs to spend':
@@ -1028,6 +1029,7 @@ class BitcoinFees21(CoinTape):
     api_homepage = "https://bitcoinfees.21.co/api"
     supported_cryptos = ['btc']
 
+
 class ChainRadar(Service):
     api_homepage = "http://chainradar.com/api"
     service_id = 41
@@ -1039,7 +1041,7 @@ class ChainRadar(Service):
             url = "http://chainradar.com/api/v1/%s/status" % crypto
             block_number = self.get_url(url).json()['height']
 
-        url = "http://chainradar.com/api/v1/%s/blocks/%s/full" % (crypto, block_number or block_number)
+        url = "http://chainradar.com/api/v1/%s/blocks/%s/full" % (crypto, block_number or block_hash)
         r = self.get_url(url).json()
         h = r['blockHeader']
 
