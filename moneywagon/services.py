@@ -1053,3 +1053,49 @@ class ChainRadar(Service):
             txids=[x['hash'] for x in r['transactions']],
             tx_count=len(r['transactions'])
         )
+
+class Mintr(Service):
+    service_id = 42
+    name = "Mintr.org"
+    domain = "http://{coin}.mintr.org"
+    supported_cryptos = ['ppc', 'emc']
+    api_homepage = "https://www.peercointalk.org/index.php?topic=3998.0"
+
+    def _get_coin(self, crypto):
+        if crypto == 'ppc':
+            return 'peercoin'
+        if crypto == 'emc':
+            return 'emercoin'
+
+    def get_balance(self, crypto, address):
+        url = "%s/api/address/balance/%s" % (
+            self.domain.format(coin=self._get_coin(crypto)), address
+        )
+        return float(self.get_url(url).json()['balance'])
+
+    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        if block_number:
+            by = "height"
+        elif block_hash:
+            by = "hash"
+
+        url = "%s/api/block/%s/%s" % (
+            self.domain.format(coin=self._get_coin(crypto)),
+            by, block_hash or block_number
+        )
+
+        b = self.get_url(url).json()
+
+        return dict(
+            block_number=int(b['height']),
+            time=arrow.get(b['time']).datetime,
+            hash=b['blockhash'],
+            previous_hash=b['previousblockhash'],
+            txids=[x['tx_hash'] for x in b['transactions']],
+            tx_count=int(b['numtx']),
+            size=int(b['size']),
+            sent_value=float(b['valueout']) + float(b['mint']),
+            mining_difficulty=float(b['difficulty']),
+            merkle_root=b['merkleroot'],
+            total_fees=float(b['fee'])
+        )

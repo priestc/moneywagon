@@ -81,7 +81,7 @@ crypto_data = {
                 BTCE, ChainSo, BTER, Cryptonator
             ],
             'address_balance': [
-                Blockr
+                Blockr, Mintr
             ],
             'historical_transactions': [
                 Blockr
@@ -93,7 +93,7 @@ crypto_data = {
                 Blockr
             ],
             'get_block': [
-                Blockr
+                Blockr, Mintr
             ]
         },
     },
@@ -300,6 +300,34 @@ crypto_data = {
         'bip44_coin_type': None,
         'private_key_prefix': 0x97,
         'genesis_date': datetime(2014, 2, 2),
+    },
+
+    'emc': {
+        'name': 'Emercoin',
+        'address_version_byte': 33,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(2011, 11, 5),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                Mintr
+            ],
+            'historical_transactions': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+                Mintr
+            ]
+        },
     },
 
     # TEMPLATE
