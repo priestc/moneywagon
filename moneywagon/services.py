@@ -1067,7 +1067,7 @@ class Mintr(Service):
         if crypto == 'emc':
             return 'emercoin'
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "%s/api/address/balance/%s" % (
             self.domain.format(coin=self._get_coin(crypto)), address
         )

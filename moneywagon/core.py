@@ -276,7 +276,10 @@ class AutoFallbackFetcher(object):
                 "No Services defined for %s and %s" % (crypto, method_name)
             )
 
-        raise NoService(self.no_service_msg(*args, **kwargs))
+        failed_msg = ', '.join(
+            ["{service.name} -> {error}".format(**x) for x in self._failed_services]
+        )
+        raise NoService(self.no_service_msg(*args, **kwargs) + "! Tried: " + failed_msg)
 
     def no_service_msg(self, *args, **kwargs):
         """
