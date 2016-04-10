@@ -27,6 +27,9 @@ crypto_data = {
                 Blockr, Toshi, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
                 BitpayInsight, Blockonomics
             ],
+            'single_transaction': [
+
+            ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
                 BitpayInsight
@@ -59,6 +62,9 @@ crypto_data = {
             'historical_transactions': [
                 Blockr, ChainSo
             ],
+            'single_transaction': [
+
+            ],
             'push_tx': [
                 Blockr, ChainSo
             ],
@@ -85,6 +91,9 @@ crypto_data = {
             ],
             'historical_transactions': [
                 Blockr
+            ],
+            'single_transaction': [
+                Mintr
             ],
             'push_tx': [
 
@@ -113,6 +122,9 @@ crypto_data = {
             'historical_transactions': [
                 ChainSo
             ],
+            'single_transaction': [
+
+            ],
             'push_tx': [
                 ChainSo
             ],
@@ -139,6 +151,9 @@ crypto_data = {
             ],
             'historical_transactions': [
                 NXTPortal
+            ],
+            'single_transaction': [
+
             ],
             'push_tx': [
 
@@ -167,6 +182,9 @@ crypto_data = {
             'historical_transactions': [
                 MYRCryptap, BirdOnWheels
             ],
+            'single_transaction': [
+
+            ],
             'push_tx': [
                 MYRCryptap
             ],
@@ -193,6 +211,9 @@ crypto_data = {
             ],
             'historical_transactions': [
                 ThisIsVTC
+            ],
+            'single_transaction': [
+
             ],
             'push_tx': [
                 ThisIsVTC
@@ -221,6 +242,9 @@ crypto_data = {
             'historical_transactions': [
                 FTCe
             ],
+            'single_transaction': [
+
+            ],
             'push_tx': [
                 FTCe
             ],
@@ -246,6 +270,9 @@ crypto_data = {
                 CryptoID
             ],
             'historical_transactions': [
+
+            ],
+            'single_transaction': [
 
             ],
             'push_tx': [
@@ -274,6 +301,9 @@ crypto_data = {
             ],
             'historical_transactions': [
                 ReddcoinCom
+            ],
+            'single_transaction': [
+
             ],
             'push_tx': [
                 ReddcoinCom
@@ -318,6 +348,9 @@ crypto_data = {
             'historical_transactions': [
 
             ],
+            'single_transaction': [
+                Mintr
+            ],
             'push_tx': [
 
             ],
@@ -346,6 +379,9 @@ crypto_data = {
             'historical_transactions': [
 
             ],
+            'single_transaction': [
+                BlockExplorersNet
+            ],
             'push_tx': [
 
             ],
@@ -353,7 +389,7 @@ crypto_data = {
 
             ],
             'get_block': [
-
+                BlockExplorersNet
             ]
         },
     },
@@ -374,6 +410,9 @@ crypto_data = {
             'historical_transactions': [
 
             ],
+            'single_transaction': [
+                BlockExplorersNet
+            ],
             'push_tx': [
 
             ],
@@ -381,7 +420,7 @@ crypto_data = {
 
             ],
             'get_block': [
-
+                BlockExplorersNet
             ]
         },
     },
@@ -401,6 +440,9 @@ crypto_data = {
 
             ],
             'historical_transactions': [
+
+            ],
+            'single_transaction': [
 
             ],
             'push_tx': [
