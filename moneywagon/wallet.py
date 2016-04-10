@@ -35,7 +35,7 @@ def fetch_wallet_balances(wallets, fiat, **modes):
         with futures.ThreadPoolExecutor(max_workers=int(fetch_length / 2)) as executor:
             future_to_key = dict(
                 (executor.submit(
-                    get_current_price, crypto, fiat, **modes
+                    get_current_price, crypto, fiat, report_services=True, **modes
                 ), crypto) for crypto in price_fetch
             )
 
@@ -46,7 +46,7 @@ def fetch_wallet_balances(wallets, fiat, **modes):
             ))
 
             done, not_done = futures.wait(future_to_key, return_when=futures.FIRST_EXCEPTION)
-            if len(done) > 0:
+            if len(not_done) > 0:
                 raise not_done.pop().exception()
 
             for future in done:
@@ -60,7 +60,7 @@ def fetch_wallet_balances(wallets, fiat, **modes):
                 which[key] = res
 
     ret = []
-    
+
     for crypto, address in wallets:
         crypto_value = balances[address]
         sources, fiat_price = prices[crypto]
