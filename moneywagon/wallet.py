@@ -60,7 +60,7 @@ def fetch_wallet_balances(wallets, fiat, **modes):
                 which[key] = res
 
     ret = []
-    import debug
+    
     for crypto, address in wallets:
         crypto_value = balances[address]
         sources, fiat_price = prices[crypto]
