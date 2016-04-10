@@ -22,7 +22,7 @@ def fetch_wallet_balances(wallets, fiat, **modes):
     if not modes.get('async', False):
         # synchronous fetching
         for crypto in price_fetch:
-            prices[crypto] = get_current_price(crypto, fiat, **modes)
+            prices[crypto] = get_current_price(crypto, fiat, report_services=True, **modes)
 
         for crypto, address in wallets:
             balances[address] = get_address_balance(crypto, address.strip(), **modes)
@@ -60,16 +60,17 @@ def fetch_wallet_balances(wallets, fiat, **modes):
                 which[key] = res
 
     ret = []
+    import debug
     for crypto, address in wallets:
         crypto_value = balances[address]
-        fiat_price, source = prices[crypto]
+        sources, fiat_price = prices[crypto]
         ret.append({
             'crypto': crypto,
             'address': address,
             'crypto_value': crypto_value,
             'fiat_value': crypto_value * fiat_price,
             'conversion_price': fiat_price,
-            'price_source': source
+            'price_source': sources[0].name
         })
 
     return ret
