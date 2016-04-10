@@ -179,6 +179,11 @@ def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=N
         template = getattr(service, attr)
         context['domain'] = service.domain
 
+        if hasattr(service, '_get_coin'):
+            # used for when a service uses another name for a certain coin
+            # other than the standard three letter currency code.
+            context['coin'] = service._get_coin(crypto)
+
         if template:
             # render the explorer url temlate
             urls.append(template.format(**context))

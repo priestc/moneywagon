@@ -127,6 +127,15 @@ class Service(object):
             "Or rather it has no defined 'get_transactions' method."
         )
 
+    def get_single_transaction(self, crypto, txid):
+        """
+        Get detailed information about a single transaction.
+        """
+        raise NotImplementedError(
+            "This service does not support getting single transactions. "
+            "Or rather it has no defined 'get_single_transaction' method."
+        )
+
     def get_unspent_outputs(self, crypto, address):
         """
         Default implmentation of this function that uses get_transaction

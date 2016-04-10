@@ -1060,8 +1060,13 @@ class Mintr(Service):
     domain = "http://{coin}.mintr.org"
     supported_cryptos = ['ppc', 'emc']
     api_homepage = "https://www.peercointalk.org/index.php?topic=3998.0"
+    explorer_tx_url = "https://{coin}.mintr.org/tx/{txid}"
+    explorer_address_url = "https://{coin}.mintr.org/address/{address}"
+    explorer_blocknum_url = "https://{coin}.mintr.org/block/{blocknum}"
+    explorer_blockhash_url = "https://{coin}.mintr.org/block/{blockhash}"
 
-    def _get_coin(self, crypto):
+    @classmethod
+    def _get_coin(cls, crypto):
         if crypto == 'ppc':
             return 'peercoin'
         if crypto == 'emc':
@@ -1072,6 +1077,22 @@ class Mintr(Service):
             self.domain.format(coin=self._get_coin(crypto)), address
         )
         return float(self.get_url(url).json()['balance'])
+
+    def get_single_transaction(self, crypto, txid):
+        url = "%s/api/tx/hash/%s" % (
+            self.domain.format(coin=self._get_coin(crypto)), txid
+        )
+
+        d = self.get_url(url).json()
+        return dict(
+            time=arrow.get(d['time']).datetime,
+            total_in=float(d['valuein']),
+            total_out=float(d['valueout']),
+            fee=float(d['fee']),
+            inputs=[{'address': x['address'], 'value': x['value']} for x in d['vin']],
+            outputs=[{'address': x['address'], 'value': x['value']} for x in d['vout']],
+            txid=txid,
+        )
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
         if block_number:
