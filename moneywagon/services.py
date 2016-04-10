@@ -1120,3 +1120,81 @@ class Mintr(Service):
             merkle_root=b['merkleroot'],
             total_fees=float(b['fee'])
         )
+
+class BlockExplorersNet(Service):
+    service_id = 43
+    domain = "http://{coin}.blockexplorers.net"
+    supported_cryptos = ['gsm', 'erc']
+
+    explorer_tx_url = "https://{coin}.blockexplorers.net/tx/{txid}"
+    explorer_address_url = "https://{coin}.blockexplorers.net/address/{address}"
+    #explorer_blocknum_url = "https://{coin}.blockexplorers.net/block/{blocknum}"
+    explorer_blockhash_url = "https://{coin}.blockexplorers.net/block/{blockhash}"
+
+    @classmethod
+    def _get_coin(cls, crypto):
+        if crypto == 'gsm':
+            return "gsmcoin"
+        if crypto == 'erc':
+            return 'europecoin'
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "%s/ext/getbalance/%s" % (
+            self.domain.format(coin=self._get_coin(crypto)), address
+        )
+        return float(self.get_url(url).content)
+
+    def get_transactions(self, crypto, address):
+        domain = self.domain.format(coin=self._get_coin(crypto))
+        url = "%s/ext/getaddress/%s" % (domain, address)
+        return self.get_url(url).json()
+
+    def get_single_transaction(self, crypto, txid):
+        domain = self.domain.format(coin=self._get_coin(crypto))
+        url = "%s/api/getrawtransaction?txid=%s&decrypt=1" % (domain, txid)
+
+        d = self.get_url(url).json()
+
+        if not d['vin'] and d['vin'][0].get('coinbase'):
+            ins = [{'txid': x['txid']} for x in d['vin']]
+        else:
+            ins = [{'txid': x['coinbase']} for x in d['vin']]
+
+        outs = [{'address': x['scriptPubKey']['addresses'][0], 'value': x['value']} for x in d['vout']]
+
+        return dict(
+            time=arrow.get(d['time']).datetime,
+            block_hash=d['blockhash'],
+            hex=d['hex'],
+            inputs=ins,
+            outputs=outs,
+            txid=txid,
+            total_out=sum(x['value'] for x in outs),
+            confirmations=d['confirmations'],
+        )
+
+    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        domain = self.domain.format(coin=self._get_coin(crypto))
+
+        if latest:
+            url = "%s/api/getblockcount" % domain
+            block_number = int(self.get_url(url).content)
+
+        if block_number:
+            url = "%s/api/getblockhash?index=%s" % (domain, block_number)
+            block_hash = self.get_url(url).content
+
+        url = "%s/api/getblock?hash=%s" % (domain, block_hash)
+        r = self.get_url(url).json()
+
+        return dict(
+            confirmations=r['confirmations'],
+            size=r['size'],
+            txs=r['tx'],
+            tx_count=len(r['txs']),
+            time=arrow.get(r['time']).datetime,
+            hash=r['hash'],
+            block_number=r['height'],
+            merkle_root=r['merkleroot'],
+            difficulty=r['difficulty'],
+        )

@@ -203,12 +203,16 @@ def guess_currency_from_address(address):
         fixer = lambda x: x # does nothing
 
     first_byte = fixer(b58decode_check(address)[0])
+    hits = []
     for currency, data in crypto_data.items():
         if hasattr(data, 'get'): # skip incomplete data listings
             version = data.get('address_version_byte', None)
             if version is not None and first_byte == version:
-                return currency, data['name']
+                hits.append([currency, data['name']])
 
+    if hits:
+        return hits
+    
     return None, first_byte
 
 

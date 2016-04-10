@@ -330,6 +330,62 @@ crypto_data = {
         },
     },
 
+    'gsm': {
+        'name': 'GSMcoin',
+        'address_version_byte': 38,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                BlockExplorersNet
+            ],
+            'historical_transactions': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
+    'erc': {
+        'name': 'Europecoin',
+        'address_version_byte': 33,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                BlockExplorersNet
+            ],
+            'historical_transactions': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
     # TEMPLATE
     '': {
         'name': '',
