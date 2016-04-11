@@ -194,7 +194,7 @@ def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=N
 def guess_currency_from_address(address):
     """
     Given a crypto address, find which currency it likely belongs to.
-    Returns (None, firt_byte)  if it can't find a match. Raises exception if address
+    Raises an exception if it can't find a match. Raises exception if address
     is invalid.
     """
     if is_py2:
@@ -212,8 +212,8 @@ def guess_currency_from_address(address):
 
     if hits:
         return hits
-    
-    return None, first_byte
+
+    raise Exception("Unknown Currency with first byte: %s" % first_byte)
 
 
 class OptimalFee(AutoFallbackFetcher):

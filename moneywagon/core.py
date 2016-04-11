@@ -130,6 +130,16 @@ class Service(object):
     def get_single_transaction(self, crypto, txid):
         """
         Get detailed information about a single transaction.
+
+        time
+        block_hash
+        hex
+        inputs
+        outputs
+        txid
+        total_out
+        confirmations
+
         """
         raise NotImplementedError(
             "This service does not support getting single transactions. "

@@ -746,8 +746,8 @@ For instance, consider the following example:
 1.33535
 ```
 
-Note that the BTER exchange does not have a direct orderbook between litecoin and Russian ruble.
-As a result, pycryptoprices needs to make two separate API calls to get the correct exchange rate.
+Note that the BTER exchange does not have a direct orderbook between Litecoin and Russian Ruble.
+As a result, moneywagon needs to make two separate API calls to get the correct exchange rate.
 The first one to get the LTC->BTC exchange rate, and the second one to get the BTC->RUR exchange rate.
 Then the two results are multiplied together to get the LTC -> RUR exchange rate.
 If your application does a lot of converting at a time, it will be better for performance to use

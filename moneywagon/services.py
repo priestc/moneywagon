@@ -699,13 +699,27 @@ class CryptoID(Service):
         'vior', 'ltcd', 'zeit', 'carbon', 'super', 'dis', 'ac', 'vdo', 'ioc',
         'xmg', 'cinni', 'crypt', 'excl', 'mne', 'seed', 'qslv', 'maryj', 'key',
         'oc', 'ktk', 'voot', 'glc', 'drkc', 'mue', 'gb', 'piggy', 'jbs', 'grs',
-        'icg', 'rpc', ''
+        'icg', 'rpc', 'tx'
     ]
 
     def get_balance(self, crypto, address, confirmations=1):
-        url ="http://chainz.cryptoid.info/%s/api.dws?q=getbalance&a=%s" % (crypto, address)
+        url = "http://chainz.cryptoid.info/%s/api.dws?q=getbalance&a=%s" % (crypto, address)
         return float(self.get_url(url).content)
 
+    def get_single_transaction(self, crypto, txid):
+        url = "http://chainz.cryptoid.info/%s/api.dws?q=txinfo&t=%s" % (crypto, txid)
+        r = self.get_url(url).json()
+
+        return dict(
+            time=arrow.get(r['timestamp']).datetime,
+            block_number=r['block'],
+            inputs=[{'address': x['addr'], 'amount': x['amount']} for x in r['inputs']],
+            outputs=[{'address': x['addr'], 'amount': x['amount']} for x in r['outputs']],
+            txid=txid,
+            total_in=r['total_input'],
+            total_out=r['total_output'],
+            confirmations=r['confirmations'],
+        )
 
 class CryptapUS(Service):
     service_id = 24
@@ -1076,7 +1090,12 @@ class Mintr(Service):
         url = "%s/api/address/balance/%s" % (
             self.domain.format(coin=self._get_coin(crypto)), address
         )
-        return float(self.get_url(url).json()['balance'])
+        r = self.get_url(url).json()
+
+        if 'error' in r:
+            raise Exception("Mintr returned error: %s" % r['error'])
+
+        return float(r['balance'])
 
     def get_single_transaction(self, crypto, txid):
         url = "%s/api/tx/hash/%s" % (
@@ -1124,7 +1143,8 @@ class Mintr(Service):
 class BlockExplorersNet(Service):
     service_id = 43
     domain = "http://{coin}.blockexplorers.net"
-    supported_cryptos = ['gsm', 'erc']
+    supported_cryptos = ['gsm', 'erc', 'tx']
+    name = "BlockExplorers.Net"
 
     explorer_tx_url = "https://{coin}.blockexplorers.net/tx/{txid}"
     explorer_address_url = "https://{coin}.blockexplorers.net/address/{address}"
@@ -1137,6 +1157,9 @@ class BlockExplorersNet(Service):
             return "gsmcoin"
         if crypto == 'erc':
             return 'europecoin'
+        if crypto == 'tx':
+            return 'transfercoin'
+
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s/ext/getbalance/%s" % (
@@ -1155,7 +1178,7 @@ class BlockExplorersNet(Service):
 
         d = self.get_url(url).json()
 
-        if not d['vin'] and d['vin'][0].get('coinbase'):
+        if not d['vin'] or not d['vin'][0].get('coinbase'):
             ins = [{'txid': x['txid']} for x in d['vin']]
         else:
             ins = [{'txid': x['coinbase']} for x in d['vin']]

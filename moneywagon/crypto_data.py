@@ -425,6 +425,38 @@ crypto_data = {
         },
     },
 
+    'tx': {
+        'name': 'Transfercoin',
+        'address_version_byte': 66,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                CryptoID, BlockExplorersNet
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
+
     # TEMPLATE
     '': {
         'name': '',
