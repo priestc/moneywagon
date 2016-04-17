@@ -515,7 +515,7 @@ crypto_data = {
         'address_version_byte': 33,
         'bip44_coin_type': None,
         'private_key_prefix': None,
-        'genesis_date': datetime(1, 1, 1),
+        'genesis_date': datetime(2013, 12, 21),
         'services': {
             'current_price': [
 
@@ -546,7 +546,7 @@ crypto_data = {
         'address_version_byte': 45,
         'bip44_coin_type': None,
         'private_key_prefix': None,
-        'genesis_date': datetime(1, 1, 1),
+        'genesis_date': datetime(2014, 2, 4),
         'services': {
             'current_price': [
 
@@ -558,7 +558,7 @@ crypto_data = {
 
             ],
             'single_transaction': [
-                
+
             ],
             'push_tx': [
 
@@ -572,6 +572,67 @@ crypto_data = {
         },
     },
 
+    'flap': {
+        'name': 'FlappyCoin',
+        'address_version_byte': 35,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(2014, 2, 14),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                CryptoID
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+                CryptoID
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
+    'pot': {
+        'name': 'PotCoin',
+        'address_version_byte': 55,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(2014, 1, 21),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                CryptoID
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+                CryptoID
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
 
     # TEMPLATE
     '': {
@@ -725,7 +786,6 @@ crypto_data = {
     'mmc': ['Memorycoin', datetime(2013, 12, 15)],
     'dtc': ['Datacoin', datetime(2013, 12, 17)],
     'xiv': ['Xivra', datetime(2013, 12, 18)],
-    'tips':['FedoraCoin', datetime(2013, 12, 21)],
     'ato': ['AtomCoin', datetime(2013, 12, 22)],
     'cat': ['CatCoin', datetime(2013, 12, 23)],
     'meow':['KittehCoin', datetime(2013, 12, 24)],
@@ -771,7 +831,6 @@ crypto_data = {
 
     'cash':['CashCoin', datetime(2014, 1, 20)],
     'mry': ['MurrayCoin', datetime(2014, 1, 20)],
-    'pot': ['Potcoin', datetime(2014, 1, 21)],
     'asr': ['AstroCoin', datetime(2014, 1, 21)],
     'pmc': ['Premine', datetime(2014, 1, 23)],
     'leaf':['LeafCoin', datetime(2014, 1, 24)],
@@ -786,7 +845,6 @@ crypto_data = {
     'pop': ['PopularCoin', datetime(2014, 2, 2)],
     'lbt': ['Litebar', datetime(2014, 2, 2)],
     'corg':['CorgiCoin', datetime(2014, 2, 2)],
-    'karm':['Karmacoin', datetime(2014, 2, 4)],
     'hex': ['Heisenberg', datetime(2014, 2, 5)],
     'wtc': ['World Top Coin', datetime(2014, 2, 5)],
     'mint':['Mintcoin', datetime(2014, 2, 6)],
@@ -802,7 +860,6 @@ crypto_data = {
     'doug':['DougCoin', datetime(2014, 2, 13)],
     'mim': ['Magic Internet Money', datetime(2014, 2, 13)],
     'loot':['Crypto LOOT', datetime(2014, 2, 13)],
-    'flap':['Flappycoin', datetime(2014, 2, 14)],
     'note':['DNotes', datetime(2014, 2, 16)],
     'che': ['RevolutionCoin', datetime(2014, 2, 16)],
     'eqb': ['EquestrianBit', datetime(2014, 2, 17)],
