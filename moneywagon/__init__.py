@@ -213,7 +213,7 @@ def guess_currency_from_address(address):
     if hits:
         return hits
 
-    raise Exception("Unknown Currency with first byte: %s" % first_byte)
+    raise ValueError("Unknown Currency with first byte: %s" % first_byte)
 
 
 class OptimalFee(AutoFallbackFetcher):
