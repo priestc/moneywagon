@@ -684,9 +684,12 @@ value returned.
 ```python
 >>> from moneywagon import guess_currency_from_address
 >>> guess_currency_from_address("NJwRrtKcv3ggkwh3j3yka69rH3x5d5gu5m")
-('nmc', 'Namecoin')
+[['nmc', 'Namecoin']]
 >>> guess_currency_from_address("1Ng3mALXCEphwLqTZ4x5DutMcRTxpTF299")
-('btc', 'Bitcoin')
+[['btc', 'Bitcoin']]
+>>> guess_currency_from_address("EMZSp8Q3MGHZmjhSBvh52r6igstTDo4Jzx")
+[['emc', 'Emercoin'], ['erc', 'Europecoin']]
+
 ```
 
 This can be used as an address verifier, as an exception gets raised when an invalid

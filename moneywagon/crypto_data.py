@@ -330,6 +330,29 @@ crypto_data = {
         'bip44_coin_type': None,
         'private_key_prefix': 0x97,
         'genesis_date': datetime(2014, 2, 2),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                CryptoID,
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+                CryptoID
+            ],
+            'get_block': [
+
+            ]
+        },
     },
 
     'emc': {
@@ -448,7 +471,100 @@ crypto_data = {
 
             ],
             'unspent_outputs': [
+                CryptoID
+            ],
+            'get_block': [
 
+            ]
+        },
+    },
+
+    'maid': {
+        'name': 'MaidSafeCoin',
+        'address_version_byte': 0,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
+    'tips': {
+        'name': 'FedoraCoin',
+        'address_version_byte': 33,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                CryptoID
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+                CryptoID
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
+    'karm': {
+        'name': 'Karma',
+        'address_version_byte': 45,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                CryptoID
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+                
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+                CryptoID
             ],
             'get_block': [
 

@@ -691,6 +691,7 @@ class CryptoID(Service):
     service_id = 23
     api_homepage = "https://chainz.cryptoid.info/api.dws"
     name = "CryptoID"
+    api_key = "bc1063f00936"
 
     supported_cryptos = [
         'dash', 'bc', 'bay', 'block', 'cann', 'uno', 'vrc', 'xc', 'uro', 'aur',
@@ -703,11 +704,15 @@ class CryptoID(Service):
     ]
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "http://chainz.cryptoid.info/%s/api.dws?q=getbalance&a=%s" % (crypto, address)
+        url = "http://chainz.cryptoid.info/%s/api.dws?q=getbalance&a=%s&key=%s" % (
+            crypto, address, self.api_key
+        )
         return float(self.get_url(url).content)
 
     def get_single_transaction(self, crypto, txid):
-        url = "http://chainz.cryptoid.info/%s/api.dws?q=txinfo&t=%s" % (crypto, txid)
+        url = "http://chainz.cryptoid.info/%s/api.dws?q=txinfo&t=%s&key=%s" % (
+            crypto, txid, self.api_key
+        )
         r = self.get_url(url).json()
 
         return dict(
@@ -720,6 +725,26 @@ class CryptoID(Service):
             total_out=r['total_output'],
             confirmations=r['confirmations'],
         )
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "http://chainz.cryptoid.info/%s/api.dws?q=unspent&active=%s&key=%s" % (
+            crypto, address, self.api_key
+        )
+
+        resp = self.get_url(url)
+        if resp.status_code != 200:
+            raise Exception("CryptoID returned Error: %s" % resp.content)
+
+        ret = []
+        for utxo in resp.json()['unspent_outputs']:
+            ret.append(dict(
+                output="%s:%s" % (utxo['tx_hash'], utxo['tx_ouput_n']),
+                amount=int(utxo['value']),
+                confirmations=utxo['confirmations'],
+                address=address
+            ))
+        return ret
+
 
 class CryptapUS(Service):
     service_id = 24
