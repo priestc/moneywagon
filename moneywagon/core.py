@@ -1,6 +1,7 @@
 from __future__ import print_function
 import random
 import requests
+import time
 
 from concurrent import futures
 
@@ -32,12 +33,13 @@ class Service(object):
     explorer_blocknum_url = None # {blocknum}
     explorer_blockhash_url = None # {blockhash}
 
-    def __init__(self, verbose=False, responses=None, timeout=None):
+    def __init__(self, verbose=False, responses=None, timeout=None, random_wait_seconds=0):
         self.responses = responses or {} # for caching
         self.verbose = verbose
         self.last_url = None
         self.last_raw_response = None
         self.timeout = timeout
+        self.random_wait_seconds = random_wait_seconds
 
     def __repr__(self):
         return "<Service: %s (%s in cache)>" % (self.__class__.__name__, len(self.responses))
@@ -231,7 +233,7 @@ class AutoFallbackFetcher(object):
     Calls a succession of services until one returns a value.
     """
 
-    def __init__(self, services=None, verbose=False, responses=None, timeout=None):
+    def __init__(self, services=None, verbose=False, responses=None, timeout=None, random_wait_seconds=0):
         """
         Each service class is instantiated here so the service instances stay
         in scope for the entire life of this object. This way the service
@@ -250,6 +252,7 @@ class AutoFallbackFetcher(object):
         self.verbose = verbose
         self._successful_service = None # gets filled in after success
         self._failed_services = []
+        self.random_wait_seconds = random_wait_seconds
 
     def _try_services(self, method_name, *args, **kwargs):
         """
@@ -258,6 +261,15 @@ class AutoFallbackFetcher(object):
         exceptions to be raised so the service classes can be debugged and
         fixed quickly.
         """
+        if self.random_wait_seconds > 0:
+            # for privacy... To avoid correlating addresses to same origin
+            # only gets called before the first service call. Does not pause
+            # before each and every call.
+            pause_time = random.random() * self.random_wait_seconds
+            if self.verbose:
+                print("Pausing for: %.2f seconds" % pause_time)
+            time.sleep(pause_time)
+
         for service in self.services:
             crypto = ((args and args[0]) or kwargs['crypto']).lower()
             address = kwargs.get('address', '').lower()
@@ -331,13 +343,21 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
     fast_level = modes.get('fast', 0)
     average_level = modes.get('average', 0)
     paranoid_level = modes.get('paranoid', 0)
+    private_level = modes.get('private', 0)
     verbose = modes.get('verbose', False)
     timeout = modes.get('timeout', None)
 
     if modes.get('random', False):
         random.shuffle(services)
 
-    if average_level <= 1 and paranoid_level <= 1 and fast_level == 0:
+    if private_level  > 0:
+        results = _do_private_mode(
+            FetcherClass, services, kwargs, random_wait_seconds=private_level,
+            verbose=verbose, timeout=timeout
+        )
+        return results
+
+    elif average_level <= 1 and paranoid_level <= 1 and fast_level == 0:
         # only need to make 1 external call, no need for threading...
         fetcher = FetcherClass(services=services, verbose=verbose, timeout=timeout)
         consensus_results = fetcher.action(**kwargs)
@@ -433,6 +453,36 @@ def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbo
             results.append([service, future.result()])
 
     return results
+
+def _do_private_mode(FetcherClass, services, kwargs, random_wait_seconds, verbose=False, timeout=None):
+    """
+    Private mode is only applicable to address_balance, unspent_outputs, and
+    historical_transactions. There will always be a list for the `addresses`
+    argument. Each address goes to a random service. Also a random delay is
+    performed before the external fetch.
+    """
+    addresses = kwargs.pop('addresses')
+    results = {}
+
+    with futures.ThreadPoolExecutor(max_workers=len(addresses)) as executor:
+        fetches = {}
+        for address in addresses:
+            k = kwargs
+            k['address'] = address
+            srv = FetcherClass(
+                services=services, verbose=verbose, timeout=timeout,
+                random_wait_seconds=random_wait_seconds
+            )
+            fetches[executor.submit(srv.action, **k)] = (srv, address)
+
+        to_iterate = futures.as_completed(fetches)
+
+        for future in to_iterate:
+            service, address = fetches[future]
+            results[address] = future.result()
+
+    return results
+
 
 def currency_to_protocol(amount):
     """

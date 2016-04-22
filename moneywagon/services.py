@@ -997,7 +997,13 @@ class Blockonomics(Service):
 
     def get_balance_multi(self, crypto, addresses, confirmations=1):
         url = "https://www.blockonomics.co/api/balance"
-        response = self.post_url(url, json.dumps({'addr': ' '.join(addresses)})).json()
+
+        if hasattr(addresses, 'startswith') and addresses.startswith("xpub"):
+            body = {'addr': addresses}
+        else:
+            body = {'addr': ' '.join(addresses)}
+        
+        response = self.post_url(url, json.dumps(body)).json()
         balances = {}
         for data in response['response']:
             confirmed = data['confirmed'] / 1e8

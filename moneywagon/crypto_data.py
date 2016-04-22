@@ -606,7 +606,7 @@ crypto_data = {
     'pot': {
         'name': 'PotCoin',
         'address_version_byte': 55,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x80000051,
         'private_key_prefix': None,
         'genesis_date': datetime(2014, 1, 21),
         'services': {

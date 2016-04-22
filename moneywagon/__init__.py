@@ -39,10 +39,14 @@ def get_address_balance(crypto, address=None, addresses=None, services=None, **m
     else:
         raise Exception("Either address or addresses but not both")
 
-    return enforce_service_mode(
+    results = enforce_service_mode(
         services, AddressBalance, args, modes=modes
     )
 
+    if addresses and 'total_balance' not in results:
+        results['total_balance'] = sum(results.values())
+
+    return results
 
 def get_historical_transactions(crypto, address, services=None, **modes):
     if not services:
@@ -317,7 +321,12 @@ class AddressBalance(AutoFallbackFetcher):
             method_name = "get_balance_multi"
             kwargs['addresses'] = addresses
 
-        return self._try_services(method_name, **kwargs)
+        results = self._try_services(method_name, **kwargs)
+
+        if addresses and 'total_balance' not in results:
+            results['total_balance'] = sum(results.values())
+
+        return results
 
     def no_service_msg(self, crypto, address, confirmations=1):
         return "Could not get confirmed address balance for: %s" % crypto
