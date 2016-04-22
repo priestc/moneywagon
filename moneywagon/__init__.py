@@ -423,7 +423,7 @@ def service_table(format='simple'):
     for service in sorted(ALL_SERVICES, key=lambda x: x.service_id):
         ret.append([
             service.service_id,
-            service.__name__, linkify(service.api_homepage),
+            service.__name__, linkify(service.api_homepage.format(domain=service.domain)),
             ", ".join(service.supported_cryptos or [])
         ])
 

@@ -816,7 +816,7 @@ class BitpayInsight(Service):
     service_id = 28
     supported_cryptos = ['btc']
     domain = "insight.bitpay.com"
-    api_homepage = domain + "/api"
+    api_homepage = "https://{domain}/api"
     explorer_address_url = "https://{domain}/address/{address}"
 
     name = "Bitpay Insight"
@@ -906,7 +906,6 @@ class MYRCryptap(BitpayInsight):
     service_id = 30
     supported_cryptos = ['myr']
     domain = "insight-myr.cryptap.us"
-    api_homepage = domain + "/api"
     name = "cryptap Insight"
 
 
@@ -914,14 +913,12 @@ class BirdOnWheels(BitpayInsight):
     service_id = 31
     supported_cryptos = ['myr']
     domain = "birdonwheels5.no-ip.org:3000"
-    api_homepage = domain + "/api"
     name = "Bird on Wheels"
 
 class ThisIsVTC(BitpayInsight):
     service_id = 32
     supported_cryptos = ['vtc']
     domain = "explorer.thisisvtc.com"
-    api_homepage = domain + "/api"
     name = "This is VTC"
 
 
@@ -929,7 +926,6 @@ class ReddcoinCom(BitpayInsight):
     service_id = 33
     supported_cryptos = ['rdd']
     domain = "live.reddcoin.com"
-    api_homepage = domain + "/api"
     name = "Reddcoin.com"
 
 
@@ -937,7 +933,6 @@ class FTCe(BitpayInsight):
     service_id = 34
     supported_cryptos = ['ftc']
     domain = "block.ftc-c.com"
-    api_homepage = domain + "/api"
     name = "FTCe"
 
 
