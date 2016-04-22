@@ -57,6 +57,15 @@ def get_historical_transactions(crypto, address, services=None, **modes):
     )
 
 
+def get_single_transaction(crypto, txid, services=None, **modes):
+    if not services:
+        services = get_optimal_services(crypto, 'single_transaction')
+
+    return enforce_service_mode(
+        services, SingleTransaction, {'crypto': crypto, 'txid': txid}, modes=modes
+    )
+
+
 def get_unspent_outputs(crypto, address, services=None, **modes):
     if not services:
         services = get_optimal_services(crypto, 'unspent_outputs')
@@ -229,6 +238,19 @@ class OptimalFee(AutoFallbackFetcher):
         return "Could not get optimal fee for: %s" % crypto
 
 
+class SingleTransaction(AutoFallbackFetcher):
+    def action(self, crypto, txid):
+        crypto = crypto.lower()
+        return self._try_services("get_single_transaction", crypto, txid)
+
+    @classmethod
+    def strip_for_consensus(cls, result):
+        return "%.8f %.8f" % (result['total_in'], result['total_out'])
+
+    def no_service_msg(self, crypto, txid):
+        return "Could not get transaction info for: %s:%s" % (crypto, txid)
+
+
 class GetBlock(AutoFallbackFetcher):
     def action(self, crypto, block_number='', block_hash='', latest=False):
         if sum([bool(block_number), bool(block_hash), bool(latest)]) != 1:
@@ -243,15 +265,10 @@ class GetBlock(AutoFallbackFetcher):
         )
 
     @classmethod
-    def strip_for_consensus(self, results):
-        stripped = []
-        for result in results:
-            stripped.append(
-                "[hash: %s, number: %s, size: %s]" % (
-                    result['hash'], result['block_number'], result['size']
-                )
-            )
-        return stripped
+    def strip_for_consensus(self, result):
+        return "%s, %s, %s" % (
+            result['hash'], result['block_number'], result['size']
+        )
 
 
 class HistoricalTransactions(AutoFallbackFetcher):
@@ -259,7 +276,7 @@ class HistoricalTransactions(AutoFallbackFetcher):
         return self._try_services('get_transactions', crypto, address)
 
     def no_service_msg(self, crypto, address):
-        return "Could not get transactions for: %s" % crypto
+        return "Could not get transactions for: %s:%s" % (crypto, address)
 
     @classmethod
     def strip_for_consensus(cls, results):
@@ -303,7 +320,7 @@ class CurrentPrice(AutoFallbackFetcher):
         return self._try_services('get_current_price', crypto=crypto, fiat=fiat)
 
     def simplify_for_average(self, value):
-        return value[0] # ignore source tag for average calculation
+        return value
 
     def no_service_msg(self, crypto, fiat):
         return "Can not find current price for %s->%s" % (crypto, fiat)

@@ -28,7 +28,7 @@ crypto_data = {
                 BitpayInsight, Blockonomics
             ],
             'single_transaction': [
-
+                Blockr
             ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
@@ -63,7 +63,7 @@ crypto_data = {
                 Blockr, ChainSo
             ],
             'single_transaction': [
-
+                Blockr
             ],
             'push_tx': [
                 Blockr, ChainSo
@@ -93,7 +93,7 @@ crypto_data = {
                 Blockr
             ],
             'single_transaction': [
-                Mintr
+                Mintr, Blockr
             ],
             'push_tx': [
 

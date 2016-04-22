@@ -230,6 +230,7 @@ class Blockr(Service):
     explorer_latest_block = "http://blockr.io/block/info/latest"
 
     json_address_url = "http://{crypto}.blockr.io/api/v1/address/info/{address}"
+    json_single_tx_url = "http://{crypto}.blockr.io/api/v1/tx/info/{txid}"
     json_txs_url = url = "http://{crypto}.blockr.io/api/v1/address/txs/{address}"
     json_unspent_outputs_url = "http://{crypto}.blockr.io/api/v1/address/unspent/{address}"
     name = "Blockr.io"
@@ -252,6 +253,25 @@ class Blockr(Service):
                 confirmations=tx['confirmations'],
             ))
         return transactions
+
+    def get_single_transaction(self, crypto, txid):
+        url = self.json_single_tx_url.format(crypto=crypto, txid=txid)
+        r = self.get_url(url).json()['data']
+
+        ins = [{'address': x['address'], 'amount': float(x['amount']) * -1} for x in r['vins']]
+        outs = [{'address': x['address'], 'amount': float(x['amount'])} for x in r['vouts']]
+
+        return dict(
+            time=arrow.get(r['time_utc']).datetime,
+            block_number=r['block'],
+            inputs=ins,
+            outputs=outs,
+            txid=txid,
+            total_in=sum(x['amount'] for x in ins),
+            total_out=sum(x['amount'] for x in outs),
+            confirmations=r['confirmations'],
+            fee=float(r['fee'])
+        )
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
         url = self.json_unspent_outputs_url.format(address=address, crypto=crypto)
@@ -1002,7 +1022,7 @@ class Blockonomics(Service):
             body = {'addr': addresses}
         else:
             body = {'addr': ' '.join(addresses)}
-        
+
         response = self.post_url(url, json.dumps(body)).json()
         balances = {}
         for data in response['response']:
@@ -1093,6 +1113,7 @@ class ChainRadar(Service):
         return dict(
             block_number=h['height'],
             time=arrow.get(h['timestamp']).datetime,
+            size=h['blockSize'],
             hash=h['hash'],
             previous_hash=h['prevBlockHash'],
             txids=[x['hash'] for x in r['transactions']],

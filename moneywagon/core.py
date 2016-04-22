@@ -411,7 +411,7 @@ def _prepare_consensus(FetcherClass, results):
     # when determining consensus amoung services, only take into account values returned.
     if hasattr(FetcherClass, "strip_for_consensus"):
         to_compare = [
-            FetcherClass.strip_for_consensus(value) for service, value in results
+            FetcherClass.strip_for_consensus(value) for (service, value) in results
         ]
     else:
         to_compare = [value for service, value in results]
