@@ -28,7 +28,7 @@ crypto_data = {
                 BitpayInsight, Blockonomics
             ],
             'single_transaction': [
-                Blockr
+                Blockr, BitpayInsight
             ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
@@ -183,16 +183,16 @@ crypto_data = {
                 MYRCryptap, BirdOnWheels
             ],
             'single_transaction': [
-
+                MYRCryptap, BirdOnWheels
             ],
             'push_tx': [
-                MYRCryptap
+                MYRCryptap, BirdOnWheels
             ],
             'unspent_outputs': [
-                MYRCryptap
+                MYRCryptap, BirdOnWheels
             ],
             'get_block': [
-                MYRCryptap
+                MYRCryptap, BirdOnWheels
             ]
         },
     },
@@ -213,7 +213,7 @@ crypto_data = {
                 ThisIsVTC
             ],
             'single_transaction': [
-
+                ThisIsVTC
             ],
             'push_tx': [
                 ThisIsVTC
@@ -243,7 +243,7 @@ crypto_data = {
                 FTCe
             ],
             'single_transaction': [
-
+                FTCe
             ],
             'push_tx': [
                 FTCe
@@ -303,7 +303,7 @@ crypto_data = {
                 ReddcoinCom
             ],
             'single_transaction': [
-
+                ReddcoinCom
             ],
             'push_tx': [
                 ReddcoinCom

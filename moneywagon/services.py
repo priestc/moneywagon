@@ -815,17 +815,18 @@ class BTER(Service):
 class BitpayInsight(Service):
     service_id = 28
     supported_cryptos = ['btc']
-    domain = "http://insight.bitpay.com"
+    domain = "insight.bitpay.com"
     api_homepage = domain + "/api"
-    explorer_address_url = "https://insight.bitpay.com/address/{address}"
+    explorer_address_url = "https://{domain}/address/{address}"
+
     name = "Bitpay Insight"
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "%s/api/addr/%s/balance" % (self.domain, address)
+        url = "https://%s/api/addr/%s/balance" % (self.domain, address)
         return float(self.get_url(url).content) / 1e8
 
     def get_transactions(self, crypto, address):
-        url = "%s/api/txs/?address=%s" % (self.domain, address)
+        url = "https://%s/api/txs/?address=%s" % (self.domain, address)
         response = self.get_url(url)
 
         transactions = []
@@ -842,8 +843,23 @@ class BitpayInsight(Service):
 
         return transactions
 
+    def get_single_transaction(self, crypto, txid):
+        url = "https://%s/api/tx/%s" % (self.domain, txid)
+        d = self.get_url(url).json()
+        return dict(
+            time=arrow.get(d['blocktime']).datetime,
+            confirmations=d['confirmations'],
+            total_in=float(d['valueIn']),
+            total_out=float(d['valueOut']),
+            fee=d['fees'],
+            inputs=[{'address': x['addr'], 'value': x['value']} for x in d['vin']],
+            outputs=[{'address': x['scriptPubKey']['addresses'][0], 'value': x['value']} for x in d['vout']],
+            txid=txid,
+        )
+
+
     def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "%s/api/addr/%s/utxo?noCache=1" % (self.domain, address)
+        url = "https://%s/api/addr/%s/utxo?noCache=1" % (self.domain, address)
         utxos = []
         for utxo in self.get_url(url).json():
             utxos.append(dict(
@@ -857,14 +873,14 @@ class BitpayInsight(Service):
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
 
         if latest:
-            url = "%s/api/status?q=getLastBlockHash" % self.domain
+            url = "https://%s/api/status?q=getLastBlockHash" % self.domain
             block_hash = self.get_url(url).json()['lastblockhash']
 
         elif block_number:
-            url = "%s/api/block-index/%s" % (self.domain, block_number)
+            url = "https://%s/api/block-index/%s" % (self.domain, block_number)
             block_hash = self.get_url(url).json()['blockHash']
 
-        url = "%s/api/block/%s" % (self.domain, block_hash)
+        url = "https://%s/api/block/%s" % (self.domain, block_hash)
 
         r = self.get_url(url).json()
         return dict(
@@ -883,13 +899,13 @@ class BitpayInsight(Service):
         )
 
     def get_optimal_fee(self, crypto, tx_bytes):
-        url = "%s/api/utils/estimatefee?nbBlocks=2" % self.domain
+        url = "https://%s/api/utils/estimatefee?nbBlocks=2" % self.domain
         return self.get_url(url).json()
 
 class MYRCryptap(BitpayInsight):
     service_id = 30
     supported_cryptos = ['myr']
-    domain = "http://insight-myr.cryptap.us"
+    domain = "insight-myr.cryptap.us"
     api_homepage = domain + "/api"
     name = "cryptap Insight"
 
@@ -897,14 +913,14 @@ class MYRCryptap(BitpayInsight):
 class BirdOnWheels(BitpayInsight):
     service_id = 31
     supported_cryptos = ['myr']
-    domain = "http://birdonwheels5.no-ip.org:3000"
+    domain = "birdonwheels5.no-ip.org:3000"
     api_homepage = domain + "/api"
     name = "Bird on Wheels"
 
 class ThisIsVTC(BitpayInsight):
     service_id = 32
     supported_cryptos = ['vtc']
-    domain = "http://explorer.thisisvtc.com"
+    domain = "explorer.thisisvtc.com"
     api_homepage = domain + "/api"
     name = "This is VTC"
 
@@ -912,7 +928,7 @@ class ThisIsVTC(BitpayInsight):
 class ReddcoinCom(BitpayInsight):
     service_id = 33
     supported_cryptos = ['rdd']
-    domain = "http://live.reddcoin.com"
+    domain = "live.reddcoin.com"
     api_homepage = domain + "/api"
     name = "Reddcoin.com"
 
@@ -920,7 +936,7 @@ class ReddcoinCom(BitpayInsight):
 class FTCe(BitpayInsight):
     service_id = 34
     supported_cryptos = ['ftc']
-    domain = "http://block.ftc-c.com"
+    domain = "block.ftc-c.com"
     api_homepage = domain + "/api"
     name = "FTCe"
 
