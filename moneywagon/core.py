@@ -481,6 +481,7 @@ def _do_private_mode(FetcherClass, services, kwargs, random_wait_seconds, verbos
         for address in addresses:
             k = kwargs
             k['address'] = address
+            random.shuffle(services)
             srv = FetcherClass(
                 services=services, verbose=verbose, timeout=timeout,
                 random_wait_seconds=random_wait_seconds

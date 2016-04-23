@@ -1091,8 +1091,7 @@ class Blockonomics(Service):
 class BlockExplorerCom(BitpayInsight):
     service_id = 38
     supported_cryptos = ['btc']
-    domain = "https://blockexplorer.com"
-    api_homepage = domain + "/api"
+    domain = "blockexplorer.com"
     name = "BlockExplorer.com"
 
 class BitNodes(Service):
