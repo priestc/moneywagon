@@ -194,6 +194,61 @@ URL: https://chain.so/api/v2/get_address_balance/btc/1HWpyFJ7N6rvFkq3ZCMiFnqM6hv
 0.00132132
 ```
 
+## single-transaction [crypto] [txid]
+
+```
+$ moneywagon single-transaction ppc 6dddc4deb0806d987844b429e73b20ce5f0355407cce220130b5eac8fa13970e | python -mjson.tool
+{
+    "block_number": 117284,
+    "confirmations": 115918,
+    "fee": 0.02,
+    "inputs": [
+        {
+            "address": "PJyL5yc5Zk2EDC2p4Tu5fAfU5NP59hDn88",
+            "amount": 1.001288
+        },
+        {
+            "address": "PJopCzzaHC1Kb1CV7iDLs1o4gXpssG1czj",
+            "amount": 0.010604
+        },
+        {
+            "address": "PGBnz34C79DahgY5pEN5zdSwkkeEZBH7n2",
+            "amount": 0.010862
+        },
+        {
+            "address": "PGXvsTrer2neCnhwCk9FwMJxHTcfznoYKk",
+            "amount": 100.01
+        },
+        {
+            "address": "PJyL5yc5Zk2EDC2p4Tu5fAfU5NP59hDn88",
+            "amount": 1.137068
+        },
+        {
+            "address": "PJyL5yc5Zk2EDC2p4Tu5fAfU5NP59hDn88",
+            "amount": 1.056389
+        },
+        {
+            "address": "PDsudZAz7F7XvB6x5h5oyoNT35uLRXuwrf",
+            "amount": 0.78484
+        }
+    ],
+    "outputs": [
+        {
+            "address": "PEWcuiycc1vaSqAVBC5bpGq2mMF7Gs4ixp",
+            "amount": 0.011051
+        },
+        {
+            "address": "PVoei4A3TozCSK8W9VvS55fABdTZ1BCwfj",
+            "amount": 103.98
+        }
+    ],
+    "time": "2014-06-16T00:07:10+00:00",
+    "total_in": 104.01105100000001,
+    "total_out": 103.991051,
+    "txid": "6dddc4deb0806d987844b429e73b20ce5f0355407cce220130b5eac8fa13970e"
+}
+```
+
 ## get-block [crypto] [--block_number=n|--block_hash=hash|--latest]
 
 Gets the block, according to either block number, block hash or get by latest.
@@ -647,11 +702,25 @@ Each blockchain function's high level API function call accepts additional mode 
 
 * **random** - This method will randomize all sources so it doesn't always call the best service.
 
-* **paranoid** - Integer 1 or greater - Paranoid mode means multiple services will be checked
+* **paranoid** - Integer 2 or greater - Paranoid mode means multiple services will be checked
 and a result will only be returned if all services agree. The number passed in
 is the number of services contacted. Default is 1.
 
+* **average** - Integer 2 or greater. This mode will call the external service multiple
+times and then return the average of returned results. Only applicable for functions that
+return a single numerical value, such as `current_price`, and `get_optimal_fee`. For instance,
+if you all `get_current_price` with `average=4`, 4 different services will be called to get current price,
+the results will be averaged, and returned.
+
 * **verbose** - True or False - If set to true, there will be extra debugging output
+
+* **private** - Integer greater than 0. This mode is only applicable to endpoints that take multiple
+addresses, (or a single extended public key). This will use a single service for each address. The
+number passed in corresponds to the amount of seconds each of the external calls will be spread
+out over. For instance, if you have 10 addresses you want the balance for, you use mode `private=4`
+it will make those 10 different calls to 10 different services (chosen at random), and will spread them out
+over a 4 second period. Currently this mode can not be used in tandem with `average` an `paranoid`
+modes.
 
 ```python
 >>> from moneywagon import get_address_balance
