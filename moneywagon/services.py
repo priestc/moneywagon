@@ -285,6 +285,14 @@ class Blockr(Service):
             fee=float(r['fee'])
         )
 
+    def _format_utxo(self, utxo, address):
+        return dict(
+            amount=currency_to_protocol(utxo['amount']),
+            address=address,
+            output="%s:%s" % (utxo['tx'], utxo['n']),
+            confirmations=utxo['confirmations']
+        )
+
     def get_unspent_outputs(self, crypto, address, confirmations=1):
         url = self.json_unspent_outputs_url.format(address=address, crypto=crypto)
         utxos = []
@@ -292,14 +300,19 @@ class Blockr(Service):
             cons = utxo['confirmations']
             if cons < confirmations:
                 continue
-            utxos.append(dict(
-                amount=currency_to_protocol(utxo['amount']),
-                address=address,
-                output="%s:%s" % (utxo['tx'], utxo['n']),
-                confirmations=cons
-            ))
+            utxos.append(self._format_utxo(utxo, address))
         return utxos
 
+    def get_unspent_outputs_multi(self, crypto, addresses, confirmations=1):
+        url = self.json_unspent_outputs_url.format(address=','.join(addresses), crypto=crypto)
+        utxos = []
+        for data in self.get_url(url).json()['data']:
+            for utxo in data['unspent']:
+                cons = utxo['confirmations']
+                if cons < confirmations:
+                    continue
+                utxos.append(self._format_utxo(utxo, data['address']))
+        return utxos
 
     def push_tx(self, crypto, tx_hex):
         url = "http://%s.blockr.io/api/v1/tx/push" % crypto
