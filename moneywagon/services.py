@@ -240,6 +240,13 @@ class Blockr(Service):
         response = self.get_url(url)
         return response.json()['data']['balance']
 
+    def get_balance_multi(self, crypto, addresses, confirmations=1):
+        url = self.json_address_url.format(address=','.join(addresses), crypto=crypto)
+        balances = {}
+        for bal in self.get_url(url).json()['data']:
+            balances[bal['address']] = bal['balance']
+        return balances
+
     def _format_tx(self, tx, address):
         return dict(
             date=arrow.get(tx['time_utc']).datetime,
