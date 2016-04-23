@@ -825,22 +825,28 @@ class BitpayInsight(Service):
         url = "https://%s/api/addr/%s/balance" % (self.domain, address)
         return float(self.get_url(url).content) / 1e8
 
+    def _format_tx(self, tx, addresses):
+        for address in addresses:
+            my_outs = sum([
+                float(x['value']) for x in tx['vout'] if address in x['scriptPubKey']['addresses']
+            ])
+            my_ins = sum([
+                float(x['value']) for x in tx['vin'] if address in x['addr']
+            ])
+
+        return dict(
+            amount=my_outs - my_ins,
+            date=arrow.get(tx['time']).datetime,
+            txid=tx['txid'],
+            confirmations=tx['confirmations'],
+        )
+
     def get_transactions(self, crypto, address):
         url = "https://%s/api/txs/?address=%s" % (self.domain, address)
         response = self.get_url(url)
-
         transactions = []
         for tx in response.json()['txs']:
-            my_outs = [
-                float(x['value']) for x in tx['vout'] if address in x['scriptPubKey']['addresses']
-            ]
-            transactions.append(dict(
-                amount=sum(my_outs),
-                date=arrow.get(tx['time']).datetime,
-                txid=tx['txid'],
-                confirmations=tx['confirmations'],
-            ))
-
+            transactions.append(self._format_tx(tx, [address])
         return transactions
 
     def get_transactions_multi(self, crypto, addresses):
@@ -848,17 +854,7 @@ class BitpayInsight(Service):
         r = self.get_url(url).json()
         txs = []
         for tx in r['items']:
-            my_amount = 0
-            for address in addresses:
-                my_amount += sum([
-                    float(x['value']) for x in tx['vout'] if address in x['scriptPubKey']['addresses']
-                ])
-            txs.append(dict(
-                confirmations=tx['confirmations'],
-                date=arrow.get(tx['blocktime']).datetime,
-                txid=tx['txid'],
-                amount=my_amount
-            ))
+            txs.append(self._format_tx(tx, addresses)
         return txs
 
     def get_single_transaction(self, crypto, txid):

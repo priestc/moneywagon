@@ -44,7 +44,12 @@ def get_address_balance(crypto, address=None, addresses=None, services=None, **m
     )
 
     if addresses and 'total_balance' not in results:
-        results['total_balance'] = sum(results.values())
+        results['total'] = sum(results.values())
+
+    if modes.get('private') and modes.get('report_services', False):
+        # private mode does not return services (its not practical),
+        # an empty list is returned in its place to simplify the API.
+        return [], results
 
     return results
 
@@ -67,7 +72,12 @@ def get_historical_transactions(crypto, address=None, addresses=None, services=N
         # for address balance, so remove it here
         just_txs = []
         [just_txs.extend(x) for x in txs.values()]
-        return sorted(just_txs, key=lambda tx: tx['date'], reverse=True)
+        ret = sorted(just_txs, key=lambda tx: tx['date'], reverse=True)
+        if modes.get('report_services', False):
+            # private mode does not return services (its not practical),
+            # an empty list is returned in its place to simplify the API.
+            return [], ret
+        return ret
 
     return txs
 
@@ -98,7 +108,11 @@ def get_unspent_outputs(crypto, address=None, addresses=None, services=None, **m
         # for address balance, so remove it here
         just_utxos = []
         [just_utxos.extend(x) for x in utxos.values()]
-        return sorted(just_utxos, key=lambda tx: tx['date'], reverse=True)
+        ret = sorted(just_utxos, key=lambda tx: tx['output'])
+        if modes.get('report_services', False):
+            # private mode does not return services (its not practical),
+            # an empty list is returned in its place to satisfy the API.
+            return [], ret
 
     return utxos
 
