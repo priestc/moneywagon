@@ -485,6 +485,9 @@ def _do_private_mode(FetcherClass, services, kwargs, random_wait_seconds, verbos
                 services=services, verbose=verbose, timeout=timeout,
                 random_wait_seconds=random_wait_seconds
             )
+            # address is returned because balance needs to be returned
+            # attached to the address. Other methods (get_transaction, unspent_outputs, etc)
+            # do not need the address again.
             fetches[executor.submit(srv.action, **k)] = (srv, address)
 
         to_iterate = futures.as_completed(fetches)

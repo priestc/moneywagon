@@ -48,7 +48,7 @@ def get_address_balance(crypto, address=None, addresses=None, services=None, **m
 
     return results
 
-def get_historical_transactions(crypto, address, services=None, **modes):
+def get_historical_transactions(crypto, address=None, addresses=None, services=None, **modes):
     if not services:
         services = get_optimal_services(crypto, 'historical_transactions')
 
@@ -58,10 +58,18 @@ def get_historical_transactions(crypto, address, services=None, **modes):
     if address:
         kwargs['address'] = address
 
-    return enforce_service_mode(
+    txs = enforce_service_mode(
         services, HistoricalTransactions, kwargs, modes=modes
     )
 
+    if modes.get('private'):
+        # private mode returns items indexed by address, this only makes sense to do
+        # for address balance, so remove it here
+        just_txs = []
+        [just_txs.extend(x) for x in txs.values()]
+        return sorted(just_txs, key=lambda tx: tx['date'], reverse=True)
+
+    return txs
 
 def get_single_transaction(crypto, txid, services=None, **modes):
     if not services:
@@ -82,9 +90,17 @@ def get_unspent_outputs(crypto, address=None, addresses=None, services=None, **m
     if address:
         kwargs['address'] = address
 
-    return enforce_service_mode(
+    utxos = enforce_service_mode(
         services, UnspentOutputs, kwargs, modes=modes
     )
+    if modes.get('private'):
+        # private mode returns items indexed by address, this only makes sense to do
+        # for address balance, so remove it here
+        just_utxos = []
+        [just_utxos.extend(x) for x in utxos.values()]
+        return sorted(just_utxos, key=lambda tx: tx['date'], reverse=True)
+
+    return utxos
 
 
 def get_historical_price(crypto, fiat, date):
