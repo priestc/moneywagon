@@ -843,6 +843,24 @@ class BitpayInsight(Service):
 
         return transactions
 
+    def get_transactions_multi(self, crypto, addresses):
+        url = "https://%s/api/addrs/%s/txs" % (self.domain, ','.join(addresses))
+        r = self.get_url(url).json()
+        txs = []
+        for tx in r['items']:
+            my_amount = 0
+            for address in addresses:
+                my_amount += sum([
+                    float(x['value']) for x in tx['vout'] if address in x['scriptPubKey']['addresses']
+                ])
+            txs.append(dict(
+                confirmations=tx['confirmations'],
+                date=arrow.get(tx['blocktime']).datetime,
+                txid=tx['txid'],
+                amount=my_amount
+            ))
+        return txs
+
     def get_single_transaction(self, crypto, txid):
         url = "https://%s/api/tx/%s" % (self.domain, txid)
         d = self.get_url(url).json()
@@ -857,17 +875,26 @@ class BitpayInsight(Service):
             txid=txid,
         )
 
+    def _format_utxo(self, utxo):
+        return dict(
+            output="%s:%s" % (utxo['txid'], utxo['vout']),
+            amount=currency_to_protocol(utxo['amount']),
+            confirmations=utxo['confirmations'],
+            address=utxo['address']
+        )
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
         url = "https://%s/api/addr/%s/utxo?noCache=1" % (self.domain, address)
         utxos = []
         for utxo in self.get_url(url).json():
-            utxos.append(dict(
-                output="%s:%s" % (utxo['txid'], utxo['vout']),
-                amount=currency_to_protocol(utxo['amount']),
-                confirmations=utxo['confirmations'],
-                address=address
-            ))
+            utxos.append(self._format_utxo(utxo))
+        return utxos
+
+    def get_unspent_outputs_multi(self, crypto, addresses, confirmations=1):
+        url = "https://%s/api/addrs/%s/utxo?noCache=1" % (self.domain, ','.join(addresses))
+        utxos = []
+        for utxo in self.get_url(url).json():
+            utxos.append(self._format_utxo(utxo))
         return utxos
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):

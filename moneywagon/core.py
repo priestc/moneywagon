@@ -95,16 +95,6 @@ class Service(object):
             "Or rather it has no defined 'get_current_price' method."
         )
 
-    def get_balance_multi(self, crypto, addresses, confirmations=1):
-        """
-        Same as above, except addresses are passed in as a list instead of
-        just a single string.
-        """
-        raise NotImplementedError(
-            "This service does not support getting multiple address balances. "
-            "Or rather it has no defined 'get_balance_multi' method."
-        )
-
     def get_historical_price(self, crypto, fiat, at_time):
         """
         """
@@ -127,6 +117,12 @@ class Service(object):
         raise NotImplementedError(
             "This service does not support getting historical transactions. "
             "Or rather it has no defined 'get_transactions' method."
+        )
+
+    def get_transactions_multi(self, crypto, address, confirmations=1):
+        raise NotImplementedError(
+            "This service does not support getting historical transactions by multiple addresses. "
+            "Or rather it has no defined 'get_transactions_multi' method."
         )
 
     def get_single_transaction(self, crypto, txid):
@@ -171,6 +167,12 @@ class Service(object):
             "Or rather it has no defined 'get_unspent_outputs' method."
         )
 
+    def get_unspent_outputs_multi(self, crypto, addresses):
+        raise NotImplementedError(
+            "This service does not support getting unspent outputs by multiple addresses. "
+            "Or rather it has no defined 'get_unspent_outputs_multi' method."
+        )
+
     def get_balance(self, crypto, address, confirmations=1):
         """
         Get the amount of coin in the address passed in.
@@ -179,6 +181,16 @@ class Service(object):
         raise NotImplementedError(
             "This service does not support getting address balances. "
             "Or rather it has no defined 'get_balance' method."
+        )
+
+    def get_balance_multi(self, crypto, addresses, confirmations=1):
+        """
+        Same as above, except addresses are passed in as a list instead of
+        just a single string.
+        """
+        raise NotImplementedError(
+            "This service does not support getting multiple address balances. "
+            "Or rather it has no defined 'get_balance_multi' method."
         )
 
     def push_tx(self, crypto, tx_hex):

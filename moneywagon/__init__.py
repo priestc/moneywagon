@@ -52,8 +52,14 @@ def get_historical_transactions(crypto, address, services=None, **modes):
     if not services:
         services = get_optimal_services(crypto, 'historical_transactions')
 
+    kwargs = {'crypto': crypto}
+    if addresses:
+        kwargs['addresses'] = addresses
+    if address:
+        kwargs['address'] = address
+
     return enforce_service_mode(
-        services, HistoricalTransactions, {'crypto': crypto, 'address': address}, modes=modes
+        services, HistoricalTransactions, kwargs, modes=modes
     )
 
 
@@ -66,11 +72,18 @@ def get_single_transaction(crypto, txid, services=None, **modes):
     )
 
 
-def get_unspent_outputs(crypto, address, services=None, **modes):
+def get_unspent_outputs(crypto, address=None, addresses=None, services=None, **modes):
     if not services:
         services = get_optimal_services(crypto, 'unspent_outputs')
+
+    kwargs = {'crypto': crypto}
+    if addresses:
+        kwargs['addresses'] = addresses
+    if address:
+        kwargs['address'] = address
+
     return enforce_service_mode(
-        services, UnspentOutputs, {'crypto': crypto, 'address': address}, modes=modes
+        services, UnspentOutputs, kwargs, modes=modes
     )
 
 
@@ -272,8 +285,17 @@ class GetBlock(AutoFallbackFetcher):
 
 
 class HistoricalTransactions(AutoFallbackFetcher):
-    def action(self, crypto, address):
-        return self._try_services('get_transactions', crypto, address)
+    def action(self, crypto, address=None, addresses=None):
+        if addresses:
+            method_name = "get_transactions_multi"
+            kwargs = dict(addresses=addresses)
+
+        if address:
+            method_name = "get_transactions"
+            kwargs = dict(address=address)
+
+        txs = self._try_services(method_name, crypto, **kwargs)
+        return sorted(txs, key=lambda tx: tx['date'], reverse=True)
 
     def no_service_msg(self, crypto, address):
         return "Could not get transactions for: %s:%s" % (crypto, address)
@@ -292,8 +314,16 @@ class HistoricalTransactions(AutoFallbackFetcher):
 
 
 class UnspentOutputs(AutoFallbackFetcher):
-    def action(self, crypto, address):
-        utxos = self._try_services('get_unspent_outputs', crypto=crypto, address=address)
+    def action(self, crypto, address=None, addresses=None):
+        if addresses:
+            method_name = "get_unspent_outputs_multi"
+            kwargs = dict(addresses=addresses)
+
+        if address:
+            method_name = "get_unspent_outputs"
+            kwargs = dict(address=address)
+
+        utxos = self._try_services(method_name, crypto=crypto, **kwargs)
         return sorted(utxos, key=lambda x: x['output'])
 
     def no_service_msg(self, crypto, address):
