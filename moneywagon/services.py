@@ -240,18 +240,30 @@ class Blockr(Service):
         response = self.get_url(url)
         return response.json()['data']['balance']
 
+    def _format_tx(self, tx, address):
+        return dict(
+            date=arrow.get(tx['time_utc']).datetime,
+            amount=tx['amount'],
+            txid=tx['tx'],
+            confirmations=tx['confirmations'],
+            addresses=[address],
+        )
+
     def get_transactions(self, crypto, address, confirmations=1):
         url = self.json_txs_url.format(address=address, crypto=crypto)
         response = self.get_url(url)
 
         transactions = []
         for tx in response.json()['data']['txs']:
-            transactions.append(dict(
-                date=arrow.get(tx['time_utc']).datetime,
-                amount=tx['amount'],
-                txid=tx['tx'],
-                confirmations=tx['confirmations'],
-            ))
+            transactions.append(self._format_tx(tx, address))
+        return transactions
+
+    def get_transactions_multi(self, crypto, addresses, confirmation=1):
+        url = self.json_txs_url.format(address=','.join(addresses), crypto=crypto)
+        transactions = []
+        for data in self.get_url(url).json()['data']:
+            for tx in data['txs']:
+                transactions.append(self._format_tx(tx, data['address']))
         return transactions
 
     def get_single_transaction(self, crypto, txid):
@@ -826,19 +838,25 @@ class BitpayInsight(Service):
         return float(self.get_url(url).content) / 1e8
 
     def _format_tx(self, tx, addresses):
+        matched_addresses = []
+        my_outs = 0
+        my_ins = 0
         for address in addresses:
-            my_outs = sum([
-                float(x['value']) for x in tx['vout'] if address in x['scriptPubKey']['addresses']
-            ])
-            my_ins = sum([
-                float(x['value']) for x in tx['vin'] if address in x['addr']
-            ])
+            for x in tx['vout']:
+                if address in x['scriptPubKey']['addresses']:
+                    my_outs += float(x['value'])
+                    matched_addresses.append(address)
+            for x in tx['vin']:
+                if address in x['addr']:
+                    my_ins += float(x['value'])
+                    matched_addresses.append(address)
 
         return dict(
             amount=my_outs - my_ins,
             date=arrow.get(tx['time']).datetime,
             txid=tx['txid'],
             confirmations=tx['confirmations'],
+            addresses=list(set(matched_addresses))
         )
 
     def get_transactions(self, crypto, address):
@@ -846,7 +864,7 @@ class BitpayInsight(Service):
         response = self.get_url(url)
         transactions = []
         for tx in response.json()['txs']:
-            transactions.append(self._format_tx(tx, [address])
+            transactions.append(self._format_tx(tx, [address]))
         return transactions
 
     def get_transactions_multi(self, crypto, addresses):
@@ -854,7 +872,7 @@ class BitpayInsight(Service):
         r = self.get_url(url).json()
         txs = []
         for tx in r['items']:
-            txs.append(self._format_tx(tx, addresses)
+            txs.append(self._format_tx(tx, addresses))
         return txs
 
     def get_single_transaction(self, crypto, txid):
