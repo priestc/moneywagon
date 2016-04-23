@@ -167,7 +167,7 @@ $ moneywagon address-balance doge D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ
 99405.6048377
 ```
 
-Also you can include a `--verbose` flag to get more onput:
+Also you can include a `--verbose` flag to get more output:
 
 ```
 $ moneywagon address-balance vtc Va3LcDhwrcwGtG366jeP6EJzWnKT4yMDxs --verbose
@@ -366,9 +366,13 @@ $ moneywagon historical-transactions doge D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ | p
 
 This command also supports the `--verbose` and `--paranoid=n` flags (see above).
 
-## wallet-balance [wallet path] [fiat]
+## wallet-balance [wallet path] [fiat] [--async] [--collapse]
 
 Get the fiat total of a group of cryptocurrency addresses from a "csv wallet" file.
+
+The `--async` option will do all the price and blockchain fetches asynchronusly
+so the operation finishes much faster. The `--collapse` option will sum all balances
+of the same currency to the same line on output.
 
 example:
 
