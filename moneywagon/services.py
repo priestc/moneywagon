@@ -273,24 +273,34 @@ class Blockr(Service):
                 transactions.append(self._format_tx(tx, data['address']))
         return transactions
 
+    def _format_single_tx(self, tx):
+        ins = [{'address': x['address'], 'amount': float(x['amount']) * -1} for x in tx['vins']]
+        outs = [{'address': x['address'], 'amount': float(x['amount'])} for x in tx['vouts']]
+
+        return dict(
+            time=arrow.get(tx['time_utc']).datetime,
+            block_number=tx['block'],
+            inputs=ins,
+            outputs=outs,
+            txid=tx['tx'],
+            total_in=sum(x['amount'] for x in ins),
+            total_out=sum(x['amount'] for x in outs),
+            confirmations=tx['confirmations'],
+            fee=float(tx['fee'])
+        )
+
     def get_single_transaction(self, crypto, txid):
         url = self.json_single_tx_url.format(crypto=crypto, txid=txid)
         r = self.get_url(url).json()['data']
+        return self._format_single_tx(r)
 
-        ins = [{'address': x['address'], 'amount': float(x['amount']) * -1} for x in r['vins']]
-        outs = [{'address': x['address'], 'amount': float(x['amount'])} for x in r['vouts']]
 
-        return dict(
-            time=arrow.get(r['time_utc']).datetime,
-            block_number=r['block'],
-            inputs=ins,
-            outputs=outs,
-            txid=txid,
-            total_in=sum(x['amount'] for x in ins),
-            total_out=sum(x['amount'] for x in outs),
-            confirmations=r['confirmations'],
-            fee=float(r['fee'])
-        )
+    def get_single_transaction_multi(self, crypto, txids):
+        url = self.json_single_tx_url.format(crypto=crypto, txid=','.join(txids))
+        txs = []
+        for tx in self.get_url(url).json()['data']:
+            txs.append(self._format_single_tx(tx))
+        return txs
 
     def _format_utxo(self, utxo, address):
         return dict(
