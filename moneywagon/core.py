@@ -5,7 +5,7 @@ import time
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.10.1'
+useragent = 'moneywagon 1.10.2'
 
 class ServiceDisagreement(Exception):
     pass
@@ -27,6 +27,7 @@ class Service(object):
     """
     domain = None # optional, useful if the service will have subclasses
     api_homepage = '' # link to page defining the API.
+    protocol = 'https'
     supported_cryptos = None # must be a list of lower case currency codes.
     explorer_address_url = None # url to block explerer page. Use {address} and {crypto} as placeholders.
     explorer_tx_url = None # {txid}
@@ -143,6 +144,13 @@ class Service(object):
             "This service does not support getting single transactions. "
             "Or rather it has no defined 'get_single_transaction' method."
         )
+
+    def get_single_transaction_multi(self, crypto, txids):
+        raise NotImplementedError(
+            "This service does not support getting single transactions by multiple txids. "
+            "Or rather it has no defined 'get_single_transaction_multi' method."
+        )
+
 
     def get_unspent_outputs(self, crypto, address):
         """

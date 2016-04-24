@@ -347,7 +347,7 @@ class Blockr(Service):
             crypto,
             block_hash if block_hash else '',
             block_number if block_number else '',
-            'latest' if latest else ''
+            'last' if latest else ''
         )
         r = self.get_url(url).json()['data']
         return dict(
@@ -858,13 +858,14 @@ class BitpayInsight(Service):
     service_id = 28
     supported_cryptos = ['btc']
     domain = "insight.bitpay.com"
-    api_homepage = "https://{domain}/api"
-    explorer_address_url = "https://{domain}/address/{address}"
+    protocol = 'https'
+    api_homepage = "{protocol}://{domain}/api"
+    explorer_address_url = "{protocol}://{domain}/address/{address}"
 
     name = "Bitpay Insight"
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "https://%s/api/addr/%s/balance" % (self.domain, address)
+        url = "%s://%s/api/addr/%s/balance" % (self.protocol, self.domain, address)
         return float(self.get_url(url).content) / 1e8
 
     def _format_tx(self, tx, addresses):
@@ -890,7 +891,7 @@ class BitpayInsight(Service):
         )
 
     def get_transactions(self, crypto, address):
-        url = "https://%s/api/txs/?address=%s" % (self.domain, address)
+        url = "%s://%s/api/txs/?address=%s" % (self.protocol, self.domain, address)
         response = self.get_url(url)
         transactions = []
         for tx in response.json()['txs']:
@@ -898,7 +899,7 @@ class BitpayInsight(Service):
         return transactions
 
     def get_transactions_multi(self, crypto, addresses):
-        url = "https://%s/api/addrs/%s/txs" % (self.domain, ','.join(addresses))
+        url = "%s://%s/api/addrs/%s/txs" % (self.protocol, self.domain, ','.join(addresses))
         r = self.get_url(url).json()
         txs = []
         for tx in r['items']:
@@ -906,7 +907,7 @@ class BitpayInsight(Service):
         return txs
 
     def get_single_transaction(self, crypto, txid):
-        url = "https://%s/api/tx/%s" % (self.domain, txid)
+        url = "%s://%s/api/tx/%s" % (self.protocol, self.domain, txid)
         d = self.get_url(url).json()
         return dict(
             time=arrow.get(d['blocktime']).datetime,
@@ -928,14 +929,14 @@ class BitpayInsight(Service):
         )
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "https://%s/api/addr/%s/utxo?noCache=1" % (self.domain, address)
+        url = "%s://%s/api/addr/%s/utxo?noCache=1" % (self.protocol, self.domain, address)
         utxos = []
         for utxo in self.get_url(url).json():
             utxos.append(self._format_utxo(utxo))
         return utxos
 
     def get_unspent_outputs_multi(self, crypto, addresses, confirmations=1):
-        url = "https://%s/api/addrs/%s/utxo?noCache=1" % (self.domain, ','.join(addresses))
+        url = "%s://%s/api/addrs/%s/utxo?noCache=1" % (self.protocol, self.domain, ','.join(addresses))
         utxos = []
         for utxo in self.get_url(url).json():
             utxos.append(self._format_utxo(utxo))
@@ -944,14 +945,14 @@ class BitpayInsight(Service):
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
 
         if latest:
-            url = "https://%s/api/status?q=getLastBlockHash" % self.domain
+            url = "%s://%s/api/status?q=getLastBlockHash" % (self.protocol, self.domain)
             block_hash = self.get_url(url).json()['lastblockhash']
 
         elif block_number:
-            url = "https://%s/api/block-index/%s" % (self.domain, block_number)
+            url = "%s://%s/api/block-index/%s" % (self.protocol, self.domain, block_number)
             block_hash = self.get_url(url).json()['blockHash']
 
-        url = "https://%s/api/block/%s" % (self.domain, block_hash)
+        url = "%s://%s/api/block/%s" % (self.protocol, self.domain, block_hash)
 
         r = self.get_url(url).json()
         return dict(
@@ -969,15 +970,21 @@ class BitpayInsight(Service):
             tx_count=len(r['tx'])
         )
 
+    def push_tx(self, crypto, tx_hex):
+        url = "%s://%s/api/tx/send" % (self.protocol, self.domain)
+        return self.post_url(url, {'rawtx': tx_hex}).json()['txid']
+
+
     def get_optimal_fee(self, crypto, tx_bytes):
-        url = "https://%s/api/utils/estimatefee?nbBlocks=2" % self.domain
+        url = "%s://%s/api/utils/estimatefee?nbBlocks=2" % (self.protocol, self.domain)
         return self.get_url(url).json()
 
 class MYRCryptap(BitpayInsight):
     service_id = 30
+    protocol = 'http'
     supported_cryptos = ['myr']
     domain = "insight-myr.cryptap.us"
-    name = "cryptap Insight"
+    name = "MYR cryptap"
 
 
 class BirdOnWheels(BitpayInsight):
@@ -985,6 +992,7 @@ class BirdOnWheels(BitpayInsight):
     supported_cryptos = ['myr']
     domain = "birdonwheels5.no-ip.org:3000"
     name = "Bird on Wheels"
+
 
 class ThisIsVTC(BitpayInsight):
     service_id = 32
@@ -998,13 +1006,6 @@ class ReddcoinCom(BitpayInsight):
     supported_cryptos = ['rdd']
     domain = "live.reddcoin.com"
     name = "Reddcoin.com"
-
-
-class FTCe(BitpayInsight):
-    service_id = 34
-    supported_cryptos = ['ftc']
-    domain = "block.ftc-c.com"
-    name = "FTCe"
 
 
 class CoinTape(Service):
@@ -1354,3 +1355,17 @@ class BlockExplorersNet(Service):
             merkle_root=r['merkleroot'],
             difficulty=r['difficulty'],
         )
+
+class UNOCryptap(BitpayInsight):
+    service_id = 44
+    supported_cryptos = ['uno']
+    protocol = 'http'
+    domain = "insight-uno.cryptap.us"
+    name = "UNO cryptap"
+
+class RICCryptap(BitpayInsight):
+    service_id = 45
+    supported_cryptos = ['ric']
+    protocol = 'http'
+    domain = "insight-ric.cryptap.us"
+    name = "RIC cryptap"

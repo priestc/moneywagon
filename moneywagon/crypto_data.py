@@ -200,7 +200,7 @@ crypto_data = {
         'name': 'Vertcoin',
         'address_version_byte': 71,
         'bip44_coin_type': 0x8000001c,
-        'private_key_prefix': None,
+        'private_key_prefix': 199,
         'genesis_date': datetime(2014, 1, 8),
         'services': {
             'current_price': [
@@ -237,22 +237,22 @@ crypto_data = {
                 ChainSo, Cryptonator
             ],
             'address_balance': [
-                FTCe
+
             ],
             'historical_transactions': [
-                FTCe
+
             ],
             'single_transaction': [
-                FTCe
+
             ],
             'push_tx': [
-                FTCe
+
             ],
             'unspent_outputs': [
-                FTCe
+                
             ],
             'get_block': [
-                FTCe
+
             ]
         },
     },
@@ -634,6 +634,130 @@ crypto_data = {
         },
     },
 
+    'bqc': {
+        'name': 'BBQcoin',
+        'address_version_byte': 85,
+        'bip44_coin_type': None,
+        'private_key_prefix': 213,
+        'genesis_date': datetime(2012, 7, 15),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
+    'nvc': {
+        'name': 'Novacoin',
+        'address_version_byte': 8,
+        'bip44_coin_type': 0x80000032,
+        'private_key_prefix': 136,
+        'genesis_date': datetime(2012, 10, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                CryptapUS
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
+    'uno': {
+        'name': 'Unobtanium',
+        'address_version_byte': 130,
+        'bip44_coin_type': None,
+        'private_key_prefix': 224,
+        'genesis_date': datetime(2013, 10, 17),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                UNOCryptap, CryptoID
+            ],
+            'historical_transactions': [
+                UNOCryptap, CryptoID
+            ],
+            'single_transaction': [
+                UNOCryptap
+            ],
+            'push_tx': [
+                UNOCryptap
+            ],
+            'unspent_outputs': [
+                UNOCryptap, CryptoID
+            ],
+            'get_block': [
+                UNOCryptap
+            ]
+        },
+    },
+
+    'ric': {
+        'name': 'Riecoin',
+        'address_version_byte': 60,
+        'bip44_coin_type': None,
+        'private_key_prefix': 128,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                RICCryptap
+            ],
+            'historical_transactions': [
+                RICCryptap
+            ],
+            'single_transaction': [
+                RICCryptap
+            ],
+            'push_tx': [
+                RICCryptap
+            ],
+            'unspent_outputs': [
+                RICCryptap
+            ],
+            'get_block': [
+                RICCryptap
+            ]
+        },
+    },
+
     # TEMPLATE
     '': {
         'name': '',
@@ -675,10 +799,8 @@ crypto_data = {
     'ixc': ['IxCoin', datetime(2011, 8, 10)],
     'bcn': ['Bytecoin', datetime(2012, 7, 4)],
     'bte': ['Bytecoin', datetime(2012, 7, 4)],
-    'bqc': ['BBQCoin', datetime(2012, 7, 15)],
     'str': ['StarCoin', datetime(2012, 7, 19)],
 
-    'nvc': ['NovaCoin', datetime(2012, 10, 1)],
     'trc': ['TerraCoin', datetime(2012, 10, 26)],
     'frc': ['Freicoin', datetime(2012, 12, 21)],
 
@@ -767,7 +889,6 @@ crypto_data = {
     'buk': ['CryptoBuck', datetime(2013, 9, 25)],
     'dem': ['eMark', datetime(2013, 10, 12)],
     'grc': ['GridCoin', datetime(2013, 10, 17)],
-    'uno': ['Unobtanium', datetime(2013, 10, 17)],
     'spt': ['Spots', datetime(2013, 10, 18)],
     'tag': ['TagCoin', datetime(2013, 10, 24)],
     'bet': ['BetaCoin', datetime(2013, 10, 24)],

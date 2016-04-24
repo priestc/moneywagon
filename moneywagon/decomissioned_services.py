@@ -106,6 +106,11 @@ class ExCoIn(Service):
 class TheBitInfo(BitpayInsight):
     service_id = 29
     supported_cryptos = ['btc']
-    domain = "http://insight.thebit.info"
-    api_homepage = domain + "/api"
+    domain = "insight.thebit.info"
     name = "TheBit.info"
+
+class FTCe(BitpayInsight):
+    service_id = 34
+    supported_cryptos = ['ftc']
+    domain = "block.ftc-c.com"
+    name = "FTCe"

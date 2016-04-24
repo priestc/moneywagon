@@ -234,6 +234,7 @@ def get_explorer_url(crypto, address=None, txid=None, blocknum=None, blockhash=N
     for service in services:
         template = getattr(service, attr)
         context['domain'] = service.domain
+        context['protocol'] = service.protocol
 
         if hasattr(service, '_get_coin'):
             # used for when a service uses another name for a certain coin
@@ -290,8 +291,8 @@ class SingleTransaction(AutoFallbackFetcher):
     def strip_for_consensus(cls, result):
         return "%.8f %.8f" % (result['total_in'], result['total_out'])
 
-    def no_service_msg(self, crypto, txid):
-        return "Could not get transaction info for: %s:%s" % (crypto, txid)
+    def no_service_msg(self, crypto, txid=None, txids=None):
+        return "Could not get transaction info for: %s:%s" % (crypto, txid or ', '.join(txids))
 
 
 class GetBlock(AutoFallbackFetcher):
@@ -327,8 +328,8 @@ class HistoricalTransactions(AutoFallbackFetcher):
         txs = self._try_services(method_name, crypto, **kwargs)
         return sorted(txs, key=lambda tx: tx['date'], reverse=True)
 
-    def no_service_msg(self, crypto, address):
-        return "Could not get transactions for: %s:%s" % (crypto, address)
+    def no_service_msg(self, crypto, address=None, addresses=None):
+        return "Could not get transactions for: %s:%s" % (crypto, address or ', '.join(addresses))
 
     @classmethod
     def strip_for_consensus(cls, results):
@@ -356,8 +357,8 @@ class UnspentOutputs(AutoFallbackFetcher):
         utxos = self._try_services(method_name, crypto=crypto, **kwargs)
         return sorted(utxos, key=lambda x: x['output'])
 
-    def no_service_msg(self, crypto, address):
-        return "Could not get unspent outputs for: %s" % crypto
+    def no_service_msg(self, crypto, address=None, addresses=None):
+        return "Could not get unspent outputs for: %s:" % (crypto, address or ', '.join(addresses))
 
     @classmethod
     def strip_for_consensus(cls, results):
@@ -405,7 +406,7 @@ class AddressBalance(AutoFallbackFetcher):
 
         return results
 
-    def no_service_msg(self, crypto, address, confirmations=1):
+    def no_service_msg(self, crypto, address=None, addresses=None, confirmations=1):
         return "Could not get confirmed address balance for: %s" % crypto
 
 
@@ -483,7 +484,9 @@ def service_table(format='simple'):
     for service in sorted(ALL_SERVICES, key=lambda x: x.service_id):
         ret.append([
             service.service_id,
-            service.__name__, linkify(service.api_homepage.format(domain=service.domain)),
+            service.__name__, linkify(service.api_homepage.format(
+                domain=service.domain, protocol=service.protocol
+            )),
             ", ".join(service.supported_cryptos or [])
         ])
 
