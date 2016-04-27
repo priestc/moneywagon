@@ -109,8 +109,8 @@ class TheBitInfo(BitpayInsight):
     domain = "insight.thebit.info"
     name = "TheBit.info"
 
-class FTCe(BitpayInsight):
+class FTCc(BitpayInsight):
     service_id = 34
     supported_cryptos = ['ftc']
     domain = "block.ftc-c.com"
-    name = "FTCe"
+    name = "Feathercoin China"

@@ -78,7 +78,7 @@ class Service(object):
             print("Got Response: %s" % url)
 
         if response.status_code == 503:
-            raise SkipThisService("Service returned 503 - Temporarily out of service.")
+            raise SkipThisService("503 - Temporarily out of service.")
 
         if method == 'get':
             self.responses[url] = response # cache for later
@@ -450,7 +450,9 @@ def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbo
     with futures.ThreadPoolExecutor(max_workers=len(services)) as executor:
         fetches = {}
         for service in services[:num_results]:
-            srv = FetcherClass(services=[service], verbose=verbose, timeout=timeout)
+            tail = [x for x in services if x is not service]
+            random.shuffle(tail)
+            srv = FetcherClass(services=[service] + tail, verbose=verbose, timeout=timeout)
             fetches[executor.submit(srv.action, **kwargs)] = srv
 
         if fast == 1:

@@ -117,7 +117,7 @@ crypto_data = {
                 BTER, ChainSo, Cryptonator
             ],
             'address_balance': [
-                ChainSo, DogeChainInfo
+                ChainSo, DogeChainInfo, ProHashing
             ],
             'historical_transactions': [
                 ChainSo
@@ -132,7 +132,7 @@ crypto_data = {
                 ChainSo
             ],
             'get_block': [
-                ChainSo
+                ChainSo, ProHashing
             ]
         },
     },
@@ -249,7 +249,7 @@ crypto_data = {
 
             ],
             'unspent_outputs': [
-                
+
             ],
             'get_block': [
 

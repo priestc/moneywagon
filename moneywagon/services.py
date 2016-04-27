@@ -1369,3 +1369,64 @@ class RICCryptap(BitpayInsight):
     protocol = 'http'
     domain = "insight-ric.cryptap.us"
     name = "RIC cryptap"
+
+class ProHashing(Service):
+    service_id = 46
+    domain = "prohashing.com"
+    name= "ProHashing"
+    supported_cryptos = ['doge', ]
+
+    def get_address_balance(self, crypto, address, confirmations=1):
+        url = "https://%s/explorerJson/getAddress?address=%s&coin_id=%s" % (
+            self.domain, address, self._get_coin(crypto)
+        )
+        r = self.get_url(url).json()
+
+        if r.get('message', None):
+            raise SkipThisService("Could not get Coin Info: %s" % r['message'])
+
+        return r['balance']
+
+    def get_transactions(self, crypto, address, confirmations=1):
+        params = "$params=%7B%22page%22:1,%22count%22:20,%22filter%22:%7B%7D,%22sorting%22:%7B%22blocktime%22:%22asc%22%7D,%22group%22:%7B%7D,%22groupBy%22:null%7D"
+        url = "https://prohashing.com/explorerJson/getTransactionsByAddress?%s&address=%s&coin_id=%s" % (
+            params, address, self._get_coin(crypto)
+        )
+        return self.get_url(url).json()
+
+    def _get_coin(self, crypto):
+        from crypto_data import crypto_data
+        full_name = crypto_data[crypto]['name']
+        url = "https://%s/explorerJson/getInfo?coin_name=%s" % (
+            self.domain, full_name
+        )
+        r = self.get_url(url).json()
+
+        if r.get('message', None):
+            raise SkipThisService("Could not get Coin Info: %s" % r['message'])
+
+        return r['id']
+
+    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        if latest or block_hash:
+            raise SkipThisService("Block height and latest not implemented.")
+
+        url = "https://%s/explorerJson/getBlock?coin_id=%s&"% (
+            self.domain, self._get_coin(crypto),
+        )
+        if block_hash:
+            url = "%shash=%s" % (
+                url, block_hash
+            )
+
+        r = self.get_url(url).json()
+        return dict(
+            confirmations=r['confirmations'],
+            size=r['size'],
+            txs=[x['hash'] for x in r['tx']],
+            tx_count=len(r['tx']),
+            #time=arrow.get(r['time']).datetime,
+            hash=r['hash'],
+            block_number=r['height'],
+            difficulty=r['difficulty'],
+        )
