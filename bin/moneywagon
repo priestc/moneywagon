@@ -12,7 +12,7 @@ from tabulate import tabulate
 
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
-    get_historical_transactions, get_block, get_unspent_outputs,
+    get_historical_transactions, get_block, get_unspent_outputs, get_current_price,
     generate_keypair, sweep, get_explorer_url, service_table, get_single_transaction
 )
 from moneywagon.wallet import fetch_wallet_balances
@@ -150,7 +150,7 @@ modes = {
 }
 
 if argz.subparser_name == 'current-price':
-    price, source = CurrentPrice(verbose=argz.verbose).get(argz.crypto, argz.fiat)
+    price = get_current_price(argz.crypto, argz.fiat, verbose=argz.verbose)
     print(price)
 
 elif argz.subparser_name == 'generate-keypair':
