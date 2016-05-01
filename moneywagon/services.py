@@ -19,7 +19,7 @@ class Bitstamp(Service):
 
 class BlockCypher(Service):
     service_id = 2
-    supported_cryptos = ['btc', 'ltc', 'uro']
+    supported_cryptos = ['btc', 'ltc', 'doge']
     api_homepage = "http://dev.blockcypher.com/"
 
     explorer_address_url = "https://live.blockcypher.com/{crypto}/address/{address}"
@@ -71,16 +71,36 @@ class BlockCypher(Service):
     def get_transactions(self, crypto, address, confirmations=1):
         url = self.json_txs_url.format(address=address, crypto=crypto)
         transactions = []
-        for tx in self.get_url(url).json()['txrefs']:
-            if utxo['confirmations'] < confirmations:
+        for tx in self.get_url(url).json().get('txrefs', []):
+            if tx['confirmations'] < confirmations:
                 continue
             transactions.append(dict(
                 date=arrow.get(tx['confirmed']).datetime,
                 amount=tx['value'] / 1e8,
                 txid=tx['tx_hash'],
-                confirmations=utxo['confirmations']
+                confirmations=tx['confirmations']
             ))
         return transactions
+
+    def get_single_transaction(self, crypto, txid):
+        url = "https://api.blockcypher.com/v1/%s/main/txs/%s" % (crypto, txid)
+        tx = self.get_url(url).json()
+        ins = [{'address': x['addresses'][0], 'amount': x['output_value']} for x in tx['inputs']]
+        outs = [{'address': x['addresses'][0], 'amount': x['value']} for x in tx['outputs']]
+
+        return dict(
+            txid=txid,
+            confirmations=tx['confirmations'],
+            size=tx['size'],
+            time=arrow.get(tx['received']).datetime,
+            block_hash=tx['block_hash'],
+            block_height=tx['block_height'],
+            inputs=ins,
+            outputs=outs,
+            total_in=sum(x['amount'] for x in ins),
+            total_out=sum(x['amount'] for x in ins),
+            fees=tx['fees'],
+        )
 
     def get_optimal_fee(self, crypto, tx_bytes):
         url = "https://api.blockcypher.com/v1/%s/main" % crypto
@@ -718,12 +738,48 @@ class BitcoinAbe(Service):
         return float(response.content)
 
 
-class DogeChainInfo(BitcoinAbe):
+class DogeChainInfo(Service):
     service_id = 18
     supported_cryptos = ['doge']
     base_url = "https://dogechain.info/chain/Dogecoin"
-    api_homepage = "https://dogechain.info/api"
+    api_homepage = "https://dogechain.info/api/blockchain_api"
     name = "DogeChain.info"
+
+    def get_balance(self, crypto, address, confirmations):
+        url = "https://dogechain.info/api/v1/address/balance/" + address
+        response = self.get_url(url).json()
+        return response['balance']
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        url = "https://dogechain.info/api/v1/unspent/" + address
+        response = self.get_url(url).json()
+        utxos = []
+        for utxo in response['unspent_outputs']:
+            utxos.append(dict(
+                confirmations=utxo['confirmations'],
+                amount=int(utxo['value']),
+                scriptPubKey=utxo['script'],
+                vout=utxo['tx_output_n'],
+                txid=utxo['tx_hash'],
+                output="%s:%s" % (utxo['tx_hash'], utxo['tx_output_n'])
+            ))
+        return utxos
+
+    def get_single_transaction(self, crypto, txid):
+        url = "https://dogechain.info/api/v1/transaction/" + txid
+        tx = self.get_url(url).json()['transaction']
+        return dict(
+            txid=txid,
+            confirmations=tx['confirmations'],
+            size=tx['size'],
+            time=arrow.get(r['time']).datetime,
+            block_hash=r['block_hash'],
+            inputs=[{'address': x['address'], 'amount': float(x['value'])} for x in r['inputs']],
+            outputs=[{'address': x['address'], 'amount': float(x['value'])} for x in r['outputs']],
+            total_in=r['total_input'],
+            total_out=r['total_output'],
+        )
+
 
 class AuroraCoinEU(BitcoinAbe):
     service_id = 19

@@ -117,19 +117,19 @@ crypto_data = {
                 BTER, ChainSo, Cryptonator
             ],
             'address_balance': [
-                ChainSo, DogeChainInfo, ProHashing
+                BlockCypher, ChainSo, DogeChainInfo, ProHashing
             ],
             'historical_transactions': [
-                ChainSo
+                BlockCypher, ChainSo
             ],
             'single_transaction': [
-
+                BlockCypher
             ],
             'push_tx': [
                 ChainSo
             ],
             'unspent_outputs': [
-                ChainSo
+                DogeChainInfo, ChainSo
             ],
             'get_block': [
                 ChainSo, ProHashing

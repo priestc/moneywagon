@@ -133,11 +133,12 @@ class Service(object):
         """
         Get detailed information about a single transaction.
 
-        time
-        block_hash
-        hex
-        inputs
-        outputs
+        time - datetime, when this transaction was confirmed.
+        block_hash - string, the id of the block this tx is confirmed in.
+        block_height - integer, which block numbe this tx is confirmed in.
+        hex - the entire tx encoded in hex format
+        inputs - list of {address:, value:}, value is in satoshi
+        outputs - list of {address:, value:}, value is in satoshi
         txid
         total_out
         confirmations
@@ -167,10 +168,14 @@ class Service(object):
         `output` - the big endian tx hash, followed by a colon, then the tx index. (for pybitcointools support)
         `address` - the address passed in (for pybitcointools support)
         `amount` - int, satoshi amount of the input
+        `scriptPubKey` - string
+        `txid` - string
+        `vout` - integer
 
         optional:
 
         `confirmations` - how many confirmations this tx has so far.
+        `scriptPubKey_asm` - string
 
         """
         raise NotImplementedError(
