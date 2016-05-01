@@ -30,7 +30,7 @@ class BlockCypher(Service):
     base_api_url = "https://api.blockcypher.com/v1/{crypto}"
     json_address_balance_url = base_api_url + "/main/addrs/{address}"
     json_txs_url = json_address_balance_url
-    json_unspent_outputs_url = base_api_url + "/main/addrs/{address}?unspentOnly=true"
+    json_unspent_outputs_url = base_api_url + "/main/addrs/{address}/full?unspentOnly=true&includeScript=true"
     json_blockhash_url = base_api_url + "/main/blocks/{blockhash}"
     json_blocknum_url = base_api_url + "/main/blocks/{blocknum}"
     name = "BlockCypher"
@@ -48,15 +48,24 @@ class BlockCypher(Service):
     def get_unspent_outputs(self, crypto, address, confirmations=1):
         url = self.json_unspent_outputs_url.format(address=address, crypto=crypto)
         utxos = []
-        for utxo in self.get_url(url).json()['txrefs']:
+        for utxo in self.get_url(url).json()['txs']:
             if utxo['confirmations'] < confirmations:
                 continue
-            utxos.append(dict(
-                amount=utxo['value'],
-                output="%s:%s" % (utxo['tx_hash'], utxo['tx_output_n']),
-                address=address,
-                confirmations=utxo['confirmations'],
-            ))
+            for n, output in enumerate(utxo['outputs']):
+                output_addrs = output['addresses']
+                if address in output_addrs and len(output_addrs) == 1:
+                    utxos.append(dict(
+                        txid=utxo['hash'],
+                        amount=output['value'],
+                        output="%s:%s" % (utxo['hash'], n),
+                        vout=n,
+                        scriptPubKey=output['script'],
+                        address=address,
+                        confirmations=utxo['confirmations'],
+                    ))
+                elif address in output_addrs:
+                    raise Exception("Multisig not implemented yet")
+
         return utxos
 
     def get_transactions(self, crypto, address, confirmations=1):
@@ -192,9 +201,11 @@ class SmartBitAU(Service):
                 amount=utxo['value_int'],
                 output="%s:%s" % (utxo['txid'], utxo['n']),
                 address=address,
+                txid=utxo['txid'],
+                vout=utxo['n'],
                 confirmations=utxo['confirmations'],
-                scriptpubkey_hex=utxo['script_pub_key']['hex'],
-                scriptpubkey_asm=utxo['script_pub_key']['asm']
+                scriptPubKey=utxo['script_pub_key']['hex'],
+                scriptPubKey_asm=utxo['script_pub_key']['asm']
             ))
         return utxos
 
@@ -307,7 +318,10 @@ class Blockr(Service):
             amount=currency_to_protocol(utxo['amount']),
             address=address,
             output="%s:%s" % (utxo['tx'], utxo['n']),
-            confirmations=utxo['confirmations']
+            txid=utxo['tx'],
+            vout=utxo['n'],
+            confirmations=utxo['confirmations'],
+            scriptPubKey=utxo['script']
         )
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
@@ -413,7 +427,11 @@ class Toshi(Service):
                 amount=utxo['amount'],
                 address=address,
                 output="%s:%s" % (utxo['transaction_hash'], utxo['output_index']),
-                confirmations=cons
+                confirmations=cons,
+                vout=utxo['output_index'],
+                txid=utxo['transaction_hash'],
+                scriptPubKey=utxo['script_hex'],
+                scriptPubKey_asm=utxo['script']
             ))
         return utxos
 
@@ -537,7 +555,11 @@ class ChainSo(Service):
                 amount=currency_to_protocol(utxo['value']),
                 address=address,
                 output="%s:%s" % (utxo['txid'], utxo['output_no']),
-                confirmations=utxo['confirmations']
+                confirmations=utxo['confirmations'],
+                txid=utxo['txid'],
+                vout=utxo['output_no'],
+                scriptPubKey=utxo['script_hex'],
+                scriptPubKey_asm=utxo['script_asm'],
             ))
         return utxos
 
@@ -605,7 +627,10 @@ class CoinPrism(Service):
                     amount=tx['value'],
                     address=address,
                     output="%s:%s" % (tx['transaction_hash'], tx['output_index']),
-                    confirmations=tx['confirmations']
+                    confirmations=tx['confirmations'],
+                    txid=tx['transaction_hash'],
+                    vout=tx['output_index'],
+                    scriptPubKey=utxo['script_hex'],
                 ))
 
         return transactions
@@ -670,6 +695,10 @@ class BlockChainInfo(Service):
                 output="%s:%s" % (utxo['tx_hash_big_endian'], utxo['tx_output_n']),
                 amount=utxo['value'],
                 address=address,
+                txid=utxo['tx_hash_big_endian'],
+                vout=utxo['tx_output_n'],
+                confirmations=utxo['confirmations'],
+                scriptPubKey=utxo['script'],
             ))
         return utxos
 
@@ -803,7 +832,9 @@ class CryptoID(Service):
                 output="%s:%s" % (utxo['tx_hash'], utxo['tx_ouput_n']),
                 amount=int(utxo['value']),
                 confirmations=utxo['confirmations'],
-                address=address
+                address=address,
+                txid=utxo['tx_hash'],
+                vout=utxo['tx_ouput_n'],
             ))
         return ret
 
@@ -922,6 +953,9 @@ class BitpayInsight(Service):
 
     def _format_utxo(self, utxo):
         return dict(
+            txid=utxo['txid'],
+            vout=utxo['vout'],
+            scriptPubKey=utxo['scriptPubKey'],
             output="%s:%s" % (utxo['txid'], utxo['vout']),
             amount=currency_to_protocol(utxo['amount']),
             confirmations=utxo['confirmations'],
@@ -1063,7 +1097,9 @@ class BitGo(Service):
                 output="%s:%s" % (utxo['tx_hash'], utxo['tx_output_n']),
                 amount=utxo['value'],
                 confirmations=utxo['confirmations'],
-                address=address
+                address=address,
+                script=utxo['script'],
+                vout=utxo['tx_output_n'],
             ))
         return utxos
 

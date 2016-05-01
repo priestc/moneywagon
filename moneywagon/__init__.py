@@ -358,7 +358,7 @@ class UnspentOutputs(AutoFallbackFetcher):
         return sorted(utxos, key=lambda x: x['output'])
 
     def no_service_msg(self, crypto, address=None, addresses=None):
-        return "Could not get unspent outputs for: %s:" % (crypto, address or ', '.join(addresses))
+        return "Could not get unspent outputs for: %s:%s" % (crypto, address or ', '.join(addresses))
 
     @classmethod
     def strip_for_consensus(cls, results):
