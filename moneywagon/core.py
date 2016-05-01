@@ -80,6 +80,9 @@ class Service(object):
         if response.status_code == 503:
             raise SkipThisService("503 - Temporarily out of service.")
 
+        if response.status_code == 429:
+            raise SkipThisService("429 - Too many requests")
+
         if method == 'get':
             self.responses[url] = response # cache for later
 
