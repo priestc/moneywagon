@@ -1323,6 +1323,24 @@ class Mintr(Service):
 
         return float(r['balance'])
 
+    def get_transactions(self, crypto, address):
+        url = "%s/api/address/balance/%s/full" % (
+            self.domain.format(coin=self._get_coin(crypto)), address
+        )
+        txs = []
+        for tx in self.get_url(url).json()['transactions']:
+            if not tx['sent'] and not tx['received']:
+                continue
+
+            amount = float(tx['sent'] or tx['received'])
+            txs.append(dict(
+                address=address,
+                amount=amount if tx['received'] else -1 * amount,
+                date=arrow.get(tx['time']).datetime,
+                txid=tx['tx_hash'],
+            ))
+        return txs
+
     def get_single_transaction(self, crypto, txid):
         url = "%s/api/tx/hash/%s" % (
             self.domain.format(coin=self._get_coin(crypto)), txid
@@ -1340,14 +1358,14 @@ class Mintr(Service):
         )
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        by = "latest"
         if block_number:
-            by = "height"
+            by = "height/" + block_number
         elif block_hash:
-            by = "hash"
+            by = "hash/" + block_hash
 
-        url = "%s/api/block/%s/%s" % (
-            self.domain.format(coin=self._get_coin(crypto)),
-            by, block_hash or block_number
+        url = "%s/api/block/%s" % (
+            self.domain.format(coin=self._get_coin(crypto)), by
         )
 
         b = self.get_url(url).json()
