@@ -1384,6 +1384,7 @@ class Mintr(Service):
             total_fees=float(b['fee'])
         )
 
+
 class BlockExplorersNet(Service):
     service_id = 43
     domain = "http://{coin}.blockexplorers.net"
