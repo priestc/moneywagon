@@ -5,7 +5,7 @@ import time
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.10.4'
+useragent = 'moneywagon 1.10.5'
 
 class ServiceDisagreement(Exception):
     pass
@@ -135,7 +135,7 @@ class Service(object):
 
         time - datetime, when this transaction was confirmed.
         block_hash - string, the id of the block this tx is confirmed in.
-        block_height - integer, which block numbe this tx is confirmed in.
+        block_number - integer, which block numbe this tx is confirmed in.
         hex - the entire tx encoded in hex format
         inputs - list of {address:, value:}, value is in satoshi
         outputs - list of {address:, value:}, value is in satoshi

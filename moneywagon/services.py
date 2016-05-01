@@ -94,7 +94,7 @@ class BlockCypher(Service):
             size=tx['size'],
             time=arrow.get(tx['received']).datetime,
             block_hash=tx['block_hash'],
-            block_height=tx['block_height'],
+            block_number=tx['block_height'],
             inputs=ins,
             outputs=outs,
             total_in=sum(x['amount'] for x in ins),
@@ -1462,11 +1462,12 @@ class RICCryptap(BitpayInsight):
     domain = "insight-ric.cryptap.us"
     name = "RIC cryptap"
 
+
 class ProHashing(Service):
     service_id = 46
     domain = "prohashing.com"
     name= "ProHashing"
-    supported_cryptos = ['doge', ]
+    supported_cryptos = ['doge', 'ltc', 'doge', 'myr', 'dash', 'ftc']
 
     def get_address_balance(self, crypto, address, confirmations=1):
         url = "https://%s/explorerJson/getAddress?address=%s&coin_id=%s" % (
@@ -1480,11 +1481,36 @@ class ProHashing(Service):
         return r['balance']
 
     def get_transactions(self, crypto, address, confirmations=1):
-        params = "$params=%7B%22page%22:1,%22count%22:20,%22filter%22:%7B%7D,%22sorting%22:%7B%22blocktime%22:%22asc%22%7D,%22group%22:%7B%7D,%22groupBy%22:null%7D"
-        url = "https://prohashing.com/explorerJson/getTransactionsByAddress?%s&address=%s&coin_id=%s" % (
-            params, address, self._get_coin(crypto)
+        params = '$params={"page":1,"count":20,"filter":{},"sorting":{"blocktime":"asc"},"group":{},"groupBy":null}'
+        url = "https://%s/explorerJson/getTransactionsByAddress?%s&address=%s&coin_id=%s" % (
+            self.domain, params, address, self._get_coin(crypto)
         )
-        return self.get_url(url).json()
+        txs = []
+        for tx in self.get_url(url).json()['data']:
+            txs.append(dict(
+                amount=tx['value'],
+                date=arrow.get(tx['blocktime']).datetime,
+                txid=tx['transaction_hash'],
+            ))
+        return txs
+
+    def get_single_transaction(self, crypto, txid):
+        url = "https://%s/explorerJson/getTransaction?coin_id=%s&transaction_id=%s" % (
+            self.domain, self._get_coin(crypto), txid
+        )
+        tx = self.get_url(url).json()
+
+        return dict(
+            time=arrow.get(tx['blocktime'] / 1000).datetime,
+            block_hash=tx['block_hash'],
+            block_number=tx['block_height'],
+            inputs=[dict(address=x['address'], amount=-x['value']) for x in tx['address_inputs']],
+            outputs=[dict(address=x['address'], amount=x['value']) for x in tx['address_outputs']],
+            txid=txid,
+            total_in=tx['total_outputs'],
+            total_out=tx['total_outputs'],
+            confirmations=tx['confirmations'],
+        )
 
     def _get_coin(self, crypto):
         from crypto_data import crypto_data
@@ -1500,7 +1526,7 @@ class ProHashing(Service):
         return r['id']
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
-        if latest or block_hash:
+        if latest or block_number:
             raise SkipThisService("Block height and latest not implemented.")
 
         url = "https://%s/explorerJson/getBlock?coin_id=%s&"% (
@@ -1517,7 +1543,7 @@ class ProHashing(Service):
             size=r['size'],
             txs=[x['hash'] for x in r['tx']],
             tx_count=len(r['tx']),
-            #time=arrow.get(r['time']).datetime,
+            time=arrow.get(r['time'] / 1000).datetime,
             hash=r['hash'],
             block_number=r['height'],
             difficulty=r['difficulty'],

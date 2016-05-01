@@ -57,10 +57,10 @@ crypto_data = {
                 BTCE, ChainSo, BTER, Cryptonator
             ],
             'address_balance': [
-                BlockCypher, Blockr, ChainSo
+                BlockCypher, Blockr, ChainSo, ProHashing
             ],
             'historical_transactions': [
-                Blockr, ChainSo
+                ProHashing, Blockr, ChainSo
             ],
             'single_transaction': [
                 Blockr
@@ -72,7 +72,7 @@ crypto_data = {
                 ChainSo, Blockr
             ],
             'get_block': [
-                ChainSo, Blockr
+                ChainSo, Blockr, ProHashing
             ]
         },
     },
@@ -120,7 +120,7 @@ crypto_data = {
                 BlockCypher, ChainSo, DogeChainInfo, ProHashing
             ],
             'historical_transactions': [
-                BlockCypher, ChainSo
+                BlockCypher, ChainSo, ProHashing
             ],
             'single_transaction': [
                 BlockCypher
@@ -177,10 +177,10 @@ crypto_data = {
                 Cryptonator, ChainSo
             ],
             'address_balance': [
-                MYRCryptap, CryptapUS, BirdOnWheels
+                MYRCryptap, CryptapUS, BirdOnWheels, ProHashing
             ],
             'historical_transactions': [
-                MYRCryptap, BirdOnWheels
+                MYRCryptap, BirdOnWheels, ProHashing
             ],
             'single_transaction': [
                 MYRCryptap, BirdOnWheels
@@ -192,7 +192,7 @@ crypto_data = {
                 MYRCryptap, BirdOnWheels
             ],
             'get_block': [
-                MYRCryptap, BirdOnWheels
+                MYRCryptap, BirdOnWheels, ProHashing
             ]
         },
     },
@@ -207,10 +207,10 @@ crypto_data = {
                 Cryptonator, ChainSo
             ],
             'address_balance': [
-                ThisIsVTC
+                ThisIsVTC, ProHashing
             ],
             'historical_transactions': [
-                ThisIsVTC
+                ThisIsVTC, ProHashing
             ],
             'single_transaction': [
                 ThisIsVTC
@@ -222,7 +222,7 @@ crypto_data = {
                 ThisIsVTC
             ],
             'get_block': [
-                ThisIsVTC
+                ThisIsVTC, ProHashing
             ]
         },
     },
@@ -237,10 +237,10 @@ crypto_data = {
                 ChainSo, Cryptonator
             ],
             'address_balance': [
-
+                ProHashing
             ],
             'historical_transactions': [
-
+                ProHashing
             ],
             'single_transaction': [
 
@@ -252,7 +252,7 @@ crypto_data = {
 
             ],
             'get_block': [
-
+                ProHashing
             ]
         },
     },
@@ -267,10 +267,10 @@ crypto_data = {
                 ChainSo, Cryptonator
             ],
             'address_balance': [
-                CryptoID
+                ProHashing, CryptoID
             ],
             'historical_transactions': [
-
+                ProHashing
             ],
             'single_transaction': [
 
@@ -282,7 +282,7 @@ crypto_data = {
 
             ],
             'get_block': [
-
+                ProHashing
             ]
         },
     },
@@ -297,10 +297,10 @@ crypto_data = {
                 ChainSo, Cryptonator
             ],
             'address_balance': [
-                ReddcoinCom
+                ReddcoinCom, ProHashing
             ],
             'historical_transactions': [
-                ReddcoinCom
+                ReddcoinCom, ProHashing
             ],
             'single_transaction': [
                 ReddcoinCom
@@ -312,7 +312,7 @@ crypto_data = {
                 ReddcoinCom
             ],
             'get_block': [
-                ReddcoinCom
+                ReddcoinCom, ProHashing
             ]
         },
     },
@@ -335,10 +335,10 @@ crypto_data = {
 
             ],
             'address_balance': [
-                CryptoID,
+                CryptoID, ProHashing
             ],
             'historical_transactions': [
-
+                ProHashing
             ],
             'single_transaction': [
 
@@ -350,7 +350,7 @@ crypto_data = {
                 CryptoID
             ],
             'get_block': [
-
+                ProHashing
             ]
         },
     },
@@ -614,10 +614,10 @@ crypto_data = {
 
             ],
             'address_balance': [
-                CryptoID
+                CryptoID, ProHashing
             ],
             'historical_transactions': [
-
+                ProHashing
             ],
             'single_transaction': [
 
@@ -629,7 +629,7 @@ crypto_data = {
                 CryptoID
             ],
             'get_block': [
-
+                ProHashing
             ]
         },
     },
@@ -800,15 +800,12 @@ crypto_data = {
     'bcn': ['Bytecoin', datetime(2012, 7, 4)],
     'bte': ['Bytecoin', datetime(2012, 7, 4)],
     'str': ['StarCoin', datetime(2012, 7, 19)],
-
     'trc': ['TerraCoin', datetime(2012, 10, 26)],
     'frc': ['Freicoin', datetime(2012, 12, 21)],
-
     'btb': ['BitBar', datetime(2013, 4, 1)],
     'mnc': ['MinCoin', datetime(2013, 4, 3)],
     'net': ['NetCoin', datetime(2013, 4, 7)],
     'nan': ['NanoToken', datetime(2013, 4, 8)],
-
     'xrp': ['Ripple', datetime(2011, 3, 1)],
     'pxc': ['PhoenixCoin', datetime(2013, 5, 1)],
     'cnc': ['CHNCoin', datetime(2013, 5, 1)],
@@ -900,7 +897,6 @@ crypto_data = {
     'apc': ['Applecoin', datetime(2013, 11, 19)],
     'cin': ['Cinnamoncoin', datetime(2013, 11, 21)],
     'ybc': ['YBCoin', datetime(2013, 11, 23)],
-
     'gra': ['Grain', datetime(2013, 12, 7)],
     'fz':  ['Frozen', datetime(2013, 12, 10)],
     'lot': ['LottoCoin', datetime(2013, 12, 12)],
@@ -930,7 +926,6 @@ crypto_data = {
     'nobl':['Noblecoin', datetime(2014, 1, 7)],
     'ptc': ['PesetaCoin', datetime(2014, 1, 7)],
     'aph': ['AphroditeCoin', datetime(2014, 1, 7)],
-
     'rpd': ['Rapidcoin', datetime(2014, 1, 8)],
     'etok':['Etoken', datetime(2014, 1, 8)],
     'kdc': ['Klondike', datetime(2014, 1, 9)],
@@ -945,11 +940,9 @@ crypto_data = {
     'zed': ['ZedCoin', datetime(2014, 1, 14)],
     'mtc': ['MarineCoin', datetime(2014, 1, 15)],
     'fox': ['FoxCoin', datetime(2014, 1, 17)],
-
     'tes': ['Teslacoin', datetime(2014, 1, 18)],
     'con': ['Coino', datetime(2014, 1, 18)],
     'plc': ['PolCoin', datetime(2014, 1, 19)],
-
     'cash':['CashCoin', datetime(2014, 1, 20)],
     'mry': ['MurrayCoin', datetime(2014, 1, 20)],
     'asr': ['AstroCoin', datetime(2014, 1, 21)],
@@ -962,7 +955,6 @@ crypto_data = {
     'max': ['Maxcoin', datetime(2014, 1, 29)],
     'utc': ['Ultracoin', datetime(2014, 2, 1)],
     'ben': ['Benjamins', datetime(2014, 2, 1)],
-
     'pop': ['PopularCoin', datetime(2014, 2, 2)],
     'lbt': ['Litebar', datetime(2014, 2, 2)],
     'corg':['CorgiCoin', datetime(2014, 2, 2)],
