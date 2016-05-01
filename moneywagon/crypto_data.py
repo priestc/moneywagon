@@ -169,7 +169,7 @@ crypto_data = {
     'myr': {
         'name': 'MyriadCoin',
         'address_version_byte': 50,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x8000005a,
         'private_key_prefix': 178,
         'genesis_date': datetime(2014, 2, 23),
         'services': {
