@@ -111,7 +111,7 @@ class BlockCypher(Service):
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
         if block_hash:
             url = self.json_blockhash_url.format(blockhash=block_hash, crypto=crypto)
-        elif block_number:
+        elif type(block_number) == int:
             url = self.json_blocknum_url.format(blocknum=block_number, crypto=crypto)
 
         r = self.get_url(url).json()
