@@ -508,8 +508,8 @@ Or through python:
 ## Get Blocks
 
 ```python
->>> from moneywagon import get_blocks
->>> get_blocks('btc', latest=True)
+>>> from moneywagon import get_block
+>>> get_block('btc', latest=True)
 {
     "block_number": 368900,
     "confirmations": 1,
@@ -528,7 +528,7 @@ Or through python:
       ...
     ]
 }
->>> get_blocks('btc', block_number=242)
+>>> get_block('btc', block_number=242)
 {
     "block_number": 242,
     "confirmations": 829724,
@@ -547,7 +547,7 @@ Or through python:
       ...
     ]
 }
->>> get_blocks('doge', block_hash='a53d288822382a53250b930193562b7e61b218c8a9a449a9d003dafa2534a736')
+>>> get_block('doge', block_hash='a53d288822382a53250b930193562b7e61b218c8a9a449a9d003dafa2534a736')
 {
     "block_number": 242,
     "confirmations": 824212,

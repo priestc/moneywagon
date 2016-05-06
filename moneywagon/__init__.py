@@ -297,7 +297,7 @@ class SingleTransaction(AutoFallbackFetcher):
 
 class GetBlock(AutoFallbackFetcher):
     def action(self, crypto, block_number='', block_hash='', latest=False):
-        if sum([bool(block_number), bool(block_hash), bool(latest)]) != 1:
+        if sum([type(block_number)==int, bool(block_hash), bool(latest)]) != 1:
             raise ValueError("Only one of `block_hash`, `latest`, or `block_number` allowed.")
         return self._try_services(
             'get_block', crypto, block_number=block_number, block_hash=block_hash, latest=latest
