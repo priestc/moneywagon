@@ -109,9 +109,12 @@ class BlockCypher(Service):
 
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
+        if block_number == 0:
+            raise SkipThisService("BlockCypher does not support block #0")
+
         if block_hash:
             url = self.json_blockhash_url.format(blockhash=block_hash, crypto=crypto)
-        elif block_number:
+        elif block_number != '':
             url = self.json_blocknum_url.format(blocknum=block_number, crypto=crypto)
 
         r = self.get_url(url).json()
@@ -377,10 +380,13 @@ class Blockr(Service):
         return resp['data']
 
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
+        if block_number == 0:
+            raise SkipThisService("Block 0 not supported (bug in Blockr.io?)")
+
         url ="http://%s.blockr.io/api/v1/block/info/%s%s%s" % (
             crypto,
-            block_hash if block_hash else '',
-            block_number if block_number else '',
+            block_hash if block_hash != '' else '',
+            block_number if block_number != '' else '',
             'last' if latest else ''
         )
         r = self.get_url(url).json()['data']
@@ -465,8 +471,8 @@ class Toshi(Service):
             url = "%s/blocks/latest" % self.url
         else:
             url = "%s/blocks/%s%s" % (
-                self.url, block_hash if block_hash else '',
-                block_number if block_number else ''
+                self.url, block_hash if block_hash != '' else '',
+                block_number if block_number != '' else ''
             )
 
         r = self.get_url(url).json()
@@ -698,6 +704,32 @@ class BlockChainInfo(Service):
         url = "https://%s/address/%s?format=json" % (self.domain, address)
         response = self.get_url(url)
         return float(response.json()['final_balance']) * 1e-8
+
+    def get_single_transaction(self, crypto, txid):
+        url = "https://%s/tx-index/%s?format=json" % (
+            self.domain, txid
+        )
+        tx = self.get_url(url).json()
+        outs = [{'address': x['addr'], 'amount': float(x['value']) / 1e8} for x in tx['out']]
+        ins = []
+        for in_ in tx['inputs']:
+            if 'prev_out' in in_:
+                prev = in_['prev_out']
+                ins.append(
+                    {'address': prev['addr'], 'amount': float(prev['value']) / 1e8}
+                )
+
+        return dict(
+            txid=txid,
+            block_number=tx.get('block_height', None),
+            size=tx['size'],
+            time=arrow.get(tx['time']).datetime,
+            inputs=ins,
+            outputs=outs,
+            total_in=sum(x['amount'] for x in ins),
+            total_out=sum(x['amount'] for x in outs),
+        )
+
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
         url = "https://%s/unspent?active=%s" % (self.domain, address)
@@ -1038,7 +1070,7 @@ class BitpayInsight(Service):
             url = "%s://%s/api/status?q=getLastBlockHash" % (self.protocol, self.domain)
             block_hash = self.get_url(url).json()['lastblockhash']
 
-        elif block_number:
+        elif block_number != '':
             url = "%s://%s/api/block-index/%s" % (self.protocol, self.domain, block_number)
             block_hash = self.get_url(url).json()['blockHash']
 
@@ -1054,7 +1086,7 @@ class BitpayInsight(Service):
             size=r['size'],
             hash=r['hash'],
             merkle_root=r['merkleroot'],
-            previous_hash=r['previousblockhash'],
+            previous_hash=r.get('previousblockhash', None),
             next_hash=r.get('nextblockhash', None),
             txids=r['tx'],
             tx_count=len(r['tx'])
@@ -1160,12 +1192,17 @@ class BitGo(Service):
         return utxos
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
+        if block_number == 0:
+            raise SkipThisService("Block #0 broken for this service")
+
         if latest:
             url = "/api/v1/block/latest"
+        elif block_number != '':
+            url = "/api/v1/block/%s" % block_number
         else:
-            url = "/api/v1/block/" + block_number + block_hash
+            url = "/api/v1/block/%s" % block_hash
 
-        r = self.get_url(self.base_url + url)
+        r = self.get_url(self.base_url + url).json()
         return dict(
             block_number=r['height'],
             time=arrow.get(r['date']).datetime,
