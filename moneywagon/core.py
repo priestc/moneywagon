@@ -83,6 +83,9 @@ class Service(object):
         if response.status_code == 429:
             raise SkipThisService("429 - Too many requests")
 
+        if response.status_code == 404:
+            raise SkipThisService("404 - Not Found")
+
         if method == 'get':
             self.responses[url] = response # cache for later
 
