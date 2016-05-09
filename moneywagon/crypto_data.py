@@ -267,22 +267,22 @@ crypto_data = {
                 ChainSo, Cryptonator
             ],
             'address_balance': [
-                ProHashing, CryptoID
+                ProHashing, CryptoID, SiampmDashInsight
             ],
             'historical_transactions': [
-                ProHashing
+                ProHashing, SiampmDashInsight
             ],
             'single_transaction': [
-
+                SiampmDashInsight
             ],
             'push_tx': [
-
+                SiampmDashInsight
             ],
             'unspent_outputs': [
-
+                SiampmDashInsight
             ],
             'get_block': [
-                ProHashing
+                ProHashing, SiampmDashInsight
             ]
         },
     },

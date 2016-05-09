@@ -1604,3 +1604,10 @@ class ProHashing(Service):
             block_number=r['height'],
             difficulty=r['difficulty'],
         )
+
+class SiampmDashInsight(BitpayInsight):
+    service_id = 47
+    supported_cryptos = ['dash']
+    protocol = "http"
+    domain = "insight.dash.siampm.com"
+    name = "Siampm Dash Insight"
