@@ -1223,12 +1223,12 @@ class Blockonomics(Service):
     supported_cryptos = ['btc']
     api_homepage = "https://www.blockonomics.co/views/api.html"
     name = "Blockonomics"
-
+    base_url = "https://www.blockonomics.co"
     def get_balance(self, crypto, address, confirmations=1):
         return self.get_balance_multi(crypto, [address], confirmations)[address]
 
     def get_balance_multi(self, crypto, addresses, confirmations=1):
-        url = "https://www.blockonomics.co/api/balance"
+        url = "%s/api/balance" % base_url
 
         if hasattr(addresses, 'startswith') and addresses.startswith("xpub"):
             body = {'addr': addresses}
@@ -1251,7 +1251,7 @@ class Blockonomics(Service):
         return balances
 
     def get_transactions(self, crypto, address):
-        url = "https://www.blockonomics.co/api/searchhistory"
+        url = "%s/api/searchhistory" % base_url
         response = self.post_url(url, json.dumps({'addr': address})).json()
         txs = []
         for tx in response['history']:
@@ -1261,6 +1261,17 @@ class Blockonomics(Service):
                 txid=tx['txid'],
             ))
         return txs
+    
+    def get_single_transaction(self, crypto, txid):
+        url = "%s/api/tx_detail?txid=%s" % txid
+        d = self.get_url(url).json()
+        return dict(
+            time=arrow.get(d['time']).datetime,
+            inputs=[{'address': x['address'], 'value': x['value'] / 1e8} for x in d['vin']],
+            outputs=[{'address': x['address'], 'value': x['value']/ 1e8} for x in d['vout']],
+            txid=txid,
+        )
+
 
 class BlockExplorerCom(BitpayInsight):
     service_id = 38
