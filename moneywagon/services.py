@@ -1228,7 +1228,7 @@ class Blockonomics(Service):
         return self.get_balance_multi(crypto, [address], confirmations)[address]
 
     def get_balance_multi(self, crypto, addresses, confirmations=1):
-        url = "%s/api/balance" % base_url
+        url = "%s/api/balance" % self.base_url
 
         if hasattr(addresses, 'startswith') and addresses.startswith("xpub"):
             body = {'addr': addresses}
@@ -1251,7 +1251,7 @@ class Blockonomics(Service):
         return balances
 
     def get_transactions(self, crypto, address):
-        url = "%s/api/searchhistory" % base_url
+        url = "%s/api/searchhistory" % self.base_url
         response = self.post_url(url, json.dumps({'addr': address})).json()
         txs = []
         for tx in response['history']:
@@ -1263,13 +1263,15 @@ class Blockonomics(Service):
         return txs
     
     def get_single_transaction(self, crypto, txid):
-        url = "%s/api/tx_detail?txid=%s" % txid
+        url = "%s/api/tx_detail?txid=%s" % (self.base_url, txid)
         d = self.get_url(url).json()
         return dict(
             time=arrow.get(d['time']).datetime,
             inputs=[{'address': x['address'], 'value': x['value'] / 1e8} for x in d['vin']],
             outputs=[{'address': x['address'], 'value': x['value']/ 1e8} for x in d['vout']],
             txid=txid,
+            fees=d['fee']/1e8,
+            size=d['size']
         )
 
 
