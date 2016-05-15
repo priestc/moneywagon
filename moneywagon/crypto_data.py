@@ -758,6 +758,11 @@ crypto_data = {
         },
     },
 
+    'xrp': {
+        'name': 'Ripple',
+        'genesis_date': datetime(2011, 3, 1),
+    },
+
     # TEMPLATE
     '': {
         'name': '',
@@ -806,7 +811,6 @@ crypto_data = {
     'mnc': ['MinCoin', datetime(2013, 4, 3)],
     'net': ['NetCoin', datetime(2013, 4, 7)],
     'nan': ['NanoToken', datetime(2013, 4, 8)],
-    'xrp': ['Ripple', datetime(2011, 3, 1)],
     'pxc': ['PhoenixCoin', datetime(2013, 5, 1)],
     'cnc': ['CHNCoin', datetime(2013, 5, 1)],
     'jkc': ['JunkCoin', datetime(2013, 5, 4)],

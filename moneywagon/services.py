@@ -1261,7 +1261,7 @@ class Blockonomics(Service):
                 txid=tx['txid'],
             ))
         return txs
-    
+
     def get_single_transaction(self, crypto, txid):
         url = "%s/api/tx_detail?txid=%s" % (self.base_url, txid)
         d = self.get_url(url).json()
@@ -1536,7 +1536,6 @@ class ProHashing(Service):
     service_id = 46
     domain = "prohashing.com"
     name= "ProHashing"
-    supported_cryptos = ['doge', 'ltc', 'doge', 'myr', 'dash', 'ftc']
 
     def get_address_balance(self, crypto, address, confirmations=1):
         url = "https://%s/explorerJson/getAddress?address=%s&coin_id=%s" % (
