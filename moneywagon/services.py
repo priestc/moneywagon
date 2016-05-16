@@ -712,6 +712,9 @@ class BlockChainInfo(Service):
         tx = self.get_url(url).json()
         outs = [{'address': x['addr'], 'amount': float(x['value']) / 1e8} for x in tx['out']]
         ins = []
+
+        latest_block_number = self.get_block('btc', latest=True)['block_number']
+
         for in_ in tx['inputs']:
             if 'prev_out' in in_:
                 prev = in_['prev_out']
@@ -719,11 +722,14 @@ class BlockChainInfo(Service):
                     {'address': prev['addr'], 'amount': float(prev['value']) / 1e8}
                 )
 
+        block_number = tx.get('block_height', None)
+
         return dict(
             txid=txid,
-            block_number=tx.get('block_height', None),
+            block_number=block_number,
             size=tx['size'],
             time=arrow.get(tx['time']).datetime,
+            confirmations=(latest_block_number - block_number) if block_number else 0,
             inputs=ins,
             outputs=outs,
             total_in=sum(x['amount'] for x in ins),
@@ -753,6 +759,34 @@ class BlockChainInfo(Service):
                 scriptPubKey=utxo['script'],
             ))
         return utxos
+
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
+        if block_hash:
+            raise SkipThisService("There is no way to get block by hash")
+
+        url = "https://%s/latestblock" % self.domain
+        latest_block_number = self.get_url(url).json()['height']
+
+        if latest:
+            block_number = latest_block_number
+
+        url = "https://%s/block-height/%s?format=json" % (self.domain, block_number)
+        r = self.get_url(url).json()['blocks'][0]
+        confirmations = latest_block_number - r['height']
+        return dict(
+            block_number=r['height'],
+            version=r['ver'],
+            confirmations=confirmations,
+            time=arrow.get(r['time']).datetime,
+            size=r['size'],
+            hash=r['hash'],
+            merkle_root=r['mrkl_root'],
+            previous_hash=r.get('prev_block', None),
+            txids=[x['hash'] for x in r['tx']],
+            tx_count=r['n_tx']
+        )
+
+
 
 
 ##################################
@@ -1028,14 +1062,20 @@ class BitpayInsight(Service):
     def get_single_transaction(self, crypto, txid):
         url = "%s://%s/api/tx/%s" % (self.protocol, self.domain, txid)
         d = self.get_url(url).json()
+
+        block_time = None
+        if d.get('blocktime'):
+            block_time = arrow.get(d['blocktime']).datetime
+
         return dict(
-            time=arrow.get(d['blocktime']).datetime,
-            confirmations=d['confirmations'],
+            time=block_time,
+            size=d['size'],
+            confirmations=d['confirmations'] if block_time else 0,
             total_in=float(d['valueIn']),
             total_out=float(d['valueOut']),
             fee=d['fees'],
-            inputs=[{'address': x['addr'], 'value': x['value']} for x in d['vin']],
-            outputs=[{'address': x['scriptPubKey']['addresses'][0], 'value': x['value']} for x in d['vout']],
+            inputs=[{'address': x['addr'], 'value': float(x['value'])} for x in d['vin']],
+            outputs=[{'address': x['scriptPubKey']['addresses'][0], 'value': float(x['value'])} for x in d['vout']],
             txid=txid,
         )
 

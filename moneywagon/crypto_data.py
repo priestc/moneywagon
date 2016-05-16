@@ -28,7 +28,7 @@ crypto_data = {
                 BitpayInsight, Blockonomics
             ],
             'single_transaction': [
-                BitpayInsight, BlockChainInfo, Blockr, Blockonomics
+                BitpayInsight, Blockr, Blockonomics, BlockChainInfo
             ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
