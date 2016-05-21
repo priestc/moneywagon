@@ -124,7 +124,6 @@ def get_unspent_outputs(crypto, address=None, addresses=None, services=None, **m
     if modes.get('private'):
         # private mode returns items indexed by address, this only makes sense to do
         # for address balance, so remove it here
-        import debug
         just_utxos = []
         [just_utxos.extend(x) for x in utxos.values()]
         utxos = sorted(just_utxos, key=lambda tx: tx['output'])

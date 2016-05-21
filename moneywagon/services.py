@@ -93,7 +93,7 @@ class BlockCypher(Service):
             confirmations=tx['confirmations'],
             size=tx['size'],
             time=arrow.get(tx['received']).datetime,
-            block_hash=tx['block_hash'],
+            block_hash=tx.get('block_hash', None),
             block_number=tx['block_height'],
             inputs=ins,
             outputs=outs,
