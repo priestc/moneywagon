@@ -16,7 +16,13 @@ class NoService(Exception):
 class SkipThisService(NoService):
     pass
 
+class ServiceError(NoService):
+    pass
+
 class NoData(Exception):
+    pass
+
+class RevertToPrivateMode(NotImplementedError):
     pass
 
 class Service(object):
@@ -77,6 +83,8 @@ class Service(object):
         if self.verbose:
             print("Got Response: %s" % url)
 
+        self.check_error(response)
+
         if response.status_code == 503:
             raise SkipThisService("503 - Temporarily out of service.")
 
@@ -91,6 +99,9 @@ class Service(object):
 
         self.last_raw_response = response
         return response
+
+    def check_error(self, response):
+        return
 
     def get_current_price(self, crypto, fiat):
         """
@@ -338,6 +349,11 @@ class AutoFallbackFetcher(object):
                 "No Services defined for %s and %s" % (crypto, method_name)
             )
 
+        if set(x['error'] for x in self._failed_services) == set(['Not Implemented']) and method_name.endswith("multi"):
+            # some currencies may not have any multi functions defined, so retry
+            # with private mode (which tries multiple services).
+            raise RevertToPrivateMode("All services do not implement %s service" % method_name)
+
         failed_msg = ', '.join(
             ["{service.name} -> {error}".format(**x) for x in self._failed_services]
         )
@@ -426,11 +442,11 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
     else:
         raise Exception("No mode specified.")
 
-
     if modes.get('report_services'):
         return used_services, consensus_results
     else:
         return consensus_results
+
 
 def _prepare_consensus(FetcherClass, results):
     """

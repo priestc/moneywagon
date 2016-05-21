@@ -6,7 +6,7 @@ from tabulate import tabulate
 from base58 import b58decode_check
 
 from .core import (
-    AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes
+    AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes, RevertToPrivateMode
 )
 from .historical_price import Quandl
 from .crypto_data import crypto_data
@@ -63,21 +63,29 @@ def get_historical_transactions(crypto, address=None, addresses=None, services=N
     if address:
         kwargs['address'] = address
 
-    txs = enforce_service_mode(
-        services, HistoricalTransactions, kwargs, modes=modes
-    )
+    try:
+        txs = enforce_service_mode(
+            services, HistoricalTransactions, kwargs, modes=modes
+        )
+    except RevertToPrivateMode:
+        # no services implement get_historical_transactions_multi...
+        modes['private'] = 1
+        if modes.get('verbose'):
+            print("Can't make with single API call. Retrying with private mode")
+        txs = enforce_service_mode(
+            services, HistoricalTransactions, kwargs, modes=modes
+        )
 
     if modes.get('private'):
         # private mode returns items indexed by address, this only makes sense to do
         # for address balance, so remove it here
         just_txs = []
         [just_txs.extend(x) for x in txs.values()]
-        ret = sorted(just_txs, key=lambda tx: tx['date'], reverse=True)
+        txs = sorted(just_txs, key=lambda tx: tx['date'], reverse=True)
         if modes.get('report_services', False):
             # private mode does not return services (its not practical),
             # an empty list is returned in its place to simplify the API.
-            return [], ret
-        return ret
+            return [], txs
 
     return txs
 
@@ -100,19 +108,30 @@ def get_unspent_outputs(crypto, address=None, addresses=None, services=None, **m
     if address:
         kwargs['address'] = address
 
-    utxos = enforce_service_mode(
-        services, UnspentOutputs, kwargs, modes=modes
-    )
+    try:
+        utxos = enforce_service_mode(
+            services, UnspentOutputs, kwargs, modes=modes
+        )
+    except RevertToPrivateMode:
+        # no services implement get_unspent_outputs_multi...
+        modes['private'] = 1
+        if modes.get('verbose'):
+            print("Can't make with single API call. Retrying with private mode")
+        utxos = enforce_service_mode(
+            services, UnspentOutputs, kwargs, modes=modes
+        )
+
     if modes.get('private'):
         # private mode returns items indexed by address, this only makes sense to do
         # for address balance, so remove it here
+        import debug
         just_utxos = []
         [just_utxos.extend(x) for x in utxos.values()]
-        ret = sorted(just_utxos, key=lambda tx: tx['output'])
+        utxos = sorted(just_utxos, key=lambda tx: tx['output'])
         if modes.get('report_services', False):
             # private mode does not return services (its not practical),
             # an empty list is returned in its place to satisfy the API.
-            return [], ret
+            return [], utxos
 
     return utxos
 

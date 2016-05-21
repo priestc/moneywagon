@@ -1,5 +1,5 @@
 import json
-from .core import Service, NoService, NoData, SkipThisService, currency_to_protocol
+from .core import Service, NoService, NoData, ServiceError, SkipThisService, currency_to_protocol
 import arrow
 
 class Bitstamp(Service):
@@ -1016,6 +1016,10 @@ class BitpayInsight(Service):
     explorer_address_url = "{protocol}://{domain}/address/{address}"
 
     name = "Bitpay Insight"
+
+    def check_error(self, response):
+        if response.status_code == 400:
+            raise ServiceError(response.content)
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s://%s/api/addr/%s/balance" % (self.protocol, self.domain, address)
