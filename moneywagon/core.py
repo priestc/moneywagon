@@ -151,8 +151,8 @@ class Service(object):
         block_hash - string, the id of the block this tx is confirmed in.
         block_number - integer, which block numbe this tx is confirmed in.
         hex - the entire tx encoded in hex format
-        inputs - list of {address:, value:}, value is in satoshi
-        outputs - list of {address:, value:}, value is in satoshi
+        inputs - list of {address:, amount:}, amount is in satoshi
+        outputs - list of {address:, amount:}, amount is in satoshi
         txid
         total_out
         confirmations

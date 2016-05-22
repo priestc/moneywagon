@@ -1078,8 +1078,8 @@ class BitpayInsight(Service):
             total_in=float(d['valueIn']),
             total_out=float(d['valueOut']),
             fee=d['fees'],
-            inputs=[{'address': x['addr'], 'value': float(x['value'])} for x in d['vin']],
-            outputs=[{'address': x['scriptPubKey']['addresses'][0], 'value': float(x['value'])} for x in d['vout']],
+            inputs=[{'address': x['addr'], 'amount': float(x['value'])} for x in d['vin']],
+            outputs=[{'address': x['scriptPubKey']['addresses'][0], 'amount': float(x['value'])} for x in d['vout']],
             txid=txid,
         )
 
@@ -1268,6 +1268,7 @@ class Blockonomics(Service):
     api_homepage = "https://www.blockonomics.co/views/api.html"
     name = "Blockonomics"
     base_url = "https://www.blockonomics.co"
+
     def get_balance(self, crypto, address, confirmations=1):
         return self.get_balance_multi(crypto, [address], confirmations)[address]
 
@@ -1311,8 +1312,8 @@ class Blockonomics(Service):
         d = self.get_url(url).json()
         return dict(
             time=arrow.get(d['time']).datetime,
-            inputs=[{'address': x['address'], 'value': x['value'] / 1e8} for x in d['vin']],
-            outputs=[{'address': x['address'], 'value': x['value']/ 1e8} for x in d['vout']],
+            inputs=[{'address': x['address'], 'amount': x['value'] / 1e8} for x in d['vin']],
+            outputs=[{'address': x['address'], 'amount': x['value'] / 1e8} for x in d['vout']],
             txid=txid,
             fees=d['fee']/1e8,
             size=d['size']
@@ -1446,8 +1447,8 @@ class Mintr(Service):
             total_in=float(d['valuein']),
             total_out=float(d['valueout']),
             fee=float(d['fee']),
-            inputs=[{'address': x['address'], 'value': x['value']} for x in d['vin']],
-            outputs=[{'address': x['address'], 'value': x['value']} for x in d['vout']],
+            inputs=[{'address': x['address'], 'amount': x['value']} for x in d['vin']],
+            outputs=[{'address': x['address'], 'amount': x['value']} for x in d['vout']],
             txid=txid,
         )
 
@@ -1522,7 +1523,7 @@ class BlockExplorersNet(Service):
         else:
             ins = [{'txid': x['coinbase']} for x in d['vin']]
 
-        outs = [{'address': x['scriptPubKey']['addresses'][0], 'value': x['value']} for x in d['vout']]
+        outs = [{'address': x['scriptPubKey']['addresses'][0], 'amount': x['value']} for x in d['vout']]
 
         return dict(
             time=arrow.get(d['time']).datetime,
@@ -1531,7 +1532,7 @@ class BlockExplorersNet(Service):
             inputs=ins,
             outputs=outs,
             txid=txid,
-            total_out=sum(x['value'] for x in outs),
+            total_out=sum(x['amount'] for x in outs),
             confirmations=d['confirmations'],
         )
 
