@@ -11,7 +11,7 @@ else:
 
 setup(
     name="moneywagon",
-    version='1.10.10',
+    version='1.10.11',
     description='Next Generation Cryptocurrency Platform',
     long_description=open('README.md').read(),
     author='Chris Priest',
