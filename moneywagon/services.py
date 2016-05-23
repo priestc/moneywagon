@@ -308,8 +308,8 @@ class Blockr(Service):
         return transactions
 
     def _format_single_tx(self, tx):
-        ins = [{'address': x['address'], 'amount': float(x['amount']) * -1} for x in tx['vins']]
-        outs = [{'address': x['address'], 'amount': float(x['amount'])} for x in tx['vouts']]
+        ins = [{'address': x['address'], 'amount': currency_to_protocol(x['amount']) * -1} for x in tx['vins']]
+        outs = [{'address': x['address'], 'amount': currency_to_protocol(x['amount'])} for x in tx['vouts']]
 
         return dict(
             time=arrow.get(tx['time_utc']).datetime,
@@ -1075,11 +1075,11 @@ class BitpayInsight(Service):
             time=block_time,
             size=d['size'],
             confirmations=d['confirmations'] if block_time else 0,
-            total_in=float(d['valueIn']),
-            total_out=float(d['valueOut']),
-            fee=d['fees'],
-            inputs=[{'address': x['addr'], 'amount': float(x['value'])} for x in d['vin']],
-            outputs=[{'address': x['scriptPubKey']['addresses'][0], 'amount': float(x['value'])} for x in d['vout']],
+            total_in=currency_to_protocol(d['valueIn']),
+            total_out=currency_to_protocol(d['valueOut']),
+            fee=currency_to_protocol(d['fees']),
+            inputs=[{'address': x['addr'], 'amount': currency_to_protocol(x['value'])} for x in d['vin']],
+            outputs=[{'address': x['scriptPubKey']['addresses'][0], 'amount': currency_to_protocol(x['value'])} for x in d['vout']],
             txid=txid,
         )
 
