@@ -503,12 +503,12 @@ def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbo
 
     return results
 
-def _do_private_mode(FetcherClass, services, kwargs, random_wait_seconds, verbose=False, timeout=None):
+def _do_private_mode(FetcherClass, services, kwargs, random_wait_seconds, timeout, verbose):
     """
     Private mode is only applicable to address_balance, unspent_outputs, and
     historical_transactions. There will always be a list for the `addresses`
     argument. Each address goes to a random service. Also a random delay is
-    performed before the external fetch.
+    performed before the external fetch for improved privacy.
     """
     addresses = kwargs.pop('addresses')
     results = {}
@@ -520,12 +520,12 @@ def _do_private_mode(FetcherClass, services, kwargs, random_wait_seconds, verbos
             k['address'] = address
             random.shuffle(services)
             srv = FetcherClass(
-                services=services, verbose=verbose, timeout=timeout,
+                services=services, verbose=verbose, timeout=timeout or 5.0,
                 random_wait_seconds=random_wait_seconds
             )
             # address is returned because balance needs to be returned
             # attached to the address. Other methods (get_transaction, unspent_outputs, etc)
-            # do not need the address again.
+            # do not need to be indexed by address. (upstream they are stripped out)
             fetches[executor.submit(srv.action, **k)] = (srv, address)
 
         to_iterate = futures.as_completed(fetches)

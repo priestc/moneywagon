@@ -706,14 +706,14 @@ class BlockChainInfo(Service):
         return float(response.json()['final_balance']) * 1e-8
 
     def get_single_transaction(self, crypto, txid):
+        latest_block_number = self.get_block('btc', latest=True)['block_number']
+        
         url = "https://%s/tx-index/%s?format=json" % (
             self.domain, txid
         )
         tx = self.get_url(url).json()
         outs = [{'address': x['addr'], 'amount': float(x['value'])} for x in tx['out']]
         ins = []
-
-        latest_block_number = self.get_block('btc', latest=True)['block_number']
 
         for in_ in tx['inputs']:
             if 'prev_out' in in_:
