@@ -82,10 +82,24 @@ def get_historical_transactions(crypto, address=None, addresses=None, services=N
         just_txs = []
         [just_txs.extend(x) for x in txs.values()]
         txs = sorted(just_txs, key=lambda tx: tx['date'], reverse=True)
+
+        no_duplicates = []
+        all_txids = []
+        for tx in txs:
+            # private mode may return duplicate txs, remove them here.
+            if tx['txid'] in all_txids:
+                continue
+            all_txids.append(tx['txid'])
+            no_duplicates.append(tx)
+
+        txs = no_duplicates
+
         if modes.get('report_services', False):
             # private mode does not return services (its not practical),
             # an empty list is returned in its place to simplify the API.
             return [], txs
+
+
 
     return txs
 
