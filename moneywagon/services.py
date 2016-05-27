@@ -707,19 +707,19 @@ class BlockChainInfo(Service):
 
     def get_single_transaction(self, crypto, txid):
         latest_block_number = self.get_block('btc', latest=True)['block_number']
-        
+
         url = "https://%s/tx-index/%s?format=json" % (
             self.domain, txid
         )
         tx = self.get_url(url).json()
-        outs = [{'address': x['addr'], 'amount': float(x['value'])} for x in tx['out']]
+        outs = [{'address': x['addr'], 'amount': x['value']} for x in tx['out']]
         ins = []
 
         for in_ in tx['inputs']:
             if 'prev_out' in in_:
                 prev = in_['prev_out']
                 ins.append(
-                    {'address': prev['addr'], 'amount': float(prev['value'])}
+                    {'address': prev['addr'], 'amount': prev['value']}
                 )
 
         block_number = tx.get('block_height', None)
@@ -1312,10 +1312,10 @@ class Blockonomics(Service):
         d = self.get_url(url).json()
         return dict(
             time=arrow.get(d['time']).datetime,
-            inputs=[{'address': x['address'], 'amount': x['value'] / 1e8} for x in d['vin']],
-            outputs=[{'address': x['address'], 'amount': x['value'] / 1e8} for x in d['vout']],
+            inputs=[{'address': x['address'], 'amount': x['value']} for x in d['vin']],
+            outputs=[{'address': x['address'], 'amount': x['value']} for x in d['vout']],
             txid=txid,
-            fees=d['fee']/1e8,
+            fees=d['fee'],
             size=d['size']
         )
 
