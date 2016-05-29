@@ -1311,6 +1311,7 @@ class Blockonomics(Service):
         url = "%s/api/tx_detail?txid=%s" % (self.base_url, txid)
         d = self.get_url(url).json()
         return dict(
+            confirmations=1 if d['status'] == 'Confirmed' else 0,
             time=arrow.get(d['time']).datetime,
             inputs=[{'address': x['address'], 'amount': x['value']} for x in d['vin']],
             outputs=[{'address': x['address'], 'amount': x['value']} for x in d['vout']],
