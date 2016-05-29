@@ -265,7 +265,7 @@ class Blockr(Service):
 
     json_address_url = "http://{crypto}.blockr.io/api/v1/address/info/{address}"
     json_single_tx_url = "http://{crypto}.blockr.io/api/v1/tx/info/{txid}"
-    json_txs_url = url = "http://{crypto}.blockr.io/api/v1/address/txs/{address}"
+    json_txs_url = url = "http://{crypto}.blockr.io/api/v1/address/txs/{address}?unconfirmed=1"
     json_unspent_outputs_url = "http://{crypto}.blockr.io/api/v1/address/unspent/{address}"
     name = "Blockr.io"
 
@@ -1041,9 +1041,9 @@ class BitpayInsight(Service):
 
         return dict(
             amount=my_outs - my_ins,
-            date=arrow.get(tx['time']).datetime,
+            date=arrow.get(tx['time']).datetime if tx.get('time', False) else None,
             txid=tx['txid'],
-            confirmations=tx['confirmations'],
+            confirmations=tx.get('confirmations', 0),
             addresses=list(set(matched_addresses))
         )
 
@@ -1299,7 +1299,7 @@ class Blockonomics(Service):
         url = "%s/api/searchhistory" % self.base_url
         response = self.post_url(url, json.dumps({'addr': address})).json()
         txs = []
-        for tx in response['history']:
+        for tx in response['history'] + response.get('pending', []):
             txs.append(dict(
                 amount=tx['value'] / 1e8,
                 date=arrow.get(tx['time']).datetime,
