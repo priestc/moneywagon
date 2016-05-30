@@ -57,6 +57,16 @@ class Service(object):
     def post_url(self, url, *args, **kwargs):
         return self._external_request('post', url, *args, **kwargs)
 
+    def check_error(self, response):
+        if response.status_code == 503:
+            raise SkipThisService("503 - Temporarily out of service.")
+
+        if response.status_code == 429:
+            raise SkipThisService("429 - Too many requests")
+
+        if response.status_code == 404:
+            raise SkipThisService("404 - Not Found")
+
     def _external_request(self, method, url, *args, **kwargs):
         """
         Wrapper for requests.get with useragent automatically set.
@@ -84,15 +94,6 @@ class Service(object):
             print("Got Response: %s" % url)
 
         self.check_error(response)
-
-        if response.status_code == 503:
-            raise SkipThisService("503 - Temporarily out of service.")
-
-        if response.status_code == 429:
-            raise SkipThisService("429 - Too many requests")
-
-        if response.status_code == 404:
-            raise SkipThisService("404 - Not Found")
 
         if method == 'get':
             self.responses[url] = response # cache for later

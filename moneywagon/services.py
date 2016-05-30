@@ -414,6 +414,12 @@ class Toshi(Service):
 
     supported_cryptos = ['btc']
 
+    def check_error(self, response):
+        if response.status_code == 404:
+            return # don't skip on 404
+
+        super(Toshi, self).check_error(response)
+
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s/addresses/%s" % (self.url, address)
         response = self.get_url(url).json()
@@ -421,21 +427,17 @@ class Toshi(Service):
 
     def get_transactions(self, crypto, address, confirmations=1):
         url = "%s/addresses/%s/transactions" % (self.url, address)
-        response = self.get_url(url).json()
+        response = self.get_url(url)
+        if response.status_code == 404:
+            return []
 
-        if confirmations == 0:
-            to_iterate = response['transactions'] + response['unconfirmed_transactions']
-        else:
-            to_iterate = response['transactions']
-
+        j = response.json()
         transactions = []
-        for tx in to_iterate:
-            if tx['confirmations'] < confirmations:
-                continue
+        for tx in j['unconfirmed_transactions'] + j['transactions']:
             transactions.append(dict(
                 amount=sum([x['amount'] / 1e8 for x in tx['outputs'] if address in x['addresses']]),
                 txid=tx['hash'],
-                date=arrow.get(tx['block_time']).datetime,
+                date=arrow.get(tx['block_time']).datetime if tx.get('block_time', False) else None,
                 confirmations=tx['confirmations']
             ))
 
