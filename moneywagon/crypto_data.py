@@ -763,6 +763,99 @@ crypto_data = {
         'genesis_date': datetime(2011, 3, 1),
     },
 
+    'hemp': {
+        'name': 'Hempcoin',
+        'address_version_byte': 40,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                BlockExperts
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+                BlockExperts
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+                BlockExperts
+            ]
+        },
+    },
+
+    'dope': {
+        'name': 'Dopecoin',
+        'address_version_byte': 8,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                BlockExperts
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+                BlockExperts
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+                BlockExperts
+            ]
+        },
+    },
+
+    'dime': {
+        'name': 'Dimecoin',
+        'address_version_byte': 15,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(2014, 12, 23),
+        'services': {
+            'current_price': [
+
+            ],
+            'address_balance': [
+                BlockExperts
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+                BlockExperts
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+                BlockExperts
+            ]
+        },
+    },
+
     # TEMPLATE
     '': {
         'name': '',
@@ -1025,7 +1118,6 @@ crypto_data = {
     'str': ['Stellar', datetime(2014, 7, 31)],
     'pxl': ['Pixelcoin', datetime(2014, 11, 1)],
     'pac': ['PacCoin', datetime(2014, 12, 12)],
-    'dime':['Dimecoin', datetime(2014, 12, 23)],
 }
 
 

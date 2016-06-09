@@ -433,7 +433,7 @@ class Toshi(Service):
 
         j = response.json()
         transactions = []
-        for tx in j['unconfirmed_transactions'] + j['transactions']:
+        for tx in j.get('unconfirmed_transactions', []) + j['transactions']:
             transactions.append(dict(
                 amount=sum([x['amount'] / 1e8 for x in tx['outputs'] if address in x['addresses']]),
                 txid=tx['hash'],
@@ -1671,3 +1671,63 @@ class SiampmDashInsight(BitpayInsight):
     protocol = "http"
     domain = "insight.dash.siampm.com"
     name = "Siampm Dash Insight"
+
+class BlockExperts(Service):
+    service_id = 48
+    name = "Block Experts"
+    base = "https://www.blockexperts.com"
+    supported_cryptos = ['hemp', 'dime', 'dope']
+
+    def _get_coin(self, crypto):
+        if crypto == 'hemp':
+            return 33
+        if crypto == 'dime':
+            return 57
+        if crypto == 'dope':
+            return 19
+
+    def get_address_balance(self, crypto, address, confirmations=1):
+        url = "%s/api?coin=%s&action=getbalance&address=%s" % (
+            self.base, crypto, address
+        )
+        return float(self.get_url(url).content)
+
+    def get_single_transaction(self, crypto, txid):
+        url = "%s/include/ajax/ajax.tx.raw.php?coin_id=%s&tx=%s" % (
+            self.base, self._get_coin(crypto), txid
+        )
+        resp = self.get_url(url).json()
+        return dict(
+            time=arrow.get(tx['blocktime']).datetime,
+            block_hash=tx['blockhash'],
+            inputs=[dict(address=x['address'], amount=-x['value']) for x in tx['vin']],
+            outputs=[dict(address=x['scriptPubKey']['address'], amount=x['value']) for x in tx['vout']],
+            txid=txid,
+            version=tx['version'],
+            confirmations=tx['confirmations'],
+        )
+
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
+        if latest:
+            raise SkipThisService("Cant get by latest")
+            url = "https://www.blockexperts.com/api?coin=hemp&action=getheight"
+            block_height = int(self.get_url(url).content)
+
+        if block_number is not None:
+            raise SkipThisService("Cant get by block number")
+
+        url = "%s/include/ajax/ajax.block.raw.php?coin_id=%s&block_hash=%s" % (
+            self.base, self._get_coin(crypto), block_hash
+        )
+        r = self.get_url(url).json()
+        return dict(
+            confirmations=r['confirmations'],
+            size=r['size'],
+            txs=r['tx'],
+            tx_count=len(r['tx']),
+            time=arrow.get(r['time']).datetime,
+            hash=r['hash'],
+            block_number=r['height'],
+            difficulty=r['difficulty'],
+            merkle_root=r['merkleroot'],
+        )
