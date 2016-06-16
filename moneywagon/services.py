@@ -1016,7 +1016,7 @@ class BitpayInsight(Service):
     protocol = 'https'
     api_homepage = "{protocol}://{domain}/api"
     explorer_address_url = "{protocol}://{domain}/address/{address}"
-
+    api_tag = 'api'
     name = "Bitpay Insight"
 
     def check_error(self, response):
@@ -1024,7 +1024,7 @@ class BitpayInsight(Service):
             raise ServiceError(response.content)
 
     def get_balance(self, crypto, address, confirmations=1):
-        url = "%s://%s/api/addr/%s/balance" % (self.protocol, self.domain, address)
+        url = "%s://%s/%s/addr/%s/balance" % (self.protocol, self.domain, self.api_tag, address)
         return float(self.get_url(url).content) / 1e8
 
     def _format_tx(self, tx, addresses):
@@ -1585,7 +1585,7 @@ class ProHashing(Service):
     domain = "prohashing.com"
     name= "ProHashing"
 
-    def get_address_balance(self, crypto, address, confirmations=1):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "https://%s/explorerJson/getAddress?address=%s&coin_id=%s" % (
             self.domain, address, self._get_coin(crypto)
         )
@@ -1731,3 +1731,53 @@ class BlockExperts(Service):
             difficulty=r['difficulty'],
             merkle_root=r['merkleroot'],
         )
+
+class MultiCoins(Service):
+    service_id = 49
+    supported_cryptos = ['ppc']
+
+    def push_tx(self, crypto, tx_hex):
+        """
+        This method is untested.
+        """
+        url = "https://multicoins.org/api/v1/tx/push/ppc"
+        return self.post_url(url, {'hex': tx_hex})
+
+class BitcoinChain(Service):
+    service_id = 50
+    base = "https://api-r.bitcoinchain.com"
+    supported_cryptos = ['btc']
+
+    def get_address_balance(self, crypto, address, confirmations=1):
+        url = "%s/v1/address/%s" % (self.base, address)
+        return self.get_url(url).json()[0]['balance']
+
+    def get_address_balance_multi(self, crypto, addresses, confirmations=1):
+        url = "%s/v1/address/%s" % (self.base, ','.join(addresses))
+        ret = {}
+        for address_data in self.get_url(url).json():
+            address = address_data['address']
+            ret[address] = address_data['balance']
+
+        return ret
+
+    def get_transactions(self, crypto, address, confirmations=1):
+        url = "%s/v1/address/txs/%s" % (self.base, address)
+        response = self.get_url(url).json()[0]
+        txs = []
+        for tx in response:
+            txs.append(dict(
+                txid=tx['tx']['self_hash'],
+                date=arrow.get(tx['tx']['block_time']).datetime,
+            ))
+        return txs
+
+    def get_single_transaction(self, crypto, txid):
+        url = "%s/v1/tx/%s" % (self.base, txid)
+        r = self.get_url(url).json()
+
+class NeoCrypto(BitpayInsight):
+    service_id = 51
+    protocol = "https"
+    domain = "insight.neocrypto.io"
+    api_tag = 'insight-api'

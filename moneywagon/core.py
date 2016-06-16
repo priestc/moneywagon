@@ -33,6 +33,7 @@ class Service(object):
     """
     domain = None # optional, useful if the service will have subclasses
     api_homepage = '' # link to page defining the API.
+    name = ''
     protocol = 'https'
     supported_cryptos = None # must be a list of lower case currency codes.
     explorer_address_url = None # url to block explerer page. Use {address} and {crypto} as placeholders.

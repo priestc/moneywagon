@@ -21,25 +21,25 @@ crypto_data = {
             'address_balance': [
                 Toshi, BlockCypher, Blockr, ChainSo, BlockSeer,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
-                BitpayInsight, CoinPrism, BitGo
+                BitpayInsight, CoinPrism, BitGo, NeoCrypto
             ],
             'historical_transactions': [
                 Blockr, Toshi, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
-                BitpayInsight, Blockonomics
+                BitpayInsight, Blockonomics, NeoCrypto
             ],
             'single_transaction': [
-                BitpayInsight, Blockr, BlockChainInfo, Blockonomics
+                BitpayInsight, Blockr, BlockChainInfo, Blockonomics, NeoCrypto
             ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
-                BitpayInsight
+                BitpayInsight, NeoCrypto
             ],
             'unspent_outputs': [
                 Blockr, BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
-                BitGo
+                BitGo, NeoCrypto
             ],
             'get_block': [
-                BitpayInsight, ChainRadar, Toshi, Blockr, BlockExplorerCom, ChainSo, BitGo
+                BitpayInsight, ChainRadar, Toshi, Blockr, BlockExplorerCom, ChainSo, BitGo, NeoCrypto
             ],
             "get_optimal_fee": [
                 BitGo, BlockCypher, CoinTape, BitcoinFees21
@@ -96,7 +96,7 @@ crypto_data = {
                 Mintr, Blockr
             ],
             'push_tx': [
-
+                MultiCoins
             ],
             'unspent_outputs': [
                 Blockr
