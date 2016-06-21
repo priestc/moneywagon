@@ -170,7 +170,7 @@ $ moneywagon address-balance --crypto=doge --address=D8ZXs3JDdLuyRjG3wDtRQE2PMT4
 Also you can include a `--verbose` flag to get more output:
 
 ```
-$ moneywagon address-balance vtc Va3LcDhwrcwGtG366jeP6EJzWnKT4yMDxs --verbose
+$ moneywagon address-balance vtc --address=Va3LcDhwrcwGtG366jeP6EJzWnKT4yMDxs --verbose
 * Trying: <Service: ThisIsVTC (0 in cache)>
 URL: http://explorer.thisisvtc.com/api/addr/Va3LcDhwrcwGtG366jeP6EJzWnKT4yMDxs/balance
 99.5
@@ -180,7 +180,7 @@ An additional parameter, `--paranoid=n` can be added to crosscheck multiple serv
 The number `n` corresponds to how many services to check:
 
 ```
-$ moneywagon address-balance btc 1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X --paranoid=5 --verbose
+$ moneywagon address-balance btc --address=1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X --paranoid=5 --verbose
 * Trying: <Service: Toshi (0 in cache)>
 URL: https://bitcoin.toshi.io/api/v0/addresses/1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X
 * Trying: <Service: BlockCypher (0 in cache)>

@@ -81,6 +81,7 @@ crypto_data = {
         'address_version_byte': 55,
         'bip44_coin_type': 0x80000006,
         'private_key_prefix': 183,
+        'proof_of_stake': True,
         'genesis_date': datetime(2012, 8, 19),
         'services': {
             'current_price': [
@@ -292,6 +293,7 @@ crypto_data = {
         'bip44_coin_type': 0x80000004,
         'private_key_prefix': 0xbd,
         'genesis_date': datetime(2014, 1, 20),
+        'proof_of_stake': True,
         'services': {
             'current_price': [
                 ChainSo, Cryptonator
@@ -704,7 +706,7 @@ crypto_data = {
     'uno': {
         'name': 'Unobtanium',
         'address_version_byte': 130,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x80000102,
         'private_key_prefix': 224,
         'genesis_date': datetime(2013, 10, 17),
         'services': {
