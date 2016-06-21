@@ -706,7 +706,7 @@ crypto_data = {
     'uno': {
         'name': 'Unobtanium',
         'address_version_byte': 130,
-        'bip44_coin_type': 0x80000102,
+        'bip44_coin_type': 0x8000005c,
         'private_key_prefix': 224,
         'genesis_date': datetime(2013, 10, 17),
         'services': {
