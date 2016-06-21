@@ -1,4 +1,5 @@
 import json
+from requests.auth import HTTPBasicAuth
 from .core import Service, NoService, NoData, ServiceError, SkipThisService, currency_to_protocol
 import arrow
 
@@ -1781,3 +1782,51 @@ class NeoCrypto(BitpayInsight):
     protocol = "https"
     domain = "insight.neocrypto.io"
     api_tag = 'insight-api'
+
+class CounterParty(Service):
+    protocol = "http"
+    port = None
+    username = None
+    password = None
+
+    def authed_post_url(self, payload):
+        auth = HTTPBasicAuth(self.username, self.password)
+        headers = {'content-type': 'application/json'}
+        url = "%s://%s:%s/api/" % (self.protocol, self.domain, self.port)
+        return self.post_url(url, data=json.dumps(payload), auth=auth, headers=headers).json()
+
+    def get_balance(self, crypto, address, confirmations=1):
+        payload = {
+            "method": "get_balances",
+            "params": {
+                "filters": [{"field": "address", "op": "==", "value": address}]
+            },
+            "jsonrpc": "2.0",
+            "id": 0,
+        }
+        results = self.authed_post_url(payload)['result']
+        for r in results:
+            if r['address'] == address:
+                return r['quantity'] / 1e8
+
+class CoinDaddy1(CounterParty):
+    service_id = 52
+    port = 4000
+    domain = "public.coindaddy.io"
+    username = 'rpc'
+    password = '1234'
+
+class CoinDaddy2(CoinDaddy1):
+    service_id = 53
+    port = 4100
+
+class CounterPartyChain(Service):
+    service_id = 54
+    api_homepage = "https://counterpartychain.io/api"
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "https://counterpartychain.io/api/balances/%s" % address
+        response = self.get_url(url).json()
+        for balance in response['data']:
+            if balance['asset'].upper() == crypto.upper():
+                return float(balance['amount'])

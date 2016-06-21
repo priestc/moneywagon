@@ -323,6 +323,11 @@ crypto_data = {
         'bip44_coin_type': 0x80000007,
         'private_key_prefix': 0x80,
         'genesis_date': datetime(2011, 4, 18),
+        'services': {
+            'current_price': [
+                Cryptonator
+            ],
+        }
     },
     'aur': {
         'name': 'Auroracoin',
@@ -332,7 +337,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 2, 2),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 CryptoID, ProHashing
@@ -363,7 +368,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 11, 5),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 Mintr
@@ -425,7 +430,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 BlockExplorersNet
@@ -456,7 +461,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 CryptoID, BlockExplorersNet
@@ -487,7 +492,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
 
@@ -518,7 +523,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 12, 21),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 CryptoID
@@ -611,7 +616,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 21),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 CryptoID, ProHashing
@@ -642,7 +647,7 @@ crypto_data = {
         'genesis_date': datetime(2012, 7, 15),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
 
@@ -673,7 +678,7 @@ crypto_data = {
         'genesis_date': datetime(2012, 10, 1),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 CryptapUS
@@ -704,7 +709,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 10, 17),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 UNOCryptap, CryptoID
@@ -735,7 +740,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 RICCryptap
@@ -761,6 +766,11 @@ crypto_data = {
     'xrp': {
         'name': 'Ripple',
         'genesis_date': datetime(2011, 3, 1),
+        'services': {
+            'current_price': [
+                Cryptonator
+            ],
+        }
     },
 
     'hemp': {
@@ -802,7 +812,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 BlockExperts
@@ -833,7 +843,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 12, 23),
         'services': {
             'current_price': [
-
+                Cryptonator
             ],
             'address_balance': [
                 BlockExperts
@@ -852,6 +862,38 @@ crypto_data = {
             ],
             'get_block': [
                 BlockExperts
+            ]
+        },
+    },
+
+    # TEMPLATE
+    'xcp': {
+        'name': 'CounterParty',
+        'address_version_byte': 0,
+        'bip44_coin_type': 0x80000009,
+        'private_key_prefix': 128,
+        'genesis_date': datetime(2014, 1, 30),
+        'services': {
+            'current_price': [
+                Cryptonator
+            ],
+            'address_balance': [
+                CoinDaddy1, CoinDaddy2, CounterPartyChain
+            ],
+            'historical_transactions': [
+                CoinDaddy1, CoinDaddy2
+            ],
+            'single_transaction': [
+                CoinDaddy1, CoinDaddy2
+            ],
+            'push_tx': [
+                CoinDaddy1, CoinDaddy2
+            ],
+            'unspent_outputs': [
+                CoinDaddy1, CoinDaddy2
+            ],
+            'get_block': [
+                CoinDaddy1, CoinDaddy2
             ]
         },
     },

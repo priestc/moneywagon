@@ -163,7 +163,7 @@ Gets the amount of currency currently assiciated with a cryptocurrency address.
 examples:
 
 ```
-$ moneywagon address-balance doge D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ
+$ moneywagon address-balance --crypto=doge --address=D8ZXs3JDdLuyRjG3wDtRQE2PMT4YQWELfZ
 99405.6048377
 ```
 
