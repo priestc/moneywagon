@@ -1,6 +1,6 @@
 from __future__ import print_function
 import sys
-
+from binascii import hexlify
 from tabulate import tabulate
 
 from base58 import b58decode_check
@@ -523,3 +523,10 @@ def service_table(format='simple'):
         ])
 
     return tabulate(ret, headers=['ID', 'Name', 'URL', 'Supported Currencies'], tablefmt=format)
+
+def wif_to_hex(wif):
+    """
+    Convert a WIF encded private key and return the raw hex encoded private key
+    This function works for all bitcoin-API compatable coins.
+    """
+    return hexlify(b58decode_check(wif)[1:]).upper()

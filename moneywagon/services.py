@@ -1093,7 +1093,7 @@ class BitpayInsight(Service):
             scriptPubKey=utxo['scriptPubKey'],
             output="%s:%s" % (utxo['txid'], utxo['vout']),
             amount=currency_to_protocol(utxo['amount']),
-            confirmations=utxo['confirmations'],
+            confirmations=utxo.get('confirmations', None),
             address=utxo['address']
         )
 
@@ -1834,16 +1834,24 @@ class CounterParty(Service):
 
         return ret
 
-    def _format_txs(self, results):
+    def _format_txs(self, credits, debits):
         txs = []
-        for tx in results:
-            txs.append(dict(
-                amount=tx['quantity'] / 1e8,
-                txid=tx['event'],
-                address=tx['address'],
-                date=None,
-                counterparty=True
-            ))
+        for i, results in enumerate([credits, debits]):
+            if i == 0:
+                sign = 1
+            else:
+                sign = -1
+
+            for tx in results:
+                if tx['asset'].upper() != crypto.upper():
+                    continue
+                txs.append(dict(
+                    amount=tx['quantity'] / 1e8 * sign,
+                    txid=tx['event'],
+                    address=tx['address'],
+                    date=None,
+                    counterparty=True
+                ))
         return txs
 
     def get_transactions(self, crypto, address, confirmations=1):
@@ -1858,8 +1866,21 @@ class CounterParty(Service):
             "jsonrpc": "2.0",
             "id": 0,
         }
-        results = self.authed_post_url(payload)['result']
-        return self._format_txs(results)
+        credits = self.authed_post_url(payload)['result']
+
+        payload = {
+            "method": "get_debits",
+            "params": {
+                "filters": [
+                    {"field": "address", "op": "==", "value": address},
+                    {"field": "asset", "op": "==", "value": crypto.upper()},
+                ]
+            },
+            "jsonrpc": "2.0",
+            "id": 0,
+        }
+        debits = self.authed_post_url(payload)['result']
+        return self._format_txs(credits, debits)
 
     def get_transactions_multi(self, crypto, addresses):
         payload = {
@@ -1873,30 +1894,48 @@ class CounterParty(Service):
             "jsonrpc": "2.0",
             "id": 0,
         }
-        results = self.authed_post_url(payload)['result']
-        return self._format_txs(results)
+        credits = self.authed_post_url(payload)['result']
+
+        payload = {
+            "method": "get_debits",
+            "params": {
+                "filters": [
+                    {"field": "address", "op": "==", "value": address} for address in addresses
+                ],
+                "filterop": "or"
+            },
+            "jsonrpc": "2.0",
+            "id": 0,
+        }
+        debits = self.authed_post_url(payload)['result']
+        return self._format_txs(credits, debits)
 
     def get_single_transaction(self, crypto, txid):
         from moneywagon import get_single_transaction
         tx = get_single_transaction('btc', txid)
         return tx
 
-    def move_coins(self, crypto, amount, from_address, to_address):
+    def make_unsigned_move_tx(self, crypto, amount, from_address, to_address):
         payload = {
             "method": "create_send",
             "params": {
                 "source": from_address,
                 "destination": to_address,
-                "asset": crypto,
-                "quantity": amount
+                "asset": crypto.upper(),
+                "quantity": int(amount * 1e8),
+                'encoding': "opreturn"
             },
             "jsonrpc": "2.0",
             "id": 0,
         }
-        results = self.authed_post_url(payload)['result']
+        return self.authed_post_url(payload)['result']
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
         raise Exception("CounterParty does not use unspent outputs")
+
+    def push_tx(self, crypto, tx_hex):
+        from moneywagon import push_tx
+        return push_tx('btc', tx_hex, random=True)
 
 class CoinDaddy1(CounterParty):
     service_id = 52
@@ -1924,3 +1963,7 @@ class CounterPartyChain(Service):
         for balance in response['data']:
             if balance['asset'].upper() == crypto.upper():
                 return float(balance['amount'])
+
+    def push_tx(self, crypto, tx_hex):
+        from moneywagon import push_tx
+        return push_tx('btc', tx_hex, random=True)
