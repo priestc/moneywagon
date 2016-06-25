@@ -5,7 +5,7 @@ import time
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.10.16'
+useragent = 'moneywagon 1.10.17'
 
 class ServiceDisagreement(Exception):
     pass
@@ -95,7 +95,7 @@ class Service(object):
             print("Got Response: %s" % url)
 
         self.last_raw_response = response
-        
+
         self.check_error(response)
 
         if method == 'get':
