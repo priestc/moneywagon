@@ -1789,6 +1789,14 @@ class CounterParty(Service):
     username = None
     password = None
 
+    def check_error(self, response):
+        j = response.json()
+        if 'error' in j:
+            e = j['error']
+            raise Exception("Error code: %s %s" % (e['code'], e['message']))
+
+        super(CounterParty, self).check_error(response)
+
     def authed_post_url(self, payload):
         auth = HTTPBasicAuth(self.username, self.password)
         headers = {'content-type': 'application/json'}
@@ -1806,8 +1814,89 @@ class CounterParty(Service):
         }
         results = self.authed_post_url(payload)['result']
         for r in results:
-            if r['address'] == address:
+            if r['address'] == address and r['asset'].lower() == crypto.lower():
                 return r['quantity'] / 1e8
+
+    def get_balance_multi(self, crypto, addresses, confirmations=1):
+        payload = {
+            "method": "get_balances",
+            "params": {
+                "filters": [{"field": "address", "op": "==", "value": x} for x in addresses],
+                "filterop": "or"
+            },
+            "jsonrpc": "2.0",
+            "id": 0,
+        }
+        results = self.authed_post_url(payload)['result']
+        ret = {}
+        for r in results:
+            ret[r['address']] = r['quantity'] / 1e8
+
+        return ret
+
+    def _format_txs(self, results):
+        txs = []
+        for tx in results:
+            txs.append(dict(
+                amount=tx['quantity'] / 1e8,
+                txid=tx['event'],
+                address=tx['address'],
+                date=None,
+                counterparty=True
+            ))
+        return txs
+
+    def get_transactions(self, crypto, address, confirmations=1):
+        payload = {
+            "method": "get_credits",
+            "params": {
+                "filters": [
+                    {"field": "address", "op": "==", "value": address},
+                    {"field": "asset", "op": "==", "value": crypto.upper()},
+                ]
+            },
+            "jsonrpc": "2.0",
+            "id": 0,
+        }
+        results = self.authed_post_url(payload)['result']
+        return self._format_txs(results)
+
+    def get_transactions_multi(self, crypto, addresses):
+        payload = {
+            "method": "get_credits",
+            "params": {
+                "filters": [
+                    {"field": "address", "op": "==", "value": address} for address in addresses
+                ],
+                "filterop": "or"
+            },
+            "jsonrpc": "2.0",
+            "id": 0,
+        }
+        results = self.authed_post_url(payload)['result']
+        return self._format_txs(results)
+
+    def get_single_transaction(self, crypto, txid):
+        from moneywagon import get_single_transaction
+        tx = get_single_transaction('btc', txid)
+        return tx
+
+    def move_coins(self, crypto, amount, from_address, to_address):
+        payload = {
+            "method": "create_send",
+            "params": {
+                "source": from_address,
+                "destination": to_address,
+                "asset": crypto,
+                "quantity": amount
+            },
+            "jsonrpc": "2.0",
+            "id": 0,
+        }
+        results = self.authed_post_url(payload)['result']
+
+    def get_unspent_outputs(self, crypto, address, confirmations=1):
+        raise Exception("CounterParty does not use unspent outputs")
 
 class CoinDaddy1(CounterParty):
     service_id = 52
@@ -1815,10 +1904,12 @@ class CoinDaddy1(CounterParty):
     domain = "public.coindaddy.io"
     username = 'rpc'
     password = '1234'
+    name = "Coin Daddy #1"
 
 class CoinDaddy2(CoinDaddy1):
     service_id = 53
     port = 4100
+    name = "Coin Daddy #2"
 
 class CounterPartyChain(Service):
     service_id = 54
@@ -1827,6 +1918,9 @@ class CounterPartyChain(Service):
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://counterpartychain.io/api/balances/%s" % address
         response = self.get_url(url).json()
+        if response['error']:
+            return 0
+
         for balance in response['data']:
             if balance['asset'].upper() == crypto.upper():
                 return float(balance['amount'])

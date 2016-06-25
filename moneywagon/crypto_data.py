@@ -874,7 +874,7 @@ crypto_data = {
         'address_version_byte': 0,
         'bip44_coin_type': 0x80000009,
         'private_key_prefix': 128,
-        'genesis_date': datetime(2014, 1, 30),
+        'genesis_date': datetime(2014, 1, 2),
         'services': {
             'current_price': [
                 Cryptonator
@@ -892,7 +892,7 @@ crypto_data = {
                 CoinDaddy1, CoinDaddy2
             ],
             'unspent_outputs': [
-                CoinDaddy1, CoinDaddy2
+                CoinDaddy1
             ],
             'get_block': [
                 CoinDaddy1, CoinDaddy2
@@ -1055,7 +1055,6 @@ crypto_data = {
     'prt': ['Particle', datetime(2013, 12, 31)],
     'mona':['MonaCoin', datetime(2013, 12, 31)],
     'slr': ['SolarCoin', datetime(2014, 1, 1)],
-    'xcp': ['Counterparty', datetime(2014, 1, 2)],
     'volt':['Electric', datetime(2014, 1, 2)],
     '42':  ['42Coin', datetime(2014, 1, 4)],
     'pnd': ['Pandacoin', datetime(2014, 1, 4)],

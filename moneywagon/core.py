@@ -94,12 +94,13 @@ class Service(object):
         if self.verbose:
             print("Got Response: %s" % url)
 
+        self.last_raw_response = response
+        
         self.check_error(response)
 
         if method == 'get':
             self.responses[url] = response # cache for later
 
-        self.last_raw_response = response
         return response
 
     def check_error(self, response):
@@ -139,7 +140,7 @@ class Service(object):
             "Or rather it has no defined 'get_transactions' method."
         )
 
-    def get_transactions_multi(self, crypto, address, confirmations=1):
+    def get_transactions_multi(self, crypto, addresses, confirmations=1):
         raise NotImplementedError(
             "This service does not support getting historical transactions by multiple addresses. "
             "Or rather it has no defined 'get_transactions_multi' method."
