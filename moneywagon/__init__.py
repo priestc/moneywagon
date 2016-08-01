@@ -198,6 +198,26 @@ def get_optimal_fee(crypto, tx_bytes, **modes):
             return fee
 
 
+def get_onchain_exchange_rates(deposit_crypto=None, withdraw_crypto=None, **modes):
+    """
+    Gets exchange rates for all defined on-chain exchange services.
+    """
+    from moneywagon.onchain_exchange import ALL_SERVICES
+
+    rates = []
+    for Service in ALL_SERVICES:
+        srv = Service(verbose=modes.get('verbose', False))
+        rates.extend(srv.onchain_exchange_rates())
+
+    if deposit_crypto:
+        rates = [x for x in rates if x['deposit_currency']['code'] == deposit_crypto.upper()]
+
+    if withdraw_crypto:
+        rates = [x for x in rates if x['withdraw_currency']['code'] == withdraw_crypto.upper()]
+
+    return rates
+
+
 def generate_keypair(crypto, seed, password=None):
     """
     Generate a private key and publickey for any currency, given a seed.

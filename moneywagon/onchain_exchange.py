@@ -40,3 +40,6 @@ class ShapeShiftIO(Service):
         url = "https://shapeshift.io/shift"
         pair = (deposit_crypto + "_" + withdraw_crypto).toLowerCase()
         return self.post_url(url, {'withdrawal': withdraw_address, 'pair': pair}).json()
+
+
+ALL_SERVICES = [ShapeShiftIO]
