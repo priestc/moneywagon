@@ -28,7 +28,7 @@ class ShapeShiftIO(Service):
                 'max_amount': pair['maxLimit'],
                 'min_amount': pair['min'],
                 'withdraw_fee': pair['minerFee'],
-                'provider': 'ShapeShift.io'
+                'service': self
             })
 
         return final_pairs
@@ -38,8 +38,23 @@ class ShapeShiftIO(Service):
 
     def get_onchain_exchange_address(self, deposit_crypto, withdraw_crypto, withdraw_address):
         url = "https://shapeshift.io/shift"
-        pair = (deposit_crypto + "_" + withdraw_crypto).toLowerCase()
+        pair = (deposit_crypto + "_" + withdraw_crypto).lower()
         return self.post_url(url, {'withdrawal': withdraw_address, 'pair': pair}).json()
+
+
+# class MultiExplorerExchange(Service):
+#
+#     def onchain_exchange_rates(self):
+#         return [
+#         {
+#         'deposit_currency': {'code': u'LTC', 'name': 'Litecoin'},
+#         'max_amount': 508.36657379,
+#         'min_amount': 0.09404389,
+#         'rate': u'0.07631284',
+#         'service': self,
+#         'withdraw_currency': {'code': u'BTC', 'name': 'Bitcoin'},
+#         'withdraw_fee': 0.0003}
+#      ]
 
 
 ALL_SERVICES = [ShapeShiftIO]

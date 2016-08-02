@@ -1,5 +1,6 @@
 from moneywagon import (
     get_unspent_outputs, CurrentPrice, get_optimal_fee, PushTx,
+    get_onchain_exchange_rates
 )
 from moneywagon.core import get_optimal_services, get_magic_bytes
 from bitcoin import mktx, sign, pubtoaddr, privtopub
@@ -15,6 +16,7 @@ class Transaction(object):
         self.fee_satoshi = None
         self.outs = []
         self.ins = []
+        self.onchain_rate = None
 
         self.verbose = verbose
 
@@ -154,6 +156,34 @@ class Transaction(object):
             'address': address,
             'value': value_satoshi
         })
+
+    def onchain_exchange(self, withdraw_crypto, withdraw_address, value, unit='satoshi'):
+        """
+        This method is like `add_output` but it sends to another
+        """
+        self.onchain_rate = get_onchain_exchange_rates(
+            self.crypto, withdraw_crypto, best=True, verbose=self.verbose
+        )
+        exchange_rate = float(self.onchain_rate['rate'])
+        result = self.onchain_rate['service'].get_onchain_exchange_address(
+            self.crypto, withdraw_crypto, withdraw_address
+        )
+
+        address = result['deposit']
+
+        value_satoshi = self.from_unit_to_satoshi(value, unit)
+
+        if self.verbose:
+            print("Adding output of: %s satoshi (%.8f) via onchain exchange, converting to %s %s" % (
+                value_satoshi, (value_satoshi / 1e8),
+                exchange_rate * value_satoshi / 1e8, withdraw_crypto.upper()
+            ))
+
+        self.outs.append({
+            'address': address,
+            'value': value_satoshi
+        })
+
 
     def fee(self, value=None, unit='satoshi'):
         """

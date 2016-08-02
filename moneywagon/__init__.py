@@ -215,6 +215,9 @@ def get_onchain_exchange_rates(deposit_crypto=None, withdraw_crypto=None, **mode
     if withdraw_crypto:
         rates = [x for x in rates if x['withdraw_currency']['code'] == withdraw_crypto.upper()]
 
+    if modes.get('best', False):
+        return max(rates, key=lambda x: float(x['rate']))
+
     return rates
 
 
