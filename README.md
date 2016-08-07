@@ -27,6 +27,13 @@ General Cryptocurrency Features:
 * Multi-sig support - coming soon
 * HD-wallet support - coming soon
 
+#  Prerequisites modules
+
+```
+$ pip install scrypt
+$ pip install pycrypto
+```
+
 # Installation
 
 ```
