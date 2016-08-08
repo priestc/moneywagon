@@ -27,7 +27,7 @@ General Cryptocurrency Features:
 * Multi-sig support - coming soon
 * HD-wallet support - coming soon
 
-#  Prerequisites modules (for BIP38 implementation and pip installation)
+##  Prerequisites modules (for BIP38 & installation of module via pip)
 
 ```
 $ pip install scrypt
