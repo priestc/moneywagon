@@ -1163,10 +1163,10 @@ class BirdOnWheels(BitpayInsight):
     name = "Bird on Wheels"
 
 
-class ThisIsVTC(BitpayInsight):
+class Verters(BitpayInsight):
     service_id = 32
     supported_cryptos = ['vtc']
-    domain = "explorer.thisisvtc.com"
+    domain = "explorer.verters.com"
     name = "This is VTC"
 
 

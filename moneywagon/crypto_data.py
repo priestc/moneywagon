@@ -208,22 +208,22 @@ crypto_data = {
                 Cryptonator, ChainSo
             ],
             'address_balance': [
-                ThisIsVTC, ProHashing
+                Verters, ProHashing
             ],
             'historical_transactions': [
-                ThisIsVTC, ProHashing
+                Verters, ProHashing
             ],
             'single_transaction': [
-                ThisIsVTC
+                Verters
             ],
             'push_tx': [
-                ThisIsVTC
+                Verters
             ],
             'unspent_outputs': [
-                ThisIsVTC
+                Verters
             ],
             'get_block': [
-                ThisIsVTC, ProHashing
+                Verters, ProHashing
             ]
         },
     },
