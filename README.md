@@ -3,13 +3,11 @@
 # moneywagon
 
 
-Moneywagon is a partial implementation of the bitcoin protocol for both Python 2 and 3.
-At it's current state, it is mostly a tool for building lightweight wallets,
-but in the future there is plans for it to include all bitcoin operations such
-as mining new blocks and relaying transaction as a full node.
+Moneywagon is a an implementation of a Blockchain Kernel. It is a tool that can be used
+to built lightweight cryptocurrency wallets. Blockchain Kernels provide an
+alternative to the outdated "SPV" method of build lightweight cryptocurrency
+services.
 
-In it's present form, think of moneywagon as a set of wrapper classes on top of
-pybitcointools.
 
 ## Features
 * Lightweight wallet functionality - Use monewagon to build a bitcoin enabled device
