@@ -900,6 +900,37 @@ crypto_data = {
         },
     },
 
+    'eth': {
+        'name': 'Ethereum',
+        'address_version_byte': None,
+        'bip44_coin_type': 60,
+        'private_key_prefix': None,
+        'genesis_date': datetime(2015, 7, 30),
+        'services': {
+            'current_price': [
+                EtherChain
+            ],
+            'address_balance': [
+                EtherChain
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
     # TEMPLATE
     '': {
         'name': '',

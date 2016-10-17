@@ -1967,3 +1967,19 @@ class CounterPartyChain(Service):
     def push_tx(self, crypto, tx_hex):
         from moneywagon import push_tx
         return push_tx('btc', tx_hex, random=True)
+
+class EtherChain(Service):
+    service_id = 55
+    api_homepage = "https://etherchain.org/documentation/api/"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://etherchain.org/api/basic_stats"
+        price = self.get_url(url).json()['data']['price']
+        if fiat.lower() in ['btc', 'usd']:
+            return price[fiat.lower()]
+        return self.convert_currency('usd', price['usd'], fiat)
+
+    def get_balance(self, crypto, address):
+        url = "https://etherchain.org/api/account/%s" % address
+        data = self.get_url(url).json()['data']
+        return data[0]['balance'] / 1e18

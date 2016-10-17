@@ -68,6 +68,17 @@ class Service(object):
         if response.status_code == 404:
             raise SkipThisService("404 - Not Found")
 
+    def convert_currency(self, base_fiat, base_amount, target_fiat):
+        """
+        Convert one fiat amount to another fiat. Uses the fixer.io service.
+        """
+        url = "http://api.fixer.io/latest?base=%s" % base_fiat
+        data = self.get_url(url).json()
+        try:
+            return data['rates'][target_fiat.upper()] * base_amount
+        except KeyError:
+            raise Exception("Can not convert %s to %s" % (base_fiat, target_fiat))
+
     def _external_request(self, method, url, *args, **kwargs):
         """
         Wrapper for requests.get with useragent automatically set.
