@@ -151,6 +151,10 @@ class BlockSeer(Service):
     json_txs_url = "https://www.blockseer.com/api/addresses/{address}/transactions?filter=all"
     name = "BlockSeer"
 
+    def check_error(self, response):
+        if 'error' in response.json():
+            raise SkipThisService("BlockSeer returned error: %s" % response.json()['error'])
+
     def get_balance(self, crypto, address, confirmations=1):
         url = self.json_address_balance_url.format(address=address)
         return self.get_url(url).json()['data']['balance'] / 1e8
@@ -416,7 +420,7 @@ class Toshi(Service):
     supported_cryptos = ['btc']
 
     def check_error(self, response):
-        if response.json()['error']:
+        if 'error' in response.json():
             raise SkipThisService("Toshi returned error: %s" % response.json()['error'])
 
         if response.status_code == 404:

@@ -19,7 +19,7 @@ crypto_data = {
                 Bitstamp, Winkdex, BTCE, BTER, Cryptonator, ChainSo
             ],
             'address_balance': [
-                Toshi, BlockCypher, Blockr, ChainSo, BlockSeer,
+                Toshi, BlockCypher, Blockr, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
                 BitpayInsight, CoinPrism, BitGo, NeoCrypto
             ],
