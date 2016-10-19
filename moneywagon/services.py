@@ -416,6 +416,9 @@ class Toshi(Service):
     supported_cryptos = ['btc']
 
     def check_error(self, response):
+        if response.json()['error']:
+            raise SkipThisService("Toshi returned error: %s" % response.json()['error'])
+
         if response.status_code == 404:
             return # don't skip on 404
 
@@ -1167,7 +1170,7 @@ class Verters(BitpayInsight):
     service_id = 32
     supported_cryptos = ['vtc']
     domain = "explorer.verters.com"
-    name = "This is VTC"
+    name = "Verters"
 
 
 class ReddcoinCom(BitpayInsight):
@@ -1979,7 +1982,7 @@ class EtherChain(Service):
             return price[fiat.lower()]
         return self.convert_currency('usd', price['usd'], fiat)
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "https://etherchain.org/api/account/%s" % address
         data = self.get_url(url).json()['data']
         return data[0]['balance'] / 1e18

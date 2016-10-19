@@ -59,6 +59,10 @@ class Service(object):
         return self._external_request('post', url, *args, **kwargs)
 
     def check_error(self, response):
+        """
+        If the service is returning an error, this function should raise an exception.
+        such as SkipThisService
+        """
         if response.status_code == 503:
             raise SkipThisService("503 - Temporarily out of service.")
 
