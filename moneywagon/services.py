@@ -693,6 +693,11 @@ class BitEasy(Service):
     explorer_blockhash_url = "https://www.biteasy.com/blockchain/blocks/{blockhash}"
     name = "BitEasy"
 
+    def check_error(self, response):
+        if response.status_code == 404:
+            msg = "; ".join(response.json()['messages'])
+            raise SkipThisService("BitEasy returned 404: %s" % msg)
+
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://api.biteasy.com/blockchain/v1/addresses/" + address
         response = self.get_url(url)
