@@ -1794,6 +1794,7 @@ class NeoCrypto(BitpayInsight):
     protocol = "https"
     domain = "insight.neocrypto.io"
     api_tag = 'insight-api'
+    name = "Neocrypt"
 
 class CounterParty(Service):
     protocol = "http"
