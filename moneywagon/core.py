@@ -5,7 +5,7 @@ import time
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.11.3'
+useragent = 'moneywagon 1.11.4'
 
 class ServiceDisagreement(Exception):
     pass
@@ -356,7 +356,7 @@ class AutoFallbackFetcher(object):
                 # service classes can raise this exception if for whatever reason
                 # that service can't return a response, but maybe another one can.
                 if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
-                self._failed_services.append({'service': service, 'error': "Skipped"})
+                self._failed_services.append({'service': service, 'error': "Skipped: %s" % str(exc)})
             except NotImplementedError as exc:
                 if self.verbose: print("SKIP:", exc.__class__.__name__, exc)
                 self._failed_services.append({'service': service, 'error': "Not Implemented"})
