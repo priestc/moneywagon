@@ -1983,6 +1983,7 @@ class CounterPartyChain(Service):
 
 class EtherChain(Service):
     service_id = 55
+    name = "EtherChain"
     api_homepage = "https://etherchain.org/documentation/api/"
 
     def get_current_price(self, crypto, fiat):
@@ -2009,10 +2010,22 @@ class Iquidus(Service):
 
 class VertcoinInfo(Iquidus):
     service_id = 56
+    name = "Vertcoin.info"
     base_url = "http://explorer.vertcoin.info"
     supported_cryptos = ['vtc']
 
 class VTConline(Iquidus):
     service_id = 57
+    name = "VTCOnline.org"
     base_url = "https://explorer.vtconline.org"
     supported_cryptos = ['vtc']
+
+class Etherscan(Service):
+    service_id = 58
+    name = "Etherscan"
+    supported_cryptos = ['eth']
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "https://api.etherscan.io/api?module=account&action=balance&address=%s&tag=latest" % address
+        response = self.get_url(url).json()
+        return int(response['result']) / 1e18

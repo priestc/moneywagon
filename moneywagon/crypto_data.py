@@ -908,10 +908,10 @@ crypto_data = {
         'genesis_date': datetime(2015, 7, 30),
         'services': {
             'current_price': [
-                EtherChain
+                Cryptonator, EtherChain
             ],
             'address_balance': [
-                EtherChain
+                Etherscan, EtherChain
             ],
             'historical_transactions': [
 
