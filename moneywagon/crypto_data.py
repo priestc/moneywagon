@@ -197,7 +197,7 @@ crypto_data = {
             ]
         },
     },
-    'vtc': {,
+    'vtc': {
         'name': 'Vertcoin',
         'address_version_byte': 71,
         'bip44_coin_type': 0x8000001c,
