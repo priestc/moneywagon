@@ -1996,3 +1996,23 @@ class EtherChain(Service):
         url = "https://etherchain.org/api/account/%s" % address
         data = self.get_url(url).json()['data']
         return data[0]['balance'] / 1e18
+
+class Iquidus(Service):
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "%s/ext/getbalance/%s" % (self.base_url, address)
+        response = self.get_url(url).json()
+
+        if type(response) == dict and response.get('error') == 'address not found.':
+            return 0
+
+        return response
+
+class VertcoinInfo(Iquidus):
+    service_id = 56
+    base_url = "http://explorer.vertcoin.info"
+    supported_cryptos = ['vtc']
+
+class VTConline(Iquidus):
+    service_id = 57
+    base_url = "https://explorer.vtconline.org"
+    supported_cryptos = ['vtc']

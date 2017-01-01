@@ -45,9 +45,11 @@ def fetch_wallet_balances(wallets, fiat, **modes):
                 ), address) for crypto, address in wallets
             ))
 
-            done, not_done = futures.wait(future_to_key, return_when=futures.FIRST_EXCEPTION)
+            done, not_done = futures.wait(future_to_key, return_when=futures.ALL_COMPLETED)
             if len(not_done) > 0:
-                raise not_done.pop().exception()
+                print (not_done)
+                import debug
+                raise Exception("Broke") #not_done.pop().exception()
 
             for future in done:
                 key = future_to_key[future]

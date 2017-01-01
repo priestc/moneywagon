@@ -197,7 +197,7 @@ crypto_data = {
             ]
         },
     },
-    'vtc': {
+    'vtc': {,
         'name': 'Vertcoin',
         'address_version_byte': 71,
         'bip44_coin_type': 0x8000001c,
@@ -208,10 +208,10 @@ crypto_data = {
                 Cryptonator, ChainSo
             ],
             'address_balance': [
-                Verters, ProHashing
+                VTConline, VertcoinInfo, Verters
             ],
             'historical_transactions': [
-                Verters, ProHashing
+                Verters,
             ],
             'single_transaction': [
                 Verters
@@ -223,7 +223,7 @@ crypto_data = {
                 Verters
             ],
             'get_block': [
-                Verters, ProHashing
+                Verters,
             ]
         },
     },

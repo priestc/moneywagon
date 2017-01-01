@@ -43,8 +43,8 @@ def get_address_balance(crypto, address=None, addresses=None, services=None, **m
         services, AddressBalance, args, modes=modes
     )
 
-    if addresses and 'total_balance' not in results:
-        results['total'] = sum(results.values())
+    if modes.get('private') and addresses:
+        results['total_balance'] = sum(results.values())
 
     if modes.get('private') and modes.get('report_services', False):
         # private mode does not return services (its not practical),
