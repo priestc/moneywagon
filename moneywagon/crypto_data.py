@@ -16,7 +16,7 @@ crypto_data = {
         'genesis_date': datetime(2009, 1, 12),
         'services': {
             'current_price': [
-                Bitstamp, Winkdex, BTCE, BTER, Cryptonator, ChainSo
+                Bitstamp, GDAX, Winkdex, BTCE, BTER, Cryptonator, ChainSo
             ],
             'address_balance': [
                 Toshi, BlockCypher, Blockr, ChainSo,
@@ -39,7 +39,7 @@ crypto_data = {
                 BitGo, NeoCrypto
             ],
             'get_block': [
-                BitpayInsight, ChainRadar, Toshi, Blockr, BlockExplorerCom, ChainSo, BitGo, NeoCrypto
+                BitpayInsight, ChainRadar, Toshi, Blockr, OKcoin, BlockExplorerCom, ChainSo, BitGo, NeoCrypto
             ],
             "get_optimal_fee": [
                 BitGo, BlockCypher, CoinTape, BitcoinFees21
@@ -54,7 +54,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 10, 7),
         'services': {
             'current_price': [
-                BTCE, ChainSo, BTER, Cryptonator
+                BTCE, GDAX, ChainSo, BTER, Cryptonator
             ],
             'address_balance': [
                 BlockCypher, Blockr, ChainSo, ProHashing
@@ -72,7 +72,7 @@ crypto_data = {
                 ChainSo, Blockr
             ],
             'get_block': [
-                ChainSo, Blockr, ProHashing
+                ChainSo, Blockr, OKcoin, ProHashing
             ]
         },
     },
@@ -908,7 +908,7 @@ crypto_data = {
         'genesis_date': datetime(2015, 7, 30),
         'services': {
             'current_price': [
-                Cryptonator, EtherChain
+                GDAX, EtherChain, Cryptonator
             ],
             'address_balance': [
                 Etherscan, EtherChain

@@ -118,9 +118,6 @@ class Service(object):
 
         return response
 
-    def check_error(self, response):
-        return
-
     def get_current_price(self, crypto, fiat):
         """
         Makes call to external service, and returns the price for given
@@ -275,6 +272,8 @@ class Service(object):
         merkle_root - str (lower case)
         previous_hash - str (lower case)
         next_hash - str (lower case) (or `None` of its the latest block)
+        miner - name of miner that first relayed this block
+        version - block version
         """
         raise NotImplementedError(
             "This service does not support getting getting block data. "

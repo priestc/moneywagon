@@ -2029,3 +2029,85 @@ class Etherscan(Service):
         url = "https://api.etherscan.io/api?module=account&action=balance&address=%s&tag=latest" % address
         response = self.get_url(url).json()
         return int(response['result']) / 1e18
+
+class GDAX(Service):
+    service_id = 59
+    name = "GDAX"
+    base_url = "https://api.gdax.com"
+    api_homepage = "https://docs.gdax.com/"
+    supported_cryptos = ['btc', 'ltc', 'eth']
+
+    def check_error(self, response):
+        if response.status_code != 200:
+            j = response.json()
+            raise Exception("GDAX returned %s error: %s" % (
+                response.status_code, j['message'])
+            )
+
+        super(GDAX, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        url = "%s/products/%s-%s/ticker" % (self.base_url, crypto.upper(), fiat.upper())
+        response = self.get_url(url).json()
+        return float(response['price'])
+
+class OKcoin(Service):
+    service_id = 60
+    name = "OKcoin"
+    exchange_base_url = "https://www.okcoin.cn"
+    block_base_url = "http://block.okcoin.cn"
+    supported_cryptos = ['btc', 'ltc']
+
+    def get_current_price(self, crypto, fiat):
+        if not fiat == 'cny':
+            raise SkipThisService("Only fiat=CNY supported")
+
+        url = "%s/api/v1/ticker.do?symbol=%s_%s" % (self.base_url, crypto.lower(), fiat.lower())
+        response = self.get_url(url).json()
+        return float(response['ticker']['last'])
+
+    def check_error(self, response):
+        j = response.json()
+        if 'error_code' in j:
+            raise Exception("OKcoin returned error code %s" % j['error_code'])
+
+        super(OKcoin, self).check_error(response)
+
+    def get_block(self, crypto, block_hash=None, block_number=None, latest=False):
+        if latest:
+            args = 'latest_block.do?'
+
+        if block_number or block_number == 0:
+            args = "block_height.do?block_height=%s&" % block_number
+
+        if block_hash:
+            raise SkipThisService("Block by hash not supported")
+
+        url = "%s/api/v1/%ssymbol=%s" % (
+            self.block_base_url, args, crypto.upper()
+        )
+        r = self.get_url(url).json()
+
+        ret = dict(
+            block_number=r['height'],
+            size=r['size'],
+            time=arrow.get(r['time'] / 1000).datetime,
+            hash=r['hash'],
+            txids=r['txid'],
+            tx_count=r['txcount'],
+            version=r['version'],
+            mining_difficulty=r['difficulty'],
+            total_fees=r['fee'],
+            sent_value=r['totalOut']
+        )
+
+        if r.get('relayed_by'):
+            ret['miner'] = r['relayed_by']
+
+        if r.get('previousblockhash'):
+            ret['previous_hash'] = r['previousblockhash']
+
+        if r.get('nextblockhash'):
+            ret['next_hash'] = r['nextblockhash']
+
+        return ret
