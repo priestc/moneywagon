@@ -153,7 +153,7 @@ class BlockSeer(Service):
 
     def check_error(self, response):
         if 'error' in response.json():
-            raise SkipThisService("BlockSeer returned error: %s" % response.json()['error'])
+            raise ServiceError("BlockSeer returned error: %s" % response.json()['error'])
 
     def get_balance(self, crypto, address, confirmations=1):
         url = self.json_address_balance_url.format(address=address)
@@ -421,7 +421,7 @@ class Toshi(Service):
 
     def check_error(self, response):
         if 'error' in response.json():
-            raise SkipThisService("Toshi returned error: %s" % response.json()['error'])
+            raise ServiceError("Toshi returned error: %s" % response.json()['error'])
 
         if response.status_code == 404:
             return # don't skip on 404
@@ -696,7 +696,7 @@ class BitEasy(Service):
     def check_error(self, response):
         if response.status_code == 404:
             msg = "; ".join(response.json()['messages'])
-            raise SkipThisService("BitEasy returned 404: %s" % msg)
+            raise ServiceError("BitEasy returned 404: %s" % msg)
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://api.biteasy.com/blockchain/v1/addresses/" + address
@@ -1806,7 +1806,7 @@ class CounterParty(Service):
         j = response.json()
         if 'error' in j:
             e = j['error']
-            raise Exception("Error code: %s %s" % (e['code'], e['message']))
+            raise ServiceError("Error code: %s %s" % (e['code'], e['message']))
 
         super(CounterParty, self).check_error(response)
 
@@ -2040,7 +2040,7 @@ class GDAX(Service):
     def check_error(self, response):
         if response.status_code != 200:
             j = response.json()
-            raise Exception("GDAX returned %s error: %s" % (
+            raise ServiceError("GDAX returned %s error: %s" % (
                 response.status_code, j['message'])
             )
 
@@ -2071,7 +2071,7 @@ class OKcoin(Service):
     def check_error(self, response):
         j = response.json()
         if 'error_code' in j:
-            raise Exception("OKcoin returned error code %s" % j['error_code'])
+            raise ServiceError("OKcoin returned error code %s" % j['error_code'])
 
         super(OKcoin, self).check_error(response)
 
@@ -2202,7 +2202,7 @@ class Bittrex(Service):
     def check_error(self, response):
         j = response.json()
         if not j['success']:
-            raise SkipThisService("Bittrex returned error: %s" % j['message'])
+            raise ServiceError("Bittrex returned error: %s" % j['message'])
 
         super(Bittrex, self).check_error(response)
 
@@ -2219,7 +2219,7 @@ class Bittrex(Service):
 
         try:
             response = self.get_url(url).json()
-        except SkipThisService:
+        except ServiceError:
             if crypto == 'btc':
                 raise # avoid infnite loop
             btc_exchange = self.get_current_price('btc', fiat)
@@ -2236,7 +2236,7 @@ class Huobi(Service):
     def check_error(self, response):
         if response.status_code != 200:
             j = response.json()
-            raise SkipThisService("Huobi returned error: %s" % j['error'])
+            raise ServiceError("Huobi returned error: %s" % j['error'])
 
         super(Huobi, self).check_error(response)
 
