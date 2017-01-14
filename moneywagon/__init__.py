@@ -17,14 +17,19 @@ if sys.version_info <= (3,0):
     is_py2 = True
 
 
-def get_current_price(crypto, fiat, services=None, **modes):
+def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
     if not services:
         services = get_optimal_services(crypto, 'current_price')
 
+    args = {'crypto': crypto, 'fiat': fiat, 'convert_to': convert_to}
     return enforce_service_mode(
-        services, CurrentPrice, {'crypto': crypto, 'fiat': fiat}, modes=modes
+        services, CurrentPrice, args, modes=modes
     )
 
+def get_fiat_exchange_rate(from_fiat, to_fiat):
+    from moneywagon.services import FreeCurrencyConverter
+    c = FreeCurrencyConverter()
+    return c.get_fiat_exchange_rate(from_fiat, to_fiat)
 
 def get_address_balance(crypto, address=None, addresses=None, services=None, **modes):
     if not services:
@@ -429,11 +434,15 @@ class UnspentOutputs(AutoFallbackFetcher):
 
 
 class CurrentPrice(AutoFallbackFetcher):
-    def action(self, crypto, fiat):
+    def action(self, crypto, fiat, convert_to=None):
         if crypto.lower() == fiat.lower():
             return (1.0, 'math')
 
-        return self._try_services('get_current_price', crypto=crypto, fiat=fiat)
+        ret = self._try_services('get_current_price', crypto=crypto, fiat=fiat)
+        if convert_to:
+            return ret / get_fiat_exchange_rate(from_fiat=fiat, to_fiat=convert_to)
+        return ret
+
 
     def simplify_for_average(self, value):
         return value

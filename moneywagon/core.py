@@ -5,7 +5,7 @@ import time
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.11.7'
+useragent = 'moneywagon 1.11.8'
 
 class ServiceDisagreement(Exception):
     pass

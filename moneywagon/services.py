@@ -2062,7 +2062,9 @@ class OKcoin(Service):
         if not fiat == 'cny':
             raise SkipThisService("Only fiat=CNY supported")
 
-        url = "%s/api/v1/ticker.do?symbol=%s_%s" % (self.base_url, crypto.lower(), fiat.lower())
+        url = "%s/api/v1/ticker.do?symbol=%s_%s" % (
+            self.exchange_base_url, crypto.lower(), fiat.lower()
+        )
         response = self.get_url(url).json()
         return float(response['ticker']['last'])
 
@@ -2111,3 +2113,27 @@ class OKcoin(Service):
             ret['next_hash'] = r['nextblockhash']
 
         return ret
+
+class FreeCurrencyConverter(Service):
+    service_id = 61
+    base_url = "http://free.currencyconverterapi.com"
+    api_homepage = "http://www.currencyconverterapi.com/docs"
+
+    def get_fiat_exchange_rate(self, from_fiat, to_fiat):
+        pair = "%s_%s" % (to_fiat.upper(), from_fiat.upper())
+        url = "%s/api/v3/convert?q=%s&compact=y" % (
+            self.base_url, pair
+        )
+        response = self.get_url(url).json()
+        return response[pair]['val']
+
+class BTCChina(Service):
+    service_id = 62
+    api_homepage = "https://www.btcc.com/apidocs/spot-exchange-market-data-rest-api#ticker"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://data.btcchina.com/data/ticker?market=%s%s" % (
+            crypto.lower(), fiat.lower()
+        )
+        response = self.get_url(url).json()
+        return float(response['ticker']['last'])

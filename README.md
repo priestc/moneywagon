@@ -416,6 +416,20 @@ Traceback (most recent call last):
 Exception: Can not find price for nxt to mex
 ```
 
+There is also a `convert_to` argument that can be used to convert the resulting
+exchange rate to another fiat currency. This feature is useful to be combined with
+the `services` argument:
+
+```python
+>>> from moneywagon import get_current_price
+>>> from moneywagon.services import OKcoin, GDAX
+>>> get_current_price('btc', 'cny', convert_to='usd', services=[OKcoin])
+827.5890061463529
+>>> get_current_price('btc', 'usd', services=[GDAX])
+831.86
+```
+
+
 ## Historical Cryptocurrency Price
 
 
