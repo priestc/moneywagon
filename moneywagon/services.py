@@ -2130,6 +2130,7 @@ class FreeCurrencyConverter(Service):
 class BTCChina(Service):
     service_id = 62
     api_homepage = "https://www.btcc.com/apidocs/spot-exchange-market-data-rest-api#ticker"
+    name = "BTCChina"
 
     def get_current_price(self, crypto, fiat):
         url = "https://data.btcchina.com/data/ticker?market=%s%s" % (
@@ -2141,6 +2142,7 @@ class BTCChina(Service):
 class Gemini(Service):
     service_id = 63
     api_homepage = "https://docs.gemini.com/rest-api/"
+    name = "Gemini"
 
     def get_current_price(self, crypto, fiat):
         url = "https://api.gemini.com/v1/pubticker/%s%s" % (
@@ -2148,3 +2150,47 @@ class Gemini(Service):
         )
         response = self.get_url(url).json()
         return float(response['last'])
+
+class CexIO(Service):
+    service_id = 64
+    api_homepage = "https://cex.io/rest-api"
+    name = "Cex.io"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://cex.io/api/last_price/%s/%s" % (
+            crypto.upper(), fiat.upper()
+        )
+        response = self.get_url(url).json()
+        return float(response['lprice'])
+
+class Poloniex(Service):
+    service_id = 65
+    api_homepage = "https://poloniex.com/support/api/"
+    name = "Poloniex"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://poloniex.com/public?command=returnTicker"
+        response = self.get_url(url).json()
+
+        is_usd = False
+        if fiat.lower() == 'usd':
+            fiat = 'usdt'
+            is_usd = True
+
+        find_pair = "%s_%s" % (fiat.upper(), crypto.upper())
+        for pair, data in response.items():
+            if pair == find_pair:
+                return float(data['last'])
+
+        reverse_pair = "%s_%s" % (crypto.upper(), fiat.upper())
+        for pair, data in response.items():
+            if pair == reverse_pair:
+                return 1 / float(data['last'])
+
+        btc_pair = "BTC_%s" % crypto.upper()
+        if is_usd and btc_pair in response:
+            btc_rate = float(response['USDT_BTC']['last'])
+            fiat_exchange = float(response[btc_pair]['last'])
+            return fiat_exchange * btc_rate
+
+        raise SkipThisService("Pair %s not supported" % find_pair)
