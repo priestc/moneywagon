@@ -16,7 +16,8 @@ crypto_data = {
         'genesis_date': datetime(2009, 1, 12),
         'services': {
             'current_price': [
-                Bitstamp, GDAX, Winkdex, BTCE, BTER, Cryptonator, ChainSo
+                Bitstamp, GDAX, Winkdex, BTCE, BTER, BTCChina, Cryptonator, ChainSo,
+                Gemini
             ],
             'address_balance': [
                 Toshi, BlockCypher, Blockr, ChainSo,
@@ -54,7 +55,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 10, 7),
         'services': {
             'current_price': [
-                BTCE, GDAX, ChainSo, BTER, Cryptonator
+                BTCE, GDAX, ChainSo, BTER, BTCChina, Cryptonator
             ],
             'address_balance': [
                 BlockCypher, Blockr, ChainSo, ProHashing

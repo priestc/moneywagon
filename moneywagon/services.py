@@ -2137,3 +2137,14 @@ class BTCChina(Service):
         )
         response = self.get_url(url).json()
         return float(response['ticker']['last'])
+
+class Gemini(Service):
+    service_id = 63
+    api_homepage = "https://docs.gemini.com/rest-api/"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.gemini.com/v1/pubticker/%s%s" % (
+            crypto.lower(), fiat.lower()
+        )
+        response = self.get_url(url).json()
+        return float(response['last'])
