@@ -17,7 +17,7 @@ crypto_data = {
         'services': {
             'current_price': [
                 Bitstamp, GDAX, Winkdex, BTCE, BTER, BTCChina, Cryptonator, ChainSo,
-                Gemini, CexIO, Poloniex
+                Gemini, CexIO, Poloniex, Bittrex, Huobi
             ],
             'address_balance': [
                 Toshi, BlockCypher, Blockr, ChainSo,
@@ -55,7 +55,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 10, 7),
         'services': {
             'current_price': [
-                BTCE, GDAX, ChainSo, BTER, CexIO, Poloniex, BTCChina, Cryptonator
+                BTCE, GDAX, ChainSo, BTER, CexIO, Poloniex, Bittrex, BTCChina, Cryptonator
             ],
             'address_balance': [
                 BlockCypher, Blockr, ChainSo, ProHashing
@@ -86,7 +86,7 @@ crypto_data = {
         'genesis_date': datetime(2012, 8, 19),
         'services': {
             'current_price': [
-                BTCE, ChainSo, BTER, Poloniex, Cryptonator
+                BTCE, ChainSo, Bittrex, BTER, Poloniex, Cryptonator
             ],
             'address_balance': [
                 Blockr, Mintr
@@ -116,7 +116,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 12, 6),
         'services': {
             'current_price': [
-                BTER, Poloniex, ChainSo, Cryptonator
+                BTER, Poloniex, Bittrex, ChainSo, Cryptonator
             ],
             'address_balance': [
                 BlockCypher, ChainSo, DogeChainInfo, ProHashing
@@ -146,7 +146,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 10, 29),
         'services': {
             'current_price': [
-                ChainSo, Poloniex, Cryptonator
+                Bittrex, ChainSo, Poloniex, Cryptonator
             ],
             'address_balance': [
                 NXTPortal
@@ -176,7 +176,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 2, 23),
         'services': {
             'current_price': [
-                Poloniex, Cryptonator, ChainSo
+                Poloniex, Bittrex, Cryptonator, ChainSo
             ],
             'address_balance': [
                 MYRCryptap, CryptapUS, BirdOnWheels, ProHashing
@@ -206,7 +206,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 8),
         'services': {
             'current_price': [
-                Poloniex, Cryptonator, ChainSo
+                Poloniex, Bittrex, Cryptonator, ChainSo
             ],
             'address_balance': [
                 VTConline, VertcoinInfo, Verters
@@ -236,7 +236,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 4, 16),
         'services': {
             'current_price': [
-                ChainSo, Cryptonator
+                Bittrex, ChainSo, Cryptonator
             ],
             'address_balance': [
                 ProHashing
@@ -266,7 +266,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 19),
         'services': {
             'current_price': [
-                Poloniex, ChainSo, Cryptonator
+                Bittrex, Poloniex, ChainSo, Cryptonator
             ],
             'address_balance': [
                 ProHashing, CryptoID, SiampmDashInsight
@@ -297,7 +297,7 @@ crypto_data = {
         'proof_of_stake': True,
         'services': {
             'current_price': [
-                ChainSo, Cryptonator
+                Bittrex, ChainSo, Cryptonator
             ],
             'address_balance': [
                 ReddcoinCom, ProHashing
@@ -340,7 +340,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 2, 2),
         'services': {
             'current_price': [
-                Cryptonator
+                Bittrex, Cryptonator
             ],
             'address_balance': [
                 CryptoID, ProHashing
@@ -371,7 +371,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 11, 5),
         'services': {
             'current_price': [
-                Cryptonator
+                Bittrex, Cryptonator
             ],
             'address_balance': [
                 Mintr
@@ -433,7 +433,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-                Cryptonator
+                Bittrex, Cryptonator
             ],
             'address_balance': [
                 BlockExplorersNet
@@ -464,7 +464,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-                Cryptonator
+                Bittrex, Cryptonator
             ],
             'address_balance': [
                 CryptoID, BlockExplorersNet
@@ -495,7 +495,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-                Poloniex, Cryptonator
+                Bittrex, Poloniex, Cryptonator
             ],
             'address_balance': [
 
@@ -619,7 +619,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 21),
         'services': {
             'current_price': [
-                Cryptonator
+                Bittrex, Cryptonator
             ],
             'address_balance': [
                 CryptoID, ProHashing
@@ -712,7 +712,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 10, 17),
         'services': {
             'current_price': [
-                Cryptonator
+                Bittrex, Cryptonator
             ],
             'address_balance': [
                 UNOCryptap, CryptoID
@@ -771,7 +771,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 3, 1),
         'services': {
             'current_price': [
-                Poloniex, Cryptonator
+                Bittrex, Poloniex, Cryptonator
             ],
         }
     },
@@ -815,7 +815,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-                Cryptonator
+                Bittrex, Cryptonator
             ],
             'address_balance': [
                 BlockExperts
@@ -878,7 +878,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 2),
         'services': {
             'current_price': [
-                Poloniex, Cryptonator
+                Bittrex, Poloniex, Cryptonator
             ],
             'address_balance': [
                 CoinDaddy1, CoinDaddy2, CounterPartyChain
@@ -909,7 +909,7 @@ crypto_data = {
         'genesis_date': datetime(2015, 7, 30),
         'services': {
             'current_price': [
-                Poloniex, GDAX, CexIO, EtherChain, Cryptonator
+                Poloniex, GDAX, Bittrex, CexIO, EtherChain, Cryptonator
             ],
             'address_balance': [
                 Etherscan, EtherChain
@@ -940,7 +940,7 @@ crypto_data = {
         'genesis_date': datetime(2016, 7, 20),
         'services': {
             'current_price': [
-                Poloniex
+                Poloniex, Bittrex
             ],
         },
     },

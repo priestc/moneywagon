@@ -2194,3 +2194,55 @@ class Poloniex(Service):
             return fiat_exchange * btc_rate
 
         raise SkipThisService("Pair %s not supported" % find_pair)
+
+
+class Bittrex(Service):
+    service_id = 66
+
+    def check_error(self, response):
+        j = response.json()
+        if not j['success']:
+            raise SkipThisService("Bittrex returned error: %s" % j['message'])
+
+        super(Bittrex, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        if fiat.lower() == 'usd':
+            fiat = 'usdt'
+
+        if crypto == fiat:
+            return 1.0
+
+        url = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s" % (
+            fiat.upper(), crypto.upper()
+        )
+
+        try:
+            response = self.get_url(url).json()
+        except SkipThisService:
+            if crypto == 'btc':
+                raise # avoid infnite loop
+            btc_exchange = self.get_current_price('btc', fiat)
+            btc_price = self.get_current_price(crypto, 'btc')
+            return btc_price * btc_exchange
+
+        return response['result']['Last']
+
+class Huobi(Service):
+    service_id = 67
+    api_homepage = "https://www.huobi.com/help/index.php?a=market_help"
+    name = "Huobi"
+
+    def check_error(self, response):
+        if response.status_code != 200:
+            j = response.json()
+            raise SkipThisService("Huobi returned error: %s" % j['error'])
+
+        super(Huobi, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        if fiat.lower() != "cny":
+            raise SkipThisService("CNY only fiat supported")
+        url = "http://api.huobi.com/staticmarket/ticker_%s_json.js" % crypto.lower()
+        response = self.get_url(url).json()
+        return response['ticker']['last']
