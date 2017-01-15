@@ -1047,7 +1047,7 @@ class BitpayInsight(Service):
         if response.status_code == 400:
             raise ServiceError(response.content)
 
-        super(BitPayInsight, self).check_error(response)
+        super(BitpayInsight, self).check_error(response)
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s://%s/%s/addr/%s/balance" % (self.protocol, self.domain, self.api_tag, address)
