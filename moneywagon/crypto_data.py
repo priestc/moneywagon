@@ -116,7 +116,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 12, 6),
         'services': {
             'current_price': [
-                BTER, Poloniex, Bittrex, ChainSo, Cryptonator
+                Bittrex, Poloniex, Cryptonator, ChainSo, BTER
             ],
             'address_balance': [
                 BlockCypher, ChainSo, DogeChainInfo, ProHashing

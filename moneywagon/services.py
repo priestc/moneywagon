@@ -155,6 +155,8 @@ class BlockSeer(Service):
         if 'error' in response.json():
             raise ServiceError("BlockSeer returned error: %s" % response.json()['error'])
 
+        super(BlockSeer, self).check_error(response)
+
     def get_balance(self, crypto, address, confirmations=1):
         url = self.json_address_balance_url.format(address=address)
         return self.get_url(url).json()['data']['balance'] / 1e8
@@ -520,6 +522,13 @@ class Cryptonator(Service):
     api_homepage = "https://www.cryptonator.com/api"
     name = "Cryptonator"
 
+    def check_error(self, response):
+        error = response.json().get('error')
+        if error:
+            raise ServiceError("Cryptonator returned error: %s" % error)
+
+        super(Cryptonator, self).check_error(response)
+
     def get_current_price(self, crypto, fiat):
         pair = "%s-%s" % (crypto, fiat)
         url = "https://www.cryptonator.com/api/ticker/%s" % pair
@@ -697,6 +706,8 @@ class BitEasy(Service):
         if response.status_code == 404:
             msg = "; ".join(response.json()['messages'])
             raise ServiceError("BitEasy returned 404: %s" % msg)
+
+        super(BitEasy, self).check_error(response)
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://api.biteasy.com/blockchain/v1/addresses/" + address
@@ -1035,6 +1046,8 @@ class BitpayInsight(Service):
     def check_error(self, response):
         if response.status_code == 400:
             raise ServiceError(response.content)
+
+        super(BitPayInsight, self).check_error(response)
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s://%s/%s/addr/%s/balance" % (self.protocol, self.domain, self.api_tag, address)

@@ -412,8 +412,8 @@ If the API has changed, or the currency pairs is not implemented, an exception w
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
   File "moneywagon/__init__.py", line 22, in get_current_price
-    raise Exception("Can not find price for %s to %s" % (crypto, fiat))
-Exception: Can not find price for nxt to mex
+    raise NoService("Can not find price for %s to %s" % (crypto, fiat))
+NoService: Can not find price for nxt to mex
 ```
 
 There is also a `convert_to` argument that can be used to convert the resulting
