@@ -4,10 +4,12 @@ from setuptools import setup, find_packages
 
 import sys
 
+extra_install = []
 if sys.version_info <= (3,1):
-    extra_install = ['futures']
-else:
-    extra_install = []
+    extra_install.append('futures')
+
+if sys.version_info <= (3,6):
+    extra_install.append('pysha3')
 
 setup(
     name="moneywagon",

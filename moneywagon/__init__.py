@@ -2,6 +2,7 @@ from __future__ import print_function
 import sys
 from binascii import hexlify
 from tabulate import tabulate
+import hashlib
 
 from base58 import b58decode_check
 
@@ -231,6 +232,9 @@ def generate_keypair(crypto, seed, password=None):
     Generate a private key and publickey for any currency, given a seed.
     That seed can be random, or a brainwallet phrase.
     """
+    if crypto in ['eth', 'etc']:
+        raise Exception()
+
     pub_byte, priv_byte = get_magic_bytes(crypto)
     priv = sha256(seed)
     pub = privtopub(priv)

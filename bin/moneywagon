@@ -241,12 +241,15 @@ elif argz.subparser_name == 'wallet-balance':
 
     rows = []
     cumm_amount = 0
+    errors = []
     for d in fetch_wallet_balances(wallets, fiat, **modes):
         cumm_amount += d['fiat_value']
         rows.append([
             d['crypto'], d['crypto_value'], d['fiat_value'],
             d['conversion_price'], d['price_source']
         ])
+        if d['error']:
+            errors.append(d['error'])
 
     if argz.collapse:
         # collapse similar cryptos into a single line
@@ -271,7 +274,11 @@ elif argz.subparser_name == 'wallet-balance':
     rows = [[x[0], x[1], "%.2f %s" % (x[2], fiat), "%f %s/%s" % (x[3], fiat, x[0]), x[4]] for x in rows]
 
     rows.append(['------', 'Total:', "%.2f %s" % (cumm_amount, fiat), '------'])
-    print(tabulate(rows, headers=['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Source'], tablefmt=argz.format))
+
+    headers = ['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Price Source']
+    print(tabulate(rows, headers=headers, tablefmt=argz.format))
+    for error in errors:
+        print(error)
 
 elif argz.subparser_name == 'service-table':
     print(service_table(format=argz.format or 'simple'))

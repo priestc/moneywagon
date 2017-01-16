@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from concurrent import futures
 from moneywagon import get_address_balance, get_current_price
+from moneywagon.core import NoService
 
 def fetch_wallet_balances(wallets, fiat, **modes):
     """
@@ -22,10 +23,16 @@ def fetch_wallet_balances(wallets, fiat, **modes):
     if not modes.get('async', False):
         # synchronous fetching
         for crypto in price_fetch:
-            prices[crypto] = get_current_price(crypto, fiat, report_services=True, **modes)
+            try:
+                prices[crypto] = {'price': get_current_price(crypto, fiat, report_services=True, **modes)}
+            except NoService as exc:
+                prices[crypto] = {'error': str(exc)}
 
         for crypto, address in wallets:
-            balances[address] = get_address_balance(crypto, address.strip(), **modes)
+            try:
+                balances[address] = {'balance': get_address_balance(crypto, address.strip(), **modes)}
+            except NoService as exc:
+                balances[address] = {'error': str(exc)}
 
     else:
         # asynchronous fetching
@@ -64,15 +71,27 @@ def fetch_wallet_balances(wallets, fiat, **modes):
     ret = []
 
     for crypto, address in wallets:
-        crypto_value = balances[address]
-        sources, fiat_price = prices[crypto]
+        error = None
+        if 'balance' in balances[address]:
+            crypto_value = balances[address]['balance']
+        else:
+            crypto_value = 0
+            error = balances[address]['error']
+
+        if 'price' in prices[crypto]:
+            sources, fiat_price = prices[crypto]['price']
+        else:
+            sources, fiat_price = None, 0
+            error = prices[crypto]['error']
+
         ret.append({
             'crypto': crypto,
             'address': address,
             'crypto_value': crypto_value,
             'fiat_value': crypto_value * fiat_price,
             'conversion_price': fiat_price,
-            'price_source': sources[0].name
+            'price_source': sources[0].name,
+            'error': error
         })
 
     return ret
