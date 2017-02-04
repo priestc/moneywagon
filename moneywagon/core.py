@@ -25,6 +25,13 @@ class NoData(Exception):
 class RevertToPrivateMode(NotImplementedError):
     pass
 
+class ClassProperty(property):
+    """
+    From http://stackoverflow.com/a/1383402/118495
+    """
+    def __get__(self, cls, owner):
+        return self.fget.__get__(None, owner)()
+
 class Service(object):
     """
     Represents a blockchain service running an Http interface.
@@ -33,13 +40,17 @@ class Service(object):
     """
     domain = None # optional, useful if the service will have subclasses
     api_homepage = '' # link to page defining the API.
-    name = ''
     protocol = 'https'
     supported_cryptos = None # must be a list of lower case currency codes.
     explorer_address_url = None # url to block explerer page. Use {address} and {crypto} as placeholders.
     explorer_tx_url = None # {txid}
     explorer_blocknum_url = None # {blocknum}
     explorer_blockhash_url = None # {blockhash}
+
+    @ClassProperty
+    @classmethod
+    def name(cls):
+        return cls.__name__
 
     def __init__(self, verbose=False, responses=None, timeout=None, random_wait_seconds=0):
         self.responses = responses or {} # for caching
