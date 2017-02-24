@@ -126,7 +126,7 @@ crypto_data = {
                 BlockCypher, ChainSo, ProHashing
             ],
             'single_transaction': [
-                BlockCypher
+                BlockCypher, ChainSo
             ],
             'push_tx': [
                 ChainSo
