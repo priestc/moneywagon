@@ -328,7 +328,13 @@ class Blockr(Service):
         return transactions
 
     def _format_single_tx(self, tx):
-        ins = [{'address': x['address'], 'amount': currency_to_protocol(x['amount']) * -1} for x in tx['vins']]
+        ins = [
+            {
+                'address': x['address'],
+                'amount': currency_to_protocol(x['amount']) * -1,
+                'txid': x['vout_tx']
+            } for x in tx['vins']
+        ]
         outs = [
             {
                 'address': x['address'],
