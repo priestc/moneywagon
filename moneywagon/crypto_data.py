@@ -239,7 +239,7 @@ crypto_data = {
                 Bittrex, ChainSo, Cryptonator
             ],
             'address_balance': [
-                ProHashing
+                FeathercoinCom2
             ],
             'historical_transactions': [
                 ProHashing

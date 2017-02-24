@@ -114,3 +114,14 @@ class FTCc(BitpayInsight):
     supported_cryptos = ['ftc']
     domain = "block.ftc-c.com"
     name = "Feathercoin China"
+
+class FeathercoinCom(Service):
+    service_id = 21
+    supported_cryptos = ['ftc']
+    api_homepage = "http://api.feathercoin.com/"
+    name = "Feathercoin.com"
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url= "http://api.feathercoin.com/?output=balance&address=%s&json=1" % address
+        response = self.get_url(url)
+        return float(response.json()['balance'])

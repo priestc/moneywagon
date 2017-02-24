@@ -888,18 +888,6 @@ class Atorox(BitcoinAbe):
 
 ##################################
 
-class FeathercoinCom(Service):
-    service_id = 21
-    supported_cryptos = ['ftc']
-    api_homepage = "http://api.feathercoin.com/"
-    name = "Feathercoin.com"
-
-    def get_balance(self, crypto, address, confirmations=1):
-        url= "http://api.feathercoin.com/?output=balance&address=%s&json=1" % address
-        response = self.get_url(url)
-        return float(response.json()['balance'])
-
-
 class NXTPortal(Service):
     service_id = 22
     supported_cryptos = ['nxt']
@@ -2259,3 +2247,10 @@ class Huobi(Service):
         url = "http://api.huobi.com/staticmarket/ticker_%s_json.js" % crypto.lower()
         response = self.get_url(url).json()
         return response['ticker']['last']
+
+
+class FeathercoinCom2(BitcoinAbe):
+    service_id = 68
+    supported_cryptos = ['ftc']
+    base_url = "http://explorer.feathercoin.com/chain/feathercoin"
+    name = "Feathercoin.com (Abe)"
