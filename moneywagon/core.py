@@ -178,7 +178,7 @@ class Service(object):
         block_number - integer, which block numbe this tx is confirmed in.
         hex - the entire tx encoded in hex format
         inputs - list of {address:, amount:}, amount is in satoshi
-        outputs - list of {address:, amount:}, amount is in satoshi
+        outputs - list of {address:, amount:, scriptPubKey:}, amount is in satoshi, scriptPubKey is hex
         txid
         total_out
         confirmations

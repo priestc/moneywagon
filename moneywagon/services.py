@@ -316,7 +316,13 @@ class Blockr(Service):
 
     def _format_single_tx(self, tx):
         ins = [{'address': x['address'], 'amount': currency_to_protocol(x['amount']) * -1} for x in tx['vins']]
-        outs = [{'address': x['address'], 'amount': currency_to_protocol(x['amount'])} for x in tx['vouts']]
+        outs = [
+            {
+                'address': x['address'],
+                'amount': currency_to_protocol(x['amount']),
+                'scriptPubKey': x['extras']['script']
+            } for x in tx['vouts']
+        ]
 
         return dict(
             time=arrow.get(tx['time_utc']).datetime,
