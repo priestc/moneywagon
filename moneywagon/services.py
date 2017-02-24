@@ -271,6 +271,36 @@ class SmartBitAU(Service):
             ))
         return txs
 
+    def get_single_transaction(self, crypto, txid):
+        url = "%s/tx/%s" % (self.base_url, txid)
+        r = self.get_url(url).json()['transaction']
+
+        ins = [
+            {
+                'address': x['addresses'][0],
+                'amount': x['value_int'],
+                'txid': x['txid']
+            } for x in r['inputs']
+        ]
+        outs = [
+            {
+                'address': x['addresses'][0],
+                'amount': x['value_int'],
+                'scriptPubKey': x['script_pub_key']['hex']
+            } for x in r['outputs']
+        ]
+
+        return dict(
+            time=arrow.get(r['time']).datetime,
+            size=r['size'],
+            block_number=r['block'],
+            inputs=ins,
+            outputs=outs,
+            txid=txid,
+            confirmations=r['confirmations'],
+            fee=r['fee_int']
+        )
+
 
 class Blockr(Service):
     service_id = 5
@@ -645,6 +675,37 @@ class CoinPrism(Service):
 
         return transactions
 
+    def get_single_transaction(self, crypto, txid):
+        url = "%s/transactions/%s" % (self.base_url, txid)
+        r = self.get_url(url).json()
+        ins = [
+            {
+                'address': x['addresses'][0],
+                'txid': x['output_hash'],
+                'amount': x['value']
+            } for x in r['inputs']
+        ]
+
+        outs = [
+            {
+                'address': x['addresses'][0],
+                'scriptPubKey': x['script'],
+                'amount': x['value']
+            } for x in r['outputs']
+        ]
+
+        return dict(
+            time=arrow.get(r['block_time']).datetime,
+            confirmations=r.get('confirmations', 0),
+            fee=r['fees'],
+            inputs=ins,
+            outputs=outs,
+            txid=txid,
+            block_number=r['block_height'],
+            block_hash=r['block_hash']
+        )
+
+
     def push_tx(self, crypto, tx_hex):
         """
         Note: This one has not been tested yet.
@@ -729,8 +790,6 @@ class BlockChainInfo(Service):
             confirmations=(latest_block_number - block_number) if block_number else 0,
             inputs=ins,
             outputs=outs,
-            total_in=sum(x['amount'] for x in ins),
-            total_out=sum(x['amount'] for x in outs),
         )
 
 
