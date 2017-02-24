@@ -587,7 +587,8 @@ class ChainSo(Service):
         ins = [
             {
                 'address': x['address'],
-                'amount': currency_to_protocol(x['value'])
+                'amount': currency_to_protocol(x['value']),
+                'txid': x['from_output']['txid'],
             } for x in r['inputs']
         ]
 

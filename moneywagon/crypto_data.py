@@ -29,7 +29,7 @@ crypto_data = {
                 BitpayInsight, Blockonomics, NeoCrypto
             ],
             'single_transaction': [
-                BitpayInsight, Blockr, BitGo, BlockCypher, BlockExplorerCom, BlockChainInfo,
+                BitpayInsight, Blockr, BitGo, BlockCypher, BlockExplorerCom,
                 NeoCrypto, ChainSo,
             ],
             'push_tx': [
