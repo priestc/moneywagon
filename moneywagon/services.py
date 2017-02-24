@@ -644,6 +644,37 @@ class ChainSo(Service):
             txids=sorted([t['txid'] for t in r['txs']])
         )
 
+    def get_single_transaction(self, crypto, txid):
+        url = "%s/get_tx/%s/%s" % (self.base_url, crypto, txid)
+        r = self.get_url(url).json()['data']
+        tx = deserialize(str(r['tx_hex']))
+
+        outs = [
+            {
+                'address': x['address'],
+                'amount': currency_to_protocol(x['value']),
+                'scriptPubKey': [
+                    p['script'] for p in tx['outs'] if currency_to_protocol(x['value']) == p['value']
+                ][0],
+            } for x in r['outputs']
+        ]
+        ins = [
+            {
+                'address': x['address'],
+                'amount': currency_to_protocol(x['value'])
+            } for x in r['inputs']
+        ]
+
+        return dict(
+            time=arrow.get(r['time']).datetime,
+            block_hash=r['blockhash'],
+            hex=r['tx_hex'],
+            size=r['size'],
+            inputs=ins,
+            outputs=outs,
+            txid=txid,
+            confirmations=r['confirmations']
+        )
 
 class CoinPrism(Service):
     service_id = 12
