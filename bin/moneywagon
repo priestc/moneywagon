@@ -270,6 +270,8 @@ elif argz.subparser_name == 'wallet-balance':
 
         rows = new_rows.values()
 
+    rows.sort(key=lambda x: x[2], reverse=True) # order by highest fiat value first
+
     # combine fiat value and exchange rate into single cell
     rows = [[x[0], x[1], "%.2f %s" % (x[2], fiat), "%f %s/%s" % (x[3], fiat, x[0]), x[4]] for x in rows]
 
