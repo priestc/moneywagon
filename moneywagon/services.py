@@ -88,7 +88,13 @@ class BlockCypher(Service):
         url = "https://api.blockcypher.com/v1/%s/main/txs/%s" % (crypto, txid)
         tx = self.get_url(url).json()
         ins = [{'address': x['addresses'][0], 'amount': x['output_value']} for x in tx['inputs']]
-        outs = [{'address': x['addresses'][0], 'amount': x['value']} for x in tx['outputs']]
+        outs = [
+            {
+                'address': x['addresses'][0],
+                'amount': x['value'],
+                'scriptPubKey': x['script'],
+            } for x in tx['outputs']
+        ]
 
         return dict(
             txid=txid,
@@ -417,98 +423,6 @@ class Blockr(Service):
             previous_hash=r['prev_block_hash'],
             next_hash=r['next_block_hash'],
             tx_count=r['nb_txs'],
-        )
-
-
-class Toshi(Service):
-    api_homepage = "https://toshi.io/docs/"
-    service_id = 6
-    url = "https://bitcoin.toshi.io/api/v0"
-    name = "Toshi"
-
-    supported_cryptos = ['btc']
-
-    def check_error(self, response):
-        if 'error' in response.json():
-            raise ServiceError("Toshi returned error: %s" % response.json()['error'])
-
-        if response.status_code == 404:
-            return # don't skip on 404
-
-        super(Toshi, self).check_error(response)
-
-    def get_balance(self, crypto, address, confirmations=1):
-        url = "%s/addresses/%s" % (self.url, address)
-        response = self.get_url(url).json()
-        return response['balance'] / 1e8
-
-    def get_transactions(self, crypto, address, confirmations=1):
-        url = "%s/addresses/%s/transactions" % (self.url, address)
-        response = self.get_url(url)
-        if response.status_code == 404:
-            return []
-
-        j = response.json()
-        transactions = []
-        for tx in j.get('unconfirmed_transactions', []) + j['transactions']:
-            transactions.append(dict(
-                amount=sum([x['amount'] / 1e8 for x in tx['outputs'] if address in x['addresses']]),
-                txid=tx['hash'],
-                date=arrow.get(tx['block_time']).datetime if tx.get('block_time', False) else None,
-                confirmations=tx['confirmations']
-            ))
-
-        return transactions
-
-    def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "%s/addresses/%s/unspent_outputs" % (self.url, address)
-        response = self.get_url(url).json()
-        utxos = []
-        for utxo in response:
-            cons = utxo['confirmations']
-            if cons < confirmations:
-                continue
-            utxos.append(dict(
-                amount=utxo['amount'],
-                address=address,
-                output="%s:%s" % (utxo['transaction_hash'], utxo['output_index']),
-                confirmations=cons,
-                vout=utxo['output_index'],
-                txid=utxo['transaction_hash'],
-                scriptPubKey=utxo['script_hex'],
-                scriptPubKey_asm=utxo['script']
-            ))
-        return utxos
-
-
-    def push_tx(self, crypto, tx_hex):
-        url = "%s/transactions/%s" % (self.url, tx_hex)
-        return self.get_url(url).json()['hash']
-
-    def get_block(self, crypto, block_hash='', block_number='', latest=False):
-        if latest:
-            url = "%s/blocks/latest" % self.url
-        else:
-            url = "%s/blocks/%s%s" % (
-                self.url, block_hash if block_hash != '' else '',
-                block_number if block_number != '' else ''
-            )
-
-        r = self.get_url(url).json()
-        return dict(
-            block_number=r['height'],
-            confirmations=r['confirmations'],
-            time=arrow.get(r['time']).datetime,
-            sent_value=r['total_out'] / 1e8,
-            total_fees=r['fees'] / 1e8,
-            mining_difficulty=r['difficulty'],
-            size=r['size'],
-            hash=r['hash'],
-            merkle_root=r['merkle_root'],
-            previous_hash=r['previous_block_hash'],
-            next_hash=r['next_blocks'][0]['hash'] if len(r['next_blocks']) else None,
-            txids=sorted(r['transaction_hashes']),
-            tx_count=len(r['transaction_hashes'])
         )
 
 

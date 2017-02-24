@@ -20,17 +20,17 @@ crypto_data = {
                 Gemini, CexIO, Poloniex, Bittrex, Huobi
             ],
             'address_balance': [
-                Toshi, BlockCypher, Blockr, ChainSo,
+                BlockCypher, Blockr, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
                 BitpayInsight, CoinPrism, BitGo, NeoCrypto
             ],
             'historical_transactions': [
-                Blockr, Toshi, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
+                Blockr, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
                 BitpayInsight, Blockonomics, NeoCrypto
             ],
             'single_transaction': [
-                BitpayInsight, Blockr, BitGo, BlockExplorerCom, BlockChainInfo,
-                NeoCrypto
+                BitpayInsight, Blockr, BitGo, BlockCypher, BlockExplorerCom, BlockChainInfo,
+                NeoCrypto, ChainSo,
             ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
@@ -41,7 +41,7 @@ crypto_data = {
                 BitGo, NeoCrypto
             ],
             'get_block': [
-                BitpayInsight, ChainRadar, Toshi, Blockr, OKcoin, BlockExplorerCom, ChainSo, BitGo, NeoCrypto
+                BitpayInsight, ChainRadar, Blockr, OKcoin, BlockExplorerCom, ChainSo, BitGo, NeoCrypto
             ],
             "get_optimal_fee": [
                 BitGo, BlockCypher, CoinTape, BitcoinFees21
