@@ -87,7 +87,13 @@ class BlockCypher(Service):
     def get_single_transaction(self, crypto, txid):
         url = "https://api.blockcypher.com/v1/%s/main/txs/%s" % (crypto, txid)
         tx = self.get_url(url).json()
-        ins = [{'address': x['addresses'][0], 'amount': x['output_value']} for x in tx['inputs']]
+        ins = [
+            {
+                'address': x['addresses'][0],
+                'amount': x['output_value'],
+                'txid': x['prev_hash'],
+            } for x in tx['inputs']
+        ]
         outs = [
             {
                 'address': x['addresses'][0],
@@ -1052,7 +1058,13 @@ class BitpayInsight(Service):
             total_in=currency_to_protocol(d['valueIn']),
             total_out=currency_to_protocol(d['valueOut']),
             fee=currency_to_protocol(d['fees']),
-            inputs=[{'address': x['addr'], 'amount': currency_to_protocol(x['value'])} for x in d['vin']],
+            inputs=[
+                {
+                    'address': x['addr'],
+                    'amount': currency_to_protocol(x['value']),
+                    'txid': x['txid'],
+                } for x in d['vin']
+            ],
             outputs=[
                 {
                     'address': x['scriptPubKey']['addresses'][0],
@@ -1228,12 +1240,21 @@ class BitGo(Service):
             } for x in r['entries'] if x['value'] > 0
         ]
 
-        ins = [
-            {
-                'address': x['account'],
-                'amount': abs(x['value'])
-            } for x in r['entries'] if x['value'] < 0
-        ]
+        def get_inputs(ins, entries):
+            ins.sort(key=lambda x: x['previousOutputIndex'])
+            inputs = []
+            inputs_index = 0
+            for entry in entries:
+                if entry['value'] < 0:
+                    inputs.append({
+                        'address': entry['account'],
+                        'amount': abs(entry['value']),
+                        'txid': ins[inputs_index]['previousHash']
+                    })
+                    inputs_index += 1
+            return inputs
+
+        ins = get_inputs(r['inputs'], r['entries'])
 
         return dict(
             time=arrow.get(r['date']).datetime,
@@ -1242,8 +1263,6 @@ class BitGo(Service):
             fee=r['fee'],
             inputs=ins,
             outputs=outs,
-            total_in=sum(x['amount'] for x in ins),
-            total_out=sum(x['amount'] for x in outs),
             txid=txid,
             hex=r['hex'],
             block_number=r['height'],
