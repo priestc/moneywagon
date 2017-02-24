@@ -1095,7 +1095,13 @@ class BitpayInsight(Service):
             total_out=currency_to_protocol(d['valueOut']),
             fee=currency_to_protocol(d['fees']),
             inputs=[{'address': x['addr'], 'amount': currency_to_protocol(x['value'])} for x in d['vin']],
-            outputs=[{'address': x['scriptPubKey']['addresses'][0], 'amount': currency_to_protocol(x['value'])} for x in d['vout']],
+            outputs=[
+                {
+                    'address': x['scriptPubKey']['addresses'][0],
+                    'amount': currency_to_protocol(x['value']),
+                    'scriptPubKey': x['scriptPubKey']['hex']
+                } for x in d['vout']
+            ],
             txid=txid,
         )
 
