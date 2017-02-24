@@ -1,6 +1,7 @@
 import json
 from requests.auth import HTTPBasicAuth
 from .core import Service, NoService, NoData, ServiceError, SkipThisService, currency_to_protocol
+from bitcoin import deserialize
 import arrow
 
 class Bitstamp(Service):
@@ -1262,6 +1263,39 @@ class BitGo(Service):
                 vout=utxo['tx_output_n'],
             ))
         return utxos
+
+    def get_single_transaction(self, crypto, txid):
+        url = "%s/api/v1/tx/%s" % (self.base_url, txid)
+        r = self.get_url(url).json()
+        tx = deserialize(str(r['hex']))
+
+        outs = [
+            {
+                'address': x['account'],
+                'amount': x['value'],
+                'scriptPubKey': [p['script'] for p in tx['outs'] if x['value'] == p['value']][0],
+            } for x in r['entries'] if x['value'] > 0
+        ]
+
+        ins = [
+            {
+                'address': x['account'],
+                'amount': abs(x['value'])
+            } for x in r['entries'] if x['value'] < 0
+        ]
+
+        return dict(
+            time=arrow.get(r['date']).datetime,
+            size=len(r['hex']) / 2,
+            confirmations=r.get('confirmations', 0),
+            fee=r['fee'],
+            inputs=ins,
+            outputs=outs,
+            total_in=sum(x['amount'] for x in ins),
+            total_out=sum(x['amount'] for x in outs),
+            txid=txid,
+            hex=r['hex']
+        )
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
         if block_number == 0:
