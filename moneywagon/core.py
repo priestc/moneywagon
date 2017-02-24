@@ -178,7 +178,7 @@ class Service(object):
         block_number - integer, which block number this tx is confirmed in.
         hex - the entire tx encoded in hex format
         size - size of TX in bytes.
-        inputs - list of {address:, amount:}, amount is in satoshis
+        inputs - list of {address:, amount:, txid:}, amount is in satoshis
         outputs - list of {address:, amount:, scriptPubKey:}, amount is in satoshis, scriptPubKey is hex
         txid
         total_out - (in satoshis)
