@@ -175,13 +175,16 @@ class Service(object):
 
         time - datetime, when this transaction was confirmed.
         block_hash - string, the id of the block this tx is confirmed in.
-        block_number - integer, which block numbe this tx is confirmed in.
+        block_number - integer, which block number this tx is confirmed in.
         hex - the entire tx encoded in hex format
-        inputs - list of {address:, amount:}, amount is in satoshi
-        outputs - list of {address:, amount:, scriptPubKey:}, amount is in satoshi, scriptPubKey is hex
+        size - size of TX in bytes.
+        inputs - list of {address:, amount:}, amount is in satoshis
+        outputs - list of {address:, amount:, scriptPubKey:}, amount is in satoshis, scriptPubKey is hex
         txid
-        total_out
-        confirmations
+        total_out - (in satoshis)
+        total_ins - (in satoshis)
+        confirmations - number of confirmations this TX curently has
+        fee - total amount of fees this TX leaves for miners (in satoshis)
 
         """
         raise NotImplementedError(

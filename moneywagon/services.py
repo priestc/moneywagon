@@ -745,7 +745,13 @@ class BlockChainInfo(Service):
             self.domain, txid
         )
         tx = self.get_url(url).json()
-        outs = [{'address': x['addr'], 'amount': x['value']} for x in tx['out']]
+        outs = [
+            {
+                'address': x['addr'],
+                'amount': x['value'],
+                'scriptPubKey': x['script']
+            } for x in tx['out']
+        ]
         ins = []
 
         for in_ in tx['inputs']:
@@ -1294,7 +1300,9 @@ class BitGo(Service):
             total_in=sum(x['amount'] for x in ins),
             total_out=sum(x['amount'] for x in outs),
             txid=txid,
-            hex=r['hex']
+            hex=r['hex'],
+            block_number=r['height'],
+            block_hash=r['blockhash']
         )
 
     def get_block(self, crypto, block_number='', block_hash='', latest=False):
