@@ -1234,6 +1234,7 @@ class Verters(BitpayInsight):
     supported_cryptos = ['vtc']
     domain = "explorer.verters.com"
     name = "Verters"
+    ssl_verify = False
 
 
 class ReddcoinCom(BitpayInsight):
@@ -1511,7 +1512,7 @@ class Mintr(Service):
     explorer_address_url = "https://{coin}.mintr.org/address/{address}"
     explorer_blocknum_url = "https://{coin}.mintr.org/block/{blocknum}"
     explorer_blockhash_url = "https://{coin}.mintr.org/block/{blockhash}"
-    verify = False # ssl is broken (set to true when it's fixed)
+    ssl_verify = False # ssl is broken (set to true when it's fixed)
 
     @classmethod
     def _get_coin(cls, crypto):
@@ -1524,7 +1525,7 @@ class Mintr(Service):
         url = "%s/api/address/balance/%s" % (
             self.domain.format(coin=self._get_coin(crypto)), address
         )
-        r = self.get_url(url, verify=self.verify).json()
+        r = self.get_url(url).json()
 
         if 'error' in r:
             raise Exception("Mintr returned error: %s" % r['error'])
@@ -1536,7 +1537,7 @@ class Mintr(Service):
             self.domain.format(coin=self._get_coin(crypto)), address
         )
         txs = []
-        for tx in self.get_url(url, verify=self.verify).json()['transactions']:
+        for tx in self.get_url(url).json()['transactions']:
             if not tx['sent'] and not tx['received']:
                 continue
 
@@ -1554,7 +1555,7 @@ class Mintr(Service):
             self.domain.format(coin=self._get_coin(crypto)), txid
         )
 
-        d = self.get_url(url, verify=self.verify).json()
+        d = self.get_url(url).json()
         return dict(
             time=arrow.get(d['time']).datetime,
             total_in=float(d['valuein']),
@@ -1576,7 +1577,7 @@ class Mintr(Service):
             self.domain.format(coin=self._get_coin(crypto)), by
         )
 
-        b = self.get_url(url, verify=self.verify).json()
+        b = self.get_url(url).json()
 
         return dict(
             block_number=int(b['height']),

@@ -46,6 +46,7 @@ class Service(object):
     explorer_tx_url = None # {txid}
     explorer_blocknum_url = None # {blocknum}
     explorer_blockhash_url = None # {blockhash}
+    ssl_verify = True
 
     @ClassProperty
     @classmethod
@@ -115,7 +116,7 @@ class Service(object):
             # add timeout parameter to requests.get if one was passed in on construction...
             kwargs['timeout'] = self.timeout
 
-        response = getattr(requests, method)(url, *args, **kwargs)
+        response = getattr(requests, method)(url, verify=self.ssl_verify, *args, **kwargs)
 
         if self.verbose:
             print("Got Response: %s" % url)
