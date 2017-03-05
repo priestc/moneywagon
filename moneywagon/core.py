@@ -2,6 +2,7 @@ from __future__ import print_function
 import random
 import requests
 import time
+import datetime
 
 from concurrent import futures
 
@@ -627,39 +628,74 @@ class SupplyEstimator(object):
 
         try:
             self.genesis_date = cd['genesis_date']
-            sd = cd['supply_data']
+            self.supply_data = cd['supply_data']
         except IndexError:
             raise Exception("Insufficient supply data for %s" % crypto.upper())
 
-        self.start_coins_per_block = sd['start_coins_per_block']
-        self.minutes_per_block = sd['minutes_per_block']
-        self.blocks_per_era = sd['blocks_per_era']
-        self.full_cap = sd['full_cap']
-
-        if not sd['full_cap']:
-            self.full_cap = 1e100 # nearly infinite
+        self.minutes_per_block = self.supply_data['minutes_per_block']
+        self.method = self.supply_data['method']
 
     def estimate_height_from_date(self, at_time):
         minutes = (at_time - self.genesis_date).total_seconds() / 60.0
         return int(minutes / self.minutes_per_block)
 
+    def estimate_date_from_height(self, block_height):
+        minutes = block_height * self.minutes_per_block
+        return self.genesis_date + datetime.timedelta(minutes=minutes)
+
     def calculate_supply(self, block_height=None, at_time=None):
         if at_time:
             block_height = self.estimate_height_from_date(at_time)
-        #print("trying to find which era block", block_height, "is in")
+
+        if self.method == 'standard':
+            return self._standard_supply(block_height)
+        if self.method == 'per_era':
+            return self._per_era_supply(block_height)
+
+    def _per_era_supply(self, block_height):
+        """
+        Calculate the coin supply based on 'eras' defined in crypto_data. Some
+        currencies don't have a simple algorithmically defined halfing schedule
+        so coins supply has to be defined explicitly.
+        """
         coins = 0
-        for era, start_block in enumerate(range(0, self.full_cap, self.blocks_per_era), 1):
-            end_block = start_block + self.blocks_per_era
-            reward = self.start_coins_per_block / float(2 ** (era - 1))
-            #print(era, start_block, end_block, reward)
-            if block_height < end_block:
+        for era in self.supply_data['eras']:
+            end_block = era['end']
+            start_block = era['start']
+            reward = era['reward']
+
+            if not end_block or block_height < end_block:
                 blocks_this_era = block_height - start_block
-                #print("-- block", block_height, "is in era", era, "reward per block is", reward)
-                #print("-- blocks since last halfing:", blocks_this_era)
                 coins += blocks_this_era * reward
                 break
 
-            #print("adding all era", era, "coins of", reward * self.blocks_per_era)
-            coins += reward * self.blocks_per_era
+            blocks_per_era = end_block - start_block
+            coins += reward * blocks_per_era
+
+        return coins
+
+    def _standard_supply(self, block_height):
+        """
+        Calculate the supply of coins for a given time (in either datetime, or
+        block height) for coins that use the "standard" method of halfing.
+        """
+        start_coins_per_block = self.supply_data['start_coins_per_block']
+        minutes_per_block = self.supply_data['minutes_per_block']
+        blocks_per_era = self.supply_data['blocks_per_era']
+        full_cap = self.supply_data['full_cap']
+
+        if not full_cap:
+            full_cap = 1e100 # nearly infinite
+
+        coins = 0
+        for era, start_block in enumerate(range(0, full_cap, blocks_per_era), 1):
+            end_block = start_block + blocks_per_era
+            reward = start_coins_per_block / float(2 ** (era - 1))
+            if block_height < end_block:
+                blocks_this_era = block_height - start_block
+                coins += blocks_this_era * reward
+                break
+
+            coins += reward * blocks_per_era
 
         return coins

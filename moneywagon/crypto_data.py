@@ -15,6 +15,7 @@ crypto_data = {
         'private_key_prefix': 128,
         'genesis_date': datetime(2009, 1, 3),
         'supply_data': {
+            'method': 'standard',
             'start_coins_per_block': 50,
             'minutes_per_block': 10.0,
             'full_cap': 21000000,
@@ -61,6 +62,7 @@ crypto_data = {
         'private_key_prefix': 176,
         'genesis_date': datetime(2011, 10, 7),
         'supply_data': {
+            'method': 'standard',
             'start_coins_per_block': 50,
             'minutes_per_block': 4.0,
             'full_cap': 84000000,
@@ -126,7 +128,22 @@ crypto_data = {
         'address_version_byte': 30,
         'bip44_coin_type': 0x80000003,
         'private_key_prefix': 158,
-        'genesis_date': datetime(2013, 12, 6),
+        'genesis_date': datetime(2013, 12, 8),
+        'supply_data': {
+            'method': 'per_era',
+            'eras': [
+                {'start': 1,      'end': 100000, 'reward': 500000}, # reward was random, average used
+                {'start': 100001, 'end': 144999, 'reward': 250011}, # reward was random, average used
+                {'start': 145000, 'end': 200000, 'reward': 250000},
+                {'start': 200001, 'end': 300000, 'reward': 125000},
+                {'start': 300001, 'end': 400000, 'reward': 62500},
+                {'start': 400001, 'end': 500000, 'reward': 31250},
+                {'start': 500001, 'end': 600000, 'reward': 15625},
+                {'start': 600001, 'end': None,   'reward': 10000}
+            ],
+            'minutes_per_block': 1.0,
+            'full_cap': None,
+        },
         'services': {
             'current_price': [
                 Bittrex, Poloniex, Cryptonator, ChainSo, BTER
