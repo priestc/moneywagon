@@ -64,7 +64,7 @@ crypto_data = {
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
-            'minutes_per_block': 4.0,
+            'minutes_per_block': 2.5,
             'full_cap': 84000000,
             'blocks_per_era': 840000
         },
@@ -234,6 +234,13 @@ crypto_data = {
         'bip44_coin_type': 0x8000001c,
         'private_key_prefix': 199,
         'genesis_date': datetime(2014, 1, 8),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 50,
+            'minutes_per_block': 2.5,
+            'full_cap': 84000000,
+            'blocks_per_era': 840000
+        },
         'services': {
             'current_price': [
                 Poloniex, Bittrex, Cryptonator, ChainSo
@@ -899,7 +906,6 @@ crypto_data = {
         },
     },
 
-    # TEMPLATE
     'xcp': {
         'name': 'CounterParty',
         'address_version_byte': 0,
@@ -937,6 +943,9 @@ crypto_data = {
         'bip44_coin_type': 60,
         'private_key_prefix': None,
         'genesis_date': datetime(2015, 7, 30),
+        'supply_data': {
+            'instamine': 72009990.50
+        }
         'services': {
             'current_price': [
                 Poloniex, GDAX, Bittrex, CexIO, EtherChain, Cryptonator
