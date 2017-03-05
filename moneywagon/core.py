@@ -611,42 +611,55 @@ def get_magic_bytes(crypto):
     except KeyError:
         raise ValueError("Cryptocurrency symbol not found: %s" % crypto)
 
-def standard_inflation_schedule(start_coins_per_block, minutes_per_block, blocks_per_era, full_cap=None):
+class SupplyEstimator(object):
     """
     Returns a function that can be used to calculate the supply of coins for a given
     amount of minutes since genesis date. Only works for standard bitcoin forked
     currencies such as LTC, DOGE, PPC, etc.
     """
-    if not full_cap:
-        full_cap = 1e100 # nearly infinite
-    
-    def calculate_supply(msg): # minutes since genesis
-        bsg = msg / minutes_per_block #blocks since genesis
-        #print("trying to find which era block", int(bsg), "is in")
+
+    def __init__(self, crypto):
+        from moneywagon.crypto_data import crypto_data
+        try:
+            cd = crypto_data[crypto.lower()]
+        except IndexError:
+            raise Exception("Currency not supported")
+
+        try:
+            self.genesis_date = cd['genesis_date']
+            sd = cd['supply_data']
+        except IndexError:
+            raise Exception("Insufficient supply data for %s" % crypto.upper())
+
+        self.start_coins_per_block = sd['start_coins_per_block']
+        self.minutes_per_block = sd['minutes_per_block']
+        self.blocks_per_era = sd['blocks_per_era']
+        self.full_cap = sd['full_cap']
+
+        if not sd['full_cap']:
+            self.full_cap = 1e100 # nearly infinite
+
+    def estimate_height_from_date(self, at_time):
+        minutes = (at_time - self.genesis_date).total_seconds() / 60.0
+        return int(minutes / self.minutes_per_block)
+
+    def calculate_supply(self, block_height=None, at_time=None):
+        if at_time:
+            block_height = self.estimate_height_from_date(at_time)
+        #print("trying to find which era block", block_height, "is in")
         coins = 0
-        for era, start_block in enumerate(range(0, full_cap, blocks_per_era), 1):
-            end_block = start_block + blocks_per_era
-            reward = start_coins_per_block / float(2 ** (era - 1))
+        for era, start_block in enumerate(range(0, self.full_cap, self.blocks_per_era), 1):
+            end_block = start_block + self.blocks_per_era
+            reward = self.start_coins_per_block / float(2 ** (era - 1))
             #print(era, start_block, end_block, reward)
-            if bsg < end_block:
-                blocks_this_era = bsg - start_block
-                #print("-- block", bsg, "is in era", era, "reward per block is", reward)
+            if block_height < end_block:
+                blocks_this_era = block_height - start_block
+                #print("-- block", block_height, "is in era", era, "reward per block is", reward)
                 #print("-- blocks since last halfing:", blocks_this_era)
                 coins += blocks_this_era * reward
                 break
 
-            #print("adding all era", era, "coins of", reward * blocks_per_era)
-            coins += reward * blocks_per_era
+            #print("adding all era", era, "coins of", reward * self.blocks_per_era)
+            coins += reward * self.blocks_per_era
 
         return coins
-    return calculate_supply
-
-def get_coin_supply(crypto, at_time):
-    """
-    Given a crypto symbol ('btc', 'ltc, 'doge', etc) and a datetime object,
-    calculate how many coins existed on that date and return that number.
-    """
-    from moneywagon.crypto_data import crypto_data
-    cd = crypto_data[crypto.lower()]
-    minutes = (at_time - cd['genesis_date']).total_seconds() / 60.0
-    return standard_inflation_schedule(**cd['supply_data'])(minutes)

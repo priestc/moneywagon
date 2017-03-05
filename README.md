@@ -705,6 +705,29 @@ the next block, will need a fee of 10650 satoshis.
 
 Currently, btc is the only currency supported for fee estimation.
 
+## Estimate coin supply
+
+```python
+>>> import datetime
+>>> from moneywagon.core import SupplyEstimator
+>>> btc = SupplyEstimator('btc')
+>>> btc.estimate_height_from_date(datetime.datetime(2014, 3, 12))
+272736
+>>> btc.calculate_supply(block_height=3244)
+162200.0
+>>> btc.calculate_supply(at_time=datetime.datetime(2017, 3, 12))
+15882000.0
+>>> ltc = SupplyEstimator('ltc')
+>>> ltc.calculate_supply(block_height=320224)
+16011200.0
+```
+
+Note that the `calculate_supply` function returns perfect results when estimating
+from a block height. If estimating from `at_time`, then the results will be approximate.
+The function `estimate_height_from_date` works by dividing the amount of time between
+the passed in date and the genesis date of the currency, then dividing that amount of time
+by the block interval. Because block are never found exactly every block interval,
+the result of this calculation will be approximate.
 
 # Advanced
 
