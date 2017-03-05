@@ -13,7 +13,13 @@ crypto_data = {
         'message_magic': 0xd9b4bef9,
         'bip44_coin_type': 0x80000000,
         'private_key_prefix': 128,
-        'genesis_date': datetime(2009, 1, 12),
+        'genesis_date': datetime(2009, 1, 3),
+        'supply_data': {
+            'start_coins_per_block': 50,
+            'minutes_per_block': 10.0,
+            'full_cap': 21000000,
+            'blocks_per_era': 210000
+        },
         'services': {
             'current_price': [
                 Bitstamp, GDAX, Winkdex, BTCE, BTER, BTCChina, Cryptonator, ChainSo,
@@ -54,6 +60,12 @@ crypto_data = {
         'bip44_coin_type': 0x80000002,
         'private_key_prefix': 176,
         'genesis_date': datetime(2011, 10, 7),
+        'supply_data': {
+            'start_coins_per_block': 50,
+            'minutes_per_block': 4.0,
+            'full_cap': 84000000,
+            'blocks_per_era': 840000
+        },
         'services': {
             'current_price': [
                 BTCE, GDAX, ChainSo, BTER, CexIO, Poloniex, Bittrex, BTCChina, Cryptonator

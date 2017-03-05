@@ -610,3 +610,43 @@ def get_magic_bytes(crypto):
 
     except KeyError:
         raise ValueError("Cryptocurrency symbol not found: %s" % crypto)
+
+def standard_inflation_schedule(start_coins_per_block, minutes_per_block, blocks_per_era, full_cap=None):
+    """
+    Returns a function that can be used to calculate the supply of coins for a given
+    amount of minutes since genesis date. Only works for standard bitcoin forked
+    currencies such as LTC, DOGE, PPC, etc.
+    """
+    if not full_cap:
+        full_cap = 1e100 # nearly infinite
+    
+    def calculate_supply(msg): # minutes since genesis
+        bsg = msg / minutes_per_block #blocks since genesis
+        #print("trying to find which era block", int(bsg), "is in")
+        coins = 0
+        for era, start_block in enumerate(range(0, full_cap, blocks_per_era), 1):
+            end_block = start_block + blocks_per_era
+            reward = start_coins_per_block / float(2 ** (era - 1))
+            #print(era, start_block, end_block, reward)
+            if bsg < end_block:
+                blocks_this_era = bsg - start_block
+                #print("-- block", bsg, "is in era", era, "reward per block is", reward)
+                #print("-- blocks since last halfing:", blocks_this_era)
+                coins += blocks_this_era * reward
+                break
+
+            #print("adding all era", era, "coins of", reward * blocks_per_era)
+            coins += reward * blocks_per_era
+
+        return coins
+    return calculate_supply
+
+def get_coin_supply(crypto, at_time):
+    """
+    Given a crypto symbol ('btc', 'ltc, 'doge', etc) and a datetime object,
+    calculate how many coins existed on that date and return that number.
+    """
+    from moneywagon.crypto_data import crypto_data
+    cd = crypto_data[crypto.lower()]
+    minutes = (at_time - cd['genesis_date']).total_seconds() / 60.0
+    return standard_inflation_schedule(**cd['supply_data'])(minutes)
