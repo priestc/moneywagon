@@ -623,13 +623,13 @@ class SupplyEstimator(object):
         from moneywagon.crypto_data import crypto_data
         try:
             cd = crypto_data[crypto.lower()]
-        except IndexError:
+        except KeyError:
             raise Exception("Currency not supported")
 
         try:
             self.genesis_date = cd['genesis_date']
             self.supply_data = cd['supply_data']
-        except IndexError:
+        except KeyError:
             raise Exception("Insufficient supply data for %s" % crypto.upper())
 
         self.minutes_per_block = self.supply_data['minutes_per_block']
@@ -656,7 +656,7 @@ class SupplyEstimator(object):
         """
         Calculate the coin supply based on 'eras' defined in crypto_data. Some
         currencies don't have a simple algorithmically defined halfing schedule
-        so coins supply has to be defined explicitly.
+        so coins supply has to be defined explicitly per era.
         """
         coins = 0
         for era in self.supply_data['eras']:
