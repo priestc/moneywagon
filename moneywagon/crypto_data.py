@@ -271,6 +271,16 @@ crypto_data = {
         'bip44_coin_type': 0x80000008,
         'private_key_prefix': 0x8e,
         'genesis_date': datetime(2013, 4, 16),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 80,
+            'minutes_per_block': 2.5,
+            'blocktime_adjustments': [
+                [204639, 1]
+            ],
+            'full_cap': 336000000,
+            'blocks_per_era': 2100000,
+        },
         'services': {
             'current_price': [
                 Bittrex, ChainSo, Cryptonator
@@ -654,6 +664,13 @@ crypto_data = {
         'bip44_coin_type': 0x80000051,
         'private_key_prefix': None,
         'genesis_date': datetime(2014, 1, 21),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 420,
+            'minutes_per_block': 0.666666666,
+            'full_cap': 420000000,
+            'blocks_per_era': 210000
+        },
         'services': {
             'current_price': [
                 Bittrex, Cryptonator
@@ -945,7 +962,7 @@ crypto_data = {
         'genesis_date': datetime(2015, 7, 30),
         'supply_data': {
             'instamine': 72009990.50
-        }
+        },
         'services': {
             'current_price': [
                 Poloniex, GDAX, Bittrex, CexIO, EtherChain, Cryptonator
@@ -972,7 +989,7 @@ crypto_data = {
     },
 
     'etc': {
-        'name': 'EthereumClassic',
+        'name': 'Ethereum Classic',
         'address_version_byte': None,
         'bip44_coin_type': 61,
         'private_key_prefix': None,
