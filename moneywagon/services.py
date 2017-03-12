@@ -2351,3 +2351,8 @@ class FeathercoinCom2(BitcoinAbe):
     supported_cryptos = ['ftc']
     base_url = "http://explorer.feathercoin.com/chain/feathercoin"
     name = "Feathercoin.com (Abe)"
+
+class ChainTips(BitpayInsight):
+    service_id = 69
+    domain = "fsight.chain.tips"
+    supported_cryptos = ['ftc']
