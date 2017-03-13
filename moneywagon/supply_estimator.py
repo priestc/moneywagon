@@ -1,5 +1,6 @@
 import datetime
 from moneywagon.crypto_data import crypto_data
+from moneywagon.core import CurrencyNotSupported
 
 class SupplyEstimator(object):
     """
@@ -13,12 +14,12 @@ class SupplyEstimator(object):
             try:
                 cd = crypto_data[crypto.lower()]
             except KeyError:
-                raise Exception("Currency not supported")
+                raise CurrencyNotSupported("Code '%s' not supported" % crypto)
             try:
                 self.genesis_date = cd['genesis_date']
                 self.supply_data = cd['supply_data']
             except KeyError:
-                raise Exception("Insufficient supply data for %s" % crypto.upper())
+                raise NotImplementedError("Insufficient supply data for %s" % crypto.upper())
         else:
             self.supply_data = supply_data
             self.genesis_date = genesis_date

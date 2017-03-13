@@ -20,6 +20,9 @@ class SkipThisService(NoService):
 class ServiceError(NoService):
     pass
 
+class CurrencyNotSupported(Exception):
+    pass
+
 class NoData(Exception):
     pass
 

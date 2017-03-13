@@ -716,7 +716,7 @@ Currently, btc is the only currency supported for fee estimation.
 
 ```python
 >>> import datetime
->>> from moneywagon.core import SupplyEstimator
+>>> from moneywagon.supply_estimator import SupplyEstimator
 >>> btc = SupplyEstimator('btc')
 >>> btc.estimate_height_from_date(datetime.datetime(2014, 3, 12))
 272736

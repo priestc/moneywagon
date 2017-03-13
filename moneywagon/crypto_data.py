@@ -24,7 +24,7 @@ crypto_data = {
         'services': {
             'current_price': [
                 Bitstamp, GDAX, Winkdex, BTCE, BTER, BTCChina, Cryptonator, ChainSo,
-                Gemini, CexIO, Poloniex, Bittrex, Huobi
+                Gemini, CexIO, Poloniex, Bittrex, Huobi, Vircurex
             ],
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
@@ -70,16 +70,17 @@ crypto_data = {
         },
         'services': {
             'current_price': [
-                BTCE, GDAX, ChainSo, BTER, CexIO, Poloniex, Bittrex, BTCChina, Cryptonator
+                BTCE, GDAX, ChainSo, BTER, CexIO, Poloniex, Bittrex, BTCChina,
+                Vircurex, Cryptonator
             ],
             'address_balance': [
-                BlockCypher, Blockr, ChainSo, ProHashing
+                BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction
             ],
             'historical_transactions': [
                 ProHashing, Blockr, ChainSo
             ],
             'single_transaction': [
-                Blockr
+                Blockr, HolyTransaction
             ],
             'push_tx': [
                 Blockr, ChainSo
@@ -88,7 +89,7 @@ crypto_data = {
                 ChainSo, Blockr
             ],
             'get_block': [
-                ChainSo, Blockr, OKcoin, ProHashing
+                ChainSo, Blockr, OKcoin, ProHashing, HolyTransaction
             ]
         },
     },
@@ -101,16 +102,16 @@ crypto_data = {
         'genesis_date': datetime(2012, 8, 19),
         'services': {
             'current_price': [
-                BTCE, ChainSo, Bittrex, BTER, Poloniex, Cryptonator
+                BTCE, ChainSo, Bittrex, BTER, Poloniex, Cryptonator, Vircurex
             ],
             'address_balance': [
-                Blockr, Mintr
+                Blockr, Mintr, HolyTransaction
             ],
             'historical_transactions': [
                 Blockr
             ],
             'single_transaction': [
-                Mintr, Blockr
+                Mintr, Blockr, HolyTransaction
             ],
             'push_tx': [
                 MultiCoins
@@ -119,7 +120,7 @@ crypto_data = {
                 Blockr
             ],
             'get_block': [
-                Blockr, Mintr
+                Blockr, Mintr, HolyTransaction
             ]
         },
     },
@@ -149,13 +150,13 @@ crypto_data = {
                 Bittrex, Poloniex, Cryptonator, ChainSo, BTER
             ],
             'address_balance': [
-                BlockCypher, ChainSo, DogeChainInfo, ProHashing
+                BlockCypher, ChainSo, DogeChainInfo, ProHashing, HolyTransaction
             ],
             'historical_transactions': [
                 BlockCypher, ChainSo, ProHashing
             ],
             'single_transaction': [
-                BlockCypher, ChainSo
+                BlockCypher, ChainSo, HolyTransaction
             ],
             'push_tx': [
                 ChainSo
@@ -164,7 +165,7 @@ crypto_data = {
                 DogeChainInfo, ChainSo
             ],
             'get_block': [
-                ChainSo, ProHashing
+                ChainSo, ProHashing, HolyTransaction
             ]
         },
     },
@@ -283,7 +284,7 @@ crypto_data = {
         },
         'services': {
             'current_price': [
-                Bittrex, ChainSo, Cryptonator
+                Bittrex, ChainSo, Cryptonator, Vircurex
             ],
             'address_balance': [
                 ChainTips, FeathercoinCom2
@@ -311,18 +312,28 @@ crypto_data = {
         'bip44_coin_type': 0x80000005,
         'private_key_prefix': 204,
         'genesis_date': datetime(2014, 1, 19),
+        'supply_data': {
+            'method': 'per_era',
+            'eras': [
+                {'start': 1,   'end': 240,  'reward': 6766}, # "instamine"
+                {'start': 241, 'end': 576,  'reward': 713},
+                {'start': 576, 'end': 1152, 'reward': 271.52},
+            ],
+            'minutes_per_block': 2.5,
+            'full_cap': 18900000,
+        },
         'services': {
             'current_price': [
                 Bittrex, Poloniex, ChainSo, Cryptonator
             ],
             'address_balance': [
-                ProHashing, CryptoID, SiampmDashInsight
+                ProHashing, CryptoID, SiampmDashInsight, HolyTransaction
             ],
             'historical_transactions': [
                 ProHashing, SiampmDashInsight
             ],
             'single_transaction': [
-                SiampmDashInsight
+                SiampmDashInsight, HolyTransaction
             ],
             'push_tx': [
                 SiampmDashInsight
@@ -331,7 +342,7 @@ crypto_data = {
                 SiampmDashInsight
             ],
             'get_block': [
-                ProHashing, SiampmDashInsight
+                ProHashing, SiampmDashInsight, HolyTransaction
             ]
         },
     },

@@ -1613,6 +1613,8 @@ class BlockExplorersNet(Service):
             return 'europecoin'
         if crypto == 'tx':
             return 'transfercoin'
+        if crypto == 'dash':
+            return 'dash'
 
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -2356,3 +2358,48 @@ class ChainTips(BitpayInsight):
     service_id = 69
     domain = "fsight.chain.tips"
     supported_cryptos = ['ftc']
+
+class Vircurex(Service):
+    service_id = 70
+    base_url = "https://api.vircurex.com/api"
+    api_homepage = "https://vircurex.com/welcome/api"
+
+    supported_cryptos = [
+        'ANC','BC','BTC','DGC','DOGE','DVC','FRC','FTC',
+        'LTC','NMC','PPC','QRK','TRC','XPM'
+    ]
+
+    def get_current_price(self, crypto, fiat):
+        url = "%s/get_last_trade.json?base=%s&alt=%s" % (
+            self.base_url, fiat.upper(), crypto.upper()
+        )
+        r = self.get_url(url).json()
+        return float(r['value'])
+
+class HolyTransaction(BlockExplorersNet):
+    service_id = 71
+    api_homepage = "https://dash.holytransaction.com/info"
+
+    domain = "http://{coin}.holytransaction.com"
+    supported_cryptos = ['dash', 'ltc', 'bc', 'ppc', 'doge', 'grc']
+    name = "HolyTransactions"
+
+    explorer_tx_url = "https://{coin}.blockexplorers.net/tx/{txid}"
+    explorer_address_url = "https://{coin}.blockexplorers.net/address/{address}"
+    #explorer_blocknum_url = "https://{coin}.blockexplorers.net/block/{blocknum}"
+    explorer_blockhash_url = "https://{coin}.blockexplorers.net/block/{blockhash}"
+
+    @classmethod
+    def _get_coin(cls, crypto):
+        if crypto == 'dash':
+            return 'dash'
+        if crypto == 'ltc':
+            return 'litecoin'
+        if crypto == 'bc':
+            return 'blackcoin'
+        if crypto == 'ppc':
+            return 'peercoin'
+        if crypto == 'doge':
+            return 'dogecoin'
+        if crypto == 'grc':
+            return 'gridcoin'
