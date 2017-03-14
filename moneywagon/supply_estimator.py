@@ -54,7 +54,7 @@ class SupplyEstimator(object):
             minutes_since_genesis = 0
 
             for minutes_since_last_adjustment, new_minutes_per_block in self.block_adjustment_in_minutes:
-                if minutes_since_genesis < minutes:
+                if minutes_since_last_adjustment < minutes:
                     this_blocks = minutes_since_last_adjustment / previous_minutes_per_block
                     new_block += this_blocks
                 else:

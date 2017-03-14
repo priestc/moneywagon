@@ -19,7 +19,8 @@ crypto_data = {
             'start_coins_per_block': 50,
             'minutes_per_block': 10.0,
             'full_cap': 21000000,
-            'blocks_per_era': 210000
+            'blocks_per_era': 210000,
+            'reward_ends_at_block': 6930000
         },
         'services': {
             'current_price': [
@@ -273,9 +274,15 @@ crypto_data = {
         'private_key_prefix': 0x8e,
         'genesis_date': datetime(2013, 4, 16),
         'supply_data': {
-            'method': 'standard',
-            'start_coins_per_block': 80,
-            'minutes_per_block': 2.5,
+            'method': 'per_era',
+            'minutes_per_block': 2.632061418725984, # code defines 2.5.
+            'eras': [
+                {'start': 1,      'end': 204638, 'reward': 200},
+                {'start': 204639, 'end': 2100000, 'reward': 80}
+            ] + [
+                {'start': (x * 2100000) + 1, 'end': ((x+1) * 2100000), 'reward': 80 / float(2 ** (x))}
+                for x in range(1, 10)
+            ],
             'blocktime_adjustments': [
                 [204639, 1]
             ],
