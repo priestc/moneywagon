@@ -171,7 +171,7 @@ def push_tx(crypto, tx_hex, services=None, **modes):
     )
 
 
-def get_block(crypto, block_number='', block_hash='', latest=False, services=None, **modes):
+def get_block(crypto, block_number=None, block_hash=None, latest=False, services=None, **modes):
     if not services:
         services = get_optimal_services(crypto, 'get_block')
     kwargs = dict(crypto=crypto, block_number=block_number, block_hash=block_hash, latest=latest)

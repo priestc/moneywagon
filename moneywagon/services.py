@@ -1566,12 +1566,12 @@ class Mintr(Service):
             txid=txid,
         )
 
-    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
         by = "latest"
-        if block_number:
-            by = "height/" + block_number
-        elif block_hash:
-            by = "hash/" + block_hash
+        if block_number is not None:
+            by = "height/%s" % block_number
+        elif block_hash is not None:
+            by = "hash/%s" % block_hash
 
         url = "%s/api/block/%s" % (
             self.domain.format(coin=self._get_coin(crypto)), by
@@ -1594,16 +1594,17 @@ class Mintr(Service):
         )
 
 
-class BlockExplorersNet(Service):
+class HolyTransaction(Service):
     service_id = 43
-    domain = "http://{coin}.blockexplorers.net"
-    supported_cryptos = ['gsm', 'erc', 'tx']
-    name = "BlockExplorers.Net"
+    domain = "http://{coin}.holytransaction.com"
+    supported_cryptos = ['gsm', 'erc', 'tx', 'dash']
+    name = "Holy Transactions"
 
-    explorer_tx_url = "https://{coin}.blockexplorers.net/tx/{txid}"
-    explorer_address_url = "https://{coin}.blockexplorers.net/address/{address}"
+    explorer_tx_url = "https://{coin}.holytransaction.com/tx/{txid}"
+    explorer_address_url = "https://{coin}.holytransaction.com/address/{address}"
     #explorer_blocknum_url = "https://{coin}.blockexplorers.net/block/{blocknum}"
-    explorer_blockhash_url = "https://{coin}.blockexplorers.net/block/{blockhash}"
+    explorer_blockhash_url = "https://{coin}.holytransaction.com/block/{blockhash}"
+    api_homepage = "https://dash.holytransaction.com/info"
 
     @classmethod
     def _get_coin(cls, crypto):
@@ -1615,6 +1616,16 @@ class BlockExplorersNet(Service):
             return 'transfercoin'
         if crypto == 'dash':
             return 'dash'
+        if crypto == 'ltc':
+            return 'litecoin'
+        if crypto == 'bc':
+            return 'blackcoin'
+        if crypto == 'ppc':
+            return 'peercoin'
+        if crypto == 'doge':
+            return 'dogecoin'
+        if crypto == 'grc':
+            return 'gridcoin'
 
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -1667,10 +1678,10 @@ class BlockExplorersNet(Service):
         r = self.get_url(url).json()
 
         return dict(
-            confirmations=r['confirmations'],
+            confirmations=r.get('confirmations'),
             size=r['size'],
             txs=r['tx'],
-            tx_count=len(r['txs']),
+            tx_count=len(r['tx']),
             time=arrow.get(r['time']).datetime,
             hash=r['hash'],
             block_number=r['height'],
@@ -2375,31 +2386,3 @@ class Vircurex(Service):
         )
         r = self.get_url(url).json()
         return float(r['value'])
-
-class HolyTransaction(BlockExplorersNet):
-    service_id = 71
-    api_homepage = "https://dash.holytransaction.com/info"
-
-    domain = "http://{coin}.holytransaction.com"
-    supported_cryptos = ['dash', 'ltc', 'bc', 'ppc', 'doge', 'grc']
-    name = "HolyTransactions"
-
-    explorer_tx_url = "https://{coin}.blockexplorers.net/tx/{txid}"
-    explorer_address_url = "https://{coin}.blockexplorers.net/address/{address}"
-    #explorer_blocknum_url = "https://{coin}.blockexplorers.net/block/{blocknum}"
-    explorer_blockhash_url = "https://{coin}.blockexplorers.net/block/{blockhash}"
-
-    @classmethod
-    def _get_coin(cls, crypto):
-        if crypto == 'dash':
-            return 'dash'
-        if crypto == 'ltc':
-            return 'litecoin'
-        if crypto == 'bc':
-            return 'blackcoin'
-        if crypto == 'ppc':
-            return 'peercoin'
-        if crypto == 'doge':
-            return 'dogecoin'
-        if crypto == 'grc':
-            return 'gridcoin'

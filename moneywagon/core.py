@@ -614,3 +614,14 @@ def get_magic_bytes(crypto):
 
     except KeyError:
         raise ValueError("Cryptocurrency symbol not found: %s" % crypto)
+
+def make_standard_halfing_eras(start, interval, start_reward, halfing_func=None, total_eras=10):
+    if not halfing_func:
+        halfing_func = lambda x, y: y / float(2 ** (x))
+    return [
+    {
+        'start': start + (era * interval) + 1,
+        'end': start + ((era + 1) * interval),
+        'reward': halfing_func(era, start_reward)
+    } for era in range(0, total_eras)
+]

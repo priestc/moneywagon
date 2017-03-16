@@ -1,5 +1,6 @@
 from datetime import datetime
 from .services import *
+from moneywagon.core import make_standard_halfing_eras
 
 # instructions for getting version byte:
 # https://github.com/MichaelMure/WalletGenerator.net/wiki/How-to-add-a-new-currency#step-two-find-the-prefixes-for-the-address-format-of-your-currency
@@ -13,14 +14,39 @@ crypto_data = {
         'message_magic': 0xd9b4bef9,
         'bip44_coin_type': 0x80000000,
         'private_key_prefix': 128,
-        'genesis_date': datetime(2009, 1, 3),
+        'genesis_date': datetime(2009, 1, 3, 18, 15, 5),
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
-            'minutes_per_block': 10.0,
+            'minutes_per_block': 10,
             'full_cap': 21000000,
             'blocks_per_era': 210000,
-            'reward_ends_at_block': 6930000
+            'reward_ends_at_block': 6930000,
+            'blocktime_adjustments':  [
+                [0, 13.885491567406111],
+                [18302, 16.671654281863546],
+                [36604, 7.925874221396569],
+                [54906, 7.3687201763013155],
+                [73208, 7.551821294576184],
+                [91510, 7.991036498743307],
+                [109812, 7.8106627690962735],
+                [128114, 8.816203147197028],
+                [146416, 10.321310967835938],
+                [164718, 9.854997632317051],
+                [183020, 9.306084945179034],
+                [201322, 9.969114486577059],
+                [219624, 8.666363421119732],
+                [237926, 8.059192073726004],
+                [256228, 7.738728007867993],
+                [274530, 8.291195862018723],
+                [292832, 8.754288238079628],
+                [311134, 9.152631770662587],
+                [329436, 9.831850799548318],
+                [347738, 9.91655465705023],
+                [366040, 9.689210650930681],
+                [384342, 9.116670309255818],
+                [402644, 9.726924197719738]
+            ]
         },
         'services': {
             'current_price': [
@@ -67,7 +93,32 @@ crypto_data = {
             'start_coins_per_block': 50,
             'minutes_per_block': 2.5,
             'full_cap': 84000000,
-            'blocks_per_era': 840000
+            'blocks_per_era': 840000,
+            'blocktime_adjustments': [
+                [0, 1.9338132009953866],
+                [46749, 2.611340349526193],
+                [93498, 2.55889323835804],
+                [140247, 2.3058272191205518],
+                [186996, 2.4170905616519427],
+                [233745, 2.5948152188638614],
+                [280494, 2.3652113770704544],
+                [327243, 2.364560382753285],
+                [373992, 2.45983550450277],
+                [420741, 2.471159097877316],
+                [467490, 2.4632630287991897],
+                [514239, 2.405646110077221],
+                [560988, 2.388468915556126],
+                [607737, 2.4500634594679385],
+                [654486, 2.45111517536917],
+                [701235, 2.558257930650923],
+                [747984, 2.486653546956441],
+                [794733, 2.499549366474862],
+                [841482, 2.4864752900240292],
+                [888231, 2.489878927891506],
+                [934980, 2.5067830327921454],
+                [981729, 2.5079752151561174],
+                [1028478, 2.495453378681897]
+            ]
         },
         'services': {
             'current_price': [
@@ -100,7 +151,34 @@ crypto_data = {
         'bip44_coin_type': 0x80000006,
         'private_key_prefix': 183,
         'proof_of_stake': True,
-        'genesis_date': datetime(2012, 8, 19),
+        'genesis_date': datetime(2012, 8, 19, 18, 12, 4),
+        'supply_data': {
+            'blocktime_adjustments': [
+                [0, 8.269038615790077],
+                [11636, 8.727241606508537],
+                [23272, 7.766606508536725],
+                [34908, 7.339899163515526],
+                [46544, 8.41290105419961],
+                [58180, 8.225902371949124],
+                [69816, 8.054559126847714],
+                [81452, 8.038581414002522],
+                [93088, 8.383028245674344],
+                [104724, 8.419846453535007],
+                [116360, 8.507221840265842],
+                [127996, 8.275073049157786],
+                [139632, 8.455376990947633],
+                [151268, 8.498400080210839],
+                [162904, 8.364352011000344],
+                [174540, 8.293982754669416],
+                [186176, 8.591709636759482],
+                [197812, 8.447090924716399],
+                [209448, 8.315492150796379],
+                [221084, 8.40462787899622],
+                [232720, 8.423828348802568],
+                [244356, 8.204828406096023],
+                [255992, 8.216364443680531]
+            ]
+        }
         'services': {
             'current_price': [
                 BTCE, ChainSo, Bittrex, BTER, Poloniex, Cryptonator, Vircurex
@@ -121,7 +199,7 @@ crypto_data = {
                 Blockr
             ],
             'get_block': [
-                Blockr, Mintr, HolyTransaction
+                Mintr, HolyTransaction
             ]
         },
     },
@@ -275,15 +353,16 @@ crypto_data = {
         'genesis_date': datetime(2013, 4, 16),
         'supply_data': {
             'method': 'per_era',
-            'minutes_per_block': 2.632061418725984, # code defines 2.5.
+            'minutes_per_block': 2.5,
             'eras': [
-                {'start': 1,      'end': 204638, 'reward': 200},
+                {'start': 0,      'end': 204638, 'reward': 200},
                 {'start': 204639, 'end': 2100000, 'reward': 80}
-            ] + [
-                {'start': (x * 2100000) + 1, 'end': ((x+1) * 2100000), 'reward': 80 / float(2 ** (x))}
-                for x in range(1, 10)
-            ],
+            ] + make_standard_halfing_eras(
+                start=2100000, interval=2100000,
+                start_reward=40
+            ),
             'blocktime_adjustments': [
+                [0, 2.632061418725984],
                 [204639, 1]
             ],
             'full_cap': 336000000,
@@ -318,15 +397,24 @@ crypto_data = {
         'address_version_byte': 76,
         'bip44_coin_type': 0x80000005,
         'private_key_prefix': 204,
-        'genesis_date': datetime(2014, 1, 19),
+        'genesis_date': datetime(2014, 1, 19, 1, 40, 18),
         'supply_data': {
             'method': 'per_era',
             'eras': [
-                {'start': 1,   'end': 240,  'reward': 6766}, # "instamine"
-                {'start': 241, 'end': 576,  'reward': 713},
-                {'start': 576, 'end': 1152, 'reward': 271.52},
+                {'start': 1,   'end': 5000,  'reward': 500}, # "instamine"
+                {'start': 5001, 'end': 20000,  'reward': 144},
+                {'start': 20001, 'end': 60000, 'reward': 14}
+            ] + make_standard_halfing_eras(
+                start=60000, interval=210240,
+                start_reward=5, halfing_func=lambda x, y: y - ((y/14) * x)
+            ),
+            'blocktime_adjustments': [
+                 [1000, 0.6913416666666667],
+                 [5000, 3.76551],
+                 [10000, 2.5142820833333337],
+                 [90000, 2.6250117647058824]
             ],
-            'minutes_per_block': 2.5,
+            'minutes_per_block': 0.17335,
             'full_cap': 18900000,
         },
         'services': {
@@ -470,13 +558,11 @@ crypto_data = {
 
             ],
             'address_balance': [
-                BlockExplorersNet
             ],
             'historical_transactions': [
 
             ],
             'single_transaction': [
-                BlockExplorersNet
             ],
             'push_tx': [
 
@@ -485,7 +571,6 @@ crypto_data = {
 
             ],
             'get_block': [
-                BlockExplorersNet
             ]
         },
     },
@@ -501,13 +586,11 @@ crypto_data = {
                 Bittrex, Cryptonator
             ],
             'address_balance': [
-                BlockExplorersNet
             ],
             'historical_transactions': [
 
             ],
             'single_transaction': [
-                BlockExplorersNet
             ],
             'push_tx': [
 
@@ -516,7 +599,6 @@ crypto_data = {
 
             ],
             'get_block': [
-                BlockExplorersNet
             ]
         },
     },
@@ -532,7 +614,7 @@ crypto_data = {
                 Bittrex, Cryptonator
             ],
             'address_balance': [
-                CryptoID, BlockExplorersNet
+                CryptoID
             ],
             'historical_transactions': [
 

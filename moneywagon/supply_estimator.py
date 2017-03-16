@@ -1,6 +1,9 @@
 import datetime
+from tabulate import tabulate
+import pytz
+
 from moneywagon.crypto_data import crypto_data
-from moneywagon.core import CurrencyNotSupported
+from moneywagon.core import CurrencyNotSupported, make_standard_halfing_eras
 
 class SupplyEstimator(object):
     """
@@ -27,6 +30,47 @@ class SupplyEstimator(object):
         self.minutes_per_block = self.supply_data['minutes_per_block']
         self.method = self.supply_data['method']
         self.blocktime_adjustments = self.supply_data.get('blocktime_adjustments', None)
+
+    def make_supply_table(self, supply_divide=1, table_format='simple'):
+        eras = self.supply_data.get('eras')
+        if not eras and self.supply_data['method'] == 'standard':
+            eras = make_standard_halfing_eras(
+                start=0, interval=self.supply_data['blocks_per_era'],
+                start_reward=self.supply_data['start_coins_per_block']
+            )
+
+        tag = ""
+        if supply_divide == 1e6:
+            tag = " (in millions)"
+        if supply_divide == 1e9:
+            tag = " (in billions)"
+
+        total_supply = (self.supply_data.get('full_cap') or 0) / supply_divide
+        rows = []
+        running_total = 0
+        for era, data in enumerate(eras, 1):
+            start = data['start']
+            end = data['end']
+            reward = data['reward']
+            total = ((end - start) * reward) / supply_divide if end else ""
+            running_total += total or 0
+            percent = "%.2f" % (float(running_total * 100) / total_supply) if total_supply else None
+            date = self.estimate_date_from_height(end) if end else None
+            row = [era, start, "{0:%m-%d-%Y}".format(date) if date else "", end, reward, total, running_total]
+
+            if total_supply:
+                row.append(percent)
+
+            rows.append(row)
+
+        headers = [
+            'Era', 'Start Block', 'End Date', 'End Block', 'Reward per block',
+            'Total Created This Era' + tag, "Total Existing" + tag
+        ]
+        if total_supply:
+            headers.append("Percentage Issued")
+
+        return tabulate(rows, headers=headers, tablefmt=table_format)
 
     @property
     def block_adjustment_in_minutes(self):
@@ -118,7 +162,7 @@ class SupplyEstimator(object):
             start_block = era['start']
             reward = era['reward']
 
-            if not end_block or block_height < end_block:
+            if not end_block or block_height <= end_block:
                 blocks_this_era = block_height - start_block
                 coins += blocks_this_era * reward
                 break
@@ -153,3 +197,37 @@ class SupplyEstimator(object):
             coins += reward * blocks_per_era
 
         return coins
+
+def estimate_block_adjustments(crypto, points=None, intervals=None, **modes):
+    """
+    This utility is used to determine the actual block rate. The output can be
+    directly copied to the `blocktime_adjustments` setting.
+    """
+    from moneywagon import get_block
+
+    if not points and intervals:
+        import debug
+        latest_block_height = get_block(crypto, latest=True, **modes)['block_number']
+        interval = int(latest_block_height / float(intervals))
+        points = [x * interval for x in range(1, intervals - 1)]
+        print "using points from equal interval", points
+
+    adjustments = []
+    previous_point = 0
+    previous_time = (crypto_data[crypto.lower()].get('genesis_date').replace(tzinfo=pytz.UTC)
+        or get_block(crypto, block_number=0, **modes)['time']
+    )
+
+    for point in points:
+        if point == 0:
+            continue
+        point_time = get_block(crypto, block_number=point, **modes)['time']
+        length = point - previous_point
+        minutes = (point_time - previous_time).total_seconds() / 60
+        rate = minutes / length
+        adjustments.append([previous_point, rate])
+
+        previous_time = point_time
+        previous_point = point
+
+    return adjustments
