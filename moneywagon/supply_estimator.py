@@ -206,11 +206,9 @@ def estimate_block_adjustments(crypto, points=None, intervals=None, **modes):
     from moneywagon import get_block
 
     if not points and intervals:
-        import debug
         latest_block_height = get_block(crypto, latest=True, **modes)['block_number']
         interval = int(latest_block_height / float(intervals))
         points = [x * interval for x in range(1, intervals - 1)]
-        print "using points from equal interval", points
 
     adjustments = []
     previous_point = 0
