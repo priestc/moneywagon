@@ -784,6 +784,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000005c,
         'private_key_prefix': 224,
         'genesis_date': datetime(2013, 10, 17),
+        'supply_data': {
+            'full_cap': 250000,
+            'blocks_per_era': 100000
+        },
         'services': {
             'current_price': [
                 Bittrex, Cryptonator
@@ -812,9 +816,14 @@ crypto_data = {
     'ric': {
         'name': 'Riecoin',
         'address_version_byte': 60,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 143,
         'private_key_prefix': 128,
-        'genesis_date': datetime(1, 1, 1),
+        'genesis_date': datetime(2014, 2, 11, 0, 49, 1),
+        'supply_data': {
+            'start_coins_per_block': 50,
+            'minutes_per_block': 2.5,
+            'blocks_per_era': 840000,
+        },
         'services': {
             'current_price': [
                 Cryptonator

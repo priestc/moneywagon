@@ -13,7 +13,7 @@ class SupplyEstimator(object):
     currencies such as LTC, DOGE, PPC, etc.
     """
 
-    def __init__(self, crypto=None, supply_data=None, genesis_date=None):
+    def __init__(self, crypto=None, supply_data=None, genesis_date=None, blocktime_adjustments=True):
         if crypto:
             try:
                 cd = crypto_data[crypto.lower()]
@@ -30,7 +30,9 @@ class SupplyEstimator(object):
 
         self.minutes_per_block = self.supply_data['minutes_per_block']
         self.method = self.supply_data['method']
-        self.blocktime_adjustments = adjustments.get(crypto)
+        self.blocktime_adjustments = None
+        if blocktime_adjustments:
+            self.blocktime_adjustments = adjustments.get(crypto)
 
     def make_supply_table(self, supply_divide=1, table_format='simple'):
         eras = self.supply_data.get('eras')
