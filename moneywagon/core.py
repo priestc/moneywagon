@@ -3,10 +3,12 @@ import random
 import requests
 import time
 import datetime
+import pkg_resources
 
 from concurrent import futures
 
-useragent = 'moneywagon 1.12.1'
+__version__ = pkg_resources.get_distribution('moneywagon').version
+useragent = "Moneywagon %s" % __version__
 
 class ServiceDisagreement(Exception):
     pass

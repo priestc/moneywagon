@@ -367,9 +367,10 @@ class GetBlock(AutoFallbackFetcher):
             'get_block', crypto, block_number=block_number, block_hash=block_hash, latest=latest
         )
 
-    def no_service_msg(self, crypto, block_number='', block_hash='', latest=False):
-        return "Could not get %s block: %s%s%s" % (
-            crypto, block_number, block_hash, 'latest' if latest else ''
+    def no_service_msg(self, crypto, block_number=None, block_hash=None, latest=False):
+        block = block_number or block_hash or ('latest' if latest else 'None')
+        return "Could not get %s block: %s" % (
+            crypto, block
         )
 
     @classmethod

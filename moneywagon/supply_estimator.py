@@ -4,6 +4,7 @@ import pytz
 
 from moneywagon.crypto_data import crypto_data
 from moneywagon.core import CurrencyNotSupported, make_standard_halfing_eras
+from moneywagon.blocktime_adjustments import adjustments
 
 class SupplyEstimator(object):
     """
@@ -29,7 +30,7 @@ class SupplyEstimator(object):
 
         self.minutes_per_block = self.supply_data['minutes_per_block']
         self.method = self.supply_data['method']
-        self.blocktime_adjustments = self.supply_data.get('blocktime_adjustments', None)
+        self.blocktime_adjustments = adjustments.get(crypto)
 
     def make_supply_table(self, supply_divide=1, table_format='simple'):
         eras = self.supply_data.get('eras')
@@ -198,17 +199,23 @@ class SupplyEstimator(object):
 
         return coins
 
-def estimate_block_adjustments(crypto, points=None, intervals=None, **modes):
+def get_block_adjustments(crypto, points=None, intervals=None, **modes):
     """
     This utility is used to determine the actual block rate. The output can be
     directly copied to the `blocktime_adjustments` setting.
     """
     from moneywagon import get_block
+    all_points = []
 
-    if not points and intervals:
+    if intervals:
         latest_block_height = get_block(crypto, latest=True, **modes)['block_number']
         interval = int(latest_block_height / float(intervals))
-        points = [x * interval for x in range(1, intervals - 1)]
+        all_points = [x * interval for x in range(1, intervals - 1)]
+
+    if points:
+        all_points.extend(points)
+
+    all_points.sort()
 
     adjustments = []
     previous_point = 0
@@ -216,7 +223,7 @@ def estimate_block_adjustments(crypto, points=None, intervals=None, **modes):
         or get_block(crypto, block_number=0, **modes)['time']
     )
 
-    for point in points:
+    for point in all_points:
         if point == 0:
             continue
         point_time = get_block(crypto, block_number=point, **modes)['time']
@@ -229,3 +236,34 @@ def estimate_block_adjustments(crypto, points=None, intervals=None, **modes):
         previous_point = point
 
     return adjustments
+
+def get_block_currencies():
+    """
+    Returns a list of all curencies (by code) that have a service defined that
+    implements `get_block`.
+    """
+    return ['btc', 'ltc', 'ppc', 'dash', 'doge']
+    currencies = []
+    for currency, data in crypto_data.items():
+        if type(data) is list:
+            continue
+        block_services = data.get('services', {}).get('get_block', [])
+        if len(block_services) > 0 and not all([x.get_block.by_latest for x in block_services]):
+
+            currencies.append(currency)
+
+    return currencies
+
+def write_blocktime_adjustments(**modes):
+    with open("blocktime_adjustments.py", "w") as f:
+        f.write("adjustments = {\n")
+        for currency in get_block_currencies():
+            if modes.get('verbose'): print("getting adjustments for %s" % currency)
+            try:
+                points = crypto_data[currency]['supply_data'].get('additional_block_interval_adjustment_points', [])
+                adjustments = get_block_adjustments(currency, points=points, intervals=25, **modes)
+                f.write("'%s': [\n%s],\n" % (currency, ''.join(['    %s,\n' % x for x in adjustments])))
+            except Exception as exc:
+                print("broken", currency, exc)
+
+        f.write("}")

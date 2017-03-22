@@ -21,32 +21,7 @@ crypto_data = {
             'minutes_per_block': 10,
             'full_cap': 21000000,
             'blocks_per_era': 210000,
-            'reward_ends_at_block': 6930000,
-            'blocktime_adjustments':  [
-                [0, 13.885491567406111],
-                [18302, 16.671654281863546],
-                [36604, 7.925874221396569],
-                [54906, 7.3687201763013155],
-                [73208, 7.551821294576184],
-                [91510, 7.991036498743307],
-                [109812, 7.8106627690962735],
-                [128114, 8.816203147197028],
-                [146416, 10.321310967835938],
-                [164718, 9.854997632317051],
-                [183020, 9.306084945179034],
-                [201322, 9.969114486577059],
-                [219624, 8.666363421119732],
-                [237926, 8.059192073726004],
-                [256228, 7.738728007867993],
-                [274530, 8.291195862018723],
-                [292832, 8.754288238079628],
-                [311134, 9.152631770662587],
-                [329436, 9.831850799548318],
-                [347738, 9.91655465705023],
-                [366040, 9.689210650930681],
-                [384342, 9.116670309255818],
-                [402644, 9.726924197719738]
-            ]
+            'reward_ends_at_block': 6930000
         },
         'services': {
             'current_price': [
@@ -56,26 +31,26 @@ crypto_data = {
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
-                BitpayInsight, CoinPrism, BitGo, NeoCrypto
+                BitpayInsight, CoinPrism, BitGo,
             ],
             'historical_transactions': [
                 Blockr, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
-                BitpayInsight, Blockonomics, NeoCrypto
+                BitpayInsight, Blockonomics,
             ],
             'single_transaction': [
                 BitpayInsight, Blockr, BitGo, BlockCypher, BlockExplorerCom,
-                NeoCrypto, ChainSo, CoinPrism, SmartBitAU
+                ChainSo, CoinPrism, SmartBitAU
             ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
-                BitpayInsight, NeoCrypto
+                BitpayInsight
             ],
             'unspent_outputs': [
                 Blockr, BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
-                BitGo, NeoCrypto
+                BitGo
             ],
             'get_block': [
-                BitpayInsight, ChainRadar, Blockr, OKcoin, BlockExplorerCom, ChainSo, BitGo, NeoCrypto
+                BitpayInsight, ChainRadar, Blockr, OKcoin, BlockExplorerCom, ChainSo, BitGo
             ],
             "get_optimal_fee": [
                 BitGo, BlockCypher, CoinTape, BitcoinFees21
@@ -93,32 +68,7 @@ crypto_data = {
             'start_coins_per_block': 50,
             'minutes_per_block': 2.5,
             'full_cap': 84000000,
-            'blocks_per_era': 840000,
-            'blocktime_adjustments': [
-                [0, 1.9338132009953866],
-                [46749, 2.611340349526193],
-                [93498, 2.55889323835804],
-                [140247, 2.3058272191205518],
-                [186996, 2.4170905616519427],
-                [233745, 2.5948152188638614],
-                [280494, 2.3652113770704544],
-                [327243, 2.364560382753285],
-                [373992, 2.45983550450277],
-                [420741, 2.471159097877316],
-                [467490, 2.4632630287991897],
-                [514239, 2.405646110077221],
-                [560988, 2.388468915556126],
-                [607737, 2.4500634594679385],
-                [654486, 2.45111517536917],
-                [701235, 2.558257930650923],
-                [747984, 2.486653546956441],
-                [794733, 2.499549366474862],
-                [841482, 2.4864752900240292],
-                [888231, 2.489878927891506],
-                [934980, 2.5067830327921454],
-                [981729, 2.5079752151561174],
-                [1028478, 2.495453378681897]
-            ]
+            'blocks_per_era': 840000
         },
         'services': {
             'current_price': [
@@ -152,33 +102,7 @@ crypto_data = {
         'private_key_prefix': 183,
         'proof_of_stake': True,
         'genesis_date': datetime(2012, 8, 19, 18, 12, 4),
-        'supply_data': {
-            'blocktime_adjustments': [
-                [0, 8.269038615790077],
-                [11636, 8.727241606508537],
-                [23272, 7.766606508536725],
-                [34908, 7.339899163515526],
-                [46544, 8.41290105419961],
-                [58180, 8.225902371949124],
-                [69816, 8.054559126847714],
-                [81452, 8.038581414002522],
-                [93088, 8.383028245674344],
-                [104724, 8.419846453535007],
-                [116360, 8.507221840265842],
-                [127996, 8.275073049157786],
-                [139632, 8.455376990947633],
-                [151268, 8.498400080210839],
-                [162904, 8.364352011000344],
-                [174540, 8.293982754669416],
-                [186176, 8.591709636759482],
-                [197812, 8.447090924716399],
-                [209448, 8.315492150796379],
-                [221084, 8.40462787899622],
-                [232720, 8.423828348802568],
-                [244356, 8.204828406096023],
-                [255992, 8.216364443680531]
-            ]
-        }
+        'supply_data': {},
         'services': {
             'current_price': [
                 BTCE, ChainSo, Bittrex, BTER, Poloniex, Cryptonator, Vircurex
@@ -208,7 +132,7 @@ crypto_data = {
         'address_version_byte': 30,
         'bip44_coin_type': 0x80000003,
         'private_key_prefix': 158,
-        'genesis_date': datetime(2013, 12, 8),
+        'genesis_date': datetime(2013, 12, 6, 10, 25, 40),
         'supply_data': {
             'method': 'per_era',
             'eras': [
@@ -326,22 +250,22 @@ crypto_data = {
                 Poloniex, Bittrex, Cryptonator, ChainSo
             ],
             'address_balance': [
-                VTConline, VertcoinInfo, Verters
+                VTConline, VertcoinInfo, #Verters
             ],
             'historical_transactions': [
-                Verters,
+                #Verters,
             ],
             'single_transaction': [
-                Verters
+                #Verters
             ],
             'push_tx': [
-                Verters
+                #Verters
             ],
             'unspent_outputs': [
-                Verters
+                #Verters
             ],
             'get_block': [
-                Verters,
+                #Verters,
             ]
         },
     },
@@ -406,15 +330,12 @@ crypto_data = {
                 {'start': 20001, 'end': 60000, 'reward': 14}
             ] + make_standard_halfing_eras(
                 start=60000, interval=210240,
-                start_reward=5, halfing_func=lambda x, y: y - ((y/14) * x)
+                start_reward=5, halfing_func=lambda era, reward: reward - ((reward/14) * era)
             ),
-            'blocktime_adjustments': [
-                 [1000, 0.6913416666666667],
-                 [5000, 3.76551],
-                 [10000, 2.5142820833333337],
-                 [90000, 2.6250117647058824]
+            'additional_block_interval_adjustment_points': [
+                 100, 500, 1000, 3000, 5000
             ],
-            'minutes_per_block': 0.17335,
+            'minutes_per_block': 2.5,
             'full_cap': 18900000,
         },
         'services': {
@@ -511,7 +432,6 @@ crypto_data = {
                 CryptoID
             ],
             'get_block': [
-                ProHashing
             ]
         },
     },

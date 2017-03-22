@@ -216,3 +216,10 @@ class Toshi(Service):
             txids=sorted(r['transaction_hashes']),
             tx_count=len(r['transaction_hashes'])
         )
+
+class NeoCrypto(BitpayInsight):
+    service_id = 51
+    protocol = "https"
+    domain = "insight.neocrypto.io"
+    api_tag = 'insight-api'
+    name = "Neocrypt"

@@ -441,14 +441,14 @@ class Blockr(Service):
             )
         return resp['data']
 
-    def get_block(self, crypto, block_hash='', block_number='', latest=False):
+    def get_block(self, crypto, block_hash=None, block_number=None, latest=False):
         if block_number == 0:
             raise SkipThisService("Block 0 not supported (bug in Blockr.io?)")
 
         url ="http://%s.blockr.io/api/v1/block/info/%s%s%s" % (
             crypto,
-            block_hash if block_hash != '' else '',
-            block_number if block_number != '' else '',
+            block_hash if block_hash is not None else '',
+            block_number if block_number is not None else '',
             'last' if latest else ''
         )
         r = self.get_url(url).json()['data']
@@ -577,12 +577,12 @@ class ChainSo(Service):
         resp = self.post_url(url, {'tx_hex': tx_hex})
         return resp.json()['data']['txid']
 
-    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
         if latest:
             raise SkipThisService("This service can't get block by latest")
         else:
-            url = "%s/block/%s/%s%s" % (
-                self.base_url, crypto, block_number, block_hash
+            url = "%s/block/%s/%s" % (
+                self.base_url, crypto, block_hash if block_number is None else block_number
             )
         r = self.get_url(url).json()['data']
         return dict(
@@ -1177,13 +1177,12 @@ class BitpayInsight(Service):
             utxos.append(self._format_utxo(utxo))
         return utxos
 
-    def get_block(self, crypto, block_number='', block_hash='', latest=False):
-
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
         if latest:
             url = "%s://%s/api/status?q=getLastBlockHash" % (self.protocol, self.domain)
             block_hash = self.get_url(url).json()['lastblockhash']
 
-        elif block_number != '':
+        elif block_number is not None:
             url = "%s://%s/api/block-index/%s" % (self.protocol, self.domain, block_number)
             block_hash = self.get_url(url).json()['blockHash']
 
@@ -1597,7 +1596,6 @@ class Mintr(Service):
 class HolyTransaction(Service):
     service_id = 43
     domain = "http://{coin}.holytransaction.com"
-    supported_cryptos = ['gsm', 'erc', 'tx', 'dash']
     name = "Holy Transactions"
 
     explorer_tx_url = "https://{coin}.holytransaction.com/tx/{txid}"
@@ -1663,16 +1661,14 @@ class HolyTransaction(Service):
             confirmations=d['confirmations'],
         )
 
-    def get_block(self, crypto, block_number='', block_hash='', latest=False):
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
         domain = self.domain.format(coin=self._get_coin(crypto))
 
         if latest:
-            url = "%s/api/getblockcount" % domain
-            block_number = int(self.get_url(url).content)
+            block_number = self.small_data(crypto, latest_height=True)
 
-        if block_number:
-            url = "%s/api/getblockhash?index=%s" % (domain, block_number)
-            block_hash = self.get_url(url).content
+        if block_number is not None:
+            block_hash = self.small_data(crypto, hash_for_height=block_number)
 
         url = "%s/api/getblock?hash=%s" % (domain, block_hash)
         r = self.get_url(url).json()
@@ -1688,6 +1684,19 @@ class HolyTransaction(Service):
             merkle_root=r['merkleroot'],
             difficulty=r['difficulty'],
         )
+
+    def small_data(self, crypto, **kwargs):
+        domain = self.domain.format(coin=self._get_coin(crypto))
+
+        if 'latest_height' in kwargs:
+            url = "%s/api/getblockcount" % domain
+            return int(self.get_url(url).content)
+
+        if 'hash_for_height' in kwargs:
+            block_number = kwargs['hash_for_height']
+            url = "%s/api/getblockhash?index=%s" % (domain, block_number)
+            return self.get_url(url).content
+
 
 class UNOCryptap(BitpayInsight):
     service_id = 44
@@ -1765,11 +1774,11 @@ class ProHashing(Service):
 
         return r['id']
 
-    def get_block(self, crypto, block_number='', block_hash='', latest=False):
-        if latest or block_number:
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
+        if latest or block_number is not None:
             raise SkipThisService("Block height and latest not implemented.")
 
-        url = "https://%s/explorerJson/getBlock?coin_id=%s&"% (
+        url = "https://%s/explorerJson/getBlock?coin_id=%s&" % (
             self.domain, self._get_coin(crypto),
         )
         if block_hash:
@@ -1899,13 +1908,6 @@ class BitcoinChain(Service):
     def get_single_transaction(self, crypto, txid):
         url = "%s/v1/tx/%s" % (self.base, txid)
         r = self.get_url(url).json()
-
-class NeoCrypto(BitpayInsight):
-    service_id = 51
-    protocol = "https"
-    domain = "insight.neocrypto.io"
-    api_tag = 'insight-api'
-    name = "Neocrypt"
 
 class CounterParty(Service):
     protocol = "http"
