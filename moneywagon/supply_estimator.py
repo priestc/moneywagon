@@ -14,6 +14,12 @@ class SupplyEstimator(object):
     """
 
     def __init__(self, crypto=None, supply_data=None, genesis_date=None, blocktime_adjustments=True):
+        """
+        Can be initilaized by either passing in a crypto symbol, or by passing in
+        supply_data and genesis_date together. If blocktime_adjustments is True,
+        the blocktime adjustments will be taken from the samples bundled with moneywagon.
+        You can also pass in your own samples (using `get_block_adjustments`)
+        """
         if crypto:
             try:
                 cd = crypto_data[crypto.lower()]
@@ -30,8 +36,8 @@ class SupplyEstimator(object):
 
         self.minutes_per_block = self.supply_data['minutes_per_block']
         self.method = self.supply_data['method']
-        self.blocktime_adjustments = None
-        if blocktime_adjustments:
+        self.blocktime_adjustments = blocktime_adjustments
+        if blocktime_adjustments is True:
             self.blocktime_adjustments = adjustments.get(crypto)
 
     def make_supply_table(self, supply_divide=1, table_format='simple'):
@@ -183,10 +189,10 @@ class SupplyEstimator(object):
         start_coins_per_block = self.supply_data['start_coins_per_block']
         minutes_per_block = self.supply_data['minutes_per_block']
         blocks_per_era = self.supply_data['blocks_per_era']
-        full_cap = self.supply_data['full_cap']
+        full_cap = self.supply_data.get('full_cap')
 
         if not full_cap:
-            full_cap = 1e100 # nearly infinite
+            full_cap = 100000000000 # nearly infinite
 
         coins = 0
         for era, start_block in enumerate(range(0, full_cap, blocks_per_era), 1):
@@ -244,7 +250,7 @@ def get_block_currencies():
     Returns a list of all curencies (by code) that have a service defined that
     implements `get_block`.
     """
-    return ['btc', 'ltc', 'ppc', 'dash', 'doge']
+    return ['btc', 'ltc', 'ppc', 'dash', 'doge', 'ric']
     currencies = []
     for currency, data in crypto_data.items():
         if type(data) is list:

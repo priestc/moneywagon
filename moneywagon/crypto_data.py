@@ -139,10 +139,10 @@ crypto_data = {
                 {'start': 1,      'end': 100000, 'reward': 500000}, # reward was random, average used
                 {'start': 100001, 'end': 144999, 'reward': 250011}, # reward was random, average used
                 {'start': 145000, 'end': 200000, 'reward': 250000},
-                {'start': 200001, 'end': 300000, 'reward': 125000},
-                {'start': 300001, 'end': 400000, 'reward': 62500},
-                {'start': 400001, 'end': 500000, 'reward': 31250},
-                {'start': 500001, 'end': 600000, 'reward': 15625},
+                ] + make_standard_halfing_eras(
+                    start=200000, interval=100000,
+                    start_reward=125000, total_eras=4
+                ) + [
                 {'start': 600001, 'end': None,   'reward': 10000}
             ],
             'minutes_per_block': 1.0,
@@ -820,6 +820,7 @@ crypto_data = {
         'private_key_prefix': 128,
         'genesis_date': datetime(2014, 2, 11, 0, 49, 1),
         'supply_data': {
+            'method': 'standard',
             'start_coins_per_block': 50,
             'minutes_per_block': 2.5,
             'blocks_per_era': 840000,
