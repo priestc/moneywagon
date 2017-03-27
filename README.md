@@ -5,13 +5,13 @@
 
 Moneywagon is a an implementation of a Blockchain Kernel. It is a tool that can be used
 to built lightweight cryptocurrency wallets. Blockchain Kernels provide an
-alternative to the outdated "SPV" method of build lightweight cryptocurrency
+alternative to the outdated "SPV" method of building lightweight cryptocurrency
 services.
 
 
 ## Features
-* Lightweight wallet functionality - Use monewagon to build a bitcoin enabled device
-Works on all crytocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.
+* Lightweight wallet functionality - Use Moneywagon to build a bitcoin enabled device
+Works on all cryptocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.
     1. Get current crypto/fiat exchange rate
     2. Get crypto balance for address
     3. Get historical transactions for crypto address
@@ -375,7 +375,7 @@ This command also supports the `--verbose` and `--paranoid=n` flags (see above).
 
 Get the fiat total of a group of cryptocurrency addresses from a "csv wallet" file.
 
-The `--async` option will do all the price and blockchain fetches asynchronusly
+The `--async` option will do all the price and blockchain fetches asynchronously
 so the operation finishes much faster. The `--collapse` option will sum all balances
 of the same currency to the same line on output.
 
@@ -495,7 +495,7 @@ The nature of this calculation can also be seen in the source string
 ## Block Explorer URLs
 
 Some services have a web interface for viewing blockchain data in a web browser.
-To get a list of all block explorer urls, use the fllowing API:
+To get a list of all block explorer urls, use the following API:
 
 ```
 $ moneywagon explorer-urls btc --address=1HWpyFJ7N6rvFkq3ZCMiFnqM6hviNFmG5X
@@ -692,7 +692,7 @@ you can use moneywagon to do that:
 ```
 
 If the transaction went through successfully, the `push` method will return nothing.
-This functionality works much like the others. If one service is down, it fallsback to another service.
+This functionality works much like the others. If one service is down, it falls back to another service.
 
 
 ## Fee Estimation
@@ -791,7 +791,7 @@ You can also pass in an explicit set of services:
 ```
 
 In this example, one single call will be made to either Blockchain.info or Toshi (chosen at random).
-If one of those services happens to be down at the monment, then the other one will be called and its
+If one of those services happens to be down at the moment, then the other one will be called and its
 value returned.
 
 ## Utilities
