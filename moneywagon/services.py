@@ -2388,3 +2388,27 @@ class Vircurex(Service):
         )
         r = self.get_url(url).json()
         return float(r['value'])
+
+class TradeBlock(Service):
+    service_id = 71
+    
+    def get_single_transaction(self, crypto, txid):
+        url = "https://tradeblock.com/api/blockchain/tx/%s/p" % txid
+        tx = self.get_url(url).json()['data']
+
+        raise SkipThisService("No scriptPubKey in output")
+
+        ins = [{'txid': x['prev_out']['hash'], 'amount': x['value']} for x in tx['ins']]
+
+        outs = [x for x in tx['outs']]
+
+        return dict(
+            txid=txid,
+            size=tx['size'],
+            time=arrow.get(tx['time_received']).datetime,
+            block_hash=tx.get('block_hash', None),
+            block_number=tx['block'],
+            inputs=ins,
+            outputs=outs,
+            fees=tx['fee'],
+        )

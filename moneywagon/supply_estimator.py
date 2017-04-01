@@ -262,8 +262,8 @@ def get_block_currencies():
 
     return currencies
 
-def write_blocktime_adjustments(**modes):
-    with open("blocktime_adjustments.py", "w") as f:
+def write_blocktime_adjustments(path, **modes):
+    with open(path, "w") as f:
         f.write("adjustments = {\n")
         for currency in get_block_currencies():
             if modes.get('verbose'): print("getting adjustments for %s" % currency)

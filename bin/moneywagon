@@ -245,7 +245,7 @@ elif argz.subparser_name == 'wallet-balance':
     for d in fetch_wallet_balances(wallets, fiat, **modes):
         cumm_amount += d['fiat_value']
         rows.append([
-            d['crypto'], d['crypto_value'], d['fiat_value'],
+            d['crypto'].upper(), d['crypto_value'], d['fiat_value'],
             d['conversion_price'], d['price_source']
         ])
         if d['error']:
