@@ -1,9 +1,13 @@
+#!/usr/bin/env python
+
 import sys
 import argparse
 import pkg_resources
 
 from moneywagon import service_table
 from moneywagon.supply_estimator import write_blocktime_adjustments
+
+from subprocess import call
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--minor', action='store_true', help='Make minor release.')
@@ -14,7 +18,7 @@ parser.add_argument('--do-blocktime-adjustments', default=True, action='store_tr
 argz = parser.parse_args()
 
 if not argz.do_blocktime_adjustments:
-    #write_blocktime_adjustments("moneywagon/blocktime_adjustments.py")
+    write_blocktime_adjustments("moneywagon/blocktime_adjustments.py", random=True)
     print "write adjustments"
 else:
     print "skipping adjustments"
@@ -37,3 +41,5 @@ with open("README.md", 'w') as f, open("README_template.md") as t:
     table = service_table(format='html')
     readme = t.read().replace("{{ service_table }}", table)
     f.write(readme)
+
+call(["python", "setup.py", "sdist", "upload"])
