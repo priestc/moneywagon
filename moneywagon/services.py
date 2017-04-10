@@ -2391,7 +2391,7 @@ class Vircurex(Service):
 
 class TradeBlock(Service):
     service_id = 71
-    
+
     def get_single_transaction(self, crypto, txid):
         url = "https://tradeblock.com/api/blockchain/tx/%s/p" % txid
         tx = self.get_url(url).json()['data']
@@ -2412,3 +2412,15 @@ class TradeBlock(Service):
             outputs=outs,
             fees=tx['fee'],
         )
+
+class MasterNodeIO(BitpayInsight):
+    service_id = 72
+    domain = "blockchain.masternode.io"
+    supported_cryptos = ['dash']
+
+class DashOrgInsight(BitpayInsight):
+    service_id = 73
+    domain = "insight.dash.org"
+    api_tag = "insight-api-dash"
+    supported_cryptos = ['dash']
+    protocol = "http"

@@ -19,9 +19,6 @@ argz = parser.parse_args()
 
 if not argz.do_blocktime_adjustments:
     write_blocktime_adjustments("moneywagon/blocktime_adjustments.py", random=True)
-    print "write adjustments"
-else:
-    print "skipping adjustments"
 
 ex_major, ex_minor, ex_point = pkg_resources.get_distribution('moneywagon').version.split(".")
 version = "%s.%s.%s"
@@ -43,3 +40,4 @@ with open("README.md", 'w') as f, open("README_template.md") as t:
     f.write(readme)
 
 call(["python", "setup.py", "sdist", "upload"])
+call(["python", "setup.py", "develop"])

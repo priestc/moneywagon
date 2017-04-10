@@ -343,22 +343,24 @@ crypto_data = {
                 Bittrex, Poloniex, ChainSo, Cryptonator
             ],
             'address_balance': [
-                ProHashing, CryptoID, SiampmDashInsight, HolyTransaction
+                MasterNodeIO, ProHashing, CryptoID, SiampmDashInsight, HolyTransaction,
+                DashOrgInsight
             ],
             'historical_transactions': [
-                ProHashing, SiampmDashInsight
+                ProHashing, DashOrgInsight, SiampmDashInsight, MasterNodeIO
             ],
             'single_transaction': [
-                SiampmDashInsight, HolyTransaction
+                DashOrgInsight, SiampmDashInsight, HolyTransaction, MasterNodeIO
             ],
             'push_tx': [
-                SiampmDashInsight
+                MasterNodeIO, DashOrgInsight, SiampmDashInsight
             ],
             'unspent_outputs': [
-                SiampmDashInsight
+                MasterNodeIO, SiampmDashInsight, DashOrgInsight
             ],
             'get_block': [
-                ProHashing, SiampmDashInsight, HolyTransaction
+                ProHashing, SiampmDashInsight, HolyTransaction, MasterNodeIO,
+                DashOrgInsight
             ]
         },
     },
