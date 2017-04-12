@@ -42,4 +42,5 @@ with open("README.md", 'w') as f, open("README_template.md") as t:
 call(["python", "setup.py", "sdist", "upload"])
 call(["python", "setup.py", "develop"])
 call(["git", "commit", "-am", "'Made release %s" % version])
-call(["git", "push"])
+call(["git", "tag", version])
+call(["git", "push", "--tags"])
