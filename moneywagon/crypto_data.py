@@ -11,7 +11,7 @@ crypto_data = {
     'btc': {
         'name': 'Bitcoin',
         'address_version_byte': 0,
-        'message_magic': 0xd9b4bef9,
+        'message_magic': b"\xf9\xbe\xb4\xd9",
         'bip44_coin_type': 0x80000000,
         'private_key_prefix': 128,
         'genesis_date': datetime(2009, 1, 3, 18, 15, 5),
@@ -60,6 +60,7 @@ crypto_data = {
     'ltc': {
         'name': 'Litecoin',
         'address_version_byte': 48,
+        'message_magic': b"\xfb\xc0\xb6\xdb",
         'bip44_coin_type': 0x80000002,
         'private_key_prefix': 176,
         'genesis_date': datetime(2011, 10, 7),
@@ -129,6 +130,7 @@ crypto_data = {
     },
     'doge': {
         'name': 'Dogecoin',
+        'message_magic': b"\xc0\xc0\xc0\xc0",
         'address_version_byte': 30,
         'bip44_coin_type': 0x80000003,
         'private_key_prefix': 158,
@@ -235,6 +237,7 @@ crypto_data = {
     'vtc': {
         'name': 'Vertcoin',
         'address_version_byte': 71,
+        'message_magic': b"\xfa\xbf\xb5\xda",
         'bip44_coin_type': 0x8000001c,
         'private_key_prefix': 199,
         'genesis_date': datetime(2014, 1, 8),
@@ -272,6 +275,7 @@ crypto_data = {
     'ftc': {
         'name': 'Feathercoin',
         'address_version_byte': 14,
+        'message_magic': b"\xfb\xc0\xb6\xdb",
         'bip44_coin_type': 0x80000008,
         'private_key_prefix': 0x8e,
         'genesis_date': datetime(2013, 4, 16),
@@ -319,6 +323,7 @@ crypto_data = {
     'dash': {
         'name': 'Dash',
         'address_version_byte': 76,
+        "message_magic": b"\xbf\x0c\x6b\xbd",
         'bip44_coin_type': 0x80000005,
         'private_key_prefix': 204,
         'genesis_date': datetime(2014, 1, 19, 1, 40, 18),
