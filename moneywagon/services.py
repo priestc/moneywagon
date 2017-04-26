@@ -2424,3 +2424,7 @@ class DashOrgInsight(BitpayInsight):
     api_tag = "insight-api-dash"
     supported_cryptos = ['dash']
     protocol = "http"
+
+class LocalBitcoinsChain(BitpayInsight):
+    service_id = 74
+    domain = "localbitcoinschain.com"

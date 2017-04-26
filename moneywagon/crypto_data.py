@@ -31,26 +31,27 @@ crypto_data = {
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
-                BitpayInsight, CoinPrism, BitGo,
+                BitpayInsight, CoinPrism, BitGo, LocalBitcoinsChain
             ],
             'historical_transactions': [
                 Blockr, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
-                BitpayInsight, Blockonomics,
+                BitpayInsight, Blockonomics, LocalBitcoinsChain
             ],
             'single_transaction': [
                 BitpayInsight, Blockr, BitGo, BlockCypher, BlockExplorerCom,
-                ChainSo, CoinPrism, SmartBitAU
+                ChainSo, CoinPrism, SmartBitAU, LocalBitcoinsChain
             ],
             'push_tx': [
                 BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
-                BitpayInsight
+                BitpayInsight, LocalBitcoinsChain
             ],
             'unspent_outputs': [
                 Blockr, BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
-                BitGo
+                BitGo, LocalBitcoinsChain
             ],
             'get_block': [
-                BitpayInsight, ChainRadar, Blockr, OKcoin, BlockExplorerCom, ChainSo, BitGo
+                BitpayInsight, ChainRadar, Blockr, OKcoin, BlockExplorerCom, ChainSo,
+                BitGo, LocalBitcoinsChain
             ],
             "get_optimal_fee": [
                 BitGo, BlockCypher, CoinTape, BitcoinFees21
@@ -99,6 +100,7 @@ crypto_data = {
     'ppc': {
         'name': 'Peercoin',
         'address_version_byte': 55,
+        'message_magic': b"\xe6\xe8\xe9\xe5",
         'bip44_coin_type': 0x80000006,
         'private_key_prefix': 183,
         'proof_of_stake': True,
@@ -207,6 +209,7 @@ crypto_data = {
     'myr': {
         'name': 'MyriadCoin',
         'address_version_byte': 50,
+        'message_magic': b"\xaf\x45\x76\xee",
         'bip44_coin_type': 0x8000005a,
         'private_key_prefix': 178,
         'genesis_date': datetime(2014, 2, 23),
