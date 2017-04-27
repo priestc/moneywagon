@@ -81,6 +81,9 @@ class Service(object):
         If the service is returning an error, this function should raise an exception.
         such as SkipThisService
         """
+        if response.status_code == 500:
+            raise SkipThisService("500 - " + response.content)
+
         if response.status_code == 503:
             raise SkipThisService("503 - Temporarily out of service.")
 

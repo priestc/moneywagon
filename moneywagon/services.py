@@ -2428,3 +2428,15 @@ class DashOrgInsight(BitpayInsight):
 class LocalBitcoinsChain(BitpayInsight):
     service_id = 74
     domain = "localbitcoinschain.com"
+
+class ETCchain(Service):
+    service_id = 75
+    base_url = "https://etcchain.com/api/v1/"
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "%sgetAddressBalance?address=%s" % (self.base_url, address)
+        r = self.get_url(url)
+        if crypto.lower() == 'etc':
+            return r.json()['balance']
+        if crypto.lower() == 'eth':
+            return r.json()['eth_balance']

@@ -1008,7 +1008,7 @@ crypto_data = {
                 Poloniex, GDAX, Bittrex, CexIO, EtherChain, Cryptonator
             ],
             'address_balance': [
-                Etherscan, EtherChain
+                Etherscan, EtherChain, ETCchain
             ],
             'historical_transactions': [
 
@@ -1038,6 +1038,9 @@ crypto_data = {
             'current_price': [
                 Poloniex, Bittrex
             ],
+            'address_balance': [
+                ETCchain
+            ]
         },
     },
 
