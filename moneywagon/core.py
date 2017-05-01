@@ -344,6 +344,13 @@ class AutoFallbackFetcher(object):
         exceptions to be raised so the service classes can be debugged and
         fixed quickly.
         """
+        crypto = ((args and args[0]) or kwargs['crypto']).lower()
+        address = kwargs.get('address', '').lower()
+        fiat = kwargs.get('fiat', '').lower()
+
+        if not self.services:
+            raise CurrencyNotSupported("No services defined for %s for %s" % (method_name, crypto))
+
         if self.random_wait_seconds > 0:
             # for privacy... To avoid correlating addresses to same origin
             # only gets called before the first service call. Does not pause
@@ -354,10 +361,6 @@ class AutoFallbackFetcher(object):
             time.sleep(pause_time)
 
         for service in self.services:
-            crypto = ((args and args[0]) or kwargs['crypto']).lower()
-            address = kwargs.get('address', '').lower()
-            fiat = kwargs.get('fiat', '').lower()
-
             if service.supported_cryptos and (crypto not in service.supported_cryptos):
                 if self.verbose:
                     print("SKIP:", "%s not supported for %s" % (crypto, service.__class__.__name__))

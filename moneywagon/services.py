@@ -1624,6 +1624,8 @@ class HolyTransaction(Service):
             return 'dogecoin'
         if crypto == 'grc':
             return 'gridcoin'
+        if crypto == 'blk':
+            return 'blackcoin'
 
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -2440,3 +2442,17 @@ class ETCchain(Service):
             return r.json()['balance']
         if crypto.lower() == 'eth':
             return r.json()['eth_balance']
+
+
+class Bcoin(Service):
+    service_id = 76
+
+    def get_balance(self, crypto, address, confirmations=1):
+        from bs4 import BeautifulSoup
+        import re
+
+        url = "https://bchain.info/%s/addr/%s" % (crypto.upper(), address)
+        doc = BeautifulSoup(self.get_url(url).content, "html.parser")
+        info_script_body = doc.find_all("script")[4].string
+        balance = re.findall(";\n\t\tvar balance =.(\d*);", info_script_body)[0]
+        return float(balance) / 1e8

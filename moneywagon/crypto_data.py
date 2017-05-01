@@ -31,7 +31,7 @@ crypto_data = {
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
-                BitpayInsight, CoinPrism, BitGo, LocalBitcoinsChain
+                BitpayInsight, CoinPrism, BitGo, LocalBitcoinsChain, Bcoin
             ],
             'historical_transactions': [
                 Blockr, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
@@ -78,7 +78,7 @@ crypto_data = {
                 Vircurex, Cryptonator
             ],
             'address_balance': [
-                BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction
+                BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction, Bcoin
             ],
             'historical_transactions': [
                 ProHashing, Blockr, ChainSo
@@ -157,7 +157,8 @@ crypto_data = {
                 Bittrex, Poloniex, Cryptonator, ChainSo, BTER
             ],
             'address_balance': [
-                BlockCypher, ChainSo, DogeChainInfo, ProHashing, HolyTransaction
+                BlockCypher, ChainSo, DogeChainInfo, ProHashing, HolyTransaction,
+                Bcoin
             ],
             'historical_transactions': [
                 BlockCypher, ChainSo, ProHashing
@@ -256,7 +257,7 @@ crypto_data = {
                 Poloniex, Bittrex, Cryptonator, ChainSo
             ],
             'address_balance': [
-                VTConline, VertcoinInfo, #Verters
+                VTConline, VertcoinInfo, Bcoin
             ],
             'historical_transactions': [
                 #Verters,
@@ -304,7 +305,7 @@ crypto_data = {
                 Bittrex, ChainSo, Cryptonator, Vircurex
             ],
             'address_balance': [
-                ChainTips, FeathercoinCom2
+                ChainTips, FeathercoinCom2, Bcoin
             ],
             'historical_transactions': [
                 ChainTips, ProHashing
@@ -414,6 +415,9 @@ crypto_data = {
             'current_price': [
                 Poloniex, Cryptonator
             ],
+            'address_balance': [
+                Bcoin
+            ]
         }
     },
     'aur': {
@@ -768,7 +772,7 @@ crypto_data = {
                 Cryptonator
             ],
             'address_balance': [
-                CryptapUS
+                CryptapUS, Bcoin
             ],
             'historical_transactions': [
 
@@ -840,7 +844,7 @@ crypto_data = {
                 Cryptonator
             ],
             'address_balance': [
-                RICCryptap
+                RICCryptap, Bcoin
             ],
             'historical_transactions': [
                 RICCryptap
@@ -997,7 +1001,7 @@ crypto_data = {
     'eth': {
         'name': 'Ethereum',
         'address_version_byte': None,
-        'bip44_coin_type': 60,
+        'bip44_coin_type': 0x8000003c,
         'private_key_prefix': None,
         'genesis_date': datetime(2015, 7, 30),
         'supply_data': {
@@ -1031,7 +1035,7 @@ crypto_data = {
     'etc': {
         'name': 'Ethereum Classic',
         'address_version_byte': None,
-        'bip44_coin_type': 61,
+        'bip44_coin_type': 0x8000003d,
         'private_key_prefix': None,
         'genesis_date': datetime(2016, 7, 20),
         'services': {
@@ -1040,6 +1044,82 @@ crypto_data = {
             ],
             'address_balance': [
                 ETCchain
+            ]
+        },
+    },
+
+    'xmr': {
+        'name': 'Monero',
+        'address_version_byte': None,
+        'bip44_coin_type': 0x80000080,
+        'private_key_prefix': None,
+        'genesis_date': datetime(2014, 4, 18),
+        'services': {
+            'current_price': [
+                Bittrex, Poloniex
+            ]
+        }
+    },
+
+    'blk': {
+        'name': 'Blackcoin',
+        'message_magic': b"\x70\x35\x22\x05",
+        'address_version_byte': 25,
+        'bip44_coin_type': 0x8000000a,
+        'private_key_prefix': 153,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+                Poloniex
+            ],
+            'address_balance': [
+                HolyTransaction, Bcoin
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
+    'xpm': {
+        'name': 'Primecoin',
+        'address_version_byte': 23,
+        'bip44_coin_type': 0x80000018,
+        'private_key_prefix': 151,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+                Poloniex
+            ],
+            'address_balance': [
+                Bcoin
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
             ]
         },
     },
@@ -1136,7 +1216,6 @@ crypto_data = {
     'cmc': ['CosmosCoin', datetime(2013, 6, 28)],
     'kgc': ['KrugerCoin', datetime(2013, 6, 30)],
     'red': ['RedCoin', datetime(2013, 6, 30)],
-    'xpm': ['Primecoin', datetime(2013, 7, 7)],
     'glx': ['GalaxyCoin', datetime(2013, 7, 8)],
     'dmd': ['Diamond', datetime(2013, 7, 13)],
     'gdc': ['GrandCoin', datetime(2013, 7, 13)],
@@ -1289,7 +1368,6 @@ crypto_data = {
     'adn': ['Aiden', datetime(2014, 4, 5)],
     'xlb': ['LibertyCoin', datetime(2014, 4, 5)],
     'ac':  ['AsiaCoin', datetime(2014, 4, 16)],
-    'xmr': ['Monero', datetime(2014, 4, 18)],
     'cinni':['CinniCoin', datetime(2014, 4, 19)],
     'bst': ['GlobalBoost', datetime(2014, 4, 27)],
     'mon': ['Monocle', datetime(2014, 5, 2)],

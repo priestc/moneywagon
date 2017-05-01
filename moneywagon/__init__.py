@@ -36,6 +36,8 @@ def get_address_balance(crypto, address=None, addresses=None, services=None, **m
     if not services:
         services = get_optimal_services(crypto, 'address_balance')
 
+
+
     args = {'crypto': crypto}
 
     if address:

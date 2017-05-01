@@ -29,6 +29,10 @@ def fetch_wallet_balances(wallets, fiat, **modes):
                 prices[crypto] = {'error': str(exc)}
 
         for crypto, address in wallets:
+            if address.replace('.', '').isdigit():
+                balances[address] = {'balance': float(address)}
+                continue
+
             try:
                 balances[address] = {'balance': get_address_balance(crypto, address.strip(), **modes)}
             except NoService as exc:
@@ -88,7 +92,7 @@ def fetch_wallet_balances(wallets, fiat, **modes):
             'crypto': crypto,
             'address': address,
             'crypto_value': crypto_value,
-            'fiat_value': crypto_value * fiat_price,
+            'fiat_value': (crypto_value or 0) * (fiat_price or 0),
             'conversion_price': fiat_price,
             'price_source': sources[0].name,
             'error': error
