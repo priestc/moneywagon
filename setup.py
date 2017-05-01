@@ -13,7 +13,7 @@ if sys.version_info <= (3,6):
 
 setup(
     name="moneywagon",
-    version='1.14.1',
+    version='1.14.2',
     description='Next Generation Cryptocurrency Platform',
     long_description=open('README.md').read(),
     author='Chris Priest',
