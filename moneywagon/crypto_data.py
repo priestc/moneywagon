@@ -84,7 +84,7 @@ crypto_data = {
                 ProHashing, Blockr, ChainSo
             ],
             'single_transaction': [
-                Blockr, HolyTransaction
+                Blockr, HolyTransaction, BlockCypher
             ],
             'push_tx': [
                 Blockr, ChainSo

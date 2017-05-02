@@ -372,7 +372,7 @@ class Blockr(Service):
             {
                 'address': x['address'],
                 'amount': currency_to_protocol(x['amount']),
-                'scriptPubKey': x['extras']['script']
+                'scriptPubKey': x['extras']['script'] if 'extras' in x else None
             } for x in tx['vouts']
         ]
 
@@ -1653,7 +1653,11 @@ class HolyTransaction(Service):
         else:
             ins = [{'txid': x['coinbase']} for x in d['vin']]
 
-        outs = [{'address': x['scriptPubKey']['addresses'][0], 'amount': x['value']} for x in d['vout']]
+        outs = [{
+            'address': x['scriptPubKey']['addresses'][0],
+            'amount': int(x['value'] * 1e8),
+            'scriptPubKey': x['scriptPubKey']['hex']
+        } for x in d['vout']]
 
         return dict(
             time=arrow.get(d['time']).datetime,
