@@ -13,7 +13,7 @@ if sys.version_info <= (3,6):
 
 setup(
     name="moneywagon",
-    version='1.14.2',
+    version='1.14.3',
     description='Next Generation Cryptocurrency Platform',
     long_description=open('README.md').read(),
     author='Chris Priest',
@@ -35,6 +35,7 @@ setup(
         'base58',
         'pytz',
         'arrow',
-        'bitcoin'
+        'bitcoin',
+        'beautifulsoup4'
     ] + extra_install
 )
