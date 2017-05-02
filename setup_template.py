@@ -35,6 +35,7 @@ setup(
         'base58',
         'pytz',
         'arrow',
-        'bitcoin'
+        'bitcoin',
+        'beautifulsoup4'
     ] + extra_install
 )

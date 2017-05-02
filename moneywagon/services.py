@@ -4,6 +4,9 @@ from .core import Service, NoService, NoData, ServiceError, SkipThisService, cur
 from bitcoin import deserialize
 import arrow
 
+from bs4 import BeautifulSoup
+import re
+
 class Bitstamp(Service):
     service_id = 1
     supported_cryptos = ['btc']
@@ -2448,9 +2451,6 @@ class Bcoin(Service):
     service_id = 76
 
     def get_balance(self, crypto, address, confirmations=1):
-        from bs4 import BeautifulSoup
-        import re
-
         url = "https://bchain.info/%s/addr/%s" % (crypto.upper(), address)
         doc = BeautifulSoup(self.get_url(url).content, "html.parser")
         info_script_body = doc.find_all("script")[4].string

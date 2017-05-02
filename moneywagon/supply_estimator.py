@@ -150,6 +150,11 @@ class SupplyEstimator(object):
 
         return self.genesis_date + datetime.timedelta(minutes=minutes)
 
+    def estimate_confirmations(self, confirmed_at_time):
+        confirmed_block = self.estimate_height_from_date(confirmed_at_time)
+        current_block = self.estimate_height_from_date(datetime.datetime.now())
+        return current_block - confirmed_block
+
     def calculate_supply(self, block_height=None, at_time=None):
         if at_time:
             block_height = self.estimate_height_from_date(at_time)
