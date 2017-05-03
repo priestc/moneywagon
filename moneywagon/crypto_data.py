@@ -799,6 +799,7 @@ crypto_data = {
         'private_key_prefix': 224,
         'genesis_date': datetime(2013, 10, 17),
         'supply_data': {
+            'method': 'standard',
             'full_cap': 250000,
             'blocks_per_era': 100000,
             'minutes_per_block': 3,

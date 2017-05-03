@@ -2380,6 +2380,7 @@ class ChainTips(BitpayInsight):
     service_id = 69
     domain = "fsight.chain.tips"
     supported_cryptos = ['ftc']
+    name = "Chain Tips (Insight))"
 
 class Vircurex(Service):
     service_id = 70
@@ -2426,6 +2427,7 @@ class MasterNodeIO(BitpayInsight):
     service_id = 72
     domain = "blockchain.masternode.io"
     supported_cryptos = ['dash']
+    name = "Masternode.io (Insight)"
 
 class DashOrgInsight(BitpayInsight):
     service_id = 73
@@ -2433,10 +2435,12 @@ class DashOrgInsight(BitpayInsight):
     api_tag = "insight-api-dash"
     supported_cryptos = ['dash']
     protocol = "http"
+    name = "Dash.org (Insight)"
 
 class LocalBitcoinsChain(BitpayInsight):
     service_id = 74
     domain = "localbitcoinschain.com"
+    name = "LocalBitcoinsChain (Insight)"
 
 class ETCchain(Service):
     service_id = 75
