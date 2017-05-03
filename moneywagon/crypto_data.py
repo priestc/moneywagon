@@ -800,7 +800,8 @@ crypto_data = {
         'genesis_date': datetime(2013, 10, 17),
         'supply_data': {
             'full_cap': 250000,
-            'blocks_per_era': 100000
+            'blocks_per_era': 100000,
+            'minutes_per_block': 3,
         },
         'services': {
             'current_price': [
