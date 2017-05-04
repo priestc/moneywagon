@@ -84,7 +84,7 @@ crypto_data = {
                 ProHashing, Blockr, ChainSo
             ],
             'single_transaction': [
-                Blockr, HolyTransaction, BlockCypher
+                Blockr, BlockCypher
             ],
             'push_tx': [
                 Blockr, ChainSo
@@ -117,7 +117,7 @@ crypto_data = {
                 Blockr
             ],
             'single_transaction': [
-                Mintr, Blockr, HolyTransaction
+                Mintr, Blockr
             ],
             'push_tx': [
                 MultiCoins
@@ -164,7 +164,7 @@ crypto_data = {
                 BlockCypher, ChainSo, ProHashing
             ],
             'single_transaction': [
-                BlockCypher, ChainSo, HolyTransaction
+                BlockCypher, ChainSo
             ],
             'push_tx': [
                 ChainSo
@@ -359,7 +359,7 @@ crypto_data = {
                 ProHashing, DashOrgInsight, SiampmDashInsight, MasterNodeIO
             ],
             'single_transaction': [
-                DashOrgInsight, SiampmDashInsight, HolyTransaction, MasterNodeIO
+                DashOrgInsight, SiampmDashInsight, MasterNodeIO
             ],
             'push_tx': [
                 MasterNodeIO, DashOrgInsight, SiampmDashInsight
