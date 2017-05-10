@@ -2464,3 +2464,27 @@ class Bcoin(Service):
         info_script_body = doc.find_all("script")[4].string
         balance = re.findall(";\n\t\tvar balance =.(\d*);", info_script_body)[0]
         return float(balance) / 1e8
+
+class YoBit(Service):
+    service_id = 77
+
+    def get_current_price(self, crypto, fiat):
+        pair = "%s_%s" % (crypto.lower(), fiat.lower())
+        url = "https://yobit.net/api/3/ticker/%s" % pair
+        r = self.get_url(url).json()
+
+        if 'error' in r:
+            raise SkipThisService(r['error'])
+
+        return r[pair]['last']
+
+class Yunbi(Service):
+    sevice_id = 78
+    api_homepage = "https://yunbi.com/swagger"
+
+    def get_current_price(self, crypto, fiat):
+        if fiat.lower() != "cny":
+            raise SkipThisService("Only CNY markets supported")
+        url = "https://yunbi.com//api/v2/tickers/%s%s.json" % (crypto.lower(), fiat.lower())
+        r = self.get_url(url, headers={"Accept": "application/json"}).json()
+        return float(r['ticker']['last'])

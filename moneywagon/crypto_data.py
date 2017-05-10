@@ -26,7 +26,7 @@ crypto_data = {
         'services': {
             'current_price': [
                 Bitstamp, GDAX, Winkdex, BTCE, BTER, BTCChina, Cryptonator, ChainSo,
-                Gemini, CexIO, Poloniex, Bittrex, Huobi, Vircurex
+                Gemini, CexIO, Poloniex, Bittrex, Huobi, Vircurex, YoBit, Yunbi
             ],
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
@@ -75,7 +75,7 @@ crypto_data = {
         'services': {
             'current_price': [
                 BTCE, GDAX, ChainSo, BTER, CexIO, Poloniex, Bittrex, BTCChina,
-                Vircurex, Cryptonator
+                Vircurex, Cryptonator, YoBit
             ],
             'address_balance': [
                 BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction, Bcoin
@@ -108,7 +108,8 @@ crypto_data = {
         'supply_data': {},
         'services': {
             'current_price': [
-                BTCE, ChainSo, Bittrex, BTER, Poloniex, Cryptonator, Vircurex
+                BTCE, ChainSo, Bittrex, BTER, Poloniex, Cryptonator, Vircurex,
+                YoBit
             ],
             'address_balance': [
                 Blockr, Mintr, HolyTransaction
@@ -154,7 +155,7 @@ crypto_data = {
         },
         'services': {
             'current_price': [
-                Bittrex, Poloniex, Cryptonator, ChainSo, BTER
+                Bittrex, Poloniex, Cryptonator, ChainSo, BTER, YoBit
             ],
             'address_balance': [
                 BlockCypher, ChainSo, DogeChainInfo, ProHashing, HolyTransaction,
@@ -254,7 +255,7 @@ crypto_data = {
         },
         'services': {
             'current_price': [
-                Poloniex, Bittrex, Cryptonator, ChainSo
+                Poloniex, Bittrex, Cryptonator, ChainSo, YoBit
             ],
             'address_balance': [
                 VTConline, VertcoinInfo, Bcoin
@@ -349,7 +350,7 @@ crypto_data = {
         },
         'services': {
             'current_price': [
-                Bittrex, Poloniex, ChainSo, Cryptonator
+                Bittrex, Poloniex, ChainSo, Cryptonator, YoBit
             ],
             'address_balance': [
                 MasterNodeIO, ProHashing, CryptoID, SiampmDashInsight, HolyTransaction,
@@ -382,7 +383,7 @@ crypto_data = {
         'proof_of_stake': True,
         'services': {
             'current_price': [
-                Bittrex, ChainSo, Cryptonator
+                Bittrex, ChainSo, Cryptonator, YoBit
             ],
             'address_balance': [
                 ReddcoinCom, ProHashing
@@ -413,7 +414,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 4, 18),
         'services': {
             'current_price': [
-                Poloniex, Cryptonator
+                Poloniex, Cryptonator, YoBit
             ],
             'address_balance': [
                 Bcoin
@@ -428,7 +429,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 2, 2),
         'services': {
             'current_price': [
-                Bittrex, Cryptonator
+                Bittrex, Cryptonator, YoBit
             ],
             'address_balance': [
                 CryptoID, ProHashing
@@ -458,7 +459,7 @@ crypto_data = {
         'genesis_date': datetime(2011, 11, 5),
         'services': {
             'current_price': [
-                Bittrex, Cryptonator
+                YoBit, Bittrex, Cryptonator
             ],
             'address_balance': [
                 Mintr
@@ -489,7 +490,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-
+                YoBit
             ],
             'address_balance': [
             ],
@@ -545,7 +546,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [
-                Bittrex, Cryptonator
+                Bittrex, Cryptonator, YoBit
             ],
             'address_balance': [
                 CryptoID
@@ -769,7 +770,7 @@ crypto_data = {
         'genesis_date': datetime(2012, 10, 1),
         'services': {
             'current_price': [
-                Cryptonator
+                YoBit, Cryptonator
             ],
             'address_balance': [
                 CryptapUS, Bcoin
@@ -946,7 +947,7 @@ crypto_data = {
         'genesis_date': datetime(2014, 12, 23),
         'services': {
             'current_price': [
-                Cryptonator
+                YoBit, Cryptonator
             ],
             'address_balance': [
                 BlockExperts
@@ -1011,7 +1012,8 @@ crypto_data = {
         },
         'services': {
             'current_price': [
-                Poloniex, GDAX, Bittrex, CexIO, EtherChain, Cryptonator
+                Poloniex, GDAX, Bittrex, CexIO, EtherChain, YoBit, Cryptonator,
+                Yunbi
             ],
             'address_balance': [
                 Etherscan, EtherChain, ETCchain
@@ -1042,7 +1044,7 @@ crypto_data = {
         'genesis_date': datetime(2016, 7, 20),
         'services': {
             'current_price': [
-                Poloniex, Bittrex
+                Poloniex, Bittrex, YoBit, Yunbi
             ],
             'address_balance': [
                 ETCchain
