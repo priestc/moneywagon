@@ -2467,6 +2467,7 @@ class Bcoin(Service):
 
 class YoBit(Service):
     service_id = 77
+    api_homepage = "https://www.yobit.net/en/api/"
 
     def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
@@ -2479,7 +2480,7 @@ class YoBit(Service):
         return r[pair]['last']
 
 class Yunbi(Service):
-    sevice_id = 78
+    service_id = 78
     api_homepage = "https://yunbi.com/swagger"
 
     def get_current_price(self, crypto, fiat):
