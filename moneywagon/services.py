@@ -1,4 +1,5 @@
 import json
+
 from requests.auth import HTTPBasicAuth
 from .core import Service, NoService, NoData, ServiceError, SkipThisService, currency_to_protocol
 from bitcoin import deserialize
@@ -6,6 +7,86 @@ import arrow
 
 from bs4 import BeautifulSoup
 import re
+
+class FullNodeCLIInterface(Service):
+    service_id = None
+    cli_path = "" # set to full path to bitcoin-cli executable
+
+    def get_address_balance(self, crypto, address):
+        return self.make_rpc_call(['getbalance', address])
+
+    def get_unspent_outputs(self, crypto, address):
+        outs = self.make_rpc_call(['gettxout', address])
+        return outs
+
+    def push_tx(self, tx_hex):
+        return self.make_rpc_call(["sendrawtransaction", tx_hex])
+
+    def get_block(self, crypto, block_hash=None, block_number=None, latest=False):
+        if latest:
+            block_number = self.make_rpc_call(["getblockcount"])
+
+        if not block_hash:
+            block_hash = self.make_rpc_call(["getblockhash", block_number], skip_json=True)
+
+        r = self.make_rpc_call(['getblock', block_hash])
+        return dict(
+            block_number=r['height'],
+            confirmations=r['confirmations'],
+            time=arrow.get(r['time']).datetime,
+            mining_difficulty=r['difficulty'],
+            hash=r['hash'],
+            next_hash=r.get('nextblockhash', None),
+            size=r['size'],
+            merkle_root=r['merkleroot'],
+            previous_hash=r['previousblockhash'],
+            txids=r['tx'],
+            version=r['version']
+        )
+
+
+    def get_single_transaction(self, crypto, txid, skip_input_info=False):
+        tx = self.make_rpc_call(
+            ["getrawtransaction",  txid,  "1"], internal=skip_input_info
+        )
+
+        ins = []
+        for n in tx['vin']:
+            vout = n['vout']
+            address = None
+            amount = None
+            if not skip_input_info:
+                # do recursion to get amount and address of vin
+                # "skip_input_info" to avoid infitite recursion
+                inner_tx = self.get_single_transaction(crypto, n['txid'], skip_input_info=True)
+                the_out = inner_tx['outputs'][vout]
+                address = the_out['address']
+                amount = the_out['amount']
+
+            ins.append({
+                'address': address,
+                'amount': amount,
+                'txid': n['txid'],
+            })
+
+        outs = [
+            {
+                'address': x['scriptPubKey']['addresses'][0],
+                'amount': x['valueSat'],
+                'scriptPubKey': x['scriptPubKey']['hex'],
+            } for x in tx['vout']
+        ]
+
+        return dict(
+            txid=tx['txid'],
+            confirmations=tx['confirmations'],
+            size=tx['size'],
+            time=arrow.get(tx['blocktime']).datetime,
+            block_hash=tx.get('blockhash', None),
+            block_number=tx['height'],
+            inputs=ins,
+            outputs=outs,
+        )
 
 class Bitstamp(Service):
     service_id = 1
@@ -2486,6 +2567,6 @@ class Yunbi(Service):
     def get_current_price(self, crypto, fiat):
         if fiat.lower() != "cny":
             raise SkipThisService("Only CNY markets supported")
-        url = "https://yunbi.com//api/v2/tickers/%s%s.json" % (crypto.lower(), fiat.lower())
+        url = "https://yunbi.com/api/v2/tickers/%s%s.json" % (crypto.lower(), fiat.lower())
         r = self.get_url(url, headers={"Accept": "application/json"}).json()
         return float(r['ticker']['last'])

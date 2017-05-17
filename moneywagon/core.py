@@ -1,5 +1,7 @@
 from __future__ import print_function
 import random
+import json
+from subprocess import check_output, CalledProcessError, STDOUT
 import requests
 import time
 import datetime
@@ -103,6 +105,27 @@ class Service(object):
             return data['rates'][target_fiat.upper()] * base_amount
         except KeyError:
             raise Exception("Can not convert %s to %s" % (base_fiat, target_fiat))
+
+    def make_rpc_call(self, args, internal=False, skip_json=False):
+        cmd = [self.cli_path] + [str(a) for a in args]
+        if not self.cli_path:
+            raise SkipThisService("No CLI path defined")
+        try:
+            raw = check_output(cmd, stderr=STDOUT)
+        except CalledProcessError as exc:
+            raise SkipThisService("Full node CLI call failed: %s" % exc.output)
+        except OSError as exc:
+            raise SkipThisService(str(exc))
+
+        if not internal:
+            self.last_raw_response = raw
+            self.last_url = " ".join(cmd)
+
+        ret = raw
+        if not skip_json:
+            ret = json.loads(raw)
+
+        return ret
 
     def _external_request(self, method, url, *args, **kwargs):
         """
@@ -608,7 +631,7 @@ def get_optimal_services(crypto, type_of_service):
     try:
         # get best services from curated list
         return crypto_data[crypto.lower()]['services'][type_of_service]
-    except KeyError:
+    except KeyError, TypeError:
         raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
 
 def get_magic_bytes(crypto):
