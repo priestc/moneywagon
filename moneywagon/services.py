@@ -19,8 +19,8 @@ class FullNodeCLIInterface(Service):
         outs = self.make_rpc_call(['gettxout', address])
         return outs
 
-    def push_tx(self, tx_hex):
-        return self.make_rpc_call(["sendrawtransaction", tx_hex])
+    def push_tx(self, crypto, tx_hex):
+        return self.make_rpc_call(["sendrawtransaction", tx_hex], skip_json=True).strip()
 
     def get_block(self, crypto, block_hash=None, block_number=None, latest=False):
         if latest:

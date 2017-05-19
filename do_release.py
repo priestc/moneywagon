@@ -18,7 +18,8 @@ parser.add_argument('--do-blocktime-adjustments', default=True, action='store_tr
 argz = parser.parse_args()
 
 if argz.do_blocktime_adjustments:
-    write_blocktime_adjustments("moneywagon/blocktime_adjustments.py", random=True)
+    print "Writing new bocktime adjustments..."
+    write_blocktime_adjustments("moneywagon/blocktime_adjustments.py", random=True, verbose=True)
 
 ex_major, ex_minor, ex_point = pkg_resources.get_distribution('moneywagon').version.split(".")
 version = "%s.%s.%s"
