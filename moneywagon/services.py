@@ -1909,7 +1909,7 @@ class BlockExperts(Service):
         if crypto == 'dope':
             return 19
 
-    def get_address_balance(self, crypto, address, confirmations=1):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "%s/api?coin=%s&action=getbalance&address=%s" % (
             self.base, crypto, address
         )
@@ -1971,11 +1971,11 @@ class BitcoinChain(Service):
     base = "https://api-r.bitcoinchain.com"
     supported_cryptos = ['btc']
 
-    def get_address_balance(self, crypto, address, confirmations=1):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "%s/v1/address/%s" % (self.base, address)
         return self.get_url(url).json()[0]['balance']
 
-    def get_address_balance_multi(self, crypto, addresses, confirmations=1):
+    def get_balance_multi(self, crypto, addresses, confirmations=1):
         url = "%s/v1/address/%s" % (self.base, ','.join(addresses))
         ret = {}
         for address_data in self.get_url(url).json():
@@ -2570,3 +2570,21 @@ class Yunbi(Service):
         url = "https://yunbi.com/api/v2/tickers/%s%s.json" % (crypto.lower(), fiat.lower())
         r = self.get_url(url, headers={"Accept": "application/json"}).json()
         return float(r['ticker']['last'])
+
+class PressTab(Service):
+    service_id = 79
+
+    def get_balance(self, crypto, address):
+        url = "http://www.presstab.pw/phpexplorer/%s/api.php?address=%s" % (
+            crypto.upper(), address
+        )
+        r = self.get_url(url).json()
+        return r['balance']
+
+class MyNXT(Service):
+    service_id = 80
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "https://www.mynxt.info/blockexplorer/nxt/api_getFullAccount.php?account=%s" % address
+        r = self.get_url(url).json()
+        return float(r['balanceNQT']) / 1e10
