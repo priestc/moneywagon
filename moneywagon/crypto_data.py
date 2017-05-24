@@ -215,6 +215,13 @@ crypto_data = {
         'bip44_coin_type': 0x8000005a,
         'private_key_prefix': 178,
         'genesis_date': datetime(2014, 2, 23),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 1000,
+            'minutes_per_block': 0.5,
+            'full_cap': 2000000000,
+            'blocks_per_era': 967680
+        },
         'services': {
             'current_price': [
                 Poloniex, Bittrex, Cryptonator, ChainSo
