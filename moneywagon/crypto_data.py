@@ -265,7 +265,7 @@ crypto_data = {
                 Poloniex, Bittrex, Cryptonator, ChainSo, YoBit
             ],
             'address_balance': [
-                VTConline, VertcoinInfo, Bcoin
+                VertcoinInfo, VTConline, Bcoin
             ],
             'historical_transactions': [
                 #Verters,
@@ -1165,6 +1165,37 @@ crypto_data = {
             ]
         },
     },
+    'zec': {
+        'name': 'ZCash',
+        'address_version_byte': None,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [
+                Bittrex
+            ],
+            'address_balance': [
+                ZChain
+            ],
+            'historical_transactions': [
+
+            ],
+            'single_transaction': [
+
+            ],
+            'push_tx': [
+
+            ],
+            'unspent_outputs': [
+
+            ],
+            'get_block': [
+
+            ]
+        },
+    },
+
 
     # TEMPLATE
     '': {

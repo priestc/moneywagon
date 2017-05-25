@@ -114,6 +114,7 @@ x.add_argument('wallet', type=argparse.FileType('r'), default=sys.stdin, help='W
 x.add_argument('fiat', action='store', help='Fiat currency')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--euro-format', action='store_true', help='Use european comma style, e.g 2.132.324,87')
 x.add_argument('--async', action='store_true', help='Fetch prices and balances asynchronously')
 x.add_argument('--random-service', action='store_true', help='Use random sources')
 x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
@@ -228,6 +229,13 @@ elif argz.subparser_name == 'explorer-urls':
         print(" ".join(get_explorer_url(argz.crypto, blocknum=argz.blocknum)))
 
 elif argz.subparser_name == 'wallet-balance':
+    euro = argz.euro_format
+    def localized_number(num, euro=False):
+        ret = "{:,.2f}".format(num)
+        if euro:
+            ret = ret.replace(",", "&").replace(".", ",").replace("&", ".")
+        return ret
+
     wallets = [
         (x.split(",")[0], x.split(",")[1].strip())
         for x in argz.wallet.readlines()
@@ -273,9 +281,12 @@ elif argz.subparser_name == 'wallet-balance':
     rows.sort(key=lambda x: x[2], reverse=True) # order by highest fiat value first
 
     # combine fiat value and exchange rate into single cell
-    rows = [[x[0], x[1], "%.2f %s" % (x[2], fiat), "%f %s/%s" % (x[3], fiat, x[0]), x[4]] for x in rows]
+    rows = [
+        [x[0], x[1], "%s %s" % (localized_number(x[2], euro), fiat), "%f %s/%s" % (x[3], fiat, x[0]), x[4]]
+        for x in rows
+    ]
 
-    rows.append(['------', 'Total:', "%.2f %s" % (cumm_amount, fiat), '------'])
+    rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat), '------'])
 
     headers = ['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Price Source']
     print(tabulate(rows, headers=headers, tablefmt=argz.format))
