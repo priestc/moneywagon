@@ -265,13 +265,13 @@ crypto_data = {
                 Poloniex, Bittrex, Cryptonator, ChainSo, YoBit
             ],
             'address_balance': [
-                Bcoin, VertcoinInfo, VTConline
+                Bcoin, VTConline
             ],
             'historical_transactions': [
-                #Verters,
+                VTConline
             ],
             'single_transaction': [
-                #Verters
+                VTConline
             ],
             'push_tx': [
                 #Verters
@@ -280,7 +280,7 @@ crypto_data = {
                 #Verters
             ],
             'get_block': [
-                #Verters,
+                VTConline
             ]
         },
     },

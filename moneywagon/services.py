@@ -1676,10 +1676,95 @@ class Mintr(Service):
             total_fees=float(b['fee'])
         )
 
+class Iquidus(Service):
+    @classmethod
+    def _get_coin(cls, crypto):
+        return ""
 
-class HolyTransaction(Service):
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "%s/ext/getbalance/%s" % (
+            self.base_url.format(coin=self._get_coin(crypto)), address
+        )
+        response = self.get_url(url).json()
+
+        if type(response) == dict and response.get('error') == 'address not found.':
+            return 0
+
+        return response
+
+    def get_transactions(self, crypto, address):
+        domain = self.base_url.format(coin=self._get_coin(crypto))
+        url = "%s/ext/getaddress/%s" % (domain, address)
+        return self.get_url(url).json()
+
+    def get_single_transaction(self, crypto, txid):
+        domain = self.base_url.format(coin=self._get_coin(crypto))
+        url = "%s/api/getrawtransaction?txid=%s&decrypt=1" % (domain, txid)
+
+        d = self.get_url(url).json()
+
+        if not d['vin'] or not d['vin'][0].get('coinbase'):
+            ins = [{'txid': x['txid']} for x in d['vin']]
+        else:
+            ins = [{'txid': x['coinbase']} for x in d['vin']]
+
+        outs = [{
+            'address': x['scriptPubKey']['addresses'][0],
+            'amount': int(x['value'] * 1e8),
+            'scriptPubKey': x['scriptPubKey']['hex']
+        } for x in d['vout']]
+
+        return dict(
+            time=arrow.get(d['time']).datetime,
+            block_hash=d['blockhash'],
+            hex=d['hex'],
+            inputs=ins,
+            outputs=outs,
+            txid=txid,
+            total_out=sum(x['amount'] for x in outs),
+            confirmations=d['confirmations'],
+        )
+
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
+        domain = self.base_url.format(coin=self._get_coin(crypto))
+
+        if latest:
+            block_number = self.small_data(crypto, latest_height=True)
+
+        if block_number is not None:
+            block_hash = self.small_data(crypto, hash_for_height=block_number)
+
+        url = "%s/api/getblock?hash=%s" % (domain, block_hash)
+        r = self.get_url(url).json()
+
+        return dict(
+            confirmations=r.get('confirmations'),
+            size=r['size'],
+            txs=r['tx'],
+            tx_count=len(r['tx']),
+            time=arrow.get(r['time']).datetime,
+            hash=r['hash'],
+            block_number=r['height'],
+            merkle_root=r['merkleroot'],
+            difficulty=r['difficulty'],
+        )
+
+    def small_data(self, crypto, **kwargs):
+        domain = self.base_url.format(coin=self._get_coin(crypto))
+
+        if 'latest_height' in kwargs:
+            url = "%s/api/getblockcount" % domain
+            return int(self.get_url(url).content)
+
+        if 'hash_for_height' in kwargs:
+            block_number = kwargs['hash_for_height']
+            url = "%s/api/getblockhash?index=%s" % (domain, block_number)
+            return self.get_url(url).content
+
+
+class HolyTransaction(Iquidus):
     service_id = 43
-    domain = "http://{coin}.holytransaction.com"
+    base_url = "http://{coin}.holytransaction.com"
     name = "Holy Transactions"
 
     explorer_tx_url = "https://{coin}.holytransaction.com/tx/{txid}"
@@ -1710,82 +1795,6 @@ class HolyTransaction(Service):
             return 'gridcoin'
         if crypto == 'blk':
             return 'blackcoin'
-
-
-    def get_balance(self, crypto, address, confirmations=1):
-        url = "%s/ext/getbalance/%s" % (
-            self.domain.format(coin=self._get_coin(crypto)), address
-        )
-        return float(self.get_url(url).content)
-
-    def get_transactions(self, crypto, address):
-        domain = self.domain.format(coin=self._get_coin(crypto))
-        url = "%s/ext/getaddress/%s" % (domain, address)
-        return self.get_url(url).json()
-
-    def get_single_transaction(self, crypto, txid):
-        domain = self.domain.format(coin=self._get_coin(crypto))
-        url = "%s/api/getrawtransaction?txid=%s&decrypt=1" % (domain, txid)
-
-        d = self.get_url(url).json()
-
-        if not d['vin'] or not d['vin'][0].get('coinbase'):
-            ins = [{'txid': x['txid']} for x in d['vin']]
-        else:
-            ins = [{'txid': x['coinbase']} for x in d['vin']]
-
-        outs = [{
-            'address': x['scriptPubKey']['addresses'][0],
-            'amount': int(x['value'] * 1e8),
-            'scriptPubKey': x['scriptPubKey']['hex']
-        } for x in d['vout']]
-
-        return dict(
-            time=arrow.get(d['time']).datetime,
-            block_hash=d['blockhash'],
-            hex=d['hex'],
-            inputs=ins,
-            outputs=outs,
-            txid=txid,
-            total_out=sum(x['amount'] for x in outs),
-            confirmations=d['confirmations'],
-        )
-
-    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
-        domain = self.domain.format(coin=self._get_coin(crypto))
-
-        if latest:
-            block_number = self.small_data(crypto, latest_height=True)
-
-        if block_number is not None:
-            block_hash = self.small_data(crypto, hash_for_height=block_number)
-
-        url = "%s/api/getblock?hash=%s" % (domain, block_hash)
-        r = self.get_url(url).json()
-
-        return dict(
-            confirmations=r.get('confirmations'),
-            size=r['size'],
-            txs=r['tx'],
-            tx_count=len(r['tx']),
-            time=arrow.get(r['time']).datetime,
-            hash=r['hash'],
-            block_number=r['height'],
-            merkle_root=r['merkleroot'],
-            difficulty=r['difficulty'],
-        )
-
-    def small_data(self, crypto, **kwargs):
-        domain = self.domain.format(coin=self._get_coin(crypto))
-
-        if 'latest_height' in kwargs:
-            url = "%s/api/getblockcount" % domain
-            return int(self.get_url(url).content)
-
-        if 'hash_for_height' in kwargs:
-            block_number = kwargs['hash_for_height']
-            url = "%s/api/getblockhash?index=%s" % (domain, block_number)
-            return self.get_url(url).content
 
 
 class UNOCryptap(BitpayInsight):
@@ -2201,22 +2210,6 @@ class EtherChain(Service):
         data = self.get_url(url).json()['data']
         return data[0]['balance'] / 1e18
 
-class Iquidus(Service):
-    def get_balance(self, crypto, address, confirmations=1):
-        url = "%s/ext/getbalance/%s" % (self.base_url, address)
-        response = self.get_url(url).json()
-
-        if type(response) == dict and response.get('error') == 'address not found.':
-            return 0
-
-        return response
-
-class VertcoinInfo(Iquidus):
-    service_id = 56
-    name = "Vertcoin.info"
-    base_url = "http://explorer.vertcoin.info"
-    supported_cryptos = ['vtc']
-
 class VTConline(Iquidus):
     service_id = 57
     name = "VTCOnline.org"
@@ -2616,21 +2609,21 @@ class BeavercoinBlockchain(BitpayInsight):
     protocol = "http"
 
 
-class CryptoChat(HolyTransaction):
+class CryptoChat(Iquidus):
     service_id = 84
-    domain = "http://{coin}.thecryptochat.net"
+    base_url = "http://{coin}.thecryptochat.net"
 
     @classmethod
     def _get_coin(cls, crypto):
         if crypto == 'bun':
             return "bunnycoin"
 
-class LemoncoinOfficial(HolyTransaction):
+class LemoncoinOfficial(Iquidus):
     service_id = 85
-    domain = "http://45.32.180.199:3001/"
+    base_url = "http://45.32.180.199:3001/"
     supported_crypto = ['lemon']
 
-class GeertcoinExplorer(HolyTransaction):
+class GeertcoinExplorer(Iquidus):
     service_id = 86
-    domain = "http://geertcoin.com:1963"
+    base_url = "http://geertcoin.com:1963"
     supported_crypto = ['geert']

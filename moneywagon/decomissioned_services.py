@@ -223,3 +223,9 @@ class NeoCrypto(BitpayInsight):
     domain = "insight.neocrypto.io"
     api_tag = 'insight-api'
     name = "Neocrypt"
+
+class VertcoinInfo(Iquidus):
+    service_id = 56
+    name = "Vertcoin.info"
+    base_url = "http://explorer.vertcoin.info"
+    supported_cryptos = ['vtc']
