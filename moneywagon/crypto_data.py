@@ -1258,6 +1258,33 @@ crypto_data = {
             'get_block': []
         },
     },
+    'lemon': {
+        'name': 'LemonCoin',
+        'address_version_byte': 48,
+        'bip44_coin_type': None,
+        'private_key_prefix': 176,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 20,
+            'minutes_per_block': 1,
+            'full_cap': 31000000,
+            'blocks_per_era': 525000,
+            'reward_ends_at_block': None,
+            'ico': 10000000,
+            'ico_burn': 8960948,
+        },
+        'services': {
+            'current_price': [Cryptopia],
+            'address_balance': [LemoncoinOfficial],
+            'historical_transactions': [LemoncoinOfficial],
+            'single_transaction': [LemoncoinOfficial],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [LemoncoinOfficial]
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',

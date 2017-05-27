@@ -2624,3 +2624,8 @@ class CryptoChat(HolyTransaction):
     def _get_coin(cls, crypto):
         if crypto == 'bun':
             return "bunnycoin"
+
+class LemoncoinOfficial(HolyTransaction):
+    service_id = 85
+    domain = "http://45.32.180.199:3001/"
+    supported_crypto = ['lemon']
