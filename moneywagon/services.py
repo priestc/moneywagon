@@ -2596,3 +2596,31 @@ class ZChain(Service):
         url = "https://api.zcha.in/v2/mainnet/accounts/%s" % address
         r = self.get_url(url).json()
         return r['balance']
+
+class Cryptopia(Service):
+    service_id = 82
+    api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://www.cryptopia.co.nz/api/GetMarket/%s_%s" % (
+            crypto.upper(), fiat.upper()
+        )
+        r = self.get_url(url).json()
+        return r['Data']['LastPrice']
+
+class BeavercoinBlockchain(BitpayInsight):
+    service_id = 83
+    domain = "blockchain.beavercoin.org"
+    supported_cryptos = ['bvc']
+    name = "Beavercoin (insight)"
+    protocol = "http"
+
+
+class CryptoChat(HolyTransaction):
+    service_id = 84
+    domain = "http://{coin}.thecryptochat.net"
+
+    @classmethod
+    def _get_coin(cls, crypto):
+        if crypto == 'bun':
+            return "bunnycoin"

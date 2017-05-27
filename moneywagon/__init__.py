@@ -7,11 +7,12 @@ import hashlib
 from base58 import b58decode_check
 
 from .core import (
-    AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes, RevertToPrivateMode
+    AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes,
+    RevertToPrivateMode, CurrencyNotSupported
 )
 from .historical_price import Quandl
 from .crypto_data import crypto_data
-from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey
+from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey, privkey_to_address
 
 is_py2 = False
 if sys.version_info <= (3,0):
@@ -235,7 +236,7 @@ def generate_keypair(crypto, seed, password=None):
     That seed can be random, or a brainwallet phrase.
     """
     if crypto in ['eth', 'etc']:
-        raise Exception()
+        raise CurrencyNotSupported("Ethereums not yet supported")
 
     pub_byte, priv_byte = get_magic_bytes(crypto)
     priv = sha256(seed)
@@ -266,6 +267,11 @@ def generate_keypair(crypto, seed, password=None):
 
     return ret
 
+def wif_to_address(crypto, wif):
+    try:
+        return privkey_to_address(wif, crypto_data[crypto]['address_version_byte'])
+    except KeyError:
+        raise CurrencyNotSupported("Currency not yet supported")
 
 def sweep(crypto, private_key, to_address, fee=None, password=None, **modes):
     """

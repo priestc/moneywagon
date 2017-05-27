@@ -265,7 +265,7 @@ crypto_data = {
                 Poloniex, Bittrex, Cryptonator, ChainSo, YoBit
             ],
             'address_balance': [
-                VertcoinInfo, VTConline, Bcoin
+                Bcoin, VertcoinInfo, VTConline
             ],
             'historical_transactions': [
                 #Verters,
@@ -360,7 +360,7 @@ crypto_data = {
                 Bittrex, Poloniex, ChainSo, Cryptonator, YoBit
             ],
             'address_balance': [
-                MasterNodeIO, ProHashing, CryptoID, SiampmDashInsight, HolyTransaction,
+                CryptoID, ProHashing, MasterNodeIO, SiampmDashInsight, HolyTransaction,
                 DashOrgInsight
             ],
             'historical_transactions': [
@@ -877,6 +877,7 @@ crypto_data = {
     'xrp': {
         'name': 'Ripple',
         'genesis_date': datetime(2011, 3, 1),
+        'bip44_coin_type': 0x80000090,
         'services': {
             'current_price': [
                 Bittrex, Poloniex, Cryptonator
@@ -1011,6 +1012,7 @@ crypto_data = {
     'eth': {
         'name': 'Ethereum',
         'address_version_byte': None,
+        'address_encoding': "hex",
         'bip44_coin_type': 0x8000003c,
         'private_key_prefix': None,
         'genesis_date': datetime(2015, 7, 30),
@@ -1025,27 +1027,18 @@ crypto_data = {
             'address_balance': [
                 Etherscan, EtherChain, ETCchain
             ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
     'etc': {
         'name': 'Ethereum Classic',
         'address_version_byte': None,
+        'address_encoding': "hex",
         'bip44_coin_type': 0x8000003d,
         'private_key_prefix': None,
         'genesis_date': datetime(2016, 7, 20),
@@ -1055,7 +1048,12 @@ crypto_data = {
             ],
             'address_balance': [
                 ETCchain
-            ]
+            ],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
@@ -1068,7 +1066,13 @@ crypto_data = {
         'services': {
             'current_price': [
                 Bittrex, Poloniex
-            ]
+            ],
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         }
     },
 
@@ -1086,21 +1090,11 @@ crypto_data = {
             'address_balance': [
                 HolyTransaction, Bcoin
             ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
@@ -1117,21 +1111,11 @@ crypto_data = {
             'address_balance': [
                 Bcoin
             ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
@@ -1148,84 +1132,156 @@ crypto_data = {
             'address_balance': [
                 PressTab, CryptoID
             ],
-            'historical_transactions': [
-
-            ],
+            'historical_transactions': [],
             'single_transaction': [
                 CryptoID
             ],
-            'push_tx': [
-
-            ],
+            'push_tx': [],
             'unspent_outputs': [
                 CryptoID
             ],
-            'get_block': [
-
-            ]
+            'get_block': []
         },
     },
     'zec': {
         'name': 'ZCash',
         'address_version_byte': None,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x80000085,
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                Bittrex
-            ],
-            'address_balance': [
-                ZChain
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+            'current_price': [Bittrex],
+            'address_balance': [ZChain],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
-
-
+    'grs': {
+        'name': 'Groestlcoin',
+        'address_version_byte': 36,
+        "address_encoding": "groestlbase58",
+        'bip44_coin_type': 0x80000011,
+        'private_key_prefix': 128,
+        'message_magic': b"\xF9\xBE\xB4\xD4",
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [Bittrex],
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
+        },
+    },
+    'sys': {
+        'name': 'Syscoin',
+        'address_version_byte': 63,
+        'bip44_coin_type': 0x80000039,
+        'private_key_prefix': 191,
+        'genesis_date': datetime(1, 1, 1),
+        'services': {
+            'current_price': [Bittrex],
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
+        },
+    },
+    'bun': {
+        'name': 'BunnyCoin',
+        'address_version_byte': 26,
+        'bip44_coin_type': None,
+        'private_key_prefix': 154,
+        'genesis_date': datetime(2014, 4, 25, 16, 0),
+        'services': {
+            'current_price': [],
+            'address_balance': [ProHashing, CryptoChat],
+            'historical_transactions': [CryptoChat],
+            'single_transaction': [CryptoChat],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [CryptoChat]
+        },
+    },
+    'bvc': {
+        'name': 'BeaverCoin',
+        'address_version_byte': 25,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'genesis_date': datetime(1, 1, 1),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 8,
+            'minutes_per_block': 1,
+            'full_cap': 3360000,
+            'blocks_per_era': 210000,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': [Cryptonator, Cryptopia],
+            'address_balance': [BeavercoinBlockchain],
+            'historical_transactions': [BeavercoinBlockchain],
+            'single_transaction': [BeavercoinBlockchain],
+            'push_tx': [BeavercoinBlockchain],
+            'unspent_outputs': [BeavercoinBlockchain],
+            'get_block': [BeavercoinBlockchain]
+        },
+    },
+    'cat': {
+        'name': 'Catcoin',
+        'address_version_byte': 21,
+        'bip44_coin_type': None,
+        'private_key_prefix': 149,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 50,
+            'minutes_per_block': 10,
+            'full_cap': 21000000,
+            'blocks_per_era': 210000,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': [],
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
         'address_version_byte': None,
         'bip44_coin_type': None,
         'private_key_prefix': None,
+        'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
-        'services': {
-            'current_price': [
-
-            ],
-            'address_balance': [
-
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
         },
-    }
+        'services': {
+            'current_price': [],
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
+        },
+    },
 }
