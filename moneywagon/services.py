@@ -2629,3 +2629,8 @@ class LemoncoinOfficial(HolyTransaction):
     service_id = 85
     domain = "http://45.32.180.199:3001/"
     supported_crypto = ['lemon']
+
+class GeertcoinExplorer(HolyTransaction):
+    service_id = 86
+    domain = "http://geertcoin.com:1963"
+    supported_crypto = ['geert']

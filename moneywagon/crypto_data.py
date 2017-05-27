@@ -1285,6 +1285,31 @@ crypto_data = {
             'get_block': [LemoncoinOfficial]
         },
     },
+    'geert': {
+        'name': 'Geertcoin',
+        'address_version_byte': 38,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'message_magic': None,
+        'genesis_date': datetime(2017, 2, 12, 6, 25, 23),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 200,
+            'minutes_per_block': 2.5,
+            'full_cap': None,
+            'blocks_per_era': 24000,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': [Cryptopia],
+            'address_balance': [GeertcoinExplorer],
+            'historical_transactions': [GeertcoinExplorer],
+            'single_transaction': [GeertcoinExplorer],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [GeertcoinExplorer]
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
