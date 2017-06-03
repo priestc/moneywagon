@@ -37,5 +37,6 @@ setup(
         'arrow',
         'bitcoin',
         'beautifulsoup4'
-    ] + extra_install
+    ] + extra_install,
+    dependency_links=['git+https://github.com/groestlcoin/groestlcoin-hash-python#egg=groestlcoin_hash'],
 )

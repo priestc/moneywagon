@@ -1185,7 +1185,7 @@ crypto_data = {
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': [Bittrex],
-            'address_balance': [],
+            'address_balance': [ProHashing],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],
@@ -1308,6 +1308,56 @@ crypto_data = {
             'push_tx': [],
             'unspent_outputs': [],
             'get_block': [GeertcoinExplorer]
+        },
+    },
+    'ulm': {
+        'name': 'UnlimitedCoin',
+        'address_version_byte': 68,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'message_magic': None,
+        'genesis_date': datetime(2017, 5, 19, 17, 55, 39),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': [],
+            'address_balance': [UnlimitedCoinOfficial],
+            'historical_transactions': [UnlimitedCoinOfficial],
+            'single_transaction': [UnlimitedCoinOfficial],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [UnlimitedCoinOfficial]
+        },
+    },
+    'mrs': {
+        'name': 'MarsCoin',
+        'address_version_byte': 50,
+        'bip44_coin_type': 0x8000006b,
+        'private_key_prefix': 178,
+        'message_magic': None,
+        'genesis_date': datetime.datetime(2014, 1, 1, 15, 37, 7),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 50,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': [NovaExchange],
+            'address_balance': [MarscoinOfficial],
+            'historical_transactions': [MarscoinOfficial],
+            'single_transaction': [MarscoinOfficial],
+            'push_tx': [MarscoinOfficial],
+            'unspent_outputs': [MarscoinOfficial],
+            'get_block': [MarscoinOfficial]
         },
     },
     # TEMPLATE

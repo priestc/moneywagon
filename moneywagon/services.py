@@ -2627,3 +2627,29 @@ class GeertcoinExplorer(Iquidus):
     service_id = 86
     base_url = "http://geertcoin.com:1963"
     supported_crypto = ['geert']
+
+class UnlimitedCoinOfficial(Iquidus):
+    service_id = 87
+    base_url = "http://unlimitedcoin.info:3001"
+    supported_cryptos = ['ulm']
+
+class MarscoinOfficial(BitpayInsight):
+    service_id = 88
+    domain = "explore.marscoin.org"
+    supported_cryptos = ['mrs']
+    protocol = "http"
+
+class NovaExchange(Service):
+    service_id = 89
+    name = "NovaExchange"
+
+    def check_error(self, response):
+        if response.json()['status'] == 'error':
+            raise ServiceError("NovaExchange returned error: %s" % response.json()['message'])
+
+        super(NovaExchange, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://novaexchange.com/remote/v2/market/info/%s_%s/" % (fiat, crypto)
+        r = self.get_url(url).json()
+        return float(r['markets'][0]['last_price'])
