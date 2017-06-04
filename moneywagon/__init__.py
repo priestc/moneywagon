@@ -18,15 +18,74 @@ is_py2 = False
 if sys.version_info <= (3,0):
     is_py2 = True
 
+class CompositeService(object):
+    """
+    This object mimicks the Service class and is used when the price fetcher has
+    to fetch two different price sources. This object is only used when invoking
+    `report_services`.
+    """
+    def __init__(self, services1, services2, via):
+        self.name = "%s -> %s (via %s)" % (
+            services1[0].name, services2[0].name, via.upper()
+        )
+
+    def __repr__(self):
+        return "<Composite Service: %s>" % self.name
+
+
+def _try_price_fetch(services, args, modes):
+    try:
+        return enforce_service_mode(
+            services, CurrentPrice, args, modes=modes
+        )
+    except ServiceError as exc:
+        return exc
+
+def _do_composit_price_fetch(crypto, convert_crypto, fiat, modes):
+    if modes.get('report_services', False):
+        services1, converted_price = get_current_price(crypto, convert_crypto, **modes)
+        services2, fiat_price = get_current_price(convert_crypto, fiat, **modes)
+        serv = CompositeService(services1, services2, convert_crypto)
+        return [serv], converted_price * fiat_price
+    else:
+        converted_price = get_current_price(crypto, convert_crypto, **modes)
+        fiat_price = get_current_price(convert_crypto, fiat, **modes)
+        return converted_price * fiat_price
 
 def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
+    """
+    High level function for getting current exchange rate for a cryptocurrency.
+    If the fiat value is not explicitly defined, it will try the wildcard service.
+    if that does not work, it tries converting to an intermediate cryptocurrency
+    if available.
+    """
+    fiat = fiat.lower()
+    args = {'crypto': crypto, 'fiat': fiat, 'convert_to': convert_to}
+
     if not services:
         services = get_optimal_services(crypto, 'current_price')
 
-    args = {'crypto': crypto, 'fiat': fiat, 'convert_to': convert_to}
-    return enforce_service_mode(
-        services, CurrentPrice, args, modes=modes
-    )
+    if fiat in services:
+        # first, try service with explicit fiat support
+        try_services = services[fiat]
+        result = _try_price_fetch(try_services, args, modes)
+        if type(result) != Exception:
+            return result
+
+    if '*' in services:
+        # then try wildcard service
+        try_services = services['*']
+        result = _try_price_fetch(try_services, args, modes)
+        if type(result) != Exception:
+            return result
+
+    for composite_attempt in ['btc', 'ltc', 'doge', 'uno']:
+        if composite_attempt in services:
+            result = _do_composit_price_fetch(crypto, composite_attempt, fiat, modes)
+            if type(result) != Exception:
+                return result
+
+    raise result
 
 def get_fiat_exchange_rate(from_fiat, to_fiat):
     from moneywagon.services import FreeCurrencyConverter
@@ -534,16 +593,27 @@ def _get_all_services(crypto=None):
 
     services = []
     for currency, data in to_iterate:
-        if hasattr(data, 'append'):
-            continue
         if 'services' not in data:
             continue
+        if currency == '':
+            continue # template
+
+        # price services are defined as dictionaries, all other services
+        # are defined as a list.
+        price_services = data['services']['current_price']
+        del data['services']['current_price']
+
+        all_services = data['services'].values() + price_services.values()
+        data['services']['current_price'] = price_services
 
         services.append([
-            item for sublist in data['services'].values() for item in sublist
+            item for sublist in all_services for item in sublist
         ])
 
-    return set([item for sublist in services for item in sublist])
+    return sorted(
+        set([item for sublist in services for item in sublist]),
+        key=lambda x: x.__name__
+    )
 
 
 ALL_SERVICES = _get_all_services()

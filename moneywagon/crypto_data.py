@@ -24,10 +24,16 @@ crypto_data = {
             'reward_ends_at_block': 6930000
         },
         'services': {
-            'current_price': [
-                Bitstamp, GDAX, Winkdex, BTCE, BTER, BTCChina, Cryptonator, ChainSo,
-                Gemini, CexIO, Poloniex, Bittrex, Huobi, Vircurex, YoBit, Yunbi
-            ],
+            'current_price': {
+                'usd': [
+                    Bitstamp, GDAX, BTCE, Gemini, Huobi, Bittrex, CexIO, YoBit,
+                    Poloniex, Winkdex, ChainSo
+                ],
+                'cny': [BTER, BTCChina, Huobi, ChainSo],
+                'rur': [BTCE],
+                'eur': [Bitstamp, ChainSo],
+                '*': [Cryptonator, Vircurex, Yunbi]
+            },
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
@@ -73,10 +79,16 @@ crypto_data = {
             'blocks_per_era': 840000
         },
         'services': {
-            'current_price': [
-                BTCE, GDAX, ChainSo, BTER, CexIO, Poloniex, Bittrex, BTCChina,
-                Vircurex, Cryptonator, YoBit
-            ],
+            'current_price': {
+                'usd': [BTCE, GDAX, ChainSo],
+                'cny': [BTCE, Huobi, BTER, ChainSo],
+                'rur': [YoBit],
+                'btc': [BTCE, BTER, ChainSo],
+                '*': [
+                    ChainSo, BTER, CexIO, Poloniex, Bittrex, BTCChina,
+                    Vircurex, Cryptonator, YoBit
+                ],
+            },
             'address_balance': [
                 BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction, Bcoin
             ],
@@ -107,28 +119,20 @@ crypto_data = {
         'genesis_date': datetime(2012, 8, 19, 18, 12, 4),
         'supply_data': {},
         'services': {
-            'current_price': [
-                BTCE, ChainSo, Bittrex, BTER, Poloniex, Cryptonator, Vircurex,
-                YoBit
-            ],
-            'address_balance': [
-                Blockr, Mintr, HolyTransaction
-            ],
-            'historical_transactions': [
-                Blockr
-            ],
-            'single_transaction': [
-                Mintr, Blockr
-            ],
-            'push_tx': [
-                MultiCoins
-            ],
-            'unspent_outputs': [
-                Blockr
-            ],
-            'get_block': [
-                Mintr, HolyTransaction
-            ]
+            'current_price': {
+                'usd': [BTCE, ChainSo],
+                'btc': [
+                    BTCE, ChainSo, Bittrex, BTER, Poloniex, Vircurex,
+                    YoBit
+                ],
+                '*': [Cryptonator]
+            },
+            'address_balance': [Blockr, Mintr, HolyTransaction],
+            'historical_transactions': [Blockr],
+            'single_transaction': [Mintr, Blockr],
+            'push_tx': [MultiCoins],
+            'unspent_outputs': [Blockr],
+            'get_block': [Mintr, HolyTransaction]
         },
     },
     'doge': {
@@ -154,9 +158,15 @@ crypto_data = {
             'full_cap': None,
         },
         'services': {
-            'current_price': [
-                Bittrex, Poloniex, Cryptonator, ChainSo, BTER, YoBit
-            ],
+            'current_price': {
+                'usd': [CexIO],
+                'rur': [YoBit], 'ltc': [NovaExchange],
+                'btc': [
+                    Bittrex, Poloniex, Cryptonator, ChainSo, BTER, YoBit,
+                    NovaExchange, Vircurex
+                ],
+                '*': [Cryptonator],
+            },
             'address_balance': [
                 BlockCypher, ChainSo, DogeChainInfo, ProHashing, HolyTransaction,
                 Bcoin
@@ -185,30 +195,19 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(2013, 10, 29),
         'services': {
-            'current_price': [
-                Bittrex, ChainSo, Poloniex, Cryptonator
-            ],
-            'address_balance': [
-                MyNXT, NXTPortal
-            ],
-            'historical_transactions': [
-                NXTPortal
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+            'current_price': {
+                'btc': [Bittrex, ChainSo, Poloniex],
+                '*': [Cryptonator]
+            },
+            'address_balance': [MyNXT, NXTPortal],
+            'historical_transactions': [NXTPortal],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
-    'myr': {
+    'xmy': {
         'name': 'MyriadCoin',
         'address_version_byte': 50,
         'message_magic': b"\xaf\x45\x76\xee",
@@ -223,9 +222,11 @@ crypto_data = {
             'blocks_per_era': 967680
         },
         'services': {
-            'current_price': [
-                Poloniex, Bittrex, Cryptonator, ChainSo
-            ],
+            'current_price': {
+                'btc': [Bittrex, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia],
+                '*': [Cryptonator]
+            },
             'address_balance': [
                 MYRCryptap, CryptapUS, BirdOnWheels, ProHashing
             ],
@@ -261,27 +262,16 @@ crypto_data = {
             'blocks_per_era': 840000
         },
         'services': {
-            'current_price': [
-                Poloniex, Bittrex, Cryptonator, ChainSo, YoBit
-            ],
-            'address_balance': [
-                Bcoin, VTConline
-            ],
-            'historical_transactions': [
-                VTConline
-            ],
-            'single_transaction': [
-                VTConline
-            ],
-            'push_tx': [
-                #Verters
-            ],
-            'unspent_outputs': [
-                #Verters
-            ],
-            'get_block': [
-                VTConline
-            ]
+            'current_price': {
+                'btc': [Poloniex, Bittrex, ChainSo, YoBit],
+                '*': [Cryptonator],
+            },
+            'address_balance': [Bcoin, VTConline],
+            'historical_transactions': [VTConline],
+            'single_transaction': [VTConline],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [VTConline]
         },
     },
     'ftc': {
@@ -309,9 +299,11 @@ crypto_data = {
             'blocks_per_era': 2100000,
         },
         'services': {
-            'current_price': [
-                Bittrex, ChainSo, Cryptonator, Vircurex
-            ],
+            'current_price': {
+                'btc': [Bittrex, ChainSo, Cryptonator, Vircurex],
+                'ltc': [Cryptopia], 'doge': [Cryptopia], 'uno': [Cryptopia],
+                '*': [Cryptonator]
+            },
             'address_balance': [
                 ChainTips, FeathercoinCom2, Bcoin
             ],
@@ -356,9 +348,14 @@ crypto_data = {
             'full_cap': 18900000,
         },
         'services': {
-            'current_price': [
-                Bittrex, Poloniex, ChainSo, Cryptonator, YoBit
-            ],
+            'current_price': {
+                'usd': [CexIO, Cryptopia], 'doge': [NovaExchange, Cryptopia],
+                'rur': [YoBit], 'ltc': [NovaExchange, Cryptopia, CexIO],
+                'btc': [
+                    Bittrex, Poloniex, Cryptopia, ChainSo, YoBit, CexIO, NovaExchange
+                ],
+                '*': [Cryptonator], 'uno': [Cryptopia], 'moon': [NovaExchange]
+            },
             'address_balance': [
                 CryptoID, ProHashing, MasterNodeIO, SiampmDashInsight, HolyTransaction,
                 DashOrgInsight
@@ -389,27 +386,17 @@ crypto_data = {
         'genesis_date': datetime(2014, 1, 20),
         'proof_of_stake': True,
         'services': {
-            'current_price': [
-                Bittrex, ChainSo, Cryptonator, YoBit
-            ],
-            'address_balance': [
-                ReddcoinCom, ProHashing
-            ],
-            'historical_transactions': [
-                ReddcoinCom, ProHashing
-            ],
-            'single_transaction': [
-                ReddcoinCom
-            ],
-            'push_tx': [
-                ReddcoinCom
-            ],
-            'unspent_outputs': [
-                ReddcoinCom
-            ],
-            'get_block': [
-                ReddcoinCom, ProHashing
-            ]
+            'current_price': {
+                'btc': [Bittrex, YoBit, Cryptopia, NovaExchange],
+                'ltc': [Cryptopia, NovaExchange], 'esp2': [NovaExchange],
+                'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
+            },
+            'address_balance': [ReddcoinCom, ProHashing],
+            'historical_transactions': [ReddcoinCom, ProHashing],
+            'single_transaction': [ReddcoinCom],
+            'push_tx': [ReddcoinCom],
+            'unspent_outputs': [ReddcoinCom],
+            'get_block': [ReddcoinCom, ProHashing]
         },
     },
 
@@ -420,12 +407,11 @@ crypto_data = {
         'private_key_prefix': 0x80,
         'genesis_date': datetime(2011, 4, 18),
         'services': {
-            'current_price': [
-                Poloniex, Cryptonator, YoBit
-            ],
-            'address_balance': [
-                Bcoin
-            ]
+            'current_price': {
+                'btc': [Poloniex, YoBit, Cryptopia, Vircurex], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
+            },
+            'address_balance': [Bcoin]
         }
     },
     'aur': {
@@ -435,26 +421,16 @@ crypto_data = {
         'private_key_prefix': 0x97,
         'genesis_date': datetime(2014, 2, 2),
         'services': {
-            'current_price': [
-                Bittrex, Cryptonator, YoBit
-            ],
-            'address_balance': [
-                CryptoID, ProHashing
-            ],
-            'historical_transactions': [
-                ProHashing
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-                CryptoID
-            ],
-            'get_block': [
-            ]
+            'current_price': {
+                'btc': [Bittrex, YoBit, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
+            },
+            'address_balance': [CryptoID, ProHashing],
+            'historical_transactions': [ProHashing],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': []
         },
     },
 
@@ -465,27 +441,16 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(2011, 11, 5),
         'services': {
-            'current_price': [
-                YoBit, Bittrex, Cryptonator
-            ],
-            'address_balance': [
-                Mintr
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-                Mintr
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-                Mintr
-            ]
+            'current_price': {
+                'btc': [YoBit, Bittrex, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
+            },
+            'address_balance': [Mintr],
+            'historical_transactions': [],
+            'single_transaction': [Mintr],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [Mintr]
         },
     },
 
@@ -496,24 +461,13 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                YoBit
-            ],
-            'address_balance': [
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-            ]
+            'current_price': {'btc': [YoBit]},
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
@@ -524,55 +478,36 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                Bittrex, Cryptonator
-            ],
-            'address_balance': [
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-            ]
+            'current_price': {
+                'btc': [Bittrex],
+                '*': [Cryptonator],
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
     'tx': {
-        'name': 'Transfercoin',
+        'name': 'TransferCoin',
         'address_version_byte': 66,
         'bip44_coin_type': None,
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                Bittrex, Cryptonator, YoBit
-            ],
-            'address_balance': [
-                CryptoID
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-                CryptoID
-            ],
-            'get_block': [
-
-            ]
+            'current_price': {
+                'btc': [Bittrex, YoBit, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
+            },
+            'address_balance': [CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': []
         },
     },
 
@@ -583,27 +518,16 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                Bittrex, Poloniex, Cryptonator
-            ],
-            'address_balance': [
-
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+            'current_price': {
+                'btc': [Bittrex, Poloniex, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
@@ -614,58 +538,36 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(2013, 12, 21),
         'services': {
-            'current_price': [
-                Cryptonator
-            ],
-            'address_balance': [
-                CryptoID
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-                CryptoID
-            ],
-            'get_block': [
-
-            ]
+            'current_price': {
+                'ltc': [BTER, NovaExchange], 'moon': [NovaExchange],
+                '*': [Cryptonator], 'piggy': [NovaExchange]
+            },
+            'address_balance': [CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': []
         },
     },
 
-    'karm': {
-        'name': 'Karma',
+    'karma': {
+        'name': 'KarmaCoin',
         'address_version_byte': 45,
         'bip44_coin_type': None,
         'private_key_prefix': None,
         'genesis_date': datetime(2014, 2, 4),
         'services': {
-            'current_price': [
-
-            ],
-            'address_balance': [
-                CryptoID
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-                CryptoID
-            ],
-            'get_block': [
-
-            ]
+            'current_price': {
+                'btc': [YoBit],
+                '*': [Cryptonator],
+            },
+            'address_balance': [CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': []
         },
     },
 
@@ -676,27 +578,13 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(2014, 2, 14),
         'services': {
-            'current_price': [
-
-            ],
-            'address_balance': [
-                CryptoID
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-                CryptoID
-            ],
-            'get_block': [
-
-            ]
+            'current_price': {},
+            'address_balance': [CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': []
         },
     },
 
@@ -714,27 +602,16 @@ crypto_data = {
             'blocks_per_era': 210000
         },
         'services': {
-            'current_price': [
-                Bittrex, Cryptonator
-            ],
-            'address_balance': [
-                CryptoID, ProHashing
-            ],
-            'historical_transactions': [
-                ProHashing
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-                CryptoID
-            ],
-            'get_block': [
-                ProHashing
-            ]
+            'current_price': {
+                'btc': [Bittrex, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator],
+            },
+            'address_balance': [CryptoID, ProHashing],
+            'historical_transactions': [ProHashing],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': [ProHashing]
         },
     },
 
@@ -745,27 +622,15 @@ crypto_data = {
         'private_key_prefix': 213,
         'genesis_date': datetime(2012, 7, 15),
         'services': {
-            'current_price': [
-                Cryptonator
-            ],
-            'address_balance': [
-
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+            'current_price': {
+                '*': [Cryptonator],
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
@@ -776,27 +641,16 @@ crypto_data = {
         'private_key_prefix': 136,
         'genesis_date': datetime(2012, 10, 1),
         'services': {
-            'current_price': [
-                YoBit, Cryptonator
-            ],
-            'address_balance': [
-                CryptapUS, Bcoin
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-
-            ]
+            'current_price': {
+                'btc': [YoBit, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], '*': [Cryptonator],
+            },
+            'address_balance': [CryptapUS, Bcoin],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
 
@@ -813,27 +667,17 @@ crypto_data = {
             'minutes_per_block': 3,
         },
         'services': {
-            'current_price': [
-                Bittrex, Cryptonator
-            ],
-            'address_balance': [
-                UNOCryptap, CryptoID
-            ],
-            'historical_transactions': [
-                UNOCryptap, CryptoID
-            ],
-            'single_transaction': [
-                UNOCryptap
-            ],
-            'push_tx': [
-                UNOCryptap
-            ],
-            'unspent_outputs': [
-                UNOCryptap, CryptoID
-            ],
-            'get_block': [
-                UNOCryptap
-            ]
+            'current_price': {
+                'btc': [Bittrex, CexIO, Cryptopia], 'ltc': [Cryptopia],
+                'usd': [CexIO, Cryptopia], 'doge': [Cryptopia],
+                '*': [Cryptonator],
+            },
+            'address_balance': [UNOCryptap, CryptoID],
+            'historical_transactions': [UNOCryptap, CryptoID],
+            'single_transaction': [UNOCryptap],
+            'push_tx': [UNOCryptap],
+            'unspent_outputs': [UNOCryptap, CryptoID],
+            'get_block': [UNOCryptap]
         },
     },
 
@@ -850,27 +694,16 @@ crypto_data = {
             'blocks_per_era': 840000,
         },
         'services': {
-            'current_price': [
-                Cryptonator
-            ],
-            'address_balance': [
-                RICCryptap, Bcoin, CryptoID
-            ],
-            'historical_transactions': [
-                RICCryptap
-            ],
-            'single_transaction': [
-                RICCryptap
-            ],
-            'push_tx': [
-                RICCryptap
-            ],
-            'unspent_outputs': [
-                RICCryptap, CryptoID
-            ],
-            'get_block': [
-                RICCryptap
-            ]
+            'current_price': {
+                'btc': [Cryptonator, Poloniex],
+                '*': [Cryptonator],
+            },
+            'address_balance': [RICCryptap, Bcoin, CryptoID],
+            'historical_transactions': [RICCryptap],
+            'single_transaction': [RICCryptap],
+            'push_tx': [RICCryptap],
+            'unspent_outputs': [RICCryptap, CryptoID],
+            'get_block': [RICCryptap]
         },
     },
 
@@ -879,40 +712,29 @@ crypto_data = {
         'genesis_date': datetime(2011, 3, 1),
         'bip44_coin_type': 0x80000090,
         'services': {
-            'current_price': [
-                Bittrex, Poloniex, Cryptonator
-            ],
+            'current_price': {
+                'btc': [Bittrex, Bitstamp, Poloniex],
+                'usd': [Bitstamp], 'eur': [Bitstamp], '*': [Cryptonator]
+            },
         }
     },
 
-    'hemp': {
-        'name': 'Hempcoin',
+    'thc': {
+        'name': 'HempCoin',
         'address_version_byte': 40,
         'bip44_coin_type': None,
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-
-            ],
-            'address_balance': [
-                BlockExperts
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-                BlockExperts
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-                BlockExperts
-            ]
+            'current_price': {
+                'btc': [Bittrex], '*': [Cryptonator],
+            },
+            'address_balance': [BlockExperts],
+            'historical_transactions': [],
+            'single_transaction': [BlockExperts],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [BlockExperts]
         },
     },
 
@@ -923,27 +745,16 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                Bittrex, Cryptonator
-            ],
-            'address_balance': [
-                BlockExperts
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-                BlockExperts
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-                BlockExperts
-            ]
+            'current_price': {
+                'btc': [Bittrex, Cryptonator],
+                '*': [Cryptonator],
+            },
+            'address_balance': [BlockExperts],
+            'historical_transactions': [],
+            'single_transaction': [BlockExperts],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [BlockExperts]
         },
     },
 
@@ -954,27 +765,17 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(2014, 12, 23),
         'services': {
-            'current_price': [
-                YoBit, Cryptonator
-            ],
-            'address_balance': [
-                BlockExperts
-            ],
-            'historical_transactions': [
-
-            ],
-            'single_transaction': [
-                BlockExperts
-            ],
-            'push_tx': [
-
-            ],
-            'unspent_outputs': [
-
-            ],
-            'get_block': [
-                BlockExperts
-            ]
+            'current_price': {
+                'btc': [YoBit, Cryptonator], 'doge': [Cryptopia],
+                'ltc': [Cryptopia], 'uno': [Cryptopia],
+                '*': [Cryptonator],
+            },
+            'address_balance': [BlockExperts],
+            'historical_transactions': [],
+            'single_transaction': [BlockExperts],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [BlockExperts]
         },
     },
 
@@ -985,27 +786,16 @@ crypto_data = {
         'private_key_prefix': 128,
         'genesis_date': datetime(2014, 1, 2),
         'services': {
-            'current_price': [
-                Bittrex, Poloniex, Cryptonator
-            ],
-            'address_balance': [
-                CoinDaddy1, CoinDaddy2, CounterPartyChain
-            ],
-            'historical_transactions': [
-                CoinDaddy1, CoinDaddy2
-            ],
-            'single_transaction': [
-                CoinDaddy1, CoinDaddy2
-            ],
-            'push_tx': [
-                CoinDaddy1, CoinDaddy2
-            ],
-            'unspent_outputs': [
-                CoinDaddy1
-            ],
-            'get_block': [
-                CoinDaddy1, CoinDaddy2
-            ]
+            'current_price': {
+                'btc': [Bittrex, Poloniex, Cryptonator],
+                '*': [Cryptonator],
+            },
+            'address_balance': [CoinDaddy1, CoinDaddy2, CounterPartyChain],
+            'historical_transactions': [CoinDaddy1, CoinDaddy2],
+            'single_transaction': [CoinDaddy1, CoinDaddy2],
+            'push_tx': [CoinDaddy1, CoinDaddy2],
+            'unspent_outputs': [CoinDaddy1],
+            'get_block': [CoinDaddy1, CoinDaddy2]
         },
     },
 
@@ -1020,13 +810,16 @@ crypto_data = {
             'instamine': 72009990.50
         },
         'services': {
-            'current_price': [
-                Poloniex, GDAX, Bittrex, CexIO, EtherChain, YoBit, Cryptonator,
-                Yunbi
-            ],
-            'address_balance': [
-                Etherscan, EtherChain, ETCchain
-            ],
+            'current_price': {
+                'rur': [YoBit], 'usd': [GDAX],
+                'btc': [
+                    Poloniex, GDAX, Bittrex, CexIO, EtherChain, YoBit,
+                    Yunbi, Cryptopia
+                ],
+                'ltc': [Cryptopia], 'doge': [Cryptopia], 'uno': [Cryptopia],
+                '*': [Cryptonator],
+            },
+            'address_balance': [Etherscan, EtherChain, ETCchain],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],
@@ -1043,12 +836,13 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(2016, 7, 20),
         'services': {
-            'current_price': [
-                Poloniex, Bittrex, YoBit, Yunbi
-            ],
-            'address_balance': [
-                ETCchain
-            ],
+            'current_price': {
+                'btc': [Poloniex, Bittrex, CexIO, Cryptopia, YoBit, Yunbi],
+                'usd': [CexIO], 'doge': [Cryptopia],
+                'ltc': [CexIO, Cryptopia], 'uno': [Cryptopia],
+                '*': [Cryptonator],
+            },
+            'address_balance': [ETCchain],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],
@@ -1064,9 +858,11 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(2014, 4, 18),
         'services': {
-            'current_price': [
-                Bittrex, Poloniex
-            ],
+            'current_price': {
+                'btc': [Poloniex, Bittrex, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia], 'usd': [Cryptopia],
+                'nzd': [Cryptopia], '*': [Cryptonator],
+            },
             'address_balance': [],
             'historical_transactions': [],
             'single_transaction': [],
@@ -1084,9 +880,11 @@ crypto_data = {
         'private_key_prefix': 153,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                Poloniex
-            ],
+            'current_price': {
+                'btc': [Poloniex, Cryptopia], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia],
+                '*': [Cryptonator],
+            },
             'address_balance': [
                 HolyTransaction, Bcoin
             ],
@@ -1105,9 +903,11 @@ crypto_data = {
         'private_key_prefix': 151,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                Poloniex
-            ],
+            'current_price': {
+                'btc': [Poloniex, Cryptopia, Vircurex], 'ltc': [Cryptopia],
+                'doge': [Cryptopia], 'uno': [Cryptopia],
+                '*': [Cryptonator],
+            },
             'address_balance': [
                 Bcoin
             ],
@@ -1126,20 +926,16 @@ crypto_data = {
         'private_key_prefix': 212,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [
-                Bittrex
-            ],
-            'address_balance': [
-                PressTab, CryptoID
-            ],
+            'current_price': {
+                'btc': [Bittrex, Cryptopia, YoBit], 'usd': [Cryptopia],
+                'ltc': [Cryptopia], 'doge': [Cryptopia], 'uno': [Cryptopia],
+                '*': [Cryptonator],
+            },
+            'address_balance': [PressTab, CryptoID],
             'historical_transactions': [],
-            'single_transaction': [
-                CryptoID
-            ],
+            'single_transaction': [CryptoID],
             'push_tx': [],
-            'unspent_outputs': [
-                CryptoID
-            ],
+            'unspent_outputs': [CryptoID],
             'get_block': []
         },
     },
@@ -1150,7 +946,10 @@ crypto_data = {
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [Bittrex],
+            'current_price': {
+                'btc': [Bittrex, YoBit],
+                '*': [Cryptonator],
+            },
             'address_balance': [ZChain],
             'historical_transactions': [],
             'single_transaction': [],
@@ -1168,7 +967,10 @@ crypto_data = {
         'message_magic': b"\xF9\xBE\xB4\xD4",
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [Bittrex],
+            'current_price': {
+                'btc': [Bittrex],
+                '*': [Cryptonator],
+            },
             'address_balance': [],
             'historical_transactions': [],
             'single_transaction': [],
@@ -1184,7 +986,10 @@ crypto_data = {
         'private_key_prefix': 191,
         'genesis_date': datetime(1, 1, 1),
         'services': {
-            'current_price': [Bittrex],
+            'current_price': {
+                'btc': [Bittrex, YoBit],
+                '*': [Cryptonator],
+            },
             'address_balance': [ProHashing],
             'historical_transactions': [],
             'single_transaction': [],
@@ -1200,7 +1005,9 @@ crypto_data = {
         'private_key_prefix': 154,
         'genesis_date': datetime(2014, 4, 25, 16, 0),
         'services': {
-            'current_price': [],
+            'current_price': {
+                'ltc': [Cryptopia], 'doge': [Cryptopia], 'uno': [Cryptopia],
+            },
             'address_balance': [ProHashing, CryptoChat],
             'historical_transactions': [CryptoChat],
             'single_transaction': [CryptoChat],
@@ -1224,7 +1031,10 @@ crypto_data = {
             'reward_ends_at_block': None
         },
         'services': {
-            'current_price': [Cryptonator, Cryptopia],
+            'current_price': {
+                'btc': [Cryptopia], 'ltc': [Cryptopia], 'doge': [Cryptopia],
+                'uno': [Cryptopia],
+            },
             'address_balance': [BeavercoinBlockchain],
             'historical_transactions': [BeavercoinBlockchain],
             'single_transaction': [BeavercoinBlockchain],
@@ -1249,7 +1059,7 @@ crypto_data = {
             'reward_ends_at_block': None
         },
         'services': {
-            'current_price': [],
+            'current_price': {},
             'address_balance': [],
             'historical_transactions': [],
             'single_transaction': [],
@@ -1276,7 +1086,10 @@ crypto_data = {
             'ico_burn': 8960948,
         },
         'services': {
-            'current_price': [Cryptopia],
+            'current_price': {
+                'btc': [Cryptopia], 'ltc': [Cryptopia], 'doge': [Cryptopia],
+                'uno': [Cryptopia],
+            },
             'address_balance': [LemoncoinOfficial],
             'historical_transactions': [LemoncoinOfficial],
             'single_transaction': [LemoncoinOfficial],
@@ -1301,7 +1114,9 @@ crypto_data = {
             'reward_ends_at_block': None
         },
         'services': {
-            'current_price': [Cryptopia],
+            'current_price': {
+                'btc': [Cryptopia], 'ltc': [Cryptopia], 'doge': [Cryptopia]
+            },
             'address_balance': [GeertcoinExplorer],
             'historical_transactions': [GeertcoinExplorer],
             'single_transaction': [GeertcoinExplorer],
@@ -1326,7 +1141,7 @@ crypto_data = {
             'reward_ends_at_block': None
         },
         'services': {
-            'current_price': [],
+            'current_price': {},
             'address_balance': [UnlimitedCoinOfficial],
             'historical_transactions': [UnlimitedCoinOfficial],
             'single_transaction': [UnlimitedCoinOfficial],
@@ -1341,7 +1156,7 @@ crypto_data = {
         'bip44_coin_type': 0x8000006b,
         'private_key_prefix': 178,
         'message_magic': None,
-        'genesis_date': datetime.datetime(2014, 1, 1, 15, 37, 7),
+        'genesis_date': datetime(2014, 1, 1, 15, 37, 7),
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
@@ -1351,7 +1166,7 @@ crypto_data = {
             'reward_ends_at_block': None
         },
         'services': {
-            'current_price': [NovaExchange],
+            'current_price': {'btc': [NovaExchange]},
             'address_balance': [MarscoinOfficial],
             'historical_transactions': [MarscoinOfficial],
             'single_transaction': [MarscoinOfficial],

@@ -95,10 +95,9 @@ class Bitstamp(Service):
     name = "Bitstamp"
 
     def get_current_price(self, crypto, fiat):
-        if fiat.lower() != 'usd':
-            raise SkipThisService('Bitstamp only does USD->BTC')
-
-        url = "https://www.bitstamp.net/api/ticker/"
+        url = "https://www.bitstamp.net/api/v2/ticker/%s%s" % (
+            crypto.lower(), fiat.lower()
+        )
         response = self.get_url(url).json()
         return float(response['last'])
 
@@ -557,6 +556,12 @@ class BTCE(Service):
     api_homepage = "https://btc-e.com/api/documentation"
     name = "BTCe"
 
+    def check_error(self, response):
+        j = response.json()
+        if 'error' in j:
+            raise ServiceError("BTCe returned error: %s" % j['error'])
+        super(BTCE, self).check_error(response)
+
     def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
         url = "https://btc-e.com/api/3/ticker/" + pair
@@ -577,8 +582,10 @@ class Cryptonator(Service):
         super(Cryptonator, self).check_error(response)
 
     def get_current_price(self, crypto, fiat):
+        if crypto == 'xmy':
+            crypto = 'myr'
         pair = "%s-%s" % (crypto, fiat)
-        url = "https://www.cryptonator.com/api/ticker/%s" % pair
+        url = "https://api.cryptonator.com/api/ticker/%s?utm_referrer=" % pair
         response = self.get_url(url).json()
         return float(response['ticker']['price'])
 
@@ -1118,30 +1125,16 @@ class BTER(Service):
     api_homepage = "https://bter.com/api"
     name = "BTER"
 
+    def check_error(self, response):
+        r = response.json()
+        if r['result'] == 'false':
+            raise ServiceError("BTER returned error: " + r['message'])
+
+        super(BTER, self).check_error(response)
+
     def get_current_price(self, crypto, fiat):
-        url_template = "http://data.bter.com/api/1/ticker/%s_%s"
-        url = url_template % (crypto, fiat)
-
+        url = "http://data.bter.com/api/1/ticker/%s_%s" % (crypto, fiat)
         response = self.get_url(url).json()
-
-        if response['result'] == 'false': # bter api returns this as string
-            # bter doesn't support this pair, we need to make 2 calls and
-            # do the math ourselves. The extra http request isn't a problem because
-            # of caching. BTER only has USD, BTC and CNY
-            # markets, so any other fiat will likely fail.
-
-            url = url_template % (crypto, 'btc')
-            response = self.get_url(url)
-            altcoin_btc = float(response['last'])
-
-            url = url_template % ('btc', fiat)
-            response = self.get_url(url)
-            btc_fiat = float(response['last'])
-
-            self.name = 'BTER (calculated)'
-
-            return (btc_fiat * altcoin_btc)
-
         return float(response['last'] or 0)
 
 ################################################
@@ -2352,12 +2345,18 @@ class CexIO(Service):
     api_homepage = "https://cex.io/rest-api"
     name = "Cex.io"
 
+    def check_error(self, response):
+        j = response.json()
+        if 'error' in j:
+            raise ServiceError("CexIO returned error: %s" % j['error'])
+        super(CexIO, self).check_error(response)
+
     def get_current_price(self, crypto, fiat):
-        url = "https://cex.io/api/last_price/%s/%s" % (
-            crypto.upper(), fiat.upper()
+        url = "https://c-cex.com/t/%s-%s.json" % (
+            crypto.lower(), fiat.lower()
         )
         response = self.get_url(url).json()
-        return float(response['lprice'])
+        return float(response['ticker']['lastprice'])
 
 class Poloniex(Service):
     service_id = 65
@@ -2406,27 +2405,20 @@ class Bittrex(Service):
         if fiat.lower() == 'usd':
             fiat = 'usdt'
 
-        if crypto == fiat:
-            return 1.0
+        if crypto == 'xmy':
+            crypto = 'myr'
 
         url = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s" % (
             fiat.upper(), crypto.upper()
         )
 
-        try:
-            response = self.get_url(url).json()
-        except ServiceError:
-            if crypto == 'btc':
-                raise # avoid infnite loop
-            btc_exchange = self.get_current_price('btc', fiat)
-            btc_price = self.get_current_price(crypto, 'btc')
-            return btc_price * btc_exchange
+        r = self.get_url(url).json()
+        return r['result']['Last']
 
-        return response['result']['Last']
 
 class Huobi(Service):
     service_id = 67
-    api_homepage = "https://www.huobi.com/help/index.php?a=market_help"
+    api_homepage = "https://github.com/huobiapi/API_Docs_en/wiki"
     name = "Huobi"
 
     def check_error(self, response):
@@ -2437,11 +2429,18 @@ class Huobi(Service):
         super(Huobi, self).check_error(response)
 
     def get_current_price(self, crypto, fiat):
-        if fiat.lower() != "cny":
-            raise SkipThisService("CNY only fiat supported")
-        url = "http://api.huobi.com/staticmarket/ticker_%s_json.js" % crypto.lower()
-        response = self.get_url(url).json()
-        return response['ticker']['last']
+        if fiat.lower() == "cny":
+            fiat = 'static'
+        elif fiat.lower() == 'usd':
+            pass
+        else:
+            raise SkipThisService("CNY and USD only fiat supported")
+
+        url = "http://api.huobi.com/%smarket/detail_%s_json.js" % (
+            fiat.lower(), crypto.lower()
+        )
+        r = self.get_url(url).json()
+        return r['p_last']
 
 
 class FeathercoinCom2(BitcoinAbe):
@@ -2466,6 +2465,13 @@ class Vircurex(Service):
         'LTC','NMC','PPC','QRK','TRC','XPM'
     ]
 
+    def check_error(self, response):
+        j = response.json()
+        if j['status'] != 0:
+            raise ServiceError("Vircurex returned error: %s" % j['status_text'])
+
+        super(Vircurex, self).check_error(response)
+
     def get_current_price(self, crypto, fiat):
         url = "%s/get_last_trade.json?base=%s&alt=%s" % (
             self.base_url, fiat.upper(), crypto.upper()
@@ -2477,10 +2483,9 @@ class TradeBlock(Service):
     service_id = 71
 
     def get_single_transaction(self, crypto, txid):
+        raise SkipThisService("No scriptPubKey in output")
         url = "https://tradeblock.com/api/blockchain/tx/%s/p" % txid
         tx = self.get_url(url).json()['data']
-
-        raise SkipThisService("No scriptPubKey in output")
 
         ins = [{'txid': x['prev_out']['hash'], 'amount': x['value']} for x in tx['ins']]
 
@@ -2567,7 +2572,7 @@ class Yunbi(Service):
 class PressTab(Service):
     service_id = 79
 
-    def get_balance(self, crypto, address):
+    def get_balance(self, crypto, address, confirmations=1):
         url = "http://www.presstab.pw/phpexplorer/%s/api.php?address=%s" % (
             crypto.upper(), address
         )
@@ -2595,6 +2600,9 @@ class Cryptopia(Service):
     api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
 
     def get_current_price(self, crypto, fiat):
+        if fiat in ['nzd', 'usd']:
+            fiat += "t"
+
         url = "https://www.cryptopia.co.nz/api/GetMarket/%s_%s" % (
             crypto.upper(), fiat.upper()
         )
