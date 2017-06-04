@@ -13,7 +13,7 @@ if sys.version_info <= (3,6):
 
 setup(
     name="moneywagon",
-    version='1.15.1',
+    version='1.16.0',
     description='Next Generation Cryptocurrency Platform',
     long_description=open('README.md').read(),
     author='Chris Priest',
@@ -37,6 +37,5 @@ setup(
         'arrow',
         'bitcoin',
         'beautifulsoup4'
-    ] + extra_install,
-    dependency_links=['git+https://github.com/groestlcoin/groestlcoin-hash-python#egg=groestlcoin_hash'],
+    ] + extra_install
 )

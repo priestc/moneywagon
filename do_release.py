@@ -17,7 +17,8 @@ parser.add_argument('--do-blocktime-adjustments', default=True, action='store_tr
 
 argz = parser.parse_args()
 
-if argz.do_blocktime_adjustments:
+if not argz.do_blocktime_adjustments:
+    import debug
     print "Writing new bocktime adjustments..."
     write_blocktime_adjustments("moneywagon/blocktime_adjustments.py", random=True, verbose=True)
 
