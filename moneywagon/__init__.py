@@ -75,14 +75,15 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
         # first, try service with explicit fiat support
         try_services = services[fiat]
         result = _try_price_fetch(try_services, args, modes)
-        if type(result) != Exception:
+        import debug
+        if not isinstance(result, Exception):
             return result
 
     if '*' in services:
         # then try wildcard service
         try_services = services['*']
         result = _try_price_fetch(try_services, args, modes)
-        if type(result) != Exception:
+        if not isinstance(result, Exception):
             return result
 
     def _do_composite_price_fetch(crypto, convert_crypto, fiat, modes):
@@ -98,7 +99,7 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
     for composite_attempt in ['btc', 'ltc', 'doge', 'uno']:
         if composite_attempt in services:
             result = _do_composite_price_fetch(crypto, composite_attempt, fiat, modes)
-            if type(result) != Exception:
+            if not isinstance(result, Exception):
                 return result
 
     raise result
