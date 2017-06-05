@@ -1112,7 +1112,7 @@ class CryptapUS(Service):
     api_homepage = "https://cryptap.us/"
     name = "cryptap.us"
     supported_cryptos = [
-        'nmc', 'wds', 'ber', 'scn', 'sc0', 'wdc', 'nvc', 'cas', 'myr'
+        'nmc', 'wds', 'ber', 'scn', 'sc0', 'wdc', 'nvc', 'cas', 'xmy'
     ]
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -1293,14 +1293,14 @@ class BitpayInsight(Service):
 class MYRCryptap(BitpayInsight):
     service_id = 30
     protocol = 'http'
-    supported_cryptos = ['myr']
+    supported_cryptos = ['xmy']
     domain = "insight-myr.cryptap.us"
     name = "MYR cryptap"
 
 
 class BirdOnWheels(BitpayInsight):
     service_id = 31
-    supported_cryptos = ['myr']
+    supported_cryptos = ['xmy']
     domain = "birdonwheels5.no-ip.org:3000"
     name = "Bird on Wheels"
 
@@ -2357,6 +2357,12 @@ class CexIO(Service):
         )
         response = self.get_url(url).json()
         return float(response['ticker']['lastprice'])
+
+    def get_pairs(self):
+        url = "https://c-cex.com/t/pairs.json"
+        r = self.get_url(url).json()
+        return r['pairs']
+
 
 class Poloniex(Service):
     service_id = 65
