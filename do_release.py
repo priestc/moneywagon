@@ -13,11 +13,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--minor', action='store_true', help='Make minor release.')
 parser.add_argument('--major', action='store_true', help='Make major release.')
 parser.add_argument('--point', action='store_true', help='Make point release.')
-parser.add_argument('--do-blocktime-adjustments', default=True, action='store_true', help='Skip calculating blocktime adjustments')
+parser.add_argument('--skip-blocktime-adjustments', default=True, action='store_true', help='Skip calculating blocktime adjustments')
 
 argz = parser.parse_args()
 
-if not argz.do_blocktime_adjustments:
+if not argz.skip_blocktime_adjustments:
     import debug
     print "Writing new bocktime adjustments..."
     write_blocktime_adjustments("moneywagon/blocktime_adjustments.py", random=True, verbose=True)

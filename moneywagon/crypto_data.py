@@ -1006,7 +1006,8 @@ crypto_data = {
         'genesis_date': datetime(2014, 4, 25, 16, 0),
         'services': {
             'current_price': {
-                'ltc': [Cryptopia], 'doge': [Cryptopia], 'uno': [Cryptopia],
+                'ltc': [Cryptopia, NovaExchange], 'moon': [NovaExchange],
+                'doge': [Cryptopia, NovaExchange], 'uno': [Cryptopia],
             },
             'address_balance': [ProHashing, CryptoChat],
             'historical_transactions': [CryptoChat],

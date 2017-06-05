@@ -8,7 +8,7 @@ from base58 import b58decode_check
 
 from .core import (
     AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes,
-    RevertToPrivateMode, CurrencyNotSupported
+    RevertToPrivateMode, CurrencyNotSupported, NoService
 )
 from .historical_price import Quandl
 from .crypto_data import crypto_data
@@ -18,6 +18,17 @@ is_py2 = False
 if sys.version_info <= (3,0):
     is_py2 = True
 
+class CompositeResponse(object):
+    def __init__(self, service1, service2):
+        self.service1 = service1
+        self.service2 = service2
+
+    def json(self):
+        return {
+            self.service1.name: self.service1.last_raw_response.json(),
+            self.service2.name: self.service2.last_raw_response.json(),
+        }
+
 class CompositeService(object):
     """
     This object mimicks the Service class and is used when the price fetcher has
@@ -25,9 +36,15 @@ class CompositeService(object):
     `report_services`.
     """
     def __init__(self, services1, services2, via):
+        service1 = services1[0]
+        service2 = services2[0]
+
         self.name = "%s -> %s (via %s)" % (
-            services1[0].name, services2[0].name, via.upper()
+            service1.name, service2.name, via.upper()
         )
+        self.last_url = "%s, %s" % (service1.last_url, service2.last_url)
+        self.last_raw_response = CompositeResponse(service1, service2)
+        self.service_id = "%d+%d" % (service1.service_id, service2.service_id)
 
     def __repr__(self):
         return "<Composite Service: %s>" % self.name
@@ -38,19 +55,8 @@ def _try_price_fetch(services, args, modes):
         return enforce_service_mode(
             services, CurrentPrice, args, modes=modes
         )
-    except ServiceError as exc:
+    except NoService as exc:
         return exc
-
-def _do_composit_price_fetch(crypto, convert_crypto, fiat, modes):
-    if modes.get('report_services', False):
-        services1, converted_price = get_current_price(crypto, convert_crypto, **modes)
-        services2, fiat_price = get_current_price(convert_crypto, fiat, **modes)
-        serv = CompositeService(services1, services2, convert_crypto)
-        return [serv], converted_price * fiat_price
-    else:
-        converted_price = get_current_price(crypto, convert_crypto, **modes)
-        fiat_price = get_current_price(convert_crypto, fiat, **modes)
-        return converted_price * fiat_price
 
 def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
     """
@@ -79,9 +85,19 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
         if type(result) != Exception:
             return result
 
+    def _do_composite_price_fetch(crypto, convert_crypto, fiat, modes):
+        services1, converted_price = get_current_price(crypto, convert_crypto, **modes)
+        services2, fiat_price = get_current_price(convert_crypto, fiat, **modes)
+
+        if modes.get('report_services', False):
+            serv = CompositeService(services1, services2, convert_crypto)
+            return [serv], converted_price * fiat_price
+        else:
+            return converted_price * fiat_price
+
     for composite_attempt in ['btc', 'ltc', 'doge', 'uno']:
         if composite_attempt in services:
-            result = _do_composit_price_fetch(crypto, composite_attempt, fiat, modes)
+            result = _do_composite_price_fetch(crypto, composite_attempt, fiat, modes)
             if type(result) != Exception:
                 return result
 
@@ -614,7 +630,6 @@ def _get_all_services(crypto=None):
         set([item for sublist in services for item in sublist]),
         key=lambda x: x.__name__
     )
-
 
 ALL_SERVICES = _get_all_services()
 
