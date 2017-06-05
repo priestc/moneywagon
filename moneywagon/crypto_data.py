@@ -811,10 +811,9 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'rur': [YoBit], 'usd': [GDAX],
+                'rur': [YoBit], 'usd': [GDAX], 'cny': [Yunbi],
                 'btc': [
-                    Poloniex, GDAX, Bittrex, CexIO, EtherChain, YoBit,
-                    Yunbi, Cryptopia
+                    Poloniex, GDAX, Bittrex, CexIO, EtherChain, YoBit, Cryptopia
                 ],
                 'ltc': [Cryptopia], 'doge': [Cryptopia], 'uno': [Cryptopia],
                 '*': [Cryptonator],

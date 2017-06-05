@@ -656,3 +656,22 @@ def make_standard_halfing_eras(start, interval, start_reward, halfing_func=None,
         'reward': halfing_func(era, start_reward)
     } for era in range(0, total_eras)
 ]
+
+def decompile_scriptPubKey(asm):
+    """
+    >>> decompile_scriptPubKey('OP_DUP OP_HASH160 cef3550ff9e637ddd120717d43fc21f8a563caf8 OP_EQUALVERIFY OP_CHECKSIG')
+    '76a914cef3550ff9e637ddd120717d43fc21f8a563caf888ac'
+    """
+    asm = asm.split(" ")
+    hex = ""
+    if asm[0] == 'OP_DUP':
+        hex += "76"
+    if asm[1] == 'OP_HASH160':
+        hex += 'a9'
+    if len(asm[2]) == 40:
+        hex += asm[2]
+    if asm[3] == 'OP_EQUALVERIFY':
+        hex += '88'
+    if asm[4] == 'OP_CHECKSIG':
+        hex += 'ac'
+    return hex

@@ -1,7 +1,10 @@
 import json
 
 from requests.auth import HTTPBasicAuth
-from .core import Service, NoService, NoData, ServiceError, SkipThisService, currency_to_protocol
+from .core import (
+    Service, NoService, NoData, ServiceError, SkipThisService, currency_to_protocol,
+    decompile_scriptPubKey
+)
 from bitcoin import deserialize
 import arrow
 
@@ -1197,6 +1200,15 @@ class BitpayInsight(Service):
             txs.append(self._format_tx(tx, addresses))
         return txs
 
+    def _extract_scriptPubKey(self, scriptPubKey):
+        #import debug
+        if 'hex' in scriptPubKey:
+            return scriptPubKey['hex']
+
+        # old version of insight, we have to build the hex encoding
+        # ourselves.
+        return decompile_scriptPubKey(scriptPubKey['asm'])
+
     def get_single_transaction(self, crypto, txid):
         url = "%s://%s/api/tx/%s" % (self.protocol, self.domain, txid)
         d = self.get_url(url).json()
@@ -1209,21 +1221,21 @@ class BitpayInsight(Service):
             time=block_time,
             size=d['size'],
             confirmations=d['confirmations'] if block_time else 0,
-            total_in=currency_to_protocol(d['valueIn']),
-            total_out=currency_to_protocol(d['valueOut']),
-            fee=currency_to_protocol(d['fees']),
+            fee=currency_to_protocol(d['fees']) if 'fees' in d else None,
             inputs=[
                 {
                     'address': x['addr'],
                     'amount': currency_to_protocol(x['value']),
                     'txid': x['txid'],
-                } for x in d['vin']
+                } for x in d['vin'] if 'address' in x
+            ] + [
+                {'coinbase': x['coinbase']} for x in d['vin'] if 'coinbase' in x
             ],
             outputs=[
                 {
                     'address': x['scriptPubKey']['addresses'][0],
                     'amount': currency_to_protocol(x['value']),
-                    'scriptPubKey': x['scriptPubKey']['hex']
+                    'scriptPubKey': self._extract_scriptPubKey(x['scriptPubKey'])
                 } for x in d['vout']
             ],
             txid=txid,
@@ -2575,6 +2587,14 @@ class Yunbi(Service):
         r = self.get_url(url, headers={"Accept": "application/json"}).json()
         return float(r['ticker']['last'])
 
+    def get_pairs(self):
+        url = "https://yunbi.com/api/v2/markets.json"
+        r = self.get_url(url).json()
+        ret = []
+        for pair in r:
+            ret.append(pair['name'].replace("/", '-').lower())
+        return ret
+
 class PressTab(Service):
     service_id = 79
 
@@ -2652,6 +2672,7 @@ class MarscoinOfficial(BitpayInsight):
     domain = "explore.marscoin.org"
     supported_cryptos = ['mrs']
     protocol = "http"
+    name = "MarsCoin.org (Insight)"
 
 class NovaExchange(Service):
     service_id = 89
