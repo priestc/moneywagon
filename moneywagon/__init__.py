@@ -75,7 +75,6 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
         # first, try service with explicit fiat support
         try_services = services[fiat]
         result = _try_price_fetch(try_services, args, modes)
-        import debug
         if not isinstance(result, Exception):
             return result
 
