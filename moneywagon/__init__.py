@@ -86,6 +86,7 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
             return result
 
     def _do_composite_price_fetch(crypto, convert_crypto, fiat, modes):
+        modes['report_services'] = True
         services1, converted_price = get_current_price(crypto, convert_crypto, **modes)
         services2, fiat_price = get_current_price(convert_crypto, fiat, **modes)
 
@@ -111,8 +112,6 @@ def get_fiat_exchange_rate(from_fiat, to_fiat):
 def get_address_balance(crypto, address=None, addresses=None, services=None, **modes):
     if not services:
         services = get_optimal_services(crypto, 'address_balance')
-
-
 
     args = {'crypto': crypto}
 
@@ -660,3 +659,16 @@ def wif_to_hex(wif):
     This function works for all bitcoin-API compatable coins.
     """
     return hexlify(b58decode_check(wif)[1:]).upper()
+
+def find_pair(crypto, fiat, verbose=False):
+    needed_pair = "%s-%s" % (crypto.lower(), fiat.lower())
+    matched_services = []
+    for Service in ALL_SERVICES:
+        try:
+            pairs = Service(verbose=verbose).get_pairs()
+            if needed_pair in pairs:
+                matched_services.append(Service)
+        except NotImplementedError:
+            pass
+
+    return matched_services

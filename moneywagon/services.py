@@ -571,6 +571,11 @@ class BTCE(Service):
         response = self.get_url(url).json()
         return response[pair]['last']
 
+    def get_pairs(self):
+        url = "https://btc-e.com/api/3/info"
+        r = self.get_url(url).json()
+        return [x.replace('_', '-') for x in r['pairs'].keys()]
+
 
 class Cryptonator(Service):
     service_id = 8
@@ -1054,16 +1059,6 @@ class CryptoID(Service):
     api_homepage = "https://chainz.cryptoid.info/api.dws"
     name = "CryptoID"
     api_key = "bc1063f00936"
-
-    supported_cryptos = [
-        'dash', 'bc', 'bay', 'block', 'cann', 'uno', 'vrc', 'xc', 'uro', 'aur',
-        'pot', 'cure', 'arch', 'swift', 'karm', 'dgc', 'lxc', 'sync', 'byc',
-        'pc', 'fibre', 'i0c', 'nobl', 'gsx', 'flt', 'ccn', 'rlc', 'rby', 'apex',
-        'vior', 'ltcd', 'zeit', 'carbon', 'super', 'dis', 'ac', 'vdo', 'ioc',
-        'xmg', 'cinni', 'crypt', 'excl', 'mne', 'seed', 'qslv', 'maryj', 'key',
-        'oc', 'ktk', 'voot', 'glc', 'drkc', 'mue', 'gb', 'piggy', 'jbs', 'grs',
-        'icg', 'rpc', 'tx'
-    ]
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "http://chainz.cryptoid.info/%s/api.dws?q=getbalance&a=%s&key=%s" % (

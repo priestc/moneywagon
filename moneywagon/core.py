@@ -333,6 +333,11 @@ class Service(object):
             "Or rather it has no defined 'get_optimal_fee' method."
         )
 
+    def get_pairs(self):
+        raise NotImplementedError(
+            "This service does not support getting all exchange pairs. "
+            "Or rather it has no defined 'get_pairs' method."
+        )
 
 class AutoFallbackFetcher(object):
     """
@@ -460,6 +465,9 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
     private_level = modes.get('private', 0)
     verbose = modes.get('verbose', False)
     timeout = modes.get('timeout', None)
+
+    if len(services) == 0:
+        raise NoService("No services defined")
 
     if modes.get('random', False):
         random.shuffle(services)
