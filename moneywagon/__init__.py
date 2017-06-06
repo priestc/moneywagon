@@ -86,9 +86,11 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
             return result
 
     def _do_composite_price_fetch(crypto, convert_crypto, fiat, modes):
+        before = modes.get('report_services', False)
         modes['report_services'] = True
         services1, converted_price = get_current_price(crypto, convert_crypto, **modes)
         services2, fiat_price = get_current_price(convert_crypto, fiat, **modes)
+        modes['report_services'] = before
 
         if modes.get('report_services', False):
             serv = CompositeService(services1, services2, convert_crypto)
