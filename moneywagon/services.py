@@ -2571,6 +2571,11 @@ class YoBit(Service):
 
         return r[pair]['last']
 
+    def get_pairs(self):
+        url = 'https://yobit.net/api/3/info'
+        r = self.get_url(url).json()
+        return [x.replace("_", '-') for x in r['pairs'].keys()]
+
 class Yunbi(Service):
     service_id = 78
     api_homepage = "https://yunbi.com/swagger"
@@ -2630,6 +2635,20 @@ class Cryptopia(Service):
         r = self.get_url(url).json()
         return r['Data']['LastPrice']
 
+    def get_pairs(self):
+        url = "https://www.cryptopia.co.nz/api/GetTradePairs"
+        r = self.get_url(url).json()['Data']
+        ret = []
+        for pair in r:
+            crypto = pair['Symbol']
+            fiat = pair['BaseSymbol']
+            if fiat.lower() == 'usdt':
+                fiat = 'usd'
+            ret.append(("%s-%s" % (crypto, fiat)).lower())
+
+        return ret
+
+
 class BeavercoinBlockchain(BitpayInsight):
     service_id = 83
     domain = "blockchain.beavercoin.org"
@@ -2687,6 +2706,7 @@ class NovaExchange(Service):
 class xBTCe(Service):
     service_id = 90
     name = "xBTCe"
+    api_homepage = "https://www.xbtce.com/tradeapi"
 
     def get_current_price(self, crypto, fiat):
         if crypto.lower() == 'dash':
