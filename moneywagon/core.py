@@ -639,7 +639,7 @@ def get_optimal_services(crypto, type_of_service):
     try:
         # get best services from curated list
         return crypto_data[crypto.lower()]['services'][type_of_service]
-    except KeyError, TypeError:
+    except (KeyError, TypeError):
         raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
 
 def get_magic_bytes(crypto):

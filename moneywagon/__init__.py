@@ -620,7 +620,7 @@ def _get_all_services(crypto=None):
         price_services = data['services']['current_price']
         del data['services']['current_price']
 
-        all_services = data['services'].values() + price_services.values()
+        all_services = list(data['services'].values()) + list(price_services.values())
         data['services']['current_price'] = price_services
 
         services.append([
@@ -674,3 +674,16 @@ def find_pair(crypto, fiat, verbose=False):
             pass
 
     return matched_services
+
+def wif_to_address(crypto, wif):
+    if is_py2:
+        wif_byte = int(hexlify(b58decode_check(wif)[0]), 16)
+    else:
+        wif_byte = b58decode_check(wif)[0]
+
+    if not wif_byte == crypto_data[crypto.lower()]['private_key_prefix']:
+        msg = 'WIF encoded with wrong prefix byte. Are you sure this is a %s address?' % crypto.upper()
+        raise Exception(msg)
+
+    address_byte = crypto_data[crypto.lower()]['address_version_byte']
+    return privkey_to_address(wif, address_byte)
