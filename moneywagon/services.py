@@ -104,6 +104,8 @@ class Bitstamp(Service):
         response = self.get_url(url).json()
         return float(response['last'])
 
+    def get_pairs(self):
+        return ['btc-usd', 'btc-eur', 'xrp-usd', 'xrp-eur', 'xrp-btc']
 
 class BlockCypher(Service):
     service_id = 2
@@ -1123,17 +1125,17 @@ class BTER(Service):
     api_homepage = "https://bter.com/api"
     name = "BTER"
 
-    def check_error(self, response):
-        r = response.json()
-        if r['result'] == 'false':
-            raise ServiceError("BTER returned error: " + r['message'])
-
-        super(BTER, self).check_error(response)
-
     def get_current_price(self, crypto, fiat):
         url = "http://data.bter.com/api/1/ticker/%s_%s" % (crypto, fiat)
         response = self.get_url(url).json()
+        if response.get('result', '') == 'false':
+            raise ServiceError("BTER returned error: " + r['message'])
         return float(response['last'] or 0)
+
+    def get_pairs(self):
+        url = "http://data.bter.com/api/1/pairs"
+        r = self.get_url(url).json()
+        return [x.replace("_", "-") for x in r]
 
 ################################################
 
