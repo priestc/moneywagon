@@ -662,24 +662,31 @@ def wif_to_hex(wif):
     """
     return hexlify(b58decode_check(wif)[1:]).upper()
 
-def find_pair(crypto="", fiat="", verbose=False):
-    """
-    This utility is used to find an exchange that supports a given exchange pair.
-    """
-    needed_pair = "%s-%s" % (crypto.lower(), fiat.lower())
-    matched_services = {}
-    for Service in ALL_SERVICES:
-        try:
-            pairs = Service(verbose=verbose).get_pairs()
+class PairFinder(object):
+    def __init__(self, verbose=False):
+        self.all_pairs = {}
+        for Service in ALL_SERVICES:
+            try:
+                self.all_pairs[Service] = Service(verbose=verbose).get_pairs()
+            except NotImplementedError:
+                pass
+            except Exception as exc:
+                print("%s returned error: %s" % (Service.__name__, exc))
+
+    def find_pair(self, crypto="", fiat="", verbose=False):
+        """
+        This utility is used to find an exchange that supports a given exchange pair.
+        """
+        if not crypto and not fiat:
+            raise Exception("Fiat or Crypto required")
+        needed_pair = "%s-%s" % (crypto.lower(), fiat.lower())
+        matched_pairs = {}
+        for Service, pairs in self.all_pairs.items():
             matched = [p for p in pairs if needed_pair in p]
             if matched:
-                matched_services[Service] = matched
-        except NotImplementedError:
-            pass
-        except Exception as exc:
-            print("%s returned error: %s" % (Service.__name__, exc))
+                matched_pairs[Service] = matched
 
-    return matched_services
+        return matched_pairs
 
 def wif_to_address(crypto, wif):
     if is_py2:

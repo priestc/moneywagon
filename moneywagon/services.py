@@ -2403,9 +2403,19 @@ class Poloniex(Service):
 
         raise SkipThisService("Pair %s not supported" % find_pair)
 
+    def get_pairs(self):
+        url = " https://poloniex.com/public?command=returnTicker"
+        r = self.get_url(url).json()
+        ret = []
+        for pair in r.keys():
+            fiat, crypto = pair.lower().split('_')
+            if fiat == 'usdt': fiat = 'usd'
+            ret.append("%s-%s" % (crypto, fiat))
+        return ret
 
 class Bittrex(Service):
     service_id = 66
+    api_homepage = "https://bittrex.com/Home/Api"
 
     def check_error(self, response):
         j = response.json()
@@ -2427,6 +2437,18 @@ class Bittrex(Service):
 
         r = self.get_url(url).json()
         return r['result']['Last']
+
+    def get_pairs(self):
+        url = "https://bittrex.com/api/v1.1/public/getmarkets"
+        r = self.get_url(url).json()['result']
+        ret = []
+        for x in r:
+            crypto = x['MarketCurrency'].lower()
+            fiat = x['BaseCurrency'].lower()
+            if fiat == 'usdt':
+                fiat = 'usd'
+            ret.append("%s-%s" % (crypto, fiat))
+        return ret
 
 
 class Huobi(Service):
