@@ -662,16 +662,22 @@ def wif_to_hex(wif):
     """
     return hexlify(b58decode_check(wif)[1:]).upper()
 
-def find_pair(crypto, fiat, verbose=False):
+def find_pair(crypto="", fiat="", verbose=False):
+    """
+    This utility is used to find an exchange that supports a given exchange pair.
+    """
     needed_pair = "%s-%s" % (crypto.lower(), fiat.lower())
-    matched_services = []
+    matched_services = {}
     for Service in ALL_SERVICES:
         try:
             pairs = Service(verbose=verbose).get_pairs()
-            if needed_pair in pairs:
-                matched_services.append(Service)
+            matched = [p for p in pairs if needed_pair in p]
+            if matched:
+                matched_services[Service] = matched
         except NotImplementedError:
             pass
+        except Exception as exc:
+            print("%s returned error: %s" % (Service.__name__, exc))
 
     return matched_services
 

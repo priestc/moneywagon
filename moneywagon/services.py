@@ -2683,3 +2683,40 @@ class NovaExchange(Service):
         url = "https://novaexchange.com/remote/v2/market/info/%s_%s/" % (fiat, crypto)
         r = self.get_url(url).json()
         return float(r['markets'][0]['last_price'])
+
+class xBTCe(Service):
+    service_id = 90
+    name = "xBTCe"
+
+    def get_current_price(self, crypto, fiat):
+        if crypto.lower() == 'dash':
+            crypto = "dsh"
+        if fiat.lower() == 'rur':
+            fiat = 'rub'
+        if fiat.lower() == 'cny':
+            fiat = 'cnh'
+        pair = "%s%s" % (crypto.upper(), fiat.upper())
+        url = "https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/%s" % pair
+        r = self.get_url(url).json()
+        try:
+            return r[0]['LastSellPrice']
+        except IndexError:
+            raise ServiceError("Pair not found")
+
+    def get_pairs(self):
+        url = "https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/symbol"
+        r = self.get_url(url).json()
+        ret = []
+        for pair in r:
+            crypto = pair['MarginCurrency'].lower()
+            fiat = pair['ProfitCurrency'].lower()
+
+            if crypto.lower() == 'dsh':
+                crypto = "dash"
+            if fiat.lower() == 'rub':
+                fiat = 'rur'
+            if fiat == 'cnh':
+                fiat = 'cny'
+            ret.append(("%s-%s" % (crypto, fiat)))
+
+        return list(set(ret))

@@ -27,11 +27,12 @@ crypto_data = {
             'current_price': {
                 'usd': [
                     Bitstamp, GDAX, BTCE, Gemini, Huobi, Bittrex, CexIO, YoBit,
-                    Poloniex, Winkdex, ChainSo
+                    Poloniex, Winkdex, ChainSo, xBTCe
                 ],
-                'cny': [BTER, BTCChina, Huobi, ChainSo],
-                'rur': [BTCE],
-                'eur': [Bitstamp, ChainSo],
+                'cny': [BTER, BTCChina, Huobi, xBTCe, ChainSo],
+                'rur': [BTCE], 'jpy': [xBTCe],
+                'eur': [Bitstamp, xBTCe, ChainSo],
+                'gbp': [xBTCe],
                 '*': [Cryptonator, Vircurex, Yunbi]
             },
             'address_balance': [
@@ -80,10 +81,10 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'usd': [BTCE, GDAX, ChainSo],
-                'cny': [BTCE, Huobi, BTER, ChainSo],
-                'rur': [YoBit],
-                'btc': [BTCE, BTER, ChainSo],
+                'usd': [BTCE, GDAX, ChainSo, xBTCe],
+                'cny': [BTCE, Huobi, BTER, xBTCe, ChainSo],
+                'rur': [YoBit, xBTCe], 'eur': [xBTCe], 'jpy': [xBTCe],
+                'btc': [BTCE, BTER, ChainSo, xBTCe],
                 '*': [
                     ChainSo, BTER, CexIO, Poloniex, Bittrex, BTCChina,
                     Vircurex, Cryptonator, YoBit
@@ -120,9 +121,9 @@ crypto_data = {
         'supply_data': {},
         'services': {
             'current_price': {
-                'usd': [BTCE, ChainSo],
+                'usd': [BTCE, xBTCe, ChainSo],
                 'btc': [
-                    BTCE, ChainSo, Bittrex, BTER, Poloniex, Vircurex,
+                    BTCE, xBTCe, ChainSo, Bittrex, BTER, Poloniex, Vircurex,
                     YoBit
                 ],
                 '*': [Cryptonator]
@@ -349,11 +350,11 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'usd': [CexIO, Cryptopia], 'doge': [NovaExchange, Cryptopia],
+                'usd': [CexIO, Cryptopia, xBTCe], 'doge': [NovaExchange, Cryptopia],
                 'rur': [YoBit], 'ltc': [NovaExchange, Cryptopia, CexIO],
                 'btc': [
                     Bittrex, Poloniex, Cryptopia, ChainSo, YoBit, CexIO, NovaExchange
-                ],
+                ], 'cny': [xBTCe],
                 '*': [Cryptonator], 'uno': [Cryptopia], 'moon': [NovaExchange]
             },
             'address_balance': [
@@ -408,7 +409,8 @@ crypto_data = {
         'genesis_date': datetime(2011, 4, 18),
         'services': {
             'current_price': {
-                'btc': [Poloniex, YoBit, Cryptopia, Vircurex], 'ltc': [Cryptopia],
+                'btc': [Poloniex, YoBit, xBTCe, Cryptopia, Vircurex],
+                'ltc': [Cryptopia], 'usd': [xBTCe],
                 'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
             },
             'address_balance': [Bcoin]
@@ -442,7 +444,8 @@ crypto_data = {
         'genesis_date': datetime(2011, 11, 5),
         'services': {
             'current_price': {
-                'btc': [YoBit, Bittrex, Cryptopia], 'ltc': [Cryptopia],
+                'btc': [YoBit, Bittrex, xBTCe, Cryptopia], 'ltc': [Cryptopia],
+                'usd': [xBTCe],
                 'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
             },
             'address_balance': [Mintr],
@@ -714,7 +717,8 @@ crypto_data = {
         'services': {
             'current_price': {
                 'btc': [Bittrex, Bitstamp, Poloniex],
-                'usd': [Bitstamp], 'eur': [Bitstamp], '*': [Cryptonator]
+                'usd': [Bitstamp, xBTCe], 'eur': [Bitstamp, xBTCe],
+                '*': [Cryptonator]
             },
         }
     },
@@ -811,11 +815,11 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'rur': [YoBit], 'usd': [GDAX], 'cny': [Yunbi],
+                'rur': [YoBit, xBTCe], 'usd': [GDAX, xBTCe], 'cny': [Yunbi, xBTCe],
                 'btc': [
-                    Poloniex, GDAX, Bittrex, CexIO, EtherChain, YoBit, Cryptopia
-                ],
-                'ltc': [Cryptopia], 'doge': [Cryptopia], 'uno': [Cryptopia],
+                    Poloniex, GDAX, xBTCe, Bittrex, CexIO, EtherChain, YoBit, Cryptopia
+                ], 'jpy': [xBTCe], 'eur': [xBTCe],
+                'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia], 'uno': [Cryptopia],
                 '*': [Cryptonator],
             },
             'address_balance': [Etherscan, EtherChain, ETCchain],
