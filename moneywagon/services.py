@@ -2249,12 +2249,19 @@ class GDAX(Service):
         response = self.get_url(url).json()
         return float(response['price'])
 
+    def get_pairs(self):
+        url = "%s/products" % self.base_url
+        r = self.get_url(url).json()
+        return [x['id'].lower() for x in r]
+
+
 class OKcoin(Service):
     service_id = 60
     name = "OKcoin"
     exchange_base_url = "https://www.okcoin.cn"
     block_base_url = "http://block.okcoin.cn"
     supported_cryptos = ['btc', 'ltc']
+    api_homepage = "https://www.okcoin.cn/rest_getStarted.html"
 
     def get_current_price(self, crypto, fiat):
         if not fiat == 'cny':
@@ -2272,6 +2279,9 @@ class OKcoin(Service):
             raise ServiceError("OKcoin returned error code %s" % j['error_code'])
 
         super(OKcoin, self).check_error(response)
+
+    def get_pairs(self):
+        return ['btc-cny', 'ltc-cny']
 
     def get_block(self, crypto, block_hash=None, block_number=None, latest=False):
         if latest:
@@ -2331,11 +2341,18 @@ class BTCChina(Service):
     name = "BTCChina"
 
     def get_current_price(self, crypto, fiat):
-        url = "https://data.btcchina.com/data/ticker?market=%s%s" % (
-            crypto.lower(), fiat.lower()
-        )
+        if fiat == 'usd':
+            url = "https://spotusd-data.btcc.com/data/pro/ticker?symbol=%sUSD" % crypto.upper()
+            key = "Last"
+        else:
+            url = "https://data.btcchina.com/data/ticker?market=%s%s" % (
+                crypto.lower(), fiat.lower()
+            )
+            key = "last"
         response = self.get_url(url).json()
-        return float(response['ticker']['last'])
+        if not response:
+            raise ServiceError("Pair not supported (blank response)")
+        return float(response['ticker'][key])
 
 class Gemini(Service):
     service_id = 63
@@ -2406,7 +2423,7 @@ class Poloniex(Service):
         raise SkipThisService("Pair %s not supported" % find_pair)
 
     def get_pairs(self):
-        url = " https://poloniex.com/public?command=returnTicker"
+        url = "https://poloniex.com/public?command=returnTicker"
         r = self.get_url(url).json()
         ret = []
         for pair in r.keys():
@@ -2715,6 +2732,7 @@ class MarscoinOfficial(BitpayInsight):
 class NovaExchange(Service):
     service_id = 89
     name = "NovaExchange"
+    api_homepage = "https://novaexchange.com/remote/faq/"
 
     def check_error(self, response):
         if response.json()['status'] == 'error':
@@ -2726,6 +2744,16 @@ class NovaExchange(Service):
         url = "https://novaexchange.com/remote/v2/market/info/%s_%s/" % (fiat, crypto)
         r = self.get_url(url).json()
         return float(r['markets'][0]['last_price'])
+
+    def get_pairs(self):
+        url = "https://novaexchange.com/remote/v2/markets/"
+        r = self.get_url(url).json()
+        ret = []
+        for pair in r['markets']:
+            fiat = pair['basecurrency'].lower()
+            crypto = pair['currency'].lower()
+            ret.append("%s-%s" % (crypto, fiat))
+        return ret
 
 class xBTCe(Service):
     service_id = 90
@@ -2764,3 +2792,11 @@ class xBTCe(Service):
             ret.append(("%s-%s" % (crypto, fiat)))
 
         return list(set(ret))
+
+class BleuTrade(Service):
+    service_id = 91
+
+    def get_pairs(self):
+        url = 'https://bleutrade.com/api/v2/public/getmarkets'
+        r = self.get_url(url).json()['result']
+        return [x['MarketName'].lower().replace("_", '-') for x in r]
