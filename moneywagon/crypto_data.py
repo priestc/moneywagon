@@ -27,13 +27,12 @@ crypto_data = {
             'current_price': {
                 'usd': [
                     Bitstamp, GDAX, BTCE, Gemini, Huobi, Bittrex, CexIO, YoBit,
-                    Poloniex, Winkdex, ChainSo, xBTCe
+                    Poloniex, Winkdex, ChainSo, xBTCe, Vircurex
                 ],
                 'cny': [BTER, BTCChina, Huobi, xBTCe, ChainSo],
-                'rur': [BTCE], 'jpy': [xBTCe],
+                'rur': [BTCE], 'jpy': [xBTCe], 'gbp': [xBTCe],
                 'eur': [Bitstamp, xBTCe, ChainSo],
-                'gbp': [xBTCe],
-                '*': [Cryptonator, Vircurex, Yunbi]
+                '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
@@ -82,17 +81,14 @@ crypto_data = {
         'services': {
             'current_price': {
                 'usd': [BTCE, GDAX, Poloniex, Cryptopia, CexIO, ChainSo, xBTCe, YoBit],
-                'cny': [BTCE, Huobi, BTER, xBTCe, ChainSo, OKcoin],
+                'cny': [BTCE, Huobi, BTER, xBTCe, ChainSo, OKcoin, BTCChina],
                 'rur': [YoBit, xBTCe], 'eur': [BTCE, GDAX, xBTCe],
                 'btc': [
                     GDAX, BTCE, CexIO, BTER, BleuTrade, Bittrex, Poloniex,
-                    ChainSo, xBTCe, YoBit, Cryptopia, NovaExchange
+                    ChainSo, xBTCe, YoBit, Cryptopia, NovaExchange, BTCChina
                 ],
                 'doge': [CexIO], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
-                '*': [
-                    , BTCChina,
-                    Vircurex, Cryptonator, YoBit
-                ],
+                '*': [Cryptonator, Vircurex, YoBit],
             },
             'address_balance': [
                 BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction, Bcoin
@@ -1189,7 +1185,7 @@ crypto_data = {
         'name': 'Mooncoin',
         'address_version_byte': 3,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 131,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'supply_data': {
@@ -1206,6 +1202,31 @@ crypto_data = {
                 'ltc': [CexIO, NovaExchange, BleuTrade], 'doge': [CexIO]
             },
             'address_balance': [ProHashing, Bcoin],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
+        },
+    },
+    'rby': {
+        'name': 'Rubycoin',
+        'address_version_byte': 60,
+        'bip44_coin_type': None,
+        'private_key_prefix': 188,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 1.5,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {},
+            'address_balance': [],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],

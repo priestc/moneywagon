@@ -2527,11 +2527,26 @@ class Vircurex(Service):
         super(Vircurex, self).check_error(response)
 
     def get_current_price(self, crypto, fiat):
+        if crypto == 'blk':
+            crypto = 'bc'
         url = "%s/get_last_trade.json?base=%s&alt=%s" % (
-            self.base_url, fiat.upper(), crypto.upper()
+            self.base_url, crypto.upper(), fiat.upper()
         )
         r = self.get_url(url).json()
         return float(r['value'])
+
+    def get_pairs(self):
+        url = "%s/get_info_for_currency.json" % self.base_url
+        r = self.get_url(url).json()
+        ret = []
+        for fiat, data in r.items():
+            if fiat == 'status':
+                continue
+            for crypto, exchange_data in data.items():
+                pair = "%s-%s" % (crypto.lower(), fiat.lower())
+                ret.append(pair)
+        return ret
+
 
 class TradeBlock(Service):
     service_id = 71
@@ -2666,6 +2681,13 @@ class Cryptopia(Service):
     service_id = 82
     api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
 
+    def check_error(self, response):
+        r = response.json()
+        error = r.get('Error', False)
+        if error is not None:
+            raise ServiceError("Cryptopia returned error: %s" % r['Error'])
+        super(Cryptopia, self).check_error(response)
+
     def get_current_price(self, crypto, fiat):
         if fiat in ['nzd', 'usd']:
             fiat += "t"
@@ -2795,8 +2817,16 @@ class xBTCe(Service):
 
 class BleuTrade(Service):
     service_id = 91
+    api_homepage = 'https://bleutrade.com/help/API'
 
     def get_pairs(self):
         url = 'https://bleutrade.com/api/v2/public/getmarkets'
         r = self.get_url(url).json()['result']
         return [x['MarketName'].lower().replace("_", '-') for x in r]
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://bleutrade.com/api/v2/public/getticker?market=%s_%s" % (
+            crypto.upper(), fiat.upper()
+        )
+        r = self.get_url(url).json()
+        return float(r['result'][0]['Last'])
