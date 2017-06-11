@@ -2847,3 +2847,44 @@ class BTC38(Service):
         btc_bases = self.get_url(url).json().keys()
 
         return ["%s-cny" % x for x in cny_bases] + ["%s-btc" % x for x in btc_bases]
+
+class Kraken(Service):
+    service_id = 93
+
+    def check_error(self, response):
+        if response.json()['error']:
+            raise ServiceError("Kraken returned error: %s" % response.json()['error'][0])
+
+        super(Kraken, self).check_error(response)
+
+    def get_pairs(self):
+        url = "https://api.kraken.com/0/public/AssetPairs"
+        r = self.get_url(url).json()['result']
+        ret = []
+        for name, data in r.items():
+            crypto = data['base'].lower()
+            if len(crypto) == 4 and crypto.startswith('x'):
+                crypto = crypto[1:]
+            fiat = data['quote'].lower()
+            if fiat.startswith("z"):
+                fiat = fiat[1:]
+            if crypto == 'xbt':
+                crypto = 'btc'
+            if fiat == 'xxbt':
+                fiat = 'btc'
+            if fiat == 'xeth':
+                fiat = 'eth'
+            ret.append("%s-%s" % (crypto, fiat))
+        return list(set(ret))
+
+    def get_current_price(self, crypto, fiat):
+        crypto = "x" + crypto.lower()
+        if crypto == 'xbtc':
+            crypto = 'xxbt'
+        fiat = "z" + fiat.lower()
+        if fiat == 'zbtc':
+            fiat = 'xxbt'
+        pair = "%s%s" % (crypto.upper(), fiat.upper())
+        url = "https://api.kraken.com/0/public/Ticker?pair=%s" % pair
+        r = self.get_url(url).json()['result']
+        return float(r[pair]['c'][0])
