@@ -2830,3 +2830,20 @@ class BleuTrade(Service):
         )
         r = self.get_url(url).json()
         return float(r['result'][0]['Last'])
+
+class BTC38(Service):
+    servce_id = 92
+    api_homepage = "http://www.btc38.com/help/document/2581.html"
+
+    def get_current_price(self, crypto, fiat):
+        url = 'http://api.btc38.com/v1/ticker.php?c=%s&mk_type=%s' % (crypto, fiat)
+        return self.get_url(url).json()['ticker']['last']
+
+    def get_pairs(self):
+        url = "http://api.btc38.com/v1/ticker.php?c=all&mk_type=cny"
+        cny_bases = self.get_url(url).json().keys()
+
+        url = "http://api.btc38.com/v1/ticker.php?c=all&mk_type=btc"
+        btc_bases = self.get_url(url).json().keys()
+
+        return ["%s-cny" % x for x in cny_bases] + ["%s-btc" % x for x in btc_bases]
