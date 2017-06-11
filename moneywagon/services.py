@@ -2832,7 +2832,7 @@ class BleuTrade(Service):
         return float(r['result'][0]['Last'])
 
 class BTC38(Service):
-    servce_id = 92
+    service_id = 92
     api_homepage = "http://www.btc38.com/help/document/2581.html"
 
     def get_current_price(self, crypto, fiat):
