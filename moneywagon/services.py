@@ -2888,3 +2888,15 @@ class Kraken(Service):
         url = "https://api.kraken.com/0/public/Ticker?pair=%s" % pair
         r = self.get_url(url).json()['result']
         return float(r[pair]['c'][0])
+
+
+class BitcoinIndonesia(Service):
+    service_id = 94
+    api_homepage = "https://blog.bitcoin.co.id/wp-content/uploads/2014/03/API-Documentation-Bitcoin.co_.id_.pdf"
+
+    def get_pairs(self):
+        pass
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://vip.bitcoin.co.id/api/%s_%s/ticker" % (crypto.lower(), fiat.lower())
+        return float(self.get_url(url).json()['ticker']['last'])

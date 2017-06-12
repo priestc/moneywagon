@@ -3,7 +3,7 @@ from .services import *
 from moneywagon.core import make_standard_halfing_eras
 
 # instructions for getting version byte:
-# https://github.com/MichaelMure/WalletGenerator.net/wiki/How-to-add-a-new-currency#step-two-find-the-prefixes-for-the-address-format-of-your-currency
+# https:/github.com/MichaelMure/WalletGenerator.net/wiki/How-to-add-a-new-currency#step-two-find-the-prefixes-for-the-address-format-of-your-currency
 
 # also here: https://github.com/MichaelMure/WalletGenerator.net/blob/master/src/janin.currency.js#L78
 
@@ -32,6 +32,7 @@ crypto_data = {
                 'cny': [BTER, BTCChina, Huobi, xBTCe, BTC38, ChainSo],
                 'rur': [BTCE], 'jpy': [Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, xBTCe, Kraken, ChainSo], 'cad': [Kraken],
+                'idr': [BitcoinIndonesia],
                 '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
@@ -88,7 +89,8 @@ crypto_data = {
                 'rur': [YoBit, xBTCe], 'eur': [Kraken, BTCE, GDAX, xBTCe],
                 'btc': [
                     GDAX, BTCE, CexIO, BTER, BleuTrade, Bittrex, Poloniex,
-                    ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange, BTCChina
+                    ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange,
+                    BitcoinIndonesia, BTCChina
                 ],
                 'doge': [CexIO], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
                 '*': [Cryptonator, Vircurex, YoBit],
@@ -167,7 +169,7 @@ crypto_data = {
                 'rur': [YoBit], 'ltc': [NovaExchange],
                 'btc': [
                     Bittrex, Poloniex, BleuTrade, ChainSo, BTER, YoBit,
-                    NovaExchange, Vircurex
+                    NovaExchange, Vircurex, BitcoinIndonesia
                 ],
                 '*': [Cryptonator],
             },
@@ -200,7 +202,7 @@ crypto_data = {
         'genesis_date': datetime(2013, 10, 29),
         'services': {
             'current_price': {
-                'btc': [Bittrex, ChainSo, Poloniex],
+                'btc': [Bittrex, BitcoinIndonesia, ChainSo, Poloniex],
                 '*': [Cryptonator], 'cny': [BTC38],
             },
             'address_balance': [MyNXT, NXTPortal],
@@ -360,7 +362,7 @@ crypto_data = {
                 'btc': [
                     Bittrex, Poloniex, Cryptopia, ChainSo, YoBit, CexIO, BleuTrade,
                     NovaExchange, Kraken
-                ], 'cny': [xBTCe, BTC38], 'eur': [Kraken]
+                ], 'cny': [xBTCe, BTC38], 'eur': [Kraken],
                 '*': [Cryptonator], 'uno': [Cryptopia], 'moon': [NovaExchange]
             },
             'address_balance': [
@@ -722,7 +724,7 @@ crypto_data = {
         'bip44_coin_type': 0x80000090,
         'services': {
             'current_price': {
-                'btc': [Bittrex, Bitstamp, Poloniex, Kraken], 'cad': [Kraken],
+                'btc': [Bittrex, Bitstamp, Poloniex, BitcoinIndonesia, Kraken], 'cad': [Kraken],
                 'usd': [Bitstamp, Kraken, xBTCe], 'eur': [Bitstamp, Kraken, xBTCe],
                 '*': [Cryptonator], 'cny': [BTC38], 'jpy': [Kraken],
             },
@@ -825,8 +827,9 @@ crypto_data = {
                 'jpy': [Kraken, xBTCe], 'eur': [xBTCe, Kraken], 'cad': [Kraken],
                 'gbp': [Kraken],
                 'btc': [
-                    Poloniex, GDAX, Kraken, xBTCe, BleuTrade, Bittrex, CexIO, EtherChain, YoBit, Cryptopia
-                ]
+                    Poloniex, GDAX, Kraken, xBTCe, BleuTrade, Bittrex, CexIO,
+                    BitcoinIndonesia, EtherChain, YoBit, Cryptopia
+                ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
             },
