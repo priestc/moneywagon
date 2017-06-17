@@ -1336,6 +1336,35 @@ crypto_data = {
             'get_block': []
         },
     },
+    'qrk': {
+        'name': 'Quark',
+        'address_version_byte': None,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [NovaExchange, Vircurex, Cryptopia, BTC38],
+                'ltc': [Vircurex, NovaExchange, Cryptopia], 'eur': [Vircurex],
+                'usd': [Vircurex], 'doge': [Cryptopia, NovaExchange],
+            },
+            'address_balance': [CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [CryptoID],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
@@ -1353,7 +1382,7 @@ crypto_data = {
             'reward_ends_at_block': None
         },
         'services': {
-            'current_price': {},
+            'current_price': {'btc': [], 'ltc': [], 'usd': [], 'eur': []},
             'address_balance': [],
             'historical_transactions': [],
             'single_transaction': [],
