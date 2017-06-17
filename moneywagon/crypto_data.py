@@ -1397,11 +1397,11 @@ crypto_data = {
     },
     'xvg': {
         'name': 'Verge',
-        'address_version_byte': 0,
+        'address_version_byte': 30,
         'bip44_coin_type': None,
-        'private_key_prefix': 128,
+        'private_key_prefix': 158,
         'message_magic': None,
-        'genesis_date': datetime(1, 1, 1),
+        'genesis_date': datetime(2014, 10, 9, 18, 22, 44),
         'github_link': "https://github.com/vergecurrency/VERGE",
         'supply_data': {
             'method': 'standard',
@@ -1417,12 +1417,12 @@ crypto_data = {
                 'ltc': [CexIO, Cryptopia, NovaExchange], 'usd': [CexIO],
                 'doge': [CexIO, NovaExchange, Cryptopia]
             },
-            'address_balance': [ProHashing],
-            'historical_transactions': [],
-            'single_transaction': [],
+            'address_balance': [VergeCurrencyInfo, ProHashing],
+            'historical_transactions': [VergeCurrencyInfo],
+            'single_transaction': [VergeCurrencyInfo],
             'push_tx': [],
             'unspent_outputs': [],
-            'get_block': []
+            'get_block': [VergeCurrencyInfo]
         },
     },
     # TEMPLATE

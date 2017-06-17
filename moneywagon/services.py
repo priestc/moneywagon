@@ -2927,3 +2927,9 @@ class TRCPress(BitcoinAbe):
     service_id = 97
     base_url = "http://trc.press/chain/Terracoin"
     supported_cryptos = ['trc']
+
+class VergeCurrencyInfo(Iquidus):
+    service_id = 98
+    base_url = "http://vergecurrency.info"
+    supported_cryptos = ['xvg']
+    name = "VergeCurrencyInfo"
