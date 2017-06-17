@@ -10,10 +10,10 @@ from moneywagon.core import make_standard_halfing_eras
 crypto_data = {
     'btc': {
         'name': 'Bitcoin',
-        'address_version_byte': 0,
-        'message_magic': b"\xf9\xbe\xb4\xd9",
+        'address_version_byte': 0, # base58Prefixes[PUBKEY_ADDRESS] in chainparams.cpp
+        'message_magic': b"\xf9\xbe\xb4\xd9", # pchMessageStart in chainparams.cpp
         'bip44_coin_type': 0x80000000,
-        'private_key_prefix': 128,
+        'private_key_prefix': 128,  # base58Prefixes[SECRET_KEY] in chainparams.cpp
         'genesis_date': datetime(2009, 1, 3, 18, 15, 5),
         'supply_data': {
             'method': 'standard',
@@ -603,7 +603,7 @@ crypto_data = {
         'name': 'PotCoin',
         'address_version_byte': 55,
         'bip44_coin_type': 0x80000051,
-        'private_key_prefix': None,
+        'private_key_prefix': 183,
         'genesis_date': datetime(2014, 1, 21),
         'supply_data': {
             'method': 'standard',
@@ -998,7 +998,7 @@ crypto_data = {
         'name': 'Syscoin 2.1',
         'address_version_byte': 0,
         'bip44_coin_type': 0x80000039,
-        'private_key_prefix': 191,
+        'private_key_prefix': 128,
         'genesis_date': datetime(1, 1, 1),
         'services': {
             'current_price': {
@@ -1036,7 +1036,7 @@ crypto_data = {
         'name': 'BeaverCoin',
         'address_version_byte': 25,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 176,
         'genesis_date': datetime(1, 1, 1),
         'supply_data': {
             'method': 'standard',
