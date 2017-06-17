@@ -112,6 +112,9 @@ crypto_data = {
             ],
             'get_block': [
                 ChainSo, Blockr, OKcoin, ProHashing, HolyTransaction
+            ],
+            "get_optimal_fee": [
+                BlockCypher
             ]
         },
     },
