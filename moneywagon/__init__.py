@@ -8,7 +8,7 @@ from base58 import b58decode_check
 
 from .core import (
     AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes,
-    RevertToPrivateMode, CurrencyNotSupported, NoService
+    RevertToPrivateMode, CurrencyNotSupported, NoService, NoServicesDefined
 )
 from .historical_price import Quandl
 from .crypto_data import crypto_data
@@ -264,16 +264,9 @@ def get_optimal_fee(crypto, tx_bytes, **modes):
     Get the optimal fee based on how big the transaction is. Currently this
     is only provided for BTC. Other currencies will return $0.02 in satoshi.
     """
-    if crypto == 'btc':
+    try:
         services = get_optimal_services(crypto, 'get_optimal_fee')
-        fee = enforce_service_mode(
-            services, OptimalFee, dict(crypto=crypto, tx_bytes=tx_bytes), modes=modes
-        )
-        if modes.get('report_services'):
-            return fee[0], int(fee[1])
-        else:
-            return int(fee)
-    else:
+    except NoServicesDefined:
         convert = get_current_price(crypto, 'usd')
         fee = int(0.02 / convert * 1e8)
 
@@ -281,6 +274,15 @@ def get_optimal_fee(crypto, tx_bytes, **modes):
             return [None], fee
         else:
             return fee
+
+    fee = enforce_service_mode(
+        services, OptimalFee, dict(crypto=crypto, tx_bytes=tx_bytes), modes=modes
+    )
+    if modes.get('report_services'):
+        return fee[0], int(fee[1])
+    else:
+        return int(fee)
+
 
 
 def get_onchain_exchange_rates(deposit_crypto=None, withdraw_crypto=None, **modes):

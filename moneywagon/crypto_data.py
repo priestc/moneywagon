@@ -1451,7 +1451,8 @@ crypto_data = {
             'single_transaction': [],
             'push_tx': [],
             'unspent_outputs': [],
-            'get_block': []
+            'get_block': [],
+            "get_optimal_fee": []
         },
     },
 }

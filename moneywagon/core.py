@@ -27,6 +27,9 @@ class ServiceError(NoService):
 class CurrencyNotSupported(Exception):
     pass
 
+class NoServicesDefined(Exception):
+    pass
+
 class NoData(Exception):
     pass
 
@@ -640,9 +643,18 @@ def get_optimal_services(crypto, type_of_service):
     from .crypto_data import crypto_data
     try:
         # get best services from curated list
-        return crypto_data[crypto.lower()]['services'][type_of_service]
+        services = crypto_data[crypto.lower()]['services']
     except (KeyError, TypeError):
-        raise ValueError("Invalid cryptocurrency symbol: %s" % crypto)
+        raise CurrencyNotSupported("Unknown cryptocurrency symbol: %s" % crypto)
+
+    try:
+        s = services[type_of_service]
+        if not s:
+            raise KeyError()
+        return s
+    except KeyError:
+        raise NoServicesDefined("No %s services defined for %s" % (type_of_service, crypto))
+
 
 def get_magic_bytes(crypto):
     from .crypto_data import crypto_data
