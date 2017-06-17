@@ -679,14 +679,40 @@ class PairFinder(object):
         """
         if not crypto and not fiat:
             raise Exception("Fiat or Crypto required")
-        needed_pair = "%s-%s" % (crypto.lower(), fiat.lower())
+
+        def is_matched(crypto, fiat, pair):
+            if crypto and not fiat:
+                return pair.startswith("%s-" % crypto)
+            if crypto and fiat:
+                return pair == "%s-%s" % (crypo, fiat)
+            if not crypto:
+                return pair.endswith("-%s" % fiat)
+
         matched_pairs = {}
         for Service, pairs in self.all_pairs.items():
-            matched = [p for p in pairs if needed_pair in p]
+            matched = [p for p in pairs if is_matched(crypto, fiat, p)]
             if matched:
                 matched_pairs[Service] = matched
 
         return matched_pairs
+
+    def all_cryptos(self):
+        all_cryptos = set()
+        for Service, pairs in self.all_pairs.items():
+            for pair in pairs:
+                crypto = pair.split("-")[0]
+                all_cryptos.add(crypto)
+        return sorted(all_cryptos)
+
+    def most_supported(self):
+        counts = []
+        for crypto in self.all_cryptos():
+            matched = self.find_pair(crypto=crypto)
+            count = sum(len(x) for x in matched.values())
+            counts.append([crypto, count])
+
+        return sorted(counts, key=lambda x: x[1], reverse=True)
+
 
 def wif_to_address(crypto, wif):
     if is_py2:

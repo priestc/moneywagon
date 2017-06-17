@@ -2894,9 +2894,38 @@ class BitcoinIndonesia(Service):
     service_id = 94
     api_homepage = "https://blog.bitcoin.co.id/wp-content/uploads/2014/03/API-Documentation-Bitcoin.co_.id_.pdf"
 
-    def get_pairs(self):
-        pass
-
     def get_current_price(self, crypto, fiat):
         url = "https://vip.bitcoin.co.id/api/%s_%s/ticker" % (crypto.lower(), fiat.lower())
         return float(self.get_url(url).json()['ticker']['last'])
+
+
+class UseCryptos(Service):
+    service_id = 95
+
+    def get_pairs(self):
+        url = "https://usecryptos.com/jsonapi/pairs"
+        r = self.get_url(url).json()
+        return r
+
+    def get_current_price(self, crypto, fiat):
+        pair = "%s-%s" % (crypto.lower(), fiat.lower())
+        url = "https://usecryptos.com/jsonapi/ticker/%s" % pair
+        return self.get_url(url).json()['lastPrice']
+
+class TradeSatoshi(Service):
+    service_id = 96
+
+    def get_pairs(self):
+        url = "https://tradesatoshi.com/api/public/getmarketsummaries"
+        r = self.get_url(url).json()
+        return [x['market'].replace("_", '-').lower() for x in r['result']]
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://tradesatoshi.com/api/public/getticker?market=%s_%s" % (
+            crypto.upper(), fiat.upper()
+        )
+        return self.get_url(url).json()['result']['last']
+
+class TRCPress(BitcoinAbe):
+    service_id = 97
+    base_url = "http://trc.press/chain/Terracoin"

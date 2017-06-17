@@ -87,6 +87,8 @@ class Service(object):
             raise SkipThisService("500 - " + response.content)
 
         if response.status_code == 503:
+            if "DDoS protection by Cloudflare" in response.content:
+                raise SkipThisService("Foiled by Cloudfare's DDoS protection")
             raise SkipThisService("503 - Temporarily out of service.")
 
         if response.status_code == 429:
