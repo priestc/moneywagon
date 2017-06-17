@@ -1365,6 +1365,36 @@ crypto_data = {
             'get_block': []
         },
     },
+    'tse': {
+        'name': 'Tatoocoin',
+        'address_version_byte': 65,
+        'bip44_coin_type': None,
+        'private_key_prefix': 193,
+        'message_magic': None,
+        'genesis_date': datetime(2016, 12, 29, 21, 53, 10),
+        'github_link': 'https://github.com/CryptoCoderz/Tattoocoin-TSE',
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [YoBit, CexIO, NovaExchange, Cryptopia],
+                'ltc': [CexIO, NovaExchange, Cryptopia], 'usd': [CexIO],
+                'doge': [CexIO, Cryptopia],
+            },
+            'address_balance': [CryptoChat],
+            'historical_transactions': [CryptoChat],
+            'single_transaction': [CryptoChat],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [CryptoChat]
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',

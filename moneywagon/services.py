@@ -2728,6 +2728,8 @@ class CryptoChat(Iquidus):
     def _get_coin(cls, crypto):
         if crypto == 'bun':
             return "bunnycoin"
+        if crypto == 'tse':
+            return "tattoocoin"
 
 class LemoncoinOfficial(Iquidus):
     service_id = 85
