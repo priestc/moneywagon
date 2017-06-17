@@ -99,7 +99,7 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
             return converted_price * fiat_price
 
     for composite_attempt in ['btc', 'ltc', 'doge', 'uno']:
-        if composite_attempt in services:
+        if composite_attempt in services and services[composite_attempt]:
             result = _do_composite_price_fetch(crypto, composite_attempt, fiat, modes)
             if not isinstance(result, Exception):
                 return result
@@ -704,9 +704,11 @@ class PairFinder(object):
                 all_cryptos.add(crypto)
         return sorted(all_cryptos)
 
-    def most_supported(self):
+    def most_supported(self, skip_supported=False):
         counts = []
         for crypto in self.all_cryptos():
+            if skip_supported and crypto in crypto_data:
+                continue
             matched = self.find_pair(crypto=crypto)
             count = sum(len(x) for x in matched.values())
             counts.append([crypto, count])

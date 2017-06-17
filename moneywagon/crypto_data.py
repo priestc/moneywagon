@@ -1239,11 +1239,11 @@ crypto_data = {
                 'btc': [Bittrex, Cryptopia], 'ltc': [Cryptopia],
                 'doge': [Cryptopia], 'uno': [Cryptopia]
             },
-            'address_balance': [],
+            'address_balance': [CryptoID],
             'historical_transactions': [],
-            'single_transaction': [],
+            'single_transaction': [CryptoID],
             'push_tx': [],
-            'unspent_outputs': [],
+            'unspent_outputs': [CryptoID],
             'get_block': []
         },
     },
@@ -1338,9 +1338,9 @@ crypto_data = {
     },
     'qrk': {
         'name': 'Quark',
-        'address_version_byte': None,
+        'address_version_byte': 58,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 186,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'supply_data': {
@@ -1366,7 +1366,7 @@ crypto_data = {
         },
     },
     'tse': {
-        'name': 'Tatoocoin',
+        'name': 'Tattoocoin',
         'address_version_byte': 65,
         'bip44_coin_type': None,
         'private_key_prefix': 193,
@@ -1393,6 +1393,36 @@ crypto_data = {
             'push_tx': [],
             'unspent_outputs': [],
             'get_block': [CryptoChat]
+        },
+    },
+    'xvg': {
+        'name': 'Verge',
+        'address_version_byte': 0,
+        'bip44_coin_type': None,
+        'private_key_prefix': 128,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/vergecurrency/VERGE",
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 0.5,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [YoBit, CexIO, Bittrex, Cryptopia, NovaExchange],
+                'ltc': [CexIO, Cryptopia, NovaExchange], 'usd': [CexIO],
+                'doge': [CexIO, NovaExchange, Cryptopia]
+            },
+            'address_balance': [ProHashing],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': []
         },
     },
     # TEMPLATE

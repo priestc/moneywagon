@@ -2514,11 +2514,6 @@ class Vircurex(Service):
     base_url = "https://api.vircurex.com/api"
     api_homepage = "https://vircurex.com/welcome/api"
 
-    supported_cryptos = [
-        'ANC','BC','BTC','DGC','DOGE','DVC','FRC','FTC',
-        'LTC','NMC','PPC','QRK','TRC','XPM'
-    ]
-
     def check_error(self, response):
         j = response.json()
         if j['status'] != 0:
@@ -2931,3 +2926,4 @@ class TradeSatoshi(Service):
 class TRCPress(BitcoinAbe):
     service_id = 97
     base_url = "http://trc.press/chain/Terracoin"
+    supported_cryptos = ['trc']
