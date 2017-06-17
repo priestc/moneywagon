@@ -1305,6 +1305,37 @@ crypto_data = {
             'get_block': []
         },
     },
+    'dgc': {
+        'name': 'DigitalCoin',
+        'address_version_byte': 30,
+        'bip44_coin_type': None,
+        'private_key_prefix': 158,
+        'message_magic': b"\xfb\xc0\xb6\xdb",
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/DGCDev/digitalcoin",
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 0.666666666,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [BleuTrade, NovaExchange, Cryptopia, Vircurex],
+                'usd': [Vircurex], 'eur': [Vircurex], 'cny': [BTC38],
+                'ltc': [Cryptopia, NovaExchange, Vircurex],
+                'doge': [Vircurex, BleuTrade, Cryptopia, NovaExchange]
+            },
+            'address_balance': [CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [CryptoID],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
