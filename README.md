@@ -129,6 +129,7 @@ $ moneywagon service-table
 <tr><td style="text-align: right;">  95</td><td>UseCryptos           </td><td><a href='' target='_blank'></a>                                                                                                                                                                                      </td><td>                                                      </td></tr>
 <tr><td style="text-align: right;">  97</td><td>TRCPress             </td><td><a href='' target='_blank'></a>                                                                                                                                                                                      </td><td>trc                                                   </td></tr>
 <tr><td style="text-align: right;">  98</td><td>VergeCurrencyInfo    </td><td><a href='' target='_blank'></a>                                                                                                                                                                                      </td><td>xvg                                                   </td></tr>
+<tr><td style="text-align: right;">  99</td><td>FujiInsght           </td><td><a href='http://explorer.fujicoin.org/api' target='_blank'>http://explorer.fujicoin.org/api</a>                                                                                                                      </td><td>btc                                                   </td></tr>
 </tbody>
 </table>
 
