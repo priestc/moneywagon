@@ -1459,6 +1459,66 @@ crypto_data = {
             "get_optimal_fee": []
         },
     },
+    'cj': {
+        'name': 'Cryptojacks',
+        'address_version_byte': 28,
+        'bip44_coin_type': None,
+        'private_key_prefix': 156,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [CexIO, NovaExchange, Cryptopia, YoBit],
+                'ltc': [CexIO, NovaExchange, Cryptopia], 'usd': [CexIO],
+                'doge': [Cryptopia, NovaExchange]
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
+            "get_optimal_fee": []
+        },
+    },
+    'fjc': {
+        'name': 'FujiCoin',
+        'address_version_byte': 36,
+        'bip44_coin_type': None,
+        'private_key_prefix': 164,
+        'message_magic': None,
+        'genesis_date': datetime(2014, 6, 27, 23, 0),
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 1,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [YoBit, CexIO, NovaExchange, Cryptopia, BleuTrade],
+                'ltc': [CexIO, Cryptopia, NovaExchange], 'usd': [CexIO],
+                'doge': [CexIO, NovaExchange, Cryptopia]
+            },
+            'address_balance': [FujiInsght],
+            'historical_transactions': [FujiInsght],
+            'single_transaction': [FujiInsght],
+            'push_tx': [FujiInsght],
+            'unspent_outputs': [FujiInsght],
+            'get_block': [FujiInsght],
+            "get_optimal_fee": []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',

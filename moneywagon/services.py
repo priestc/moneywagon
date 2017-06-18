@@ -2933,3 +2933,8 @@ class VergeCurrencyInfo(Iquidus):
     base_url = "http://vergecurrency.info"
     supported_cryptos = ['xvg']
     name = "VergeCurrencyInfo"
+
+class FujiInsght(BitpayInsight):
+    service_id = 99
+    domain = "explorer.fujicoin.org"
+    protocol = 'http'
