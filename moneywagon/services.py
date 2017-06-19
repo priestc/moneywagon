@@ -1224,7 +1224,7 @@ class BitpayInsight(Service):
                     'address': x['addr'],
                     'amount': currency_to_protocol(x['value']),
                     'txid': x['txid'],
-                } for x in d['vin'] if 'address' in x
+                } for x in d['vin'] if ('address' in x or 'addr' in x)
             ] + [
                 {'coinbase': x['coinbase']} for x in d['vin'] if 'coinbase' in x
             ],

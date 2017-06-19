@@ -1054,7 +1054,7 @@ crypto_data = {
                 'btc': [Cryptopia], 'ltc': [Cryptopia], 'doge': [Cryptopia],
                 'uno': [Cryptopia],
             },
-            'address_balance': [BeavercoinBlockchain],
+            'address_balance': [ProHashing, BeavercoinBlockchain],
             'historical_transactions': [BeavercoinBlockchain],
             'single_transaction': [BeavercoinBlockchain],
             'push_tx': [BeavercoinBlockchain],
@@ -1539,7 +1539,9 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [], 'ltc': [], 'usd': [], 'eur': []
+                'btc': [YoBit, CexIO, Poloniex, NovaExchange, Cryptopia],
+                'ltc': [CexIO, Cryptopia, NovaExchange], 'usd': [CexIO],
+                'doge': [CexIO, NovaExchange, Cryptopia]
             },
             'address_balance': [CryptoID, ProHashing],
             'historical_transactions': [],
