@@ -1253,7 +1253,7 @@ crypto_data = {
     'pnd': {
         'name': 'PandaCoin',
         'address_version_byte': 55,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x80000025,
         'private_key_prefix': 183,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
@@ -1281,7 +1281,7 @@ crypto_data = {
     'trc': {
         'name': 'TerraCoin',
         'address_version_byte': 0,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x80000053,
         'private_key_prefix': 128,
         'message_magic': b"\x42\xba\xbe\x56",
         'genesis_date': datetime(1, 1, 1),
@@ -1311,7 +1311,7 @@ crypto_data = {
     'dgc': {
         'name': 'DigitalCoin',
         'address_version_byte': 30,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x80000012,
         'private_key_prefix': 158,
         'message_magic': b"\xfb\xc0\xb6\xdb",
         'genesis_date': datetime(1, 1, 1),
@@ -1401,7 +1401,7 @@ crypto_data = {
     'xvg': {
         'name': 'Verge',
         'address_version_byte': 30,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x8000004d,
         'private_key_prefix': 158,
         'message_magic': None,
         'genesis_date': datetime(2014, 10, 9, 18, 22, 44),
@@ -1521,6 +1521,35 @@ crypto_data = {
             "get_optimal_fee": []
         },
     },
+    'note': {
+        'name': 'DNotes',
+        'address_version_byte': 31,
+        'bip44_coin_type': None,
+        'private_key_prefix': 159,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/DNotesCoin/DNotes/",
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 1,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [], 'ltc': [], 'usd': [], 'eur': []
+            },
+            'address_balance': [CryptoID, ProHashing],
+            'historical_transactions': [],
+            'single_transaction': [CryptoID],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': [],
+            "get_optimal_fee": []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
@@ -1529,6 +1558,7 @@ crypto_data = {
         'private_key_prefix': None,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
+        'github_link': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1538,14 +1568,16 @@ crypto_data = {
             'reward_ends_at_block': None
         },
         'services': {
-            'current_price': {'btc': [], 'ltc': [], 'usd': [], 'eur': []},
+            'current_price': {
+                'btc': [], 'ltc': [], 'usd': [], 'doge': []
+            },
             'address_balance': [],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],
             'unspent_outputs': [],
             'get_block': [],
-            "get_optimal_fee": []
+            'get_optimal_fee': []
         },
     },
 }
