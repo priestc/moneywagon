@@ -2938,3 +2938,4 @@ class FujiInsght(BitpayInsight):
     service_id = 99
     domain = "explorer.fujicoin.org"
     protocol = 'http'
+    supported_cryptos = ['fjc']

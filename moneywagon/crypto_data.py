@@ -1460,12 +1460,13 @@ crypto_data = {
         },
     },
     'cj': {
-        'name': 'Cryptojacks',
+        'name': 'CryptoJacks',
         'address_version_byte': 28,
         'bip44_coin_type': None,
         'private_key_prefix': 156,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/cryptojacks/CryptoJacks",
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1492,10 +1493,11 @@ crypto_data = {
     'fjc': {
         'name': 'FujiCoin',
         'address_version_byte': 36,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x8000004b,
         'private_key_prefix': 164,
         'message_magic': None,
         'genesis_date': datetime(2014, 6, 27, 23, 0),
+        'github_link': "https://github.com/fujicoin/fujicoin",
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
