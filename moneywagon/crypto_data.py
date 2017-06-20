@@ -474,8 +474,9 @@ crypto_data = {
         'name': 'GSMcoin',
         'address_version_byte': 38,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 166,
         'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/gsmcoin/GSMcoin",
         'services': {
             'current_price': {'btc': [YoBit]},
             'address_balance': [],
@@ -491,8 +492,9 @@ crypto_data = {
         'name': 'Europecoin',
         'address_version_byte': 33,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 161,
         'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/EuropecoinEUORG/EuropecoinV2",
         'services': {
             'current_price': {
                 'btc': [Bittrex],
@@ -511,8 +513,10 @@ crypto_data = {
         'name': 'TransferCoin',
         'address_version_byte': 66,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 153,
+        'message_magic': b"\xd1\x2e\x1e\xe6",
         'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/transferdev/Transfercoin",
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, Cryptopia], 'ltc': [Cryptopia],
@@ -551,8 +555,9 @@ crypto_data = {
         'name': 'FedoraCoin',
         'address_version_byte': 33,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 161   ,
         'genesis_date': datetime(2013, 12, 21),
+        'github_link': "https://github.com/fedoracoin/fedoracoin",
         'services': {
             'current_price': {
                 'ltc': [BTER, NovaExchange], 'moon': [NovaExchange],
@@ -571,8 +576,9 @@ crypto_data = {
         'name': 'KarmaCoin',
         'address_version_byte': 45,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 173,
         'genesis_date': datetime(2014, 2, 4),
+        'github_link': "https://github.com/karmacoin-team/karmacoin",
         'services': {
             'current_price': {
                 'btc': [YoBit],
@@ -591,8 +597,9 @@ crypto_data = {
         'name': 'FlappyCoin',
         'address_version_byte': 35,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 163,
         'genesis_date': datetime(2014, 2, 14),
+        'github_link': "https://github.com/flappycoin-project/flappycoin",
         'services': {
             'current_price': {},
             'address_balance': [CryptoID],
@@ -610,6 +617,7 @@ crypto_data = {
         'bip44_coin_type': 0x80000051,
         'private_key_prefix': 183,
         'genesis_date': datetime(2014, 1, 21),
+        'github_link': "https://github.com/potcoin/Potcoin",
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 420,
@@ -740,8 +748,17 @@ crypto_data = {
         'name': 'HempCoin',
         'address_version_byte': 40,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 168,
         'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/hempcoin-project/THC",
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 1.0,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
         'services': {
             'current_price': {
                 'btc': [Bittrex], '*': [Cryptonator],
