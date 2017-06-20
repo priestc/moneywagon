@@ -32,13 +32,13 @@ crypto_data = {
                 'cny': [BTER, BTCChina, Huobi, xBTCe, BTC38, ChainSo],
                 'rur': [BTCE], 'jpy': [Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, xBTCe, UseCryptos, Kraken, ChainSo], 'cad': [Kraken],
-                'idr': [BitcoinIndonesia],
+                'idr': [BitcoinIndonesia], 'mxn': [Bitso],
                 '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
-                BitpayInsight, CoinPrism, BitGo, LocalBitcoinsChain, Bcoin
+                BitpayInsight, CoinPrism, BitGo, LocalBitcoinsChain, Bchain
             ],
             'historical_transactions': [
                 Blockr, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
@@ -96,7 +96,7 @@ crypto_data = {
                 '*': [Cryptonator, Vircurex, YoBit],
             },
             'address_balance': [
-                BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction, Bcoin
+                BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction, Bchain
             ],
             'historical_transactions': [
                 ProHashing, Blockr, ChainSo
@@ -178,7 +178,7 @@ crypto_data = {
             },
             'address_balance': [
                 BlockCypher, ChainSo, DogeChainInfo, ProHashing, HolyTransaction,
-                Bcoin
+                Bchain
             ],
             'historical_transactions': [
                 BlockCypher, ChainSo, ProHashing
@@ -276,7 +276,7 @@ crypto_data = {
                 'doge': [BleuTrade],
                 '*': [Cryptonator],
             },
-            'address_balance': [Bcoin, VTConline],
+            'address_balance': [Bchain, VTConline],
             'historical_transactions': [VTConline],
             'single_transaction': [VTConline],
             'push_tx': [],
@@ -315,7 +315,7 @@ crypto_data = {
                 '*': [Cryptonator]
             },
             'address_balance': [
-                ChainTips, FeathercoinCom2, Bcoin
+                ChainTips, FeathercoinCom2, Bchain
             ],
             'historical_transactions': [
                 ChainTips, ProHashing
@@ -424,7 +424,7 @@ crypto_data = {
                 'ltc': [Cryptopia], 'usd': [xBTCe],
                 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia], '*': [Cryptonator]
             },
-            'address_balance': [Bcoin]
+            'address_balance': [WebBTC, Bchain]
         }
     },
     'aur': {
@@ -669,7 +669,7 @@ crypto_data = {
                 'btc': [YoBit, Cryptopia, BleuTrade], 'ltc': [Cryptopia],
                 'doge': [Cryptopia, BleuTrade], '*': [Cryptonator],
             },
-            'address_balance': [CryptapUS, Bcoin],
+            'address_balance': [CryptapUS, Bchain],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],
@@ -722,7 +722,7 @@ crypto_data = {
                 'btc': [Poloniex], 'cny': [BTC38],
                 '*': [Cryptonator],
             },
-            'address_balance': [RICCryptap, Bcoin, CryptoID],
+            'address_balance': [RICCryptap, Bchain, CryptoID],
             'historical_transactions': [RICCryptap],
             'single_transaction': [RICCryptap, CryptoID],
             'push_tx': [RICCryptap],
@@ -737,9 +737,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000090,
         'services': {
             'current_price': {
-                'btc': [Bittrex, Bitstamp, Poloniex, BitcoinIndonesia, Kraken], 'cad': [Kraken],
-                'usd': [Bitstamp, Kraken, xBTCe], 'eur': [Bitstamp, Kraken, xBTCe],
-                '*': [Cryptonator], 'cny': [BTC38], 'jpy': [Kraken],
+                'btc': [Bittrex, Bitstamp, Poloniex, Bitso, BitcoinIndonesia, Kraken],
+                'cad': [Kraken], 'usd': [Bitstamp, Kraken, xBTCe], 'cny': [BTC38],
+                'eur': [Bitstamp, Kraken, xBTCe], 'jpy': [Kraken], 'mxn': [Bitso],
+                '*': [Cryptonator],
             },
         }
     },
@@ -847,10 +848,10 @@ crypto_data = {
             'current_price': {
                 'rur': [YoBit, xBTCe], 'usd': [GDAX, Kraken, xBTCe], 'cny': [Yunbi, xBTCe],
                 'jpy': [Kraken, xBTCe], 'eur': [xBTCe, Kraken], 'cad': [Kraken],
-                'gbp': [Kraken],
+                'gbp': [Kraken], 'mxn': [Bitso],
                 'btc': [
                     Poloniex, GDAX, Kraken, xBTCe, BleuTrade, Bittrex, CexIO,
-                    BitcoinIndonesia, EtherChain, YoBit, Cryptopia
+                    BitcoinIndonesia, EtherChain, YoBit, Cryptopia, Bitso
                 ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
@@ -922,7 +923,7 @@ crypto_data = {
                 '*': [Cryptonator], 'cny': [BTC38],
             },
             'address_balance': [
-                HolyTransaction, Bcoin
+                HolyTransaction, Bchain
             ],
             'historical_transactions': [],
             'single_transaction': [],
@@ -946,7 +947,7 @@ crypto_data = {
                 '*': [Cryptonator],
             },
             'address_balance': [
-                Bcoin
+                Bchain
             ],
             'historical_transactions': [],
             'single_transaction': [],
@@ -1233,7 +1234,7 @@ crypto_data = {
                 'btc': [CexIO, NovaExchange, BleuTrade], 'usd': [CexIO],
                 'ltc': [CexIO, NovaExchange, BleuTrade], 'doge': [CexIO]
             },
-            'address_balance': [ProHashing, Bcoin],
+            'address_balance': [ProHashing, Bchain],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],

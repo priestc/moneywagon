@@ -2598,7 +2598,7 @@ class ETCchain(Service):
             return r.json()['eth_balance']
 
 
-class Bcoin(Service):
+class Bchain(Service):
     service_id = 76
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -2939,3 +2939,27 @@ class FujiInsght(BitpayInsight):
     domain = "explorer.fujicoin.org"
     protocol = 'http'
     supported_cryptos = ['fjc']
+
+class WebBTC(Service):
+    service_id = 100
+    supported_cryptos = ['btc', 'nmc']
+
+    def get_balance(self, crypto, address, confirmaions=1):
+        coin_name = 'bitcoin'
+        if crypto.lower() == 'nmc':
+            coin_name = 'namecoin'
+        url = "http://%s.webbtc.com/address/%s.json" % (coin_name, address)
+        return self.get_url(url).json()['balance'] / 1e8
+
+class Bitso(Service):
+    service_id = 101
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.bitso.com/v3/ticker/?book=%s_%s" % (crypto, fiat)
+        r = self.get_url(url.lower()).json()
+        return float(['payload']['last'])
+
+    def get_pairs(self):
+        url = "https://api.bitso.com/v3/available_books/"
+        r = self.get_url(url).json()['payload']
+        return [x['book'].replace("_", '-') for x in r]
