@@ -451,8 +451,10 @@ crypto_data = {
         'name': 'Emercoin',
         'address_version_byte': 33,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'private_key_prefix': 128,
+        'message_magic': b"\xe6\xe8\xe9\xe5",
         'genesis_date': datetime(2011, 11, 5),
+        'github_link': "https://github.com/emercoin/emercoin",
         'services': {
             'current_price': {
                 'btc': [YoBit, Bittrex, xBTCe, Cryptopia], 'ltc': [Cryptopia],
@@ -1550,6 +1552,37 @@ crypto_data = {
             'unspent_outputs': [CryptoID],
             'get_block': [],
             "get_optimal_fee": []
+        },
+    },
+    'song': {
+        'name': 'SongCoin',
+        'address_version_byte': 63,
+        'bip44_coin_type': None,
+        'private_key_prefix': 191,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/Songcoin/Songcoin",
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 2,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [YoBit, CexIO, NovaExchange, Cryptopia],
+                'ltc': [CexIO, Cryptopia], 'usd': [CexIO],
+                'doge': [CexIO, NovaExchange, Cryptopia]
+            },
+            'address_balance': [ProHashing],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
+            'get_optimal_fee': []
         },
     },
     # TEMPLATE
