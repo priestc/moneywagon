@@ -32,7 +32,7 @@ crypto_data = {
                 'cny': [BTER, BTCChina, Huobi, xBTCe, BTC38, ChainSo],
                 'rur': [BTCE], 'jpy': [Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, xBTCe, UseCryptos, Kraken, ChainSo], 'cad': [Kraken],
-                'idr': [BitcoinIndonesia], 'mxn': [Bitso],
+                'idr': [BitcoinIndonesia], 'mxn': [Bitso], 'bgn': [CryptoBG],
                 '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
@@ -708,7 +708,7 @@ crypto_data = {
     'ric': {
         'name': 'Riecoin',
         'address_version_byte': 60,
-        'bip44_coin_type': 143,
+        'bip44_coin_type': 0x8000008f,
         'private_key_prefix': 128,
         'genesis_date': datetime(2014, 2, 11, 0, 49, 1),
         'supply_data': {

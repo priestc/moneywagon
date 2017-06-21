@@ -2963,3 +2963,12 @@ class Bitso(Service):
         url = "https://api.bitso.com/v3/available_books/"
         r = self.get_url(url).json()['payload']
         return [x['book'].replace("_", '-') for x in r]
+
+class CryptoBG(Service):
+    service_id = 102
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://crypto.bg/api/v1/public_rates"
+        if crypto != 'btc' or fiat != 'bgn':
+            raise SkipThisService("Only btc-bgn supported")
+        return float(self.get_url(url).json()['rates']['bitcoin']['bid'])
