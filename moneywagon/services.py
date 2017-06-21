@@ -2372,10 +2372,10 @@ class CexIO(Service):
     name = "Cex.io"
 
     def check_error(self, response):
+        super(CexIO, self).check_error(response)
         j = response.json()
         if 'error' in j:
             raise ServiceError("CexIO returned error: %s" % j['error'])
-        super(CexIO, self).check_error(response)
 
     def get_current_price(self, crypto, fiat):
         url = "https://c-cex.com/t/%s-%s.json" % (
@@ -2972,3 +2972,7 @@ class CryptoBG(Service):
         if crypto != 'btc' or fiat != 'bgn':
             raise SkipThisService("Only btc-bgn supported")
         return float(self.get_url(url).json()['rates']['bitcoin']['bid'])
+
+class PesetacoinInfo(Iquidus):
+    service_id = 103
+    base_url = "http://explorer.pesetacoin.info"

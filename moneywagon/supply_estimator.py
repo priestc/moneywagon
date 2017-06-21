@@ -269,7 +269,7 @@ def get_block_currencies():
 
 def write_blocktime_adjustments(path, **modes):
     with open(path, "w") as f:
-        f.write("adjustments = {\n")
+        f.write("# last updated: %s\n\nadjustments = {\n" % datetime.datetime.now())
         for currency in get_block_currencies():
             if modes.get('verbose'): print("getting adjustments for %s" % currency)
             try:

@@ -1603,6 +1603,42 @@ crypto_data = {
             'get_optimal_fee': []
         },
     },
+    'ptc': {
+        'name': 'Pesetacoin',
+        'address_version_byte': 47,
+        'bip44_coin_type': None,
+        'private_key_prefix': 175,
+        'message_magic': b"\xc0\xc0\xc0\xc0",
+        'genesis_date': datetime(2013, 12, 31, 22, 23, 8),
+        'github_link': "https://github.com/pesetachain/pesetacoin-0.9",
+        'supply_data': {
+            'method': 'per_era',
+            'eras': [
+                {'start': 0,      'end': 525600, 'reward': 166.386},
+                {'start': 525601, 'end': 550000, 'reward': 83.193},
+                {'start': 550001, 'end': 1051200, 'reward': 50},
+                {'start': 1051201, 'end' 1576800:, 'reward': 25},
+                {'start': 1576801, 'end' 2628000:, 'reward': 10},
+                {'start': 2628001, 'end' 8409600:, 'reward': 5},
+                {'start': 8409601, 'end' None:, 'reward': 0},
+            ],
+            'full_cap': 166386000,
+            'reward_ends_at_block': 8409601
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex, Cryptopia, NovaExchange], 'ltc': [Cryptopia],
+                'uno': [Cryptopia], 'doge': [Cryptopia]
+            },
+            'address_balance': [PesetacoinInfo, CryptoID],
+            'historical_transactions': [PesetacoinInfo],
+            'single_transaction': [PesetacoinInfo, CryptoID],
+            'push_tx': [],
+            'unspent_outputs': [PesetacoinInfo, CryptoID],
+            'get_block': [PesetacoinInfo],
+            'get_optimal_fee': []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
