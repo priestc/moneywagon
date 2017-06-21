@@ -2976,3 +2976,9 @@ class CryptoBG(Service):
 class PesetacoinInfo(Iquidus):
     service_id = 103
     base_url = "http://explorer.pesetacoin.info"
+
+class VChainInfo(Iquidus):
+    service_id = 104
+    name = "Chain.info (iquidus)"
+    base_url = "https://explorer.vchain.info/"
+    supported_cryptos = ['xvc']
