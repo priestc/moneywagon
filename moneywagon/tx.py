@@ -20,9 +20,6 @@ class Transaction(object):
 
         self.verbose = verbose
 
-        services = get_optimal_services(self.crypto, 'current_price')
-        self.price_getter = CurrentPrice(services=services, verbose=verbose)
-
         if hex:
             self.hex = hex
 
@@ -37,7 +34,7 @@ class Transaction(object):
             return value * 1e8
 
         # assume fiat currency that we can convert
-        convert = self.price_getter.action(self.crypto, unit)
+        convert = get_current_price(self.crypto, unit)
         return int(value / convert * 1e8)
 
     def add_raw_inputs(self, inputs, private_key=None):
@@ -193,7 +190,7 @@ class Transaction(object):
         convert = None
         if not value:
             # no fee was specified, use $0.02 as default.
-            convert = self.price_getter.action(self.crypto, "usd")
+            convert = get_current_price(self.crypto, "usd")
             self.fee_satoshi = int(0.02 / convert * 1e8)
             verbose = "Using default fee of:"
 
@@ -208,7 +205,7 @@ class Transaction(object):
 
         if self.verbose:
             if not convert:
-                convert = self.price_getter.action(self.crypto, "usd")
+                convert = get_current_price(self.crypto, "usd")
             fee_dollar = convert * self.fee_satoshi / 1e8
             print(verbose + " %s satoshis ($%.2f)" % (self.fee_satoshi, fee_dollar))
 
