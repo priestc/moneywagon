@@ -1639,6 +1639,36 @@ crypto_data = {
             'get_optimal_fee': []
         },
     },
+    'tes': {
+        'name': 'TeslaCoin',
+        'address_version_byte': 11,
+        'bip44_coin_type': None,
+        'private_key_prefix': 139,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/TeslacoinFoundation/Teslacoin",
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [YoBit, Cryptopia, NovaExchange], 'ltc': [Cryptopia, NovaExchange],
+                'uno': [Cryptopia], 'doge': [Cryptopia, NovaExchange]
+            },
+            'address_balance': [CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [CryptoID],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
