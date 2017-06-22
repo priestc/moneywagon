@@ -2992,3 +2992,24 @@ class CoinOne(Service):
     def get_current_price(self, crypto, fiat):
         url = "https://api.coinone.co.kr/ticker?currency=%s" % crypto.lower()
         return float(self.get_url(url).json()['last'])
+
+class Liqui(Service):
+    service_id = 106
+
+    def get_pairs(self):
+        url = "https://api.liqui.io/api/3/info"
+        r = self.get_url(url).json()['pairs']
+        ret = []
+        for item in r.keys():
+            pair = item.replace("_", '-')
+            if pair.endswith("usdt"):
+                pair = pair[:-1]
+            ret.append(pair)
+        return ret
+
+    def get_current_price(self, crypto, fiat):
+        if fiat == 'usd':
+            fiat = 'usdt'
+        pair = "%s_%s" % (crypto.lower(), fiat.lower())
+        url = "https://api.liqui.io/api/3/ticker/%s" % pair
+        return self.get_url(url).json()[pair]['last']

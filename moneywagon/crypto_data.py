@@ -90,7 +90,7 @@ crypto_data = {
                 'btc': [
                     GDAX, BTCE, CexIO, BTER, BleuTrade, Bittrex, Poloniex,
                     ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange,
-                    BitcoinIndonesia, BTCChina
+                    BitcoinIndonesia, BTCChina, Liqui
                 ],
                 'doge': [CexIO], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
                 '*': [Cryptonator, Vircurex, YoBit],
@@ -359,12 +359,12 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'usd': [CexIO, Cryptopia, Kraken, xBTCe],
-                'doge': [NovaExchange, Cryptopia, BleuTrade],
+                'usd': [CexIO, Cryptopia, Kraken, xBTCe, Liqui],
+                'doge': [NovaExchange, Cryptopia, BleuTrade], 'eth': [Liqui],
                 'rur': [YoBit], 'ltc': [NovaExchange, Cryptopia, CexIO],
                 'btc': [
                     Bittrex, Poloniex, Cryptopia, ChainSo, YoBit, CexIO, BleuTrade,
-                    NovaExchange, Kraken, UseCryptos
+                    NovaExchange, Kraken, UseCryptos, Liqui
                 ], 'cny': [xBTCe, BTC38], 'eur': [UseCryptos, Kraken],
                 '*': [Cryptonator], 'uno': [Cryptopia], 'moon': [NovaExchange]
             },
@@ -846,12 +846,12 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'rur': [YoBit, xBTCe], 'usd': [GDAX, Kraken, xBTCe], 'cny': [Yunbi, xBTCe],
+                'rur': [YoBit, xBTCe], 'usd': [GDAX, Kraken, xBTCe, Liqui], 'cny': [Yunbi, xBTCe],
                 'jpy': [Kraken, xBTCe], 'eur': [xBTCe, Kraken], 'cad': [Kraken],
                 'gbp': [Kraken], 'mxn': [Bitso], 'krw': [CoinOne],
                 'btc': [
                     Poloniex, GDAX, Kraken, xBTCe, BleuTrade, Bittrex, CexIO,
-                    BitcoinIndonesia, EtherChain, YoBit, Cryptopia, Bitso
+                    BitcoinIndonesia, EtherChain, YoBit, Cryptopia, Bitso, Liqui
                 ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
