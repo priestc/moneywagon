@@ -33,7 +33,7 @@ crypto_data = {
                 'rur': [BTCE], 'jpy': [Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, xBTCe, UseCryptos, Kraken, ChainSo], 'cad': [Kraken],
                 'idr': [BitcoinIndonesia], 'mxn': [Bitso], 'bgn': [CryptoBG],
-                '*': [Cryptonator, Yunbi]
+                'krw': [CoinOne], '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
                 BlockCypher, Blockr, ChainSo,
@@ -740,7 +740,7 @@ crypto_data = {
                 'btc': [Bittrex, Bitstamp, Poloniex, Bitso, BitcoinIndonesia, Kraken],
                 'cad': [Kraken], 'usd': [Bitstamp, Kraken, xBTCe], 'cny': [BTC38],
                 'eur': [Bitstamp, Kraken, xBTCe], 'jpy': [Kraken], 'mxn': [Bitso],
-                '*': [Cryptonator],
+                'krw': [CoinOne], '*': [Cryptonator],
             },
         }
     },
@@ -848,7 +848,7 @@ crypto_data = {
             'current_price': {
                 'rur': [YoBit, xBTCe], 'usd': [GDAX, Kraken, xBTCe], 'cny': [Yunbi, xBTCe],
                 'jpy': [Kraken, xBTCe], 'eur': [xBTCe, Kraken], 'cad': [Kraken],
-                'gbp': [Kraken], 'mxn': [Bitso],
+                'gbp': [Kraken], 'mxn': [Bitso], 'krw': [CoinOne],
                 'btc': [
                     Poloniex, GDAX, Kraken, xBTCe, BleuTrade, Bittrex, CexIO,
                     BitcoinIndonesia, EtherChain, YoBit, Cryptopia, Bitso
@@ -876,7 +876,7 @@ crypto_data = {
             'current_price': {
                 'btc': [Poloniex, Bittrex, CexIO, Kraken, Cryptopia, YoBit, Yunbi],
                 'usd': [Kraken, CexIO], 'doge': [Cryptopia], 'eur': [Kraken],
-                'ltc': [CexIO, Cryptopia], 'uno': [Cryptopia],
+                'ltc': [CexIO, Cryptopia], 'uno': [Cryptopia], 'krw': [CoinOne],
                 '*': [Cryptonator], 'eth': [Kraken]
             },
             'address_balance': [ETCchain],

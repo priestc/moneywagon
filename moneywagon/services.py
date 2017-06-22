@@ -2982,3 +2982,13 @@ class VChainInfo(Iquidus):
     name = "Chain.info (iquidus)"
     base_url = "https://explorer.vchain.info/"
     supported_cryptos = ['xvc']
+
+class CoinOne(Service):
+    service_id = 105
+
+    def get_pairs(self):
+        return ['btc-krw', 'eth-krw', 'xrp-krw', 'etc-krw']
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.coinone.co.kr/ticker?currency=%s" % crypto.lower()
+        return float(self.get_url(url).json()['last'])
