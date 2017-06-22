@@ -1630,11 +1630,11 @@ crypto_data = {
                 'btc': [Bittrex, Cryptopia, NovaExchange], 'ltc': [Cryptopia],
                 'uno': [Cryptopia], 'doge': [Cryptopia]
             },
-            'address_balance': [PesetacoinInfo, CryptoID],
-            'historical_transactions': [PesetacoinInfo],
-            'single_transaction': [PesetacoinInfo, CryptoID],
-            'push_tx': [],
-            'unspent_outputs': [PesetacoinInfo, CryptoID],
+            'address_balance': [PesetacoinInfo, CryptoID, PresetacoinInsight],
+            'historical_transactions': [PesetacoinInfo, PresetacoinInsight],
+            'single_transaction': [PesetacoinInfo, CryptoID, PresetacoinInsight],
+            'push_tx': [PresetacoinInsight],
+            'unspent_outputs': [PesetacoinInfo, CryptoID, PresetacoinInsight],
             'get_block': [PesetacoinInfo],
             'get_optimal_fee': []
         },

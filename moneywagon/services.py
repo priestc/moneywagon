@@ -3013,3 +3013,8 @@ class Liqui(Service):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
         url = "https://api.liqui.io/api/3/ticker/%s" % pair
         return self.get_url(url).json()[pair]['last']
+
+class PresetacoinInsight(BitpayInsight):
+    service_id = 107
+    domain = "vps5.xaxamining.com:3001"
+    protocol = "http"
