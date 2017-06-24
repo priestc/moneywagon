@@ -58,7 +58,7 @@ def _try_price_fetch(services, args, modes):
     except NoService as exc:
         return exc
 
-def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
+def get_current_price(crypto, fiat, services=None, convert_to=None, helper_prices=None, **modes):
     """
     High level function for getting current exchange rate for a cryptocurrency.
     If the fiat value is not explicitly defined, it will try the wildcard service.
@@ -85,11 +85,16 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
         if not isinstance(result, Exception):
             return result
 
-    def _do_composite_price_fetch(crypto, convert_crypto, fiat, modes):
+    def _do_composite_price_fetch(crypto, convert_crypto, fiat, helpers, modes):
         before = modes.get('report_services', False)
         modes['report_services'] = True
         services1, converted_price = get_current_price(crypto, convert_crypto, **modes)
-        services2, fiat_price = get_current_price(convert_crypto, fiat, **modes)
+        if not helpers or convert_crypto not in helpers[fiat]:
+            services2, fiat_price = get_current_price(convert_crypto, fiat, **modes)
+        else:
+            print("***** using helper")
+            services2, fiat_price = helpers[fiat][convert_crypto]
+
         modes['report_services'] = before
 
         if modes.get('report_services', False):
@@ -100,7 +105,9 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, **modes):
 
     for composite_attempt in ['btc', 'ltc', 'doge', 'uno']:
         if composite_attempt in services and services[composite_attempt]:
-            result = _do_composite_price_fetch(crypto, composite_attempt, fiat, modes)
+            result = _do_composite_price_fetch(
+                crypto, composite_attempt, fiat, helper_prices, modes
+            )
             if not isinstance(result, Exception):
                 return result
 

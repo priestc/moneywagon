@@ -20,11 +20,17 @@ def fetch_wallet_balances(wallets, fiat, **modes):
 
     fetch_length = len(wallets) + len(price_fetch)
 
+    helpers = {fiat.lower(): {}}
     if not modes.get('async', False):
         # synchronous fetching
         for crypto in price_fetch:
             try:
-                prices[crypto] = {'price': get_current_price(crypto, fiat, report_services=True, **modes)}
+                p = get_current_price(
+                    crypto, fiat, helper_prices=helpers, report_services=True, **modes
+                )
+                prices[crypto] = {'price': p}
+                if crypto in ['btc', 'ltc', 'doge', 'uno']:
+                    helpers[fiat.lower()][crypto] = p
             except NoService as exc:
                 prices[crypto] = {'error': str(exc)}
 

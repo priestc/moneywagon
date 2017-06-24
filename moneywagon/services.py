@@ -1910,7 +1910,6 @@ class BlockExperts(Service):
     service_id = 48
     name = "Block Experts"
     base = "https://www.blockexperts.com"
-    supported_cryptos = ['hemp', 'dime', 'dope']
 
     def _get_coin(self, crypto):
         if crypto == 'hemp':

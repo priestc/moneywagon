@@ -979,10 +979,12 @@ crypto_data = {
     },
     'zec': {
         'name': 'ZCash',
-        'address_version_byte': None,
+        'address_version_byte': 7352,
         'bip44_coin_type': 0x80000085,
-        'private_key_prefix': None,
+        'private_key_prefix': 128,
         'genesis_date': datetime(1, 1, 1),
+        'message_magic': b"\x24\xe9\x27\x64",
+        'github_link': "https://github.com/zcash/zcash",
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, Kraken], 'usd': [Kraken], 'eur': [Kraken],
@@ -1245,7 +1247,7 @@ crypto_data = {
     'rby': {
         'name': 'Rubycoin',
         'address_version_byte': 60,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x80000010,
         'private_key_prefix': 188,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
@@ -1694,6 +1696,35 @@ crypto_data = {
             'single_transaction': [VChainInfo],
             'push_tx': [],
             'unspent_outputs': [VChainInfo],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'meow': {
+        'name': 'KittehCoin',
+        'address_version_byte': 45,
+        'bip44_coin_type': None,
+        'private_key_prefix': 173,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/kittehcoin/kittehcoin",
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 1.0,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'ltc': [Cryptopia, NovaExchange], 'doge': [Cryptopia]
+            },
+            'address_balance': [ProHashing, CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [CryptoID],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
             'get_block': [],
             'get_optimal_fee': []
         },
