@@ -3017,3 +3017,9 @@ class PresetacoinInsight(BitpayInsight):
     service_id = 107
     domain = "vps5.xaxamining.com:3001"
     protocol = "http"
+    supported_cryptos = ['pts']
+
+class MercerWeiss(BitpayInsight):
+    service_id = 108
+    domain = "insight.mercerweiss.com"
+    supported_cryptos = ['zec']

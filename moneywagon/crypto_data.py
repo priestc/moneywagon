@@ -982,7 +982,7 @@ crypto_data = {
         'address_version_byte': 7352,
         'bip44_coin_type': 0x80000085,
         'private_key_prefix': 128,
-        'genesis_date': datetime(1, 1, 1),
+        'genesis_date': datetime(2016, 10, 28, 7, 56),
         'message_magic': b"\x24\xe9\x27\x64",
         'github_link': "https://github.com/zcash/zcash",
         'services': {
@@ -990,12 +990,12 @@ crypto_data = {
                 'btc': [Bittrex, YoBit, Kraken], 'usd': [Kraken], 'eur': [Kraken],
                 '*': [Cryptonator],
             },
-            'address_balance': [ZChain],
-            'historical_transactions': [],
-            'single_transaction': [],
-            'push_tx': [],
-            'unspent_outputs': [],
-            'get_block': []
+            'address_balance': [ZChain, MercerWeiss],
+            'historical_transactions': [MercerWeiss],
+            'single_transaction': [MercerWeiss],
+            'push_tx': [MercerWeiss],
+            'unspent_outputs': [MercerWeiss],
+            'get_block': [MercerWeiss]
         },
     },
     'grs': {
