@@ -3015,7 +3015,7 @@ class Liqui(Service):
 
 class PresetacoinInsight(BitpayInsight):
     service_id = 107
-    domain = "vps5.xaxamining.com:3001"
+    domain = "live.pesetacoin.info"
     protocol = "http"
     supported_cryptos = ['pts']
 

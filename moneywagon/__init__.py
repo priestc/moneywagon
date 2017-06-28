@@ -92,7 +92,6 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, helper_price
         if not helpers or convert_crypto not in helpers[fiat]:
             services2, fiat_price = get_current_price(convert_crypto, fiat, **modes)
         else:
-            print("***** using helper")
             services2, fiat_price = helpers[fiat][convert_crypto]
 
         modes['report_services'] = before

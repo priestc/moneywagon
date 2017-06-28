@@ -1608,7 +1608,7 @@ crypto_data = {
     'ptc': {
         'name': 'Pesetacoin',
         'address_version_byte': 47,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x8000006d,
         'private_key_prefix': 175,
         'message_magic': b"\xc0\xc0\xc0\xc0",
         'genesis_date': datetime(2013, 12, 31, 22, 23, 8),
@@ -1725,6 +1725,35 @@ crypto_data = {
             'single_transaction': [CryptoID],
             'push_tx': [],
             'unspent_outputs': [CryptoID],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'huc': {
+        'name': 'HunterCoin',
+        'address_version_byte': 40,
+        'bip44_coin_type': None,
+        'private_key_prefix': 168,
+        'message_magic': b"\xf9\xbe\xb4\xfe",
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': "https://github.com/chronokings/huntercore",
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 1.0,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Poloniex], 'ltc': [], 'usd': [], 'doge': []
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
             'get_block': [],
             'get_optimal_fee': []
         },
