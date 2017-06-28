@@ -1697,7 +1697,9 @@ class Iquidus(Service):
     def get_transactions(self, crypto, address):
         domain = self.base_url.format(coin=self._get_coin(crypto))
         url = "%s/ext/getaddress/%s" % (domain, address)
-        return self.get_url(url).json()
+        r = self.get_url(url).json()
+        if 'error' in r and r['error'] == 'address not found.':
+            return []
 
     def get_single_transaction(self, crypto, txid):
         domain = self.base_url.format(coin=self._get_coin(crypto))
@@ -3017,7 +3019,7 @@ class PresetacoinInsight(BitpayInsight):
     service_id = 107
     domain = "live.pesetacoin.info"
     protocol = "http"
-    supported_cryptos = ['pts']
+    supported_cryptos = ['ptc']
 
 class MercerWeiss(BitpayInsight):
     service_id = 108
