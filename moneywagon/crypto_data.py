@@ -15,6 +15,18 @@ crypto_data = {
         'bip44_coin_type': 0x80000000,
         'private_key_prefix': 128,  # base58Prefixes[SECRET_KEY] in chainparams.cpp
         'genesis_date': datetime(2009, 1, 3, 18, 15, 5),
+        'header_hash_algo': 'double-sha256',
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': 8333,
+        'seed_nodes': [
+            'seed.bitcoin.sipa.be',
+            'dnsseed.bluematt.me',
+            'dnsseed.bitcoin.dashjr.org',
+            'seed.bitcoinstats.com',
+            'seed.bitnodes.io',
+            'bitseed.xf2.org'
+        ],
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
@@ -72,6 +84,17 @@ crypto_data = {
         'bip44_coin_type': 0x80000002,
         'private_key_prefix': 176,
         'genesis_date': datetime(2011, 10, 7),
+        'header_hash_algo': 'scrypt',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': 9333,
+        'seed_nodes': [
+            'dnsseed.litecointools.com',
+            'dnsseed.litecoinpool.org',
+            'dnsseed.ltc.xurious.com',
+            'dnsseed.koin-project.com',
+            'dnsseed.weminemnc.com'
+        ],
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
@@ -126,6 +149,10 @@ crypto_data = {
         'private_key_prefix': 183,
         'proof_of_stake': True,
         'genesis_date': datetime(2012, 8, 19, 18, 12, 4),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {},
         'services': {
             'current_price': {
@@ -151,6 +178,16 @@ crypto_data = {
         'bip44_coin_type': 0x80000003,
         'private_key_prefix': 158,
         'genesis_date': datetime(2013, 12, 6, 10, 25, 40),
+        'header_hash_algo': 'scrypt',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': 22556,
+        'seed_nodes': [
+            'seed.dogecoin.com',
+            'seed.mophides.com',
+            'seed.dglibrary.org',
+            'seed.dogechain.info'
+        ],
         'supply_data': {
             'method': 'per_era',
             'eras': [
@@ -203,6 +240,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000001d,
         'private_key_prefix': None,
         'genesis_date': datetime(2013, 10, 29),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, BitcoinIndonesia, ChainSo, Poloniex],
@@ -223,6 +264,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000005a,
         'private_key_prefix': 178,
         'genesis_date': datetime(2014, 2, 23),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 1000,
@@ -263,6 +308,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000001c,
         'private_key_prefix': 199,
         'genesis_date': datetime(2014, 1, 8),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
@@ -291,6 +340,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000008,
         'private_key_prefix': 0x8e,
         'genesis_date': datetime(2013, 4, 16),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'per_era',
             'minutes_per_block': 2.5,
@@ -341,6 +394,16 @@ crypto_data = {
         'bip44_coin_type': 0x80000005,
         'private_key_prefix': 204,
         'genesis_date': datetime(2014, 1, 19, 1, 40, 18),
+        'header_hash_algo': 'x11',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': 9999,
+        'seed_nodes': [
+            'dnsseed.darkcoin.io',
+            'dnsseed.dashdot.io',
+            'dnsseed.masternode.io',
+            'dnsseed.dashpay.io'
+        ],
         'supply_data': {
             'method': 'per_era',
             'eras': [
@@ -397,6 +460,10 @@ crypto_data = {
         'private_key_prefix': 0xbd,
         'genesis_date': datetime(2014, 1, 20),
         'proof_of_stake': True,
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, BleuTrade, Cryptopia, NovaExchange],
@@ -418,6 +485,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000007,
         'private_key_prefix': 0x80,
         'genesis_date': datetime(2011, 4, 18),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Poloniex, BleuTrade, YoBit, xBTCe, Cryptopia, Vircurex],
@@ -433,6 +504,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000055,
         'private_key_prefix': 0x97,
         'genesis_date': datetime(2014, 2, 2),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, Cryptopia], 'ltc': [Cryptopia],
@@ -455,6 +530,10 @@ crypto_data = {
         'message_magic': b"\xe6\xe8\xe9\xe5",
         'genesis_date': datetime(2011, 11, 5),
         'github_link': "https://github.com/emercoin/emercoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [YoBit, Bittrex, xBTCe, Cryptopia], 'ltc': [Cryptopia],
@@ -477,6 +556,10 @@ crypto_data = {
         'private_key_prefix': 166,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/gsmcoin/GSMcoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {'btc': [YoBit]},
             'address_balance': [],
@@ -495,6 +578,10 @@ crypto_data = {
         'private_key_prefix': 161,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/EuropecoinEUORG/EuropecoinV2",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex],
@@ -517,6 +604,10 @@ crypto_data = {
         'message_magic': b"\xd1\x2e\x1e\xe6",
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/transferdev/Transfercoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, Cryptopia], 'ltc': [Cryptopia],
@@ -537,6 +628,10 @@ crypto_data = {
         'bip44_coin_type': None,
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, Poloniex, Cryptopia], 'ltc': [Cryptopia],
@@ -558,6 +653,10 @@ crypto_data = {
         'private_key_prefix': 161   ,
         'genesis_date': datetime(2013, 12, 21),
         'github_link': "https://github.com/fedoracoin/fedoracoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'ltc': [BTER, NovaExchange], 'moon': [NovaExchange],
@@ -579,6 +678,10 @@ crypto_data = {
         'private_key_prefix': 173,
         'genesis_date': datetime(2014, 2, 4),
         'github_link': "https://github.com/karmacoin-team/karmacoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [YoBit],
@@ -600,6 +703,10 @@ crypto_data = {
         'private_key_prefix': 163,
         'genesis_date': datetime(2014, 2, 14),
         'github_link': "https://github.com/flappycoin-project/flappycoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {},
             'address_balance': [CryptoID],
@@ -618,6 +725,10 @@ crypto_data = {
         'private_key_prefix': 183,
         'genesis_date': datetime(2014, 1, 21),
         'github_link': "https://github.com/potcoin/Potcoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 420,
@@ -645,6 +756,10 @@ crypto_data = {
         'bip44_coin_type': None,
         'private_key_prefix': 213,
         'genesis_date': datetime(2012, 7, 15),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 '*': [Cryptonator],
@@ -664,6 +779,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000032,
         'private_key_prefix': 136,
         'genesis_date': datetime(2012, 10, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [YoBit, Cryptopia, BleuTrade], 'ltc': [Cryptopia],
@@ -684,6 +803,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000005c,
         'private_key_prefix': 224,
         'genesis_date': datetime(2013, 10, 17),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'full_cap': 250000,
@@ -711,6 +834,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000008f,
         'private_key_prefix': 128,
         'genesis_date': datetime(2014, 2, 11, 0, 49, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
@@ -735,6 +862,10 @@ crypto_data = {
         'name': 'Ripple',
         'genesis_date': datetime(2011, 3, 1),
         'bip44_coin_type': 0x80000090,
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, Bitstamp, Poloniex, Bitso, BitcoinIndonesia, Kraken],
@@ -752,6 +883,10 @@ crypto_data = {
         'private_key_prefix': 168,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/hempcoin-project/THC",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -779,6 +914,10 @@ crypto_data = {
         'bip44_coin_type': None,
         'private_key_prefix': None,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, Cryptonator],
@@ -799,6 +938,10 @@ crypto_data = {
         'bip44_coin_type': None,
         'private_key_prefix': None,
         'genesis_date': datetime(2014, 12, 23),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [YoBit, Cryptonator], 'doge': [Cryptopia],
@@ -820,6 +963,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000009,
         'private_key_prefix': 128,
         'genesis_date': datetime(2014, 1, 2),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, Poloniex, Cryptonator],
@@ -841,6 +988,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000003c,
         'private_key_prefix': None,
         'genesis_date': datetime(2015, 7, 30),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'instamine': 72009990.50
         },
@@ -872,6 +1023,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000003d,
         'private_key_prefix': None,
         'genesis_date': datetime(2016, 7, 20),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Poloniex, Bittrex, CexIO, Kraken, Cryptopia, YoBit, Yunbi],
@@ -894,6 +1049,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000080,
         'private_key_prefix': None,
         'genesis_date': datetime(2014, 4, 18),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Poloniex, Bittrex, Kraken, Cryptopia], 'ltc': [Cryptopia],
@@ -916,6 +1075,10 @@ crypto_data = {
         'bip44_coin_type': 0x8000000a,
         'private_key_prefix': 153,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Poloniex, Cryptopia, UseCryptos, BleuTrade], 'ltc': [Cryptopia],
@@ -939,6 +1102,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000018,
         'private_key_prefix': 151,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Poloniex, Cryptopia, Vircurex, BleuTrade], 'ltc': [Cryptopia],
@@ -963,6 +1130,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000077,
         'private_key_prefix': 212,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, Cryptopia, YoBit], 'usd': [Cryptopia],
@@ -985,6 +1156,10 @@ crypto_data = {
         'genesis_date': datetime(2016, 10, 28, 7, 56),
         'message_magic': b"\x24\xe9\x27\x64",
         'github_link': "https://github.com/zcash/zcash",
+        'header_hash_algo': 'double-sha256',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': 8233,
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, Kraken], 'usd': [Kraken], 'eur': [Kraken],
@@ -1006,6 +1181,16 @@ crypto_data = {
         'private_key_prefix': 128,
         'message_magic': b"\xF9\xBE\xB4\xD4",
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': 'groestl',
+        'transaction_hash_algo': 'groestl',
+        'script_hash_algo': 'groestl',
+        'port': None,
+        'seed_nodes': [
+            'groestlcoin.org',
+            'jswallet.groestlcoin.org',
+            'electrum1.groestlcoin.org',
+            'electrum2.groestlcoin.org'
+        ],
         'services': {
             'current_price': {
                 'btc': [Bittrex],
@@ -1025,6 +1210,10 @@ crypto_data = {
         'bip44_coin_type': 0x80000039,
         'private_key_prefix': 128,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, BTC38],
@@ -1044,6 +1233,10 @@ crypto_data = {
         'bip44_coin_type': None,
         'private_key_prefix': 154,
         'genesis_date': datetime(2014, 4, 25, 16, 0),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'services': {
             'current_price': {
                 'ltc': [Cryptopia, NovaExchange], 'moon': [NovaExchange],
@@ -1063,6 +1256,10 @@ crypto_data = {
         'bip44_coin_type': None,
         'private_key_prefix': 176,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 8,
@@ -1091,6 +1288,10 @@ crypto_data = {
         'private_key_prefix': 149,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
@@ -1116,6 +1317,10 @@ crypto_data = {
         'private_key_prefix': 176,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 20,
@@ -1146,6 +1351,10 @@ crypto_data = {
         'private_key_prefix': None,
         'message_magic': None,
         'genesis_date': datetime(2017, 2, 12, 6, 25, 23),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 200,
@@ -1173,6 +1382,10 @@ crypto_data = {
         'private_key_prefix': None,
         'message_magic': None,
         'genesis_date': datetime(2017, 5, 19, 17, 55, 39),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1198,6 +1411,10 @@ crypto_data = {
         'private_key_prefix': 178,
         'message_magic': None,
         'genesis_date': datetime(2014, 1, 1, 15, 37, 7),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 50,
@@ -1223,6 +1440,10 @@ crypto_data = {
         'private_key_prefix': 131,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1251,6 +1472,10 @@ crypto_data = {
         'private_key_prefix': 188,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1279,6 +1504,10 @@ crypto_data = {
         'private_key_prefix': 183,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1308,6 +1537,10 @@ crypto_data = {
         'message_magic': b"\x42\xba\xbe\x56",
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/clockuniverse/terracoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': 20,
@@ -1338,6 +1571,10 @@ crypto_data = {
         'message_magic': b"\xfb\xc0\xb6\xdb",
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/DGCDev/digitalcoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1368,6 +1605,10 @@ crypto_data = {
         'private_key_prefix': 186,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1398,6 +1639,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(2016, 12, 29, 21, 53, 10),
         'github_link': 'https://github.com/CryptoCoderz/Tattoocoin-TSE',
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1428,6 +1673,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(2014, 10, 9, 18, 22, 44),
         'github_link': "https://github.com/vergecurrency/VERGE",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1458,6 +1707,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': 'https://github.com/Velvet78/1337',
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1489,6 +1742,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/cryptojacks/CryptoJacks",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1520,6 +1777,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(2014, 6, 27, 23, 0),
         'github_link': "https://github.com/fujicoin/fujicoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1551,6 +1812,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/DNotesCoin/DNotes/",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1582,6 +1847,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/Songcoin/Songcoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1613,6 +1882,10 @@ crypto_data = {
         'message_magic': b"\xc0\xc0\xc0\xc0",
         'genesis_date': datetime(2013, 12, 31, 22, 23, 8),
         'github_link': "https://github.com/pesetachain/pesetacoin-0.9",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'per_era',
             'eras': [
@@ -1649,6 +1922,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/TeslacoinFoundation/Teslacoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1679,6 +1956,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/openvcash/vcash",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1708,6 +1989,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/kittehcoin/kittehcoin",
+        'header_hash_algo': 'scrypt',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1737,6 +2022,10 @@ crypto_data = {
         'message_magic': b"\xf9\xbe\xb4\xfe",
         'genesis_date': datetime(1, 1, 1),
         'github_link': "https://github.com/chronokings/huntercore",
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,
@@ -1767,6 +2056,10 @@ crypto_data = {
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': None,
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
         'supply_data': {
             'method': 'standard',
             'start_coins_per_block': None,

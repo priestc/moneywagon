@@ -672,7 +672,7 @@ def wif_to_hex(wif):
     """
     return hexlify(b58decode_check(wif)[1:]).upper()
 
-class PairFinder(object):
+class ExchangeUniverse(object):
     def __init__(self, verbose=False):
         self.all_pairs = {}
         for Service in ALL_SERVICES:

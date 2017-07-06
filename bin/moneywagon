@@ -6,6 +6,7 @@ import sys
 import argparse
 import json
 import datetime
+import binascii
 
 from concurrent import futures
 from tabulate import tabulate
@@ -120,6 +121,8 @@ x.add_argument('--random-service', action='store_true', help='Use random sources
 x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
 x.add_argument("--collapse", action='store_true', help="Collapse same cryptos into a single line.")
 x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
+
+x = subparsers.add_parser('generate-altcore-networks', help='Genrate list of networks compatable with altcore.')
 
 argz = parser.parse_args()
 
@@ -295,3 +298,34 @@ elif argz.subparser_name == 'wallet-balance':
 
 elif argz.subparser_name == 'service-table':
     print(service_table(format=argz.format or 'simple'))
+
+elif argz.subparser_name == 'generate-altcore-networks':
+    from moneywagon.crypto_data import crypto_data
+    for symbol, data in crypto_data.items():
+        priv = data.get('private_key_prefix')
+        pub = data['address_version_byte'])
+        hha = data.get('header_hash_algo')
+        if not priv or not hha or not pub:
+            continue
+        print("addNetwork({")
+        print('    name: "%s",' % data['name'])
+        print('    alias: "%s",' % symbol)
+        print('    pubkeyhash: %s,' % hex(pub)
+        print('    privatekey: %s,' % hex(priv))
+        print('    scripthash: 0x05,')
+        print('    xpubkey: 0x0488b21e,')
+        print('    xprivkey: 0x0488ade4,')
+        if data['message_magic']:
+            print('    networkMagic: 0x%s,' % binascii.hexlify(data['message_magic']))
+        print('    port: %s,' % data.get('port'))
+        print('    headerHashAlgo: "%s",' % hha)
+        print('    scriptHashAlgo: "%s",' % (data['script_hash_algo'] or 'double-sha256'))
+        print('    transactionHashAlgo: "%s",' % (data['transaction_hash_algo'] or 'double-sha256'))
+        if data.get('seed_nodes'):
+            print('    dnsSeeds: [')
+            for seed in data['seed_nodes']:
+                print('        "%s",' % seed)
+            print('    ],')
+
+        print('});')
+        print()
