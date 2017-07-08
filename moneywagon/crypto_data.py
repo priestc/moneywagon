@@ -14,10 +14,11 @@ crypto_data = {
         'message_magic': b"\xf9\xbe\xb4\xd9", # pchMessageStart in chainparams.cpp
         'bip44_coin_type': 0x80000000,
         'private_key_prefix': 128,  # base58Prefixes[SECRET_KEY] in chainparams.cpp
+        'script_hash_byte': 0x05, # base58Prefixes[SCRIPT_ADDRESS] in chainparams.cpp
         'genesis_date': datetime(2009, 1, 3, 18, 15, 5),
         'header_hash_algo': 'double-sha256',
-        'transaction_hash_algo': None,
-        'script_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
         'port': 8333,
         'seed_nodes': [
             'seed.bitcoin.sipa.be',
@@ -177,6 +178,7 @@ crypto_data = {
         'address_version_byte': 30,
         'bip44_coin_type': 0x80000003,
         'private_key_prefix': 158,
+        'script_hash_byte': 0x16,
         'genesis_date': datetime(2013, 12, 6, 10, 25, 40),
         'header_hash_algo': 'scrypt',
         'transaction_hash_algo': 'double-sha256',
@@ -188,6 +190,7 @@ crypto_data = {
             'seed.dglibrary.org',
             'seed.dogechain.info'
         ],
+        'github_link': "https://github.com/dogecoin/dogecoin",
         'supply_data': {
             'method': 'per_era',
             'eras': [
@@ -1129,11 +1132,18 @@ crypto_data = {
         'address_version_byte': 30,
         'bip44_coin_type': 0x80000077,
         'private_key_prefix': 212,
+        'script_hash_byte': 0xD,
         'genesis_date': datetime(1, 1, 1),
         'header_hash_algo': None,
         'transaction_hash_algo': None,
         'script_hash_algo': None,
-        'port': None,
+        'port': 51472,
+        'seed_nodes': [
+            'pivx.seed.fuzzbawls.pw',
+            'pivx.seed2.fuzzbawls.pw',
+            'coin-server.com',
+            's3v3nh4cks.ddns.net'
+        ],
         'services': {
             'current_price': {
                 'btc': [Bittrex, Cryptopia, YoBit], 'usd': [Cryptopia],
@@ -1153,6 +1163,7 @@ crypto_data = {
         'address_version_byte': 7352,
         'bip44_coin_type': 0x80000085,
         'private_key_prefix': 128,
+        'script_hash_byte': 0x1cbd,
         'genesis_date': datetime(2016, 10, 28, 7, 56),
         'message_magic': b"\x24\xe9\x27\x64",
         'github_link': "https://github.com/zcash/zcash",
@@ -1179,12 +1190,14 @@ crypto_data = {
         "address_encoding": "groestlbase58",
         'bip44_coin_type': 0x80000011,
         'private_key_prefix': 128,
+        'script_hash_byte': 0x05,
         'message_magic': b"\xF9\xBE\xB4\xD4",
         'genesis_date': datetime(1, 1, 1),
         'header_hash_algo': 'groestl',
-        'transaction_hash_algo': 'groestl',
+        'transaction_hash_algo': 'single-sha256',
         'script_hash_algo': 'groestl',
-        'port': None,
+        'address_check_algo': 'groestl',
+        'port': 1331,
         'seed_nodes': [
             'groestlcoin.org',
             'jswallet.groestlcoin.org',
@@ -1209,11 +1222,13 @@ crypto_data = {
         'address_version_byte': 0,
         'bip44_coin_type': 0x80000039,
         'private_key_prefix': 128,
+        'script_hash_byte': 5,
         'genesis_date': datetime(1, 1, 1),
-        'header_hash_algo': None,
-        'transaction_hash_algo': None,
-        'script_hash_algo': None,
+        'header_hash_algo': 'double-sha256',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
         'port': None,
+        'github_link': "https://github.com/syscoin/syscoin2",
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, BTC38],
@@ -1232,8 +1247,9 @@ crypto_data = {
         'address_version_byte': 26,
         'bip44_coin_type': None,
         'private_key_prefix': 154,
+        'script_hash_byte': 22,
         'genesis_date': datetime(2014, 4, 25, 16, 0),
-        'header_hash_algo': None,
+        'header_hash_algo': 'scrypt',
         'transaction_hash_algo': None,
         'script_hash_algo': None,
         'port': None,
@@ -1704,6 +1720,7 @@ crypto_data = {
         'address_version_byte': 48,
         'bip44_coin_type': None,
         'private_key_prefix': 176,
+        'script_hash_byte': 28,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': 'https://github.com/Velvet78/1337',
@@ -2053,6 +2070,7 @@ crypto_data = {
         'address_version_byte': None,
         'bip44_coin_type': None,
         'private_key_prefix': None,
+        'script_hash_byte': None,
         'message_magic': None,
         'genesis_date': datetime(1, 1, 1),
         'github_link': None,
