@@ -3025,3 +3025,17 @@ class MercerWeiss(BitpayInsight):
     service_id = 108
     domain = "insight.mercerweiss.com"
     supported_cryptos = ['zec']
+
+class HitBTC(Service):
+    service_id = 109
+
+    def get_pairs(self):
+        url = 'https://api.hitbtc.com/api/1/public/symbols'
+        r = self.get_url(url).json()['symbols']
+        return [("%s-%s" % (x['commodity'], x['currency'])).lower() for x in r]
+
+    def get_current_price(self, crypto, fiat):
+        pair = ("%s%s" % (crypto, fiat)).upper()
+        url = "https://api.hitbtc.com/api/1/public/%s/ticker" % pair
+        r = self.get_url(url).json()
+        return float(r['last'])
