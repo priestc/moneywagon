@@ -211,7 +211,7 @@ crypto_data = {
                 'usd': [CexIO, HitBTC], 'cny': [BTC38],
                 'rur': [YoBit], 'ltc': [NovaExchange],
                 'btc': [
-                    Bittrex, Poloniex, BleuTrade, ChainSo, BTER, YoBit, HitBTC
+                    Bittrex, Poloniex, BleuTrade, ChainSo, BTER, YoBit, HitBTC,
                     NovaExchange, Vircurex, BitcoinIndonesia, UseCryptos
                 ],
                 '*': [Cryptonator],
@@ -808,9 +808,7 @@ crypto_data = {
         'bip44_coin_type': 0x8000005c,
         'private_key_prefix': 224,
         'genesis_date': datetime(2013, 10, 17),
-        'header_hash_algo': None,
-        'transaction_hash_algo': None,
-        'script_hash_algo': None,
+        'header_hash_algo': 'double-sha256',
         'port': None,
         'supply_data': {
             'method': 'standard',
@@ -1007,7 +1005,7 @@ crypto_data = {
                 'eur': [xBTCe, Kraken, HitBTC], 'cad': [Kraken],
                 'gbp': [Kraken], 'mxn': [Bitso], 'krw': [CoinOne],
                 'btc': [
-                    Poloniex, GDAX, Kraken, xBTCe, BleuTrade, Bittrex, CexIO, HitBTC
+                    Poloniex, GDAX, Kraken, xBTCe, BleuTrade, Bittrex, CexIO, HitBTC,
                     BitcoinIndonesia, EtherChain, YoBit, Cryptopia, Bitso, Liqui
                 ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],

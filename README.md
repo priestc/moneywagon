@@ -139,6 +139,7 @@ $ moneywagon service-table
 <tr><td style="text-align: right;"> 106</td><td>Liqui                </td><td><a href='' target='_blank'></a>                                                                                                                                                                                      </td><td>                                                      </td></tr>
 <tr><td style="text-align: right;"> 107</td><td>PresetacoinInsight   </td><td><a href='http://live.pesetacoin.info/api' target='_blank'>http://live.pesetacoin.info/api</a>                                                                                                                        </td><td>ptc                                                   </td></tr>
 <tr><td style="text-align: right;"> 108</td><td>MercerWeiss          </td><td><a href='https://insight.mercerweiss.com/api' target='_blank'>https://insight.mercerweiss.com/api</a>                                                                                                                </td><td>zec                                                   </td></tr>
+<tr><td style="text-align: right;"> 109</td><td>HitBTC               </td><td><a href='' target='_blank'></a>                                                                                                                                                                                      </td><td>                                                      </td></tr>
 </tbody>
 </table>
 
