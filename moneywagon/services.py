@@ -3039,3 +3039,19 @@ class HitBTC(Service):
         url = "https://api.hitbtc.com/api/1/public/%s/ticker" % pair
         r = self.get_url(url).json()
         return float(r['last'])
+
+class LiveCoin(Service):
+    service_id = 110
+    base_url = "https://api.livecoin.net"
+    api_homepage = "https://www.livecoin.net/api/public"
+
+    def get_pairs(self):
+        url = "%s/exchange/ticker" % (self.base_url)
+        r = self.get_url(url).json()
+        return [x['symbol'].replace('/', '-').lower() for x in r]
+
+    def get_current_price(self, crypto, fiat):
+        url = "%s/exchange/ticker/?currencyPair=%s/%s" % (
+            self.base_url, crypto.upper(), fiat.upper()
+        )
+        return self.get_url(url).json()['last']
