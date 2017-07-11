@@ -618,7 +618,7 @@ crypto_data = {
         'port': None,
         'services': {
             'current_price': {
-                'btc': [Bittrex, YoBit, Cryptopia LiveCoin], 'ltc': [Cryptopia],
+                'btc': [Bittrex, YoBit, Cryptopia, LiveCoin], 'ltc': [Cryptopia],
                 'doge': [Cryptopia], 'uno': [Cryptopia], '*': [Cryptonator]
             },
             'address_balance': [CryptoID],
@@ -1138,6 +1138,7 @@ crypto_data = {
         'bip44_coin_type': 0x80000077,
         'private_key_prefix': 212,
         'script_hash_byte': 0xD,
+        'message_magic': b"\x90\xc4\xfd\xe9",
         'genesis_date': datetime(1, 1, 1),
         'header_hash_algo': None,
         'transaction_hash_algo': None,
