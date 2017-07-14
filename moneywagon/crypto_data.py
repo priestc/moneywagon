@@ -21,12 +21,10 @@ crypto_data = {
         'script_hash_algo': 'double-sha256',
         'port': 8333,
         'seed_nodes': [
-            'seed.bitcoin.sipa.be',
-            'dnsseed.bluematt.me',
-            'dnsseed.bitcoin.dashjr.org',
-            'seed.bitcoinstats.com',
-            'seed.bitnodes.io',
-            'bitseed.xf2.org'
+            "seed.b-pay.net",
+            "seed.ob1.io"
+            "seed.blockchain.info",
+            "seed.bloq.com",
         ],
         'supply_data': {
             'method': 'standard',
@@ -44,7 +42,7 @@ crypto_data = {
                     LiveCoin
                 ],
                 'cny': [BTER, BTCChina, Huobi, xBTCe, BTC38, ChainSo],
-                'rur': [BTCE, LiveCoin], 'jpy': [Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
+                'rur': [BTCE, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo],
                 'cad': [Kraken],
                 'idr': [BitcoinIndonesia], 'mxn': [Bitso], 'bgn': [CryptoBG],
@@ -73,7 +71,7 @@ crypto_data = {
             ],
             'get_block': [
                 BitpayInsight, ChainRadar, Blockr, OKcoin, BlockExplorerCom, ChainSo,
-                BitGo, LocalBitcoinsChain
+                BitGo, LocalBitcoinsChain, BitFlyer
             ],
             "get_optimal_fee": [
                 BitGo, BlockCypher, CoinTape, BitcoinFees21
