@@ -301,22 +301,28 @@ elif argz.subparser_name == 'service-table':
 
 elif argz.subparser_name == 'generate-altcore-networks':
     from moneywagon.crypto_data import crypto_data
-    for symbol, data in crypto_data.items():
+    print("networks = [];")
+    for symbol, data in sorted(crypto_data.items(), key=lambda x: x[1]['name']):
         priv = data.get('private_key_prefix')
         pub = data.get('address_version_byte')
         hha = data.get('header_hash_algo')
         shb = data.get('script_hash_byte')
-        if priv is None or pub is None:
-            #print("skipping", symbol)
+        if data['name'] == '':
             continue
-        print("addNetwork({")
+        print("networks.push({")
         print('    name: "%s",' % data['name'])
         print('    alias: "%s",' % symbol)
-        print('    pubkeyhash: %s,' % hex(pub))
-        print('    privatekey: %s,' % hex(priv))
+        if pub:
+            print('    pubkeyhash: %s,' % hex(pub))
+        if priv:
+            print('    privatekey: %s,' % hex(priv))
         print('    scripthash: %s,' % (hex(shb) if shb else "0x05"))
-        print('    xpubkey: 0x0488b21e,')
-        print('    xprivkey: 0x0488ade4,')
+        #print('    xpubkey: 0x0488b21e,')
+        #print('    xprivkey: 0x0488ade4,')
+        if data.get('transaction_timestamp', None):
+            print('    transactionTimestamp: "%s",' % data['transaction_timestamp'])
+        if data.get('private_key_algo', None):
+            print('    privateKeyAlgo: "%s",' % data['private_key_algo'])
         if data.get('message_magic', None):
             print('    networkMagic: 0x%s,' % binascii.hexlify(data['message_magic']))
         print('    port: %s,' % (data.get('port') or "undefined"))
@@ -327,7 +333,7 @@ elif argz.subparser_name == 'generate-altcore-networks':
         if data.get('transaction_hash_algo', 'double-sha256') not in (None, 'double-sha256'):
             print('    transactionHashAlgo: "%s",' % data['transaction_hash_algo'])
         if data.get('address_check_algo', 'double-sha256') not in (None, 'double-sha256'):
-            print('    addressCheckAlgo: "%s",' % data['address_check_algo'])
+            print('    addressForm: "%s",' % data['address_form'])
         if data.get('seed_nodes'):
             print('    dnsSeeds: [')
             for seed in data['seed_nodes']:
@@ -336,3 +342,4 @@ elif argz.subparser_name == 'generate-altcore-networks':
 
         print('});')
         print()
+    print("module.exports = {networks: networks}")

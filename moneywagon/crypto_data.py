@@ -153,6 +153,7 @@ crypto_data = {
         'header_hash_algo': None,
         'transaction_hash_algo': None,
         'script_hash_algo': None,
+        'transaction_timestamp': 'ppc-style',
         'port': None,
         'supply_data': {},
         'services': {
@@ -468,6 +469,7 @@ crypto_data = {
         'header_hash_algo': None,
         'transaction_hash_algo': None,
         'script_hash_algo': None,
+        'transaction_timestamp': 'ppc-style',
         'port': None,
         'services': {
             'current_price': {
@@ -989,6 +991,7 @@ crypto_data = {
         'name': 'Ethereum',
         'address_version_byte': None,
         'address_encoding': "hex",
+        'private_key_algo': "eth-hex",
         'bip44_coin_type': 0x8000003c,
         'private_key_prefix': None,
         'genesis_date': datetime(2015, 7, 30),
@@ -1026,6 +1029,7 @@ crypto_data = {
         'name': 'Ethereum Classic',
         'address_version_byte': None,
         'address_encoding': "hex",
+        'private_key_algo': "eth-hex",
         'bip44_coin_type': 0x8000003d,
         'private_key_prefix': None,
         'genesis_date': datetime(2016, 7, 20),
@@ -1201,7 +1205,8 @@ crypto_data = {
         'header_hash_algo': 'groestl',
         'transaction_hash_algo': 'single-sha256',
         'script_hash_algo': 'groestl',
-        'address_check_algo': 'groestl',
+        'address_form': 'groestl-check',
+        'github_link': 'https://github.com/Groestlcoin/groestlcoin',
         'port': 1331,
         'seed_nodes': [
             'groestlcoin.org',
