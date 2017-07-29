@@ -24,6 +24,19 @@ def extract_crypto_data(github_path):
         m = re.search("pchMessageStart\[%s\] = 0x([\d\w]+);" % index, content)
         data['message_magic'] += bytes(m.groups()[0])
 
+    data['seeds'] = []
+    seed_index = 0
+    # newest seed definition style
+    m = re.findall('vSeeds.emplace_back\("([\w\d.]+)", (true|false)\);', content)
+    print m
+    if not m:
+        # older style seed definition
+        m = re.findall('vSeeds.push_back\(CDNSSeedData\("([\w\d.-]+)", "([-\w\d.-]+)"(, true|)\)\);', content)
+        seed_index = 1
+        print m
 
+    for seed in m:
+        if 'test' not in seed[seed_index]:
+            data['seeds'].append(seed[seed_index])
 
     return data
