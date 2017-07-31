@@ -3084,3 +3084,8 @@ class BitFlyer(Service):
             txids=r['tx_hashes'],
             version=r['version']
         )
+
+class NoLimitCoinIquidus(Iquidus):
+    service_id = 112
+    base_url = "http://nolimitcoin.info"
+    upported_cryptos = ['nlc2']

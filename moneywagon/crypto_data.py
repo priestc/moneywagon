@@ -2110,6 +2110,74 @@ crypto_data = {
             'get_optimal_fee': []
         },
     },
+    'dmd': {
+        'name': 'Diamond',
+        'address_version_byte': 90,
+        'bip44_coin_type': None,
+        'private_key_prefix': 218,
+        'script_hash_byte': 8,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': 'https://github.com/DMDcoin/Diamond',
+        'header_hash_algo': "groestl",
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex], 'ltc': [], 'usd': [], 'doge': []
+            },
+            'address_balance': [CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [CryptoID],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'nlc2': {
+        'name': 'NoLimitCoin',
+        'address_version_byte': 53,
+        'bip44_coin_type': None,
+        'private_key_prefix': 181,
+        'script_hash_byte': 92,
+        'message_magic': None,
+        'genesis_date': datetime(2016, 5, 28, 20, 15),
+        'github_link': 'https://github.com/NoLimitCoin/NoLimitCoin',
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 2,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [], 'ltc': [], 'usd': [], 'doge': []
+            },
+            'address_balance': [NoLimitCoinIquidus],
+            'historical_transactions': [],
+            'single_transaction': [NoLimitCoinIquidus],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [NoLimitCoinIquidus],
+            'get_optimal_fee': []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
