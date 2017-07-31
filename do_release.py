@@ -31,6 +31,8 @@ elif argz.minor:
     version = version % (ex_major, int(ex_minor) + 1, "0")
 elif argz.point:
     version = version % (ex_major, ex_minor, int(ex_point) + 1)
+else:
+    raise SystemExit("Must either specify --point, --minor, or --major")
 
 with open("setup.py", 'w') as f, open("setup_template.py") as t:
     setup = t.read().replace("{{ version }}", version)
