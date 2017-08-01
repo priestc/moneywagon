@@ -114,7 +114,7 @@ crypto_data = {
                 'btc': [
                     GDAX, BTCE, CexIO, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
                     ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange,
-                    BitcoinIndonesia, BTCChina, Liqui, LiveCoin
+                    BitcoinIndonesia, BTCChina, Liqui, LiveCoin, CryptoDao
                 ],
                 'doge': [CexIO], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
                 '*': [Cryptonator, Vircurex, YoBit],
@@ -433,7 +433,8 @@ crypto_data = {
                 'rur': [YoBit], 'ltc': [NovaExchange, Cryptopia, CexIO],
                 'btc': [
                     Bittrex, Poloniex, Cryptopia, ChainSo, YoBit, CexIO, BleuTrade,
-                    NovaExchange, Kraken, UseCryptos, Liqui, HitBTC, LiveCoin
+                    NovaExchange, Kraken, UseCryptos, Liqui, HitBTC, LiveCoin,
+                    CryptoDao
                 ], 'cny': [xBTCe, BTC38], 'eur': [UseCryptos, Kraken],
                 '*': [Cryptonator], 'uno': [Cryptopia], 'moon': [NovaExchange]
             },
@@ -2175,6 +2176,81 @@ crypto_data = {
             'push_tx': [],
             'unspent_outputs': [],
             'get_block': [NoLimitCoinIquidus],
+            'get_optimal_fee': []
+        },
+    },
+    'cloak': {
+        'name': 'CloakCoin',
+        'address_version_byte': 27,
+        'bip44_coin_type': None,
+        'private_key_prefix': 155,
+        'script_hash_byte': 85,
+        'message_magic': None,
+        'genesis_date': datetime(2014, 5, 31, 11, 52, 35),
+        "github_link": "https://github.com/cashmen/CloakCoinRelaunch",
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [LiveCoin, Bittrex, Cryptopia, YoBit, CryptoDao], 'ltc': [Cryptopia],
+                'usd': [LiveCoin], 'doge': [Cryptopia]
+            },
+            'address_balance': [CloakCoinIquidus, CryptoID],
+            'historical_transactions': [],
+            'single_transaction': [CloakCoinIquidus, CryptoID],
+            'push_tx': [],
+            'unspent_outputs': [CryptoID],
+            'get_block': [CloakCoinIquidus],
+            'get_optimal_fee': []
+        },
+    },
+    'mgc': {
+        'name': 'MergeCoin',
+        'address_version_byte': 50,
+        'bip44_coin_type': 0x8000007c,
+        'private_key_prefix': 178,
+        'script_hash_byte': 5,
+        'message_magic': b"\xc8\xe1\xd5\xec",
+        'genesis_date': datetime(2017, 3, 23, 9, 23, 36),
+        "github_link": "https://github.com/mergecoin-project/Mergecoin-master",
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'seeds': [
+            "47.89.43.73", "43.241.232.45", "47.89.178.249", "120.55.82.131",
+            "121.41.19.30", "120.26.231.61", "47.94.89.212", "mergechain.com",
+            "mergecoin.com"
+        ],
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [CryptoDao], 'ltc': [], 'usd': [],
+                'doge': [], 'cny': [BTC38]
+            },
+            'address_balance': [MergeCoinInsight],
+            'historical_transactions': [MergeCoinInsight],
+            'single_transaction': [MergeCoinInsight],
+            'push_tx': [MergeCoinInsight],
+            'unspent_outputs': [MergeCoinInsight],
+            'get_block': [MergeCoinInsight],
             'get_optimal_fee': []
         },
     },

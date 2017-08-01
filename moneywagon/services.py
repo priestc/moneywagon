@@ -3088,4 +3088,26 @@ class BitFlyer(Service):
 class NoLimitCoinIquidus(Iquidus):
     service_id = 112
     base_url = "http://nolimitcoin.info"
-    upported_cryptos = ['nlc2']
+    supported_cryptos = ['nlc2']
+
+class CloakCoinIquidus(Iquidus):
+    service_id = 113
+    base_url = 'https://explorer.cloakcoin.com'
+    supported_cryptos = ['cloak']
+
+class MergeCoinInsight(BitpayInsight):
+    service_id = 114
+    domain = "www.mergechain.com:3000"
+    supported_cryptos = ['mgc']
+    protocol = "http"
+
+class CryptoDao(Service):
+    service_id = 115
+    api_homepage = "https://cryptodao.com/doc/api"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://cryptodao.com/api/ticker?source=%s&target=%s" % (
+            fiat.upper(), crypto.upper()
+        )
+        r = self.get_url(url).json()
+        return r['last']
