@@ -1077,8 +1077,20 @@ class CryptoID(Service):
         return dict(
             time=arrow.get(r['timestamp']).datetime,
             block_number=r['block'],
-            inputs=[{'address': x['addr'], 'amount': int(x['amount'] * 1e8)} for x in r['inputs']],
-            outputs=[{'address': x['addr'], 'amount': int(x['amount'] * 1e8)} for x in r['outputs']],
+            inputs=[
+                {
+                    'address': x['addr'],
+                    'amount': int(x['amount'] * 1e8),
+                    'txid': x['received_from']['tx']
+                } for x in r['inputs']
+            ],
+            outputs=[
+                {
+                    'address': x['addr'],
+                    'amount': int(x['amount'] * 1e8),
+                    'scriptPubKey': x['script'],
+                } for x in r['outputs']
+            ],
             txid=txid,
             total_in=r['total_input'],
             total_out=r['total_output'],
