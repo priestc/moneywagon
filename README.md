@@ -148,6 +148,7 @@ $ moneywagon service-table
 <tr><td style="text-align: right;"> 115</td><td>CryptoDao            </td><td><a href='https://cryptodao.com/doc/api' target='_blank'>https://cryptodao.com/doc/api</a>                                                                                                                            </td><td>                                                      </td></tr>
 <tr><td style="text-align: right;"> 116</td><td>ViaBTC               </td><td><a href='' target='_blank'></a>                                                                                                                                                                                      </td><td>                                                      </td></tr>
 <tr><td style="text-align: right;"> 117</td><td>ParticlInsight       </td><td><a href='https://explorer.particl.io/api' target='_blank'>https://explorer.particl.io/api</a>                                                                                                                        </td><td>part                                                  </td></tr>
+<tr><td style="text-align: right;"> 118</td><td>BlockDozer           </td><td><a href='http://blockdozer.com/api' target='_blank'>http://blockdozer.com/api</a>                                                                                                                                    </td><td>bch                                                   </td></tr>
 </tbody>
 </table>
 
