@@ -19,6 +19,7 @@ crypto_data = {
         'header_hash_algo': 'double-sha256',
         'transaction_hash_algo': 'double-sha256',
         'script_hash_algo': 'double-sha256',
+        'github_link': "https://github.com/Bitcoin/bitcoin",
         'port': 8333,
         'seed_nodes': [
             "seed.b-pay.net",
@@ -2285,6 +2286,49 @@ crypto_data = {
             'unspent_outputs': [CryptoID, ParticlInsight],
             'get_block': [ParticlInsight],
             'get_optimal_fee': []
+        },
+    },
+    'bch': {
+        'name': 'Bitcoin Cash',
+        'address_version_byte': 0,
+        'message_magic': b"\xf9\xbe\xb4\xd9",
+        'bip44_coin_type': 0x80000091,
+        'private_key_prefix': 128,
+        'script_hash_byte': 0x05,
+        'genesis_date': datetime(2009, 1, 3, 18, 15, 5),
+        'header_hash_algo': 'double-sha256',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'github_link': "https://github.com/Bitcoin-ABC/bitcoin-abc",
+        'port': 8333,
+        'seed_nodes': [
+            "seed-abc.bitcoinforks.org",
+            "seed.bitcoinabc.org",
+            "btccash-seeder.bitcoinunlimited.info",
+            "seed.bitprim.org",
+            "seed.deadalnix.me",
+            "seeder.criptolayer.net"
+        ],
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 50,
+            'minutes_per_block': 10,
+            'full_cap': 21000000,
+            'blocks_per_era': 210000,
+            'reward_ends_at_block': 6930000
+        },
+        'services': {
+            'current_price': {
+                'btc': [Kraken, Bittrex, HitBTC], 'eur': [Kraken],
+                'usd': [HitBTC, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
+            },
+            'address_balance': [BlockDozer],
+            'historical_transactions': [BlockDozer],
+            'single_transaction': [BlockDozer],
+            'push_tx': [BlockDozer],
+            'unspent_outputs': [BlockDozer],
+            'get_block': [BlockDozer],
+            "get_optimal_fee": []
         },
     },
     # TEMPLATE

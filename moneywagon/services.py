@@ -2465,6 +2465,12 @@ class Bittrex(Service):
         if crypto == 'xmy':
             crypto = 'myr'
 
+        if crypto == 'bcc':
+            raise SkipThisService("BCC not supported (maybe you want BCH?)")
+
+        if crypto == 'bch':
+            crypto = 'bcc'
+
         url = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s" % (
             fiat.upper(), crypto.upper()
         )
@@ -2890,12 +2896,19 @@ class Kraken(Service):
         return list(set(ret))
 
     def get_current_price(self, crypto, fiat):
-        crypto = "x" + crypto.lower()
-        if crypto == 'xbtc':
-            crypto = 'xxbt'
-        fiat = "z" + fiat.lower()
-        if fiat == 'zbtc':
-            fiat = 'xxbt'
+        if crypto != 'bch':
+            crypto = "x" + crypto.lower()
+            if crypto == 'xbtc':
+                crypto = 'xxbt'
+            fiat = "z" + fiat.lower()
+            if fiat == 'zbtc':
+                fiat = 'xxbt'
+        else:
+            # bch pairs have completely different format for some reason
+            # my god kraken's api is terrible
+            if fiat.lower() == 'btc':
+                fiat = 'xbt'
+
         pair = "%s%s" % (crypto.upper(), fiat.upper())
         url = "https://api.kraken.com/0/public/Ticker?pair=%s" % pair
         r = self.get_url(url).json()['result']
@@ -3049,6 +3062,11 @@ class HitBTC(Service):
         return [("%s-%s" % (x['commodity'], x['currency'])).lower() for x in r]
 
     def get_current_price(self, crypto, fiat):
+        if crypto == 'bcc':
+            raise SkipThisService("BCC not supported (maybe try BCH?)")
+        if crypto == 'bch':
+            crypto = 'bcc'
+
         pair = ("%s%s" % (crypto, fiat)).upper()
         url = "https://api.hitbtc.com/api/1/public/%s/ticker" % pair
         r = self.get_url(url).json()
@@ -3140,3 +3158,10 @@ class ParticlInsight(BitpayInsight):
     domain = "explorer.particl.io"
     supported_cryptos = ['part']
     api_tag = "particl-insight-api"
+
+class BlockDozer(BitpayInsight):
+    service_id = 118
+    domain = "blockdozer.com"
+    api_tag = "insight-api"
+    protocol = "http"
+    supported_cryptos = ['bch']
