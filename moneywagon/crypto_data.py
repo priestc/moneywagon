@@ -41,7 +41,7 @@ crypto_data = {
                     Poloniex, Winkdex, ChainSo, Kraken, xBTCe, Vircurex, HitBTC,
                     LiveCoin
                 ],
-                'cny': [BTER, BTCChina, Huobi, xBTCe, BTC38, ChainSo],
+                'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
                 'rur': [BTCE, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo],
                 'cad': [Kraken],
@@ -109,7 +109,7 @@ crypto_data = {
                     BTCE, GDAX, Poloniex, Kraken, Cryptopia, CexIO, ChainSo,
                     xBTCe, YoBit, UseCryptos, HitBTC, LiveCoin
                 ],
-                'cny': [BTCE, Huobi, BTER, xBTCe, ChainSo, OKcoin, BTC38, BTCChina],
+                'cny': [BTCE, Huobi, BTER, xBTCe, ViaBTC, ChainSo, OKcoin, BTC38, BTCChina],
                 'rur': [YoBit, xBTCe], 'eur': [Kraken, HitBTC, BTCE, GDAX, UseCryptos, xBTCe],
                 'btc': [
                     GDAX, BTCE, CexIO, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
@@ -1005,7 +1005,7 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'rur': [YoBit, xBTCe, LiveCoin], 'cny': [Yunbi, xBTCe],
+                'rur': [YoBit, xBTCe, LiveCoin], 'cny': [ViaBTC, Yunbi, xBTCe],
                 'usd': [GDAX, Kraken, HitBTC, xBTCe, Liqui, LiveCoin],
                 'jpy': [Kraken, xBTCe], 'cad': [Kraken],  'krw': [CoinOne],
                 'eur': [xBTCe, Kraken, HitBTC], 'gbp': [Kraken], 'mxn': [Bitso],
@@ -1184,7 +1184,7 @@ crypto_data = {
         'services': {
             'current_price': {
                 'btc': [Bittrex, HitBTC, YoBit, Kraken], 'usd': [Kraken, HitBTC],
-                'eth': [HitBTC], 'eur': [Kraken], '*': [Cryptonator],
+                'eth': [HitBTC], 'eur': [Kraken], 'cny': [ViaBTC], '*': [Cryptonator],
             },
             'address_balance': [ZChain, MercerWeiss],
             'historical_transactions': [MercerWeiss],
@@ -1197,7 +1197,6 @@ crypto_data = {
     'grs': {
         'name': 'Groestlcoin',
         'address_version_byte': 36,
-        "address_encoding": "groestlbase58",
         'bip44_coin_type': 0x80000011,
         'private_key_prefix': 128,
         'script_hash_byte': 0x05,
@@ -2251,6 +2250,40 @@ crypto_data = {
             'push_tx': [MergeCoinInsight],
             'unspent_outputs': [MergeCoinInsight],
             'get_block': [MergeCoinInsight],
+            'get_optimal_fee': []
+        },
+    },
+    'part': {
+        'name': 'Particl',
+        'address_version_byte': 56,
+        'bip44_coin_type': None,
+        'private_key_prefix': 108,
+        'script_hash_byte': 60,
+        'message_magic': b"\xfb\xf2\xef\xb4",
+        'genesis_date': datetime(2017, 7, 17, 13, 0),
+        'github_link': 'https://github.com/particl/particl-core',
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex], 'ltc': [], 'usd': [], 'doge': []
+            },
+            'address_balance': [CryptoID, ParticlInsight],
+            'historical_transactions': [ParticlInsight],
+            'single_transaction': [CryptoID, ParticlInsight],
+            'push_tx': [ParticlInsight],
+            'unspent_outputs': [CryptoID, ParticlInsight],
+            'get_block': [ParticlInsight],
             'get_optimal_fee': []
         },
     },

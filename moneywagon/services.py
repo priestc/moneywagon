@@ -1182,7 +1182,7 @@ class BitpayInsight(Service):
         )
 
     def get_transactions(self, crypto, address):
-        url = "%s://%s/api/txs/?address=%s" % (self.protocol, self.domain, address)
+        url = "%s://%s/%s/txs/?address=%s" % (self.protocol, self.domain, self.api_tag, address)
         response = self.get_url(url)
         transactions = []
         for tx in response.json()['txs']:
@@ -1190,7 +1190,9 @@ class BitpayInsight(Service):
         return transactions
 
     def get_transactions_multi(self, crypto, addresses):
-        url = "%s://%s/api/addrs/%s/txs" % (self.protocol, self.domain, ','.join(addresses))
+        url = "%s://%s/%s/addrs/%s/txs" % (
+            self.protocol, self.domain, self.api_tag, ','.join(addresses)
+        )
         r = self.get_url(url).json()
         txs = []
         for tx in r['items']:
@@ -1207,7 +1209,7 @@ class BitpayInsight(Service):
         return decompile_scriptPubKey(scriptPubKey['asm'])
 
     def get_single_transaction(self, crypto, txid):
-        url = "%s://%s/api/tx/%s" % (self.protocol, self.domain, txid)
+        url = "%s://%s/%s/tx/%s" % (self.protocol, self.domain, self.api_tag, txid)
         d = self.get_url(url).json()
 
         block_time = None
@@ -1250,14 +1252,14 @@ class BitpayInsight(Service):
         )
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "%s://%s/api/addr/%s/utxo?noCache=1" % (self.protocol, self.domain, address)
+        url = "%s://%s/%s/addr/%s/utxo?noCache=1" % (self.protocol, self.domain, self.api_tag, address)
         utxos = []
         for utxo in self.get_url(url).json():
             utxos.append(self._format_utxo(utxo))
         return utxos
 
     def get_unspent_outputs_multi(self, crypto, addresses, confirmations=1):
-        url = "%s://%s/api/addrs/%s/utxo?noCache=1" % (self.protocol, self.domain, ','.join(addresses))
+        url = "%s://%s/%s/addrs/%s/utxo?noCache=1" % (self.protocol, self.domain, self.api_tag, ','.join(addresses))
         utxos = []
         for utxo in self.get_url(url).json():
             utxos.append(self._format_utxo(utxo))
@@ -1265,14 +1267,14 @@ class BitpayInsight(Service):
 
     def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
         if latest:
-            url = "%s://%s/api/status?q=getLastBlockHash" % (self.protocol, self.domain)
+            url = "%s://%s/%s/status?q=getLastBlockHash" % (self.protocol, self.domain, self.api_tag)
             block_hash = self.get_url(url).json()['lastblockhash']
 
         elif block_number is not None:
-            url = "%s://%s/api/block-index/%s" % (self.protocol, self.domain, block_number)
+            url = "%s://%s/%s/block-index/%s" % (self.protocol, self.domain, self.api_tag, block_number)
             block_hash = self.get_url(url).json()['blockHash']
 
-        url = "%s://%s/api/block/%s" % (self.protocol, self.domain, block_hash)
+        url = "%s://%s/%s/block/%s" % (self.protocol, self.domain, self.api_tag, block_hash)
 
         r = self.get_url(url).json()
         return dict(
@@ -1291,12 +1293,12 @@ class BitpayInsight(Service):
         )
 
     def push_tx(self, crypto, tx_hex):
-        url = "%s://%s/api/tx/send" % (self.protocol, self.domain)
+        url = "%s://%s/%s/tx/send" % (self.protocol, self.domain, self.api_tag)
         return self.post_url(url, {'rawtx': tx_hex}).json()['txid']
 
 
     def get_optimal_fee(self, crypto, tx_bytes):
-        url = "%s://%s/api/utils/estimatefee?nbBlocks=2" % (self.protocol, self.domain)
+        url = "%s://%s/%s/utils/estimatefee?nbBlocks=2" % (self.protocol, self.domain, self.api_tag)
         return self.get_url(url).json()
 
 class MYRCryptap(BitpayInsight):
@@ -3111,3 +3113,18 @@ class CryptoDao(Service):
         )
         r = self.get_url(url).json()
         return r['last']
+
+class ViaBTC(Service):
+    service_id = 116
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://www.viabtc.com/api/v1/market/ticker?market=%s%s" % (
+            crypto.upper(), fiat.upper()
+        )
+        return float(self.get_url(url).json()['data']['ticker']['last'])
+
+class ParticlInsight(BitpayInsight):
+    service_id = 117
+    domain = "explorer.particl.io"
+    supported_cryptos = ['part']
+    api_tag = "particl-insight-api"

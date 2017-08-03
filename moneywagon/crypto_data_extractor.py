@@ -46,13 +46,13 @@ def _get_from_base58h(content):
 def _get_from_chainparams(content):
     # newer style "chain params" definitions.
     data = {}
-    m = re.search("base58Prefixes\[PUBKEY_ADDRESS\] = std::vector<unsigned char>\(1,(\d+)\);", content)
+    m = re.search("base58Prefixes\[PUBKEY_ADDRESS\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
     data['address_version_byte'] = int(m.groups()[0])
 
-    m = re.search("base58Prefixes\[SCRIPT_ADDRESS\] = std::vector<unsigned char>\(1,(\d+)\);", content)
+    m = re.search("base58Prefixes\[SCRIPT_ADDRESS\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
     data['script_hash_byte'] = int(m.groups()[0])
 
-    m = re.search("base58Prefixes\[SECRET_KEY\] =\s+std::vector<unsigned char>\(1,(\d+)\);", content)
+    m = re.search("base58Prefixes\[SECRET_KEY\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
     data['private_key_prefix'] = int(m.groups()[0])
 
     data['message_magic'] = b""
