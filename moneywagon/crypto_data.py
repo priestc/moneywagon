@@ -2256,7 +2256,7 @@ crypto_data = {
     'part': {
         'name': 'Particl',
         'address_version_byte': 56,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x8000002c,
         'private_key_prefix': 108,
         'script_hash_byte': 60,
         'message_magic': b"\xfb\xf2\xef\xb4",
