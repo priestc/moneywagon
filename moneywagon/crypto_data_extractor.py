@@ -47,20 +47,32 @@ def _get_from_chainparams(content):
     # newer style "chain params" definitions.
     data = {}
     m = re.search("base58Prefixes\[PUBKEY_ADDRESS\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
-    data['address_version_byte'] = int(m.groups()[0])
+    if not m:
+        m = re.search("base58Prefixes\[PUBKEY_ADDRESS\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);", content)
+
+    if m:
+        data['address_version_byte'] = int(m.groups()[0])
 
     m = re.search("base58Prefixes\[SCRIPT_ADDRESS\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
-    data['script_hash_byte'] = int(m.groups()[0])
+    if not m:
+        m = re.search("base58Prefixes\[SCRIPT_ADDRESS\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);", content)
+
+    if m:
+        data['script_hash_byte'] = int(m.groups()[0])
 
     m = re.search("base58Prefixes\[SECRET_KEY\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
-    data['private_key_prefix'] = int(m.groups()[0])
+    if not m:
+        m = re.search("base58Prefixes\[SECRET_KEY\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);", content)
+
+    if m:
+        data['private_key_prefix'] = int(m.groups()[0])
 
     data['message_magic'] = b""
     for index in range(4):
         m = re.search("pchMessageStart\[%s\] = 0x([\d\w]+);" % index, content)
         data['message_magic'] += bytes(m.groups()[0])
 
-    data['seeds'] = []
+    data['seed_nodes'] = []
     seed_index = 0
     # newest seed definition style
     m = re.findall('vSeeds.emplace_back\("([\w\d.]+)", (true|false)\);', content)
@@ -72,6 +84,6 @@ def _get_from_chainparams(content):
 
     for seed in m:
         if 'test' not in seed[seed_index]:
-            data['seeds'].append(seed[seed_index])
+            data['seed_nodes'].append(seed[seed_index])
 
     return data

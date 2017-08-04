@@ -1256,7 +1256,7 @@ class BitpayInsight(Service):
         return dict(
             txid=utxo['txid'],
             vout=utxo['vout'],
-            scriptPubKey=utxo['scriptPubKey'],
+            scriptPubKey=utxo.get('scriptPubKey'),
             output="%s:%s" % (utxo['txid'], utxo['vout']),
             amount=currency_to_protocol(utxo['amount']),
             confirmations=utxo.get('confirmations', None),
@@ -3165,3 +3165,40 @@ class BlockDozer(BitpayInsight):
     api_tag = "insight-api"
     protocol = "http"
     supported_cryptos = ['bch']
+
+class LeoCoinInsight(BitpayInsight):
+    service_id = 119
+    domain = "insight.leocoin.org"
+    supported_cryptos = ['leo']
+
+class BitFinex(Service):
+    service_id = 120
+    api_homepage = "https://bitfinex.readme.io/v2/reference"
+
+    def check_error(self, response):
+        j = response.json()
+        if j[0] == 'error':
+            raise SkipThisService(
+                "BitFinex returned Error: %s (%s)" % (j[2], j[1])
+            )
+        super(BitFinex, self).check_error(response)
+
+    def get_pairs(self):
+        url = "https://api.bitfinex.com/v1/symbols"
+        r = self.get_url(url).json()
+        def fix_symbol(symbol):
+            crypto = symbol[:3]
+            fiat = symbol[3:]
+            if crypto == 'dsh':
+                crypto = 'dash'
+            if crypto == 'iot':
+                crypto = 'miota'
+            return "%s-%s" % (crypto, fiat)
+        return [fix_symbol(x) for x in r]
+
+    def get_current_price(self, crypto, fiat):
+        crypto = 't' + crypto.upper()
+        fiat = fiat.upper()
+        url = "https://api.bitfinex.com/v2/ticker/%s%s" % (crypto, fiat)
+        r = self.get_url(url).json()
+        return r[6]

@@ -39,8 +39,8 @@ crypto_data = {
             'current_price': {
                 'usd': [
                     Bitstamp, GDAX, BTCE, Gemini, Huobi, Bittrex, CexIO, YoBit,
-                    Poloniex, Winkdex, ChainSo, Kraken, xBTCe, Vircurex, HitBTC,
-                    LiveCoin
+                    Poloniex, Winkdex, ChainSo, Kraken, BitFinex, xBTCe, Vircurex,
+                    HitBTC, LiveCoin
                 ],
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
                 'rur': [BTCE, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
@@ -108,13 +108,13 @@ crypto_data = {
             'current_price': {
                 'usd': [
                     BTCE, GDAX, Poloniex, Kraken, Cryptopia, CexIO, ChainSo,
-                    xBTCe, YoBit, UseCryptos, HitBTC, LiveCoin
+                    xBTCe, YoBit, UseCryptos, HitBTC, LiveCoin, BitFinex
                 ],
                 'cny': [BTCE, Huobi, BTER, xBTCe, ViaBTC, ChainSo, OKcoin, BTC38, BTCChina],
                 'rur': [YoBit, xBTCe], 'eur': [Kraken, HitBTC, BTCE, GDAX, UseCryptos, xBTCe],
                 'btc': [
                     GDAX, BTCE, CexIO, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
-                    ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange,
+                    ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange, BitFinex,
                     BitcoinIndonesia, BTCChina, Liqui, LiveCoin, CryptoDao
                 ],
                 'doge': [CexIO], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
@@ -429,13 +429,15 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'usd': [HitBTC, CexIO, Cryptopia, Kraken, LiveCoin, xBTCe, Liqui],
+                'usd': [
+                    HitBTC, CexIO, Cryptopia, BitFinex, Kraken, LiveCoin, xBTCe, Liqui
+                ],
                 'doge': [NovaExchange, Cryptopia, BleuTrade], 'eth': [Liqui, HitBTC],
                 'rur': [YoBit], 'ltc': [NovaExchange, Cryptopia, CexIO],
                 'btc': [
                     Bittrex, Poloniex, Cryptopia, ChainSo, YoBit, CexIO, BleuTrade,
                     NovaExchange, Kraken, UseCryptos, Liqui, HitBTC, LiveCoin,
-                    CryptoDao
+                    CryptoDao, BitFinex
                 ], 'cny': [xBTCe, BTC38], 'eur': [UseCryptos, Kraken],
                 '*': [Cryptonator], 'uno': [Cryptopia], 'moon': [NovaExchange]
             },
@@ -655,7 +657,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'tips': {
         'name': 'FedoraCoin',
         'address_version_byte': 33,
@@ -680,7 +681,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'karma': {
         'name': 'KarmaCoin',
         'address_version_byte': 45,
@@ -705,7 +705,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'flap': {
         'name': 'FlappyCoin',
         'address_version_byte': 35,
@@ -727,7 +726,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'pot': {
         'name': 'PotCoin',
         'address_version_byte': 55,
@@ -759,7 +757,6 @@ crypto_data = {
             'get_block': [ProHashing]
         },
     },
-
     'bqc': {
         'name': 'BBQcoin',
         'address_version_byte': 85,
@@ -782,7 +779,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'nvc': {
         'name': 'Novacoin',
         'address_version_byte': 8,
@@ -806,7 +802,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'uno': {
         'name': 'Unobtanium',
         'address_version_byte': 130,
@@ -835,7 +830,6 @@ crypto_data = {
             'get_block': [UNOCryptap]
         },
     },
-
     'ric': {
         'name': 'Riecoin',
         'address_version_byte': 60,
@@ -865,7 +859,6 @@ crypto_data = {
             'get_block': [RICCryptap]
         },
     },
-
     'xrp': {
         'name': 'Ripple',
         'genesis_date': datetime(2011, 3, 1),
@@ -876,14 +869,16 @@ crypto_data = {
         'port': None,
         'services': {
             'current_price': {
-                'btc': [Bittrex, Bitstamp, Poloniex, HitBTC, Bitso, BitcoinIndonesia, Kraken],
-                'cad': [Kraken], 'usd': [Bitstamp, Kraken, xBTCe], 'cny': [BTC38],
+                'btc': [
+                    Bittrex, Bitstamp, Poloniex, BitFinex,
+                    HitBTC, Bitso, BitcoinIndonesia, Kraken
+                ],
+                'cad': [Kraken], 'usd': [BitFinex, Bitstamp, Kraken, xBTCe],
                 'eur': [Bitstamp, Kraken, xBTCe], 'jpy': [Kraken], 'mxn': [Bitso],
-                'krw': [CoinOne], '*': [Cryptonator],
+                'krw': [CoinOne], 'cny': [BTC38], '*': [Cryptonator],
             },
         }
     },
-
     'thc': {
         'name': 'HempCoin',
         'address_version_byte': 40,
@@ -915,7 +910,6 @@ crypto_data = {
             'get_block': [BlockExperts]
         },
     },
-
     'dope': {
         'name': 'Dopecoin',
         'address_version_byte': 8,
@@ -939,7 +933,6 @@ crypto_data = {
             'get_block': [BlockExperts]
         },
     },
-
     'dime': {
         'name': 'Dimecoin',
         'address_version_byte': 15,
@@ -964,7 +957,6 @@ crypto_data = {
             'get_block': [BlockExperts]
         },
     },
-
     'xcp': {
         'name': 'CounterParty',
         'address_version_byte': 0,
@@ -988,7 +980,6 @@ crypto_data = {
             'get_block': [CoinDaddy1, CoinDaddy2]
         },
     },
-
     'eth': {
         'name': 'Ethereum',
         'address_version_byte': None,
@@ -1007,13 +998,13 @@ crypto_data = {
         'services': {
             'current_price': {
                 'rur': [YoBit, xBTCe, LiveCoin], 'cny': [ViaBTC, Yunbi, xBTCe],
-                'usd': [GDAX, Kraken, HitBTC, xBTCe, Liqui, LiveCoin],
+                'usd': [GDAX, Kraken, BitFinex, HitBTC, xBTCe, Liqui, LiveCoin],
                 'jpy': [Kraken, xBTCe], 'cad': [Kraken],  'krw': [CoinOne],
                 'eur': [xBTCe, Kraken, HitBTC], 'gbp': [Kraken], 'mxn': [Bitso],
                 'btc': [
-                    Poloniex, GDAX, Kraken, xBTCe, BleuTrade, Bittrex, CexIO, HitBTC,
-                    BitcoinIndonesia, EtherChain, YoBit, Cryptopia, Bitso, Liqui,
-                    LiveCoin
+                    Poloniex, GDAX, BitFinex, Kraken, xBTCe, BleuTrade, Bittrex,
+                    CexIO, HitBTC, BitcoinIndonesia, EtherChain, YoBit, Cryptopia,
+                    Bitso, Liqui, LiveCoin
                 ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
@@ -1026,7 +1017,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'etc': {
         'name': 'Ethereum Classic',
         'address_version_byte': None,
@@ -1041,10 +1031,13 @@ crypto_data = {
         'port': None,
         'services': {
             'current_price': {
-                'btc': [Poloniex, HitBTC, Bittrex, CexIO, Kraken, Cryptopia, YoBit, Yunbi],
-                'usd': [Kraken, CexIO, HitBTC], 'doge': [Cryptopia], 'eur': [Kraken],
+                'btc': [
+                    Poloniex, BitFinex, HitBTC, Bittrex, CexIO,
+                    Kraken, Cryptopia, YoBit, Yunbi
+                ],
+                'usd': [Kraken, BitFinex, CexIO, HitBTC], 'doge': [Cryptopia],
                 'ltc': [CexIO, Cryptopia], 'uno': [Cryptopia], 'krw': [CoinOne],
-                '*': [Cryptonator], 'eth': [Kraken, HitBTC]
+                '*': [Cryptonator], 'eth': [Kraken, HitBTC], 'eur': [Kraken]
             },
             'address_balance': [ETCchain],
             'historical_transactions': [],
@@ -1054,7 +1047,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'xmr': {
         'name': 'Monero',
         'address_version_byte': None,
@@ -1067,9 +1059,14 @@ crypto_data = {
         'port': None,
         'services': {
             'current_price': {
-                'btc': [Poloniex, Bittrex, HitBTC, Kraken, Cryptopia, LiveCoin], 'ltc': [Cryptopia],
-                'doge': [Cryptopia], 'uno': [Cryptopia], 'usd': [HitBTC, Kraken, Cryptopia, LiveCoin],
-                'nzd': [Cryptopia], 'eur': [Kraken], 'eth': [HitBTC], '*': [Cryptonator],
+                'btc': [
+                    Poloniex, Bittrex, BitFinex, HitBTC,
+                    Kraken, Cryptopia, LiveCoin
+                ],
+                'usd': [BitFinex, HitBTC, Kraken, Cryptopia, LiveCoin],
+                'ltc': [Cryptopia], 'doge': [Cryptopia], 'uno': [Cryptopia],
+                'nzd': [Cryptopia], 'eur': [Kraken], 'eth': [HitBTC],
+                '*': [Cryptonator],
             },
             'address_balance': [],
             'historical_transactions': [],
@@ -1079,7 +1076,6 @@ crypto_data = {
             'get_block': []
         }
     },
-
     'blk': {
         'name': 'Blackcoin',
         'message_magic': b"\x70\x35\x22\x05",
@@ -1107,7 +1103,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'xpm': {
         'name': 'Primecoin',
         'address_version_byte': 23,
@@ -1135,7 +1130,6 @@ crypto_data = {
             'get_block': []
         },
     },
-
     'pivx': {
         'name': 'PivX',
         'address_version_byte': 30,
@@ -1184,7 +1178,8 @@ crypto_data = {
         'port': 8233,
         'services': {
             'current_price': {
-                'btc': [Bittrex, HitBTC, YoBit, Kraken], 'usd': [Kraken, HitBTC],
+                'btc': [Bittrex, BitFinex, HitBTC, YoBit, Kraken],
+                'usd': [BitFinex, Kraken, HitBTC],
                 'eth': [HitBTC], 'eur': [Kraken], 'cny': [ViaBTC], '*': [Cryptonator],
             },
             'address_balance': [ZChain, MercerWeiss],
@@ -2329,6 +2324,44 @@ crypto_data = {
             'unspent_outputs': [BlockDozer],
             'get_block': [BlockDozer],
             "get_optimal_fee": []
+        },
+    },
+    'leo': {
+        'name': 'LEOcoin',
+        'address_version_byte': 18,
+        'bip44_coin_type': 0x8000007f,
+        'private_key_prefix': 144,
+        'script_hash_byte': 88,
+        'message_magic': b"\x64\x6e\x78\x82",
+        'genesis_date': datetime(2017, 5, 6, 11, 35, 28),
+        "github_link": "https://github.com/Leocoin-project/LEOcoin",
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        "seed_nodes": [
+            "dnsseed.leocoin.org",
+            "leoseed.leocoin.org",
+        ] + ["node%s.leocoin.org" % x for x in range(1, 11)],
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [], 'ltc': [], 'usd': [CexIO], 'doge': []
+            },
+            'address_balance': [LeoCoinInsight],
+            'historical_transactions': [LeoCoinInsight],
+            'single_transaction': [LeoCoinInsight],
+            'push_tx': [LeoCoinInsight],
+            'unspent_outputs': [LeoCoinInsight],
+            'get_block': [LeoCoinInsight],
+            'get_optimal_fee': []
         },
     },
     # TEMPLATE
