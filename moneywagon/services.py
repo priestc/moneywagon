@@ -201,7 +201,7 @@ class BlockCypher(Service):
             outputs=outs,
             total_in=sum(x['amount'] for x in ins),
             total_out=sum(x['amount'] for x in ins),
-            fees=tx['fees'],
+            fee=tx['fees'],
         )
 
     def get_optimal_fee(self, crypto, tx_bytes):
@@ -781,7 +781,7 @@ class CoinPrism(Service):
         r = self.get_url(url).json()
         ins = [
             {
-                'address': x['addresses'][0],
+                'address': x['addresses'][0] if x['addresses'] else None,
                 'txid': x['output_hash'],
                 'amount': x['value']
             } for x in r['inputs']
@@ -789,7 +789,7 @@ class CoinPrism(Service):
 
         outs = [
             {
-                'address': x['addresses'][0],
+                'address': x['addresses'][0] if x['addresses'] else None,
                 'scriptPubKey': x['script'],
                 'amount': x['value']
             } for x in r['outputs']

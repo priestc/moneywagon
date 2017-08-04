@@ -2353,7 +2353,7 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [], 'ltc': [], 'usd': [CexIO], 'doge': []
+                'btc': [LiveCoin], 'ltc': [], 'usd': [CexIO, LiveCoin], 'doge': []
             },
             'address_balance': [LeoCoinInsight],
             'historical_transactions': [LeoCoinInsight],

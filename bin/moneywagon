@@ -195,8 +195,8 @@ elif argz.subparser_name == 'single-transaction':
 
 elif argz.subparser_name == 'get-block':
     print(prepare_json(
-        get_block, argz.crypto, block_number=argz.block_number or '',
-        block_hash=argz.block_hash or '', latest=argz.latest or False, modes=modes
+        get_block, argz.crypto, block_number=int(argz.block_number) if argz.block_number else None,
+        block_hash=argz.block_hash, latest=argz.latest or False, modes=modes
     ))
 
 elif argz.subparser_name == 'historical-transactions':
