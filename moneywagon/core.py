@@ -7,6 +7,7 @@ import time
 import datetime
 import pkg_resources
 
+from bitcoin import serialize
 from concurrent import futures
 
 __version__ = pkg_resources.get_distribution('moneywagon').version
@@ -697,3 +698,34 @@ def decompile_scriptPubKey(asm):
     if asm[4] == 'OP_CHECKSIG':
         hex += 'ac'
     return hex
+
+def to_rawtx(tx):
+    """
+    Take a tx object in the moneywagon format and convert it to the format
+    that pybitcointools's `serialize` funcion takes, then return in raw hex
+    format.
+    """
+    if tx.get('hex'):
+        return tx['hex']
+
+    new_tx = {}
+
+    locktime = tx.get('locktime', 0)
+    new_tx['locktime'] = locktime
+    new_tx['version'] = tx.get('version', 1)
+    new_tx['ins'] = [
+        {
+            'outpoint': {'hash': str(x['txid']), 'index': x['n']},
+            'script': str(x['scriptSig'].replace(' ', '')),
+            'sequence': x.get('sequence', 0xFFFFFFFF if locktime == 0 else None)
+        } for x in tx['inputs']
+    ]
+
+    new_tx['outs'] = [
+        {
+            'script': str(x['scriptPubKey']),
+            'value': x['amount']
+        } for x in tx['outputs']
+    ]
+
+    return serialize(new_tx)

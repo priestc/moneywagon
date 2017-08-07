@@ -720,6 +720,8 @@ class ChainSo(Service):
                 'address': x['address'],
                 'amount': currency_to_protocol(x['value']),
                 'txid': x['from_output']['txid'],
+                'scriptSig': x['script'],
+                'n': x['input_no']
             } for x in r['inputs']
         ]
 
@@ -731,7 +733,9 @@ class ChainSo(Service):
             inputs=ins,
             outputs=outs,
             txid=txid,
-            confirmations=r['confirmations']
+            confirmations=r['confirmations'],
+            locktime=r['locktime'],
+            version=r['version']
         )
 
 class CoinPrism(Service):
@@ -1238,6 +1242,9 @@ class BitpayInsight(Service):
                     'address': x['addr'],
                     'amount': currency_to_protocol(x['value']),
                     'txid': x['txid'],
+                    'n': x['n'],
+                    'scriptSig': x['scriptSig'].get('hex'),
+                    'sequence': x['sequence']
                 } for x in d['vin'] if 'addr' in x
             ] + [
                 {'coinbase': x['coinbase']} for x in d['vin'] if 'coinbase' in x
@@ -1250,6 +1257,8 @@ class BitpayInsight(Service):
                 } for x in d['vout']
             ],
             txid=txid,
+            version=d['version'],
+            locktime=d['locktime'],
         )
 
     def _format_utxo(self, utxo):
@@ -3161,6 +3170,7 @@ class ParticlInsight(BitpayInsight):
 
 class BlockDozer(BitpayInsight):
     service_id = 118
+    name = "BlockDozer"
     domain = "blockdozer.com"
     api_tag = "insight-api"
     protocol = "http"

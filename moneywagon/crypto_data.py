@@ -2299,6 +2299,7 @@ crypto_data = {
     },
     'bch': {
         'name': 'Bitcoin Cash',
+        'forked_from': ('btc', 478559),
         'address_version_byte': 0,
         'message_magic': b"\xf9\xbe\xb4\xd9",
         'bip44_coin_type': 0x80000091,
