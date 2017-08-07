@@ -46,26 +46,29 @@ def _get_from_base58h(content):
 def _get_from_chainparams(content):
     # newer style "chain params" definitions.
     data = {}
-    m = re.search("base58Prefixes\[PUBKEY_ADDRESS\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
-    if not m:
-        m = re.search("base58Prefixes\[PUBKEY_ADDRESS\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);", content)
+    match = test_regexes(content,
+        "base58Prefixes\[PUBKEY_ADDRESS\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);",
+        "base58Prefixes\[PUBKEY_ADDRESS\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);",
+        "base58Prefixes\[PUBKEY_ADDRESS\]\s+=\s+list_of\((\d+)\);"
+    )
+    if match:
+        data['address_version_byte'] = int(match)
 
-    if m:
-        data['address_version_byte'] = int(m.groups()[0])
+    match = test_regexes(content,
+        "base58Prefixes\[SCRIPT_ADDRESS\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);",
+        "base58Prefixes\[SCRIPT_ADDRESS\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);",
+        "base58Prefixes\[SCRIPT_ADDRESS\]\s+=\s+list_of\((\d+)\);"
+    )
+    if match:
+        data['script_hash_byte'] = int(match)
 
-    m = re.search("base58Prefixes\[SCRIPT_ADDRESS\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
-    if not m:
-        m = re.search("base58Prefixes\[SCRIPT_ADDRESS\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);", content)
-
-    if m:
-        data['script_hash_byte'] = int(m.groups()[0])
-
-    m = re.search("base58Prefixes\[SECRET_KEY\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);", content)
-    if not m:
-        m = re.search("base58Prefixes\[SECRET_KEY\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);", content)
-
-    if m:
-        data['private_key_prefix'] = int(m.groups()[0])
+    match = test_regexes(content,
+        "base58Prefixes\[SECRET_KEY\]\s+=\s+std::vector<unsigned char>\(1,(\d+)\);",
+        "base58Prefixes\[SECRET_KEY\]\s+=\s+list_of\((\d+)\).convert_to_container<std::vector<unsigned char> >\(\);",
+        "base58Prefixes\[SECRET_KEY\]\s+=\s+list_of\((\d+)\);"
+    )
+    if match:
+        data['private_key_prefix'] = int(match)
 
     data['message_magic'] = b""
     for index in range(4):
@@ -87,3 +90,10 @@ def _get_from_chainparams(content):
             data['seed_nodes'].append(seed[seed_index])
 
     return data
+
+
+def test_regexes(content, *regexes):
+    for regex in regexes:
+        m = re.search(regex, content)
+        if m:
+            return m.groups()[0]

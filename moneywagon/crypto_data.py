@@ -154,7 +154,7 @@ crypto_data = {
         'header_hash_algo': None,
         'transaction_hash_algo': None,
         'script_hash_algo': None,
-        'transaction_timestamp': 'ppc-style',
+        'transaction_form': 'ppc-timestamp',
         'port': None,
         'supply_data': {},
         'services': {
@@ -248,6 +248,7 @@ crypto_data = {
         'header_hash_algo': None,
         'transaction_hash_algo': None,
         'script_hash_algo': None,
+        'transaction_form': 'nxt',
         'port': None,
         'services': {
             'current_price': {
@@ -473,7 +474,7 @@ crypto_data = {
         'header_hash_algo': None,
         'transaction_hash_algo': None,
         'script_hash_algo': None,
-        'transaction_timestamp': 'ppc-style',
+        'transaction_form': 'ppc-timestamp',
         'port': None,
         'services': {
             'current_price': {
@@ -937,23 +938,37 @@ crypto_data = {
         'name': 'Dimecoin',
         'address_version_byte': 15,
         'bip44_coin_type': None,
-        'private_key_prefix': None,
+        'script_hash_byte': 9,
+        'private_key_prefix': 143,
         'genesis_date': datetime(2014, 12, 23),
         'header_hash_algo': None,
         'transaction_hash_algo': None,
         'script_hash_algo': None,
         'port': None,
+        'seed_nodes': [
+            'dime.mine-pool.net:11931',
+            '209.126.65.116:11931',
+            '122.10.88.44:11931',
+        ],
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': 1.066666667,
+            'full_cap': 528000000,
+            'blocks_per_era': 512000,
+            'reward_ends_at_block': None
+        },
         'services': {
             'current_price': {
                 'btc': [YoBit, LiveCoin], 'doge': [Cryptopia], 'rur': [LiveCoin],
                 'ltc': [Cryptopia], 'uno': [Cryptopia], 'eur': [LiveCoin],
                 '*': [Cryptonator],
             },
-            'address_balance': [BlockExperts],
+            'address_balance': [BlockExperts, CryptoID],
             'historical_transactions': [],
-            'single_transaction': [BlockExperts],
+            'single_transaction': [BlockExperts, CryptoID],
             'push_tx': [],
-            'unspent_outputs': [],
+            'unspent_outputs': [CryptoID],
             'get_block': [BlockExperts]
         },
     },
@@ -983,13 +998,12 @@ crypto_data = {
     'eth': {
         'name': 'Ethereum',
         'address_version_byte': None,
-        'address_encoding': "hex",
-        'private_key_algo': "eth-hex",
+        'address_form': "eth-0xhex",
+        'private_key_algo': "eth-pkhex",
         'bip44_coin_type': 0x8000003c,
         'private_key_prefix': None,
         'genesis_date': datetime(2015, 7, 30),
-        'header_hash_algo': None,
-        'transaction_hash_algo': None,
+        'transaction_form': 'eth',
         'script_hash_algo': None,
         'port': None,
         'supply_data': {
@@ -1426,7 +1440,7 @@ crypto_data = {
             'get_block': [UnlimitedCoinOfficial]
         },
     },
-    'mrs': {
+    'mars': {
         'name': 'MarsCoin',
         'address_version_byte': 50,
         'bip44_coin_type': 0x8000006b,
@@ -1447,7 +1461,7 @@ crypto_data = {
             'reward_ends_at_block': None
         },
         'services': {
-            'current_price': {'btc': [NovaExchange]},
+            'current_price': {'btc': [NovaExchange], 'ltc': [NovaExchange]},
             'address_balance': [MarscoinOfficial],
             'historical_transactions': [MarscoinOfficial],
             'single_transaction': [MarscoinOfficial],
@@ -2291,6 +2305,7 @@ crypto_data = {
         'private_key_prefix': 128,
         'script_hash_byte': 0x05,
         'genesis_date': datetime(2009, 1, 3, 18, 15, 5),
+        'transaction_form': 'btc-cash-anti-replay',
         'header_hash_algo': 'double-sha256',
         'transaction_hash_algo': 'double-sha256',
         'script_hash_algo': 'double-sha256',
@@ -2361,6 +2376,84 @@ crypto_data = {
             'push_tx': [LeoCoinInsight],
             'unspent_outputs': [LeoCoinInsight],
             'get_block': [LeoCoinInsight],
+            'get_optimal_fee': []
+        },
+    },
+    'game': {
+        'name': 'GameCredits',
+        'address_version_byte': 38,
+        'bip44_coin_type': 0x80000065,
+        'private_key_prefix': 166,
+        'script_hash_byte': 5,
+        'message_magic': b"\xfb\xc0\xb6\xdb",
+        'genesis_date': datetime(1, 1, 1),
+        "github_link": "https://github.com/gamecredits-project/GameCredits",
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        "seed_nodes": [
+            "dns.gmcseed1.acidpool.com",
+            "dns.gmcseed2.version2.org",
+            "gmc.cryptocloudhosting.org",
+            "gmcnode1.version2.org"
+        ],
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [
+                    Poloniex, Bittrex, LiveCoin, Cryptopia, YoBit, NovaExchange
+                ], 'ltc': [Cryptopia], 'usd': [], 'doge': [Cryptopia, NovaExchange]
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'unify': {
+        'name': 'Unify',
+        'address_version_byte': 68,
+        'bip44_coin_type': 0x8000007c,
+        'private_key_prefix': 196,
+        'script_hash_byte': None,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        "github_link": "https://github.com/SBDomains/unify-source",
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Cryptopia, NovaExchange], 'moon': [NovaExchange],
+                'ltc': [Cryptopia, NovaExchange], 'usd': [],
+                'doge': [Cryptopia, NovaExchange], 'eth': [NovaExchange],
+            },
+            'address_balance': [UnifyIquidus],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
             'get_optimal_fee': []
         },
     },

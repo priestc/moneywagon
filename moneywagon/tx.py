@@ -8,8 +8,12 @@ from .crypto_data import crypto_data
 
 class Transaction(object):
     def __init__(self, crypto, hex=None, verbose=False):
-        if crypto.lower() in ['nxt']:
-            raise NotImplementedError("%s not yet supported" % crypto.upper())
+        d = crypto_data[crypto.lower()]
+        form = d.get('transaction_form', "btc-standard")
+        if form != 'btc-standard':
+            raise NotImplementedError("%s not yet supported (tx form: %s)" % (
+                crypto.upper(), form
+            ))
 
         self.change_address = None
         self.crypto = crypto

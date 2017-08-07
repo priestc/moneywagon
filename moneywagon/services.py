@@ -2765,7 +2765,7 @@ class UnlimitedCoinOfficial(Iquidus):
 class MarscoinOfficial(BitpayInsight):
     service_id = 88
     domain = "explore.marscoin.org"
-    supported_cryptos = ['mrs']
+    supported_cryptos = ['mars']
     protocol = "http"
     name = "MarsCoin.org (Insight)"
 
@@ -3202,3 +3202,8 @@ class BitFinex(Service):
         url = "https://api.bitfinex.com/v2/ticker/%s%s" % (crypto, fiat)
         r = self.get_url(url).json()
         return r[6]
+
+class UnifyIquidus(Iquidus):
+    service_id = 121
+    base_url = "http://unify-explorer.dnsalias.com"
+    supported_cryptos = ['unify']
