@@ -17,6 +17,7 @@ from moneywagon import (
     generate_keypair, sweep, get_explorer_url, service_table, get_single_transaction
 )
 from moneywagon.wallet import fetch_wallet_balances
+from moneywagon.network_replay import replay_block
 
 parser = argparse.ArgumentParser() #version='1.0.2')
 
@@ -123,6 +124,13 @@ x.add_argument("--collapse", action='store_true', help="Collapse same cryptos in
 x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('generate-altcore-networks', help='Genrate list of networks compatable with altcore.')
+
+x = subparsers.add_parser('network-replay', help='Perform a "replay attack" between two networks.')
+x.add_argument('source', action='store', help='3-letter code for the network to source transactions')
+x.add_argument('destination', action='store', help='3-letter code for the network to send transactions to.')
+x.add_argument('block_to_replay', action='store', help='Block number to replay.')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--limit', action='store', help='How many transactions to replay. 0 is unimited, default is 5.')
 
 argz = parser.parse_args()
 
@@ -343,3 +351,16 @@ elif argz.subparser_name == 'generate-altcore-networks':
         print('});')
         print()
     print("module.exports = {networks: networks}")
+
+elif argz.subparser_name == 'network-replay':
+    results = list(replay_block(
+        argz.source, argz.destination, block_to_replay=argz.block_to_replay,
+        verbose=argz.verbose, limit=int(argz.limit or 5)
+    ))
+    if all(x[0] == 'failure' for x in results):
+        print("All %s replay attempts failed" % len(results))
+    else:
+        succeeded = [x[1] for x in results if x[0] == 'success']
+        print("%s of %s replay attempts succeeded!" % (len(succeeded), len(results)))
+        for result in succeeded:
+            print(result)

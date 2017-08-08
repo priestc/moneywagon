@@ -719,7 +719,7 @@ class ChainSo(Service):
             {
                 'address': x['address'],
                 'amount': currency_to_protocol(x['value']),
-                'txid': x['from_output']['txid'],
+                'txid': x['from_output']['txid'] if x['from_output'] else None,
                 'scriptSig': x['script'],
                 'n': x['input_no']
             } for x in r['inputs']
@@ -1181,7 +1181,7 @@ class BitpayInsight(Service):
         my_ins = 0
         for address in addresses:
             for x in tx['vout']:
-                if address in x['scriptPubKey']['addresses']:
+                if address in x['scriptPubKey'].get('addresses', []):
                     my_outs += float(x['value'])
                     matched_addresses.append(address)
             for x in tx['vin']:
@@ -1251,7 +1251,7 @@ class BitpayInsight(Service):
             ],
             outputs=[
                 {
-                    'address': x['scriptPubKey']['addresses'][0],
+                    'address': x['scriptPubKey'].get('addresses', [None])[0],
                     'amount': currency_to_protocol(x['value']),
                     'scriptPubKey': self._extract_scriptPubKey(x['scriptPubKey'])
                 } for x in d['vout']
