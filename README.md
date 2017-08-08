@@ -952,6 +952,65 @@ it will use the result of previous calls:
 
 In other words, if you are using the low level API and you want fresh values, you must make a new instance of the service class.
 
+# Tools
+
+## ExchangeUniverse
+
+This utility represents all supported exchange services.
+
+```python
+>>> from moneywagon import ExchangeUniverse
+>>> e = ExchangeUniverse(verbose=True)
+Got Response: http://api.btc38.com/v1/ticker.php?c=all&mk_type=cny
+Got Response: http://api.btc38.com/v1/ticker.php?c=all&mk_type=btc
+BTC38 returned error: No JSON object could be decoded
+Got Response: https://btc-e.com/api/3/info
+BTCE returned error: No JSON object could be decoded
+Got Response: http://data.bter.com/api/1/pairs
+Got Response: https://api.bitfinex.com/v1/symbols
+Got Response: https://api.bitso.com/v3/available_books/
+Got Response: https://bittrex.com/api/v1.1/public/getmarkets
+Got Response: https://bleutrade.com/api/v2/public/getmarkets
+Got Response: https://c-cex.com/t/pairs.json
+Got Response: https://www.cryptopia.co.nz/api/GetTradePairs
+Got Response: https://api.gdax.com/products
+Got Response: https://api.hitbtc.com/api/1/public/symbols
+Got Response: https://api.kraken.com/0/public/AssetPairs
+Got Response: https://api.liqui.io/api/3/info
+Got Response: https://api.livecoin.net/exchange/ticker
+LiveCoin returned error: 503 - Temporarily out of service.
+Got Response: https://novaexchange.com/remote/v2/markets/
+Got Response: https://poloniex.com/public?command=returnTicker
+Got Response: https://usecryptos.com/jsonapi/pairs
+Got Response: https://api.vircurex.com/api/get_info_for_currency.json
+Got Response: https://yobit.net/api/3/info
+Got Response: https://yunbi.com/api/v2/markets.json
+Got Response: https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/symbol
+>>> e.find_pair('doge', 'usd')
+{moneywagon.services.YoBit: [u'doge-usd'],
+ moneywagon.services.CexIO: [u'doge-usd'],
+ moneywagon.services.Vircurex: [u'doge-usd'],
+ moneywagon.services.Cryptopia: [u'doge-usd'],
+ moneywagon.services.HitBTC: [u'doge-usd']}
+>>> len(e.all_cryptos())
+1702
+```
+
+## Network Replay
+
+This utility is used to mirror transactions from one network to another. Usage:
+
+```
+$ moneywagon network-replay btc bch latest --verbose`
+```
+
+This command will fetch the latest block from th BTC network, and then replay each
+transaction to the BCH network. The word "latest" can be replaced with a block number
+also. By default the first 5 transactions are attempted. To perform a full block replay,
+append the `--limit=0` flag.
+
+Currently only BCH and BTC are supported. Support for other forks will be added
+eventually.
 
 # Contributing
 
