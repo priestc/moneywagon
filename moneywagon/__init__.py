@@ -674,10 +674,10 @@ def wif_to_hex(wif):
 
 class ExchangeUniverse(object):
     def __init__(self, verbose=False):
-        self.all_pairs = {}
+        self._all_pairs = {}
         for Service in ALL_SERVICES:
             try:
-                self.all_pairs[Service] = Service(verbose=verbose).get_pairs()
+                self._all_pairs[Service] = Service(verbose=verbose).get_pairs()
             except NotImplementedError:
                 pass
             except Exception as exc:
@@ -694,12 +694,12 @@ class ExchangeUniverse(object):
             if crypto and not fiat:
                 return pair.startswith("%s-" % crypto)
             if crypto and fiat:
-                return pair == "%s-%s" % (crypo, fiat)
+                return pair == "%s-%s" % (crypto, fiat)
             if not crypto:
                 return pair.endswith("-%s" % fiat)
 
         matched_pairs = {}
-        for Service, pairs in self.all_pairs.items():
+        for Service, pairs in self._all_pairs.items():
             matched = [p for p in pairs if is_matched(crypto, fiat, p)]
             if matched:
                 matched_pairs[Service] = matched
@@ -708,7 +708,7 @@ class ExchangeUniverse(object):
 
     def all_cryptos(self):
         all_cryptos = set()
-        for Service, pairs in self.all_pairs.items():
+        for Service, pairs in self._all_pairs.items():
             for pair in pairs:
                 crypto = pair.split("-")[0]
                 all_cryptos.add(crypto)
