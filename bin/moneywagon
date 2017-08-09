@@ -18,6 +18,7 @@ from moneywagon import (
 )
 from moneywagon.wallet import fetch_wallet_balances
 from moneywagon.network_replay import replay_block
+from moneywagon.altcore import CurrencySupport
 
 parser = argparse.ArgumentParser() #version='1.0.2')
 
@@ -308,48 +309,14 @@ elif argz.subparser_name == 'service-table':
     print(service_table(format=argz.format or 'simple'))
 
 elif argz.subparser_name == 'generate-altcore-networks':
-    from moneywagon.crypto_data import crypto_data
-    print("networks = [];")
-    for symbol, data in sorted(crypto_data.items(), key=lambda x: x[1]['name']):
-        priv = data.get('private_key_prefix')
-        pub = data.get('address_version_byte')
-        hha = data.get('header_hash_algo')
-        shb = data.get('script_hash_byte')
-        if data['name'] == '':
-            continue
-        print("networks.push({")
-        print('    name: "%s",' % data['name'])
-        print('    alias: "%s",' % symbol)
-        if pub:
-            print('    pubkeyhash: %s,' % hex(pub))
-        if priv:
-            print('    privatekey: %s,' % hex(priv))
-        print('    scripthash: %s,' % (hex(shb) if shb else "0x05"))
-        #print('    xpubkey: 0x0488b21e,')
-        #print('    xprivkey: 0x0488ade4,')
-        if data.get('transaction_form', None):
-            print('    transactionForm: "%s",' % data['transaction_form'])
-        if data.get('private_key_algo', None):
-            print('    privateKeyAlgo: "%s",' % data['private_key_algo'])
-        if data.get('message_magic', None):
-            print('    networkMagic: 0x%s,' % binascii.hexlify(data['message_magic']))
-        print('    port: %s,' % (data.get('port') or "undefined"))
-        if hha not in (None, 'double-sha256'):
-            print('    headerHashAlgo: "%s",' % hha)
-        if data.get('script_hash_algo', 'double-sha256') not in (None, 'double-sha256'):
-            print('    scriptHashAlgo: "%s",' % data['script_hash_algo'])
-        if data.get('transaction_hash_algo', 'double-sha256') not in (None, 'double-sha256'):
-            print('    transactionHashAlgo: "%s",' % data['transaction_hash_algo'])
-        if data.get('address_check_algo', 'double-sha256') not in (None, 'double-sha256'):
-            print('    addressForm: "%s",' % data['address_form'])
-        if data.get('seed_nodes'):
-            print('    dnsSeeds: [')
-            for seed in data['seed_nodes']:
-                print('        "%s",' % seed)
-            print('    ],')
+    print("networks = [")
+    prints = []
+    c = CurrencySupport()
+    for currency in c.altcore_data():
+        prints.append(json.dumps(currency, indent=4))
 
-        print('});')
-        print()
+    print(",\n".join(prints))
+    print("];")
     print("module.exports = {networks: networks}")
 
 elif argz.subparser_name == 'network-replay':

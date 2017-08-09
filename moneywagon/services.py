@@ -3217,3 +3217,9 @@ class UnifyIquidus(Iquidus):
     service_id = 121
     base_url = "http://unify-explorer.dnsalias.com"
     supported_cryptos = ['unify']
+
+class Groestlsight(BitpayInsight):
+    service_id = 122
+    domain = "groestlsight.groestlcoin.org"
+    supported_cryptos = ['grs']
+    protocol = "http"

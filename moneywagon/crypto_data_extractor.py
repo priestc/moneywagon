@@ -1,26 +1,42 @@
 import requests
 import re
 
+def get_content_from_github(github_path, file):
+    url = "https://raw.githubusercontent.com/%s/master/src/%s" % (github_path, file)
+    response = requests.get(url)
+    if response.status_code != 200:
+        return None
+    return response.content
+
 def extract_crypto_data(github_path):
     """
     github_path can must be path on github, such as
     "bitcoin/bitcoin" or "litecoin-project/litecoin"
     """
     data = {'github_link': 'https://github.com/%s' % github_path}
-    url = "https://raw.githubusercontent.com/%s/master/src/chainparams.cpp" % github_path
-    response = requests.get(url)
-    content = response.content
-    #return content
 
-    if response.status_code == 200:
+    content = get_content_from_github(github_path, "chainparams.cpp")
+    if content:
         data.update(_get_from_chainparams(content))
     else:
-        url = "https://raw.githubusercontent.com/%s/master/src/base58.h" % github_path
-        response = requests.get(url)
-        content = response.content
-
-        if response.status_code == 200:
+        content = get_content_from_github(github_path, "base58.h")
+        if content:
             data.update(_get_from_base58h(content))
+
+    content = get_content_from_github(github_path, "main.cpp")
+    if content:
+        data.update(_get_from_main(content))
+
+    return data
+
+def _get_from_main(content):
+    data = {}
+    match = test_regexes(content,
+        "if\s+\(txPrev\.nTime\s+>\s+nTime\)", # peercoin style PoS
+        "if\s+\(\(unsigned int\)coins\.nTime\s+>\s+tx\.nTime\)" # rdd style PoSV
+    )
+    if match:
+        data['transaction_form'] = 'ppc-timestamp'
 
     return data
 
@@ -96,4 +112,4 @@ def test_regexes(content, *regexes):
     for regex in regexes:
         m = re.search(regex, content)
         if m:
-            return m.groups()[0]
+            return m.groups()[0] if len(m.groups()) else True

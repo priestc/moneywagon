@@ -149,13 +149,13 @@ crypto_data = {
         'message_magic': b"\xe6\xe8\xe9\xe5",
         'bip44_coin_type': 0x80000006,
         'private_key_prefix': 183,
-        'proof_of_stake': True,
         'genesis_date': datetime(2012, 8, 19, 18, 12, 4),
         'header_hash_algo': None,
         'transaction_hash_algo': None,
         'script_hash_algo': None,
         'transaction_form': 'ppc-timestamp',
-        'port': None,
+        'github_link': "https://github.com/peercoin/peercoin",
+        'port': 9901,
         'supply_data': {},
         'services': {
             'current_price': {
@@ -997,14 +997,11 @@ crypto_data = {
     },
     'eth': {
         'name': 'Ethereum',
-        'address_version_byte': None,
         'address_form': "eth-0xhex",
-        'private_key_algo': "eth-pkhex",
-        'bip44_coin_type': 0x8000003c,
-        'private_key_prefix': None,
-        'genesis_date': datetime(2015, 7, 30),
+        'private_key_form': "eth-pkhex",
         'transaction_form': 'eth',
-        'script_hash_algo': None,
+        'bip44_coin_type': 0x8000003c,
+        'genesis_date': datetime(2015, 7, 30),
         'port': None,
         'supply_data': {
             'instamine': 72009990.50
@@ -1033,15 +1030,11 @@ crypto_data = {
     },
     'etc': {
         'name': 'Ethereum Classic',
-        'address_version_byte': None,
-        'address_encoding': "hex",
-        'private_key_algo': "eth-hex",
+        'address_form': "eth-0xhex",
+        'private_key_form': "eth-pkhex",
+        'transaction_form': 'eth',
         'bip44_coin_type': 0x8000003d,
-        'private_key_prefix': None,
         'genesis_date': datetime(2016, 7, 20),
-        'header_hash_algo': None,
-        'transaction_hash_algo': None,
-        'script_hash_algo': None,
         'port': None,
         'services': {
             'current_price': {
@@ -1211,7 +1204,7 @@ crypto_data = {
         'private_key_prefix': 128,
         'script_hash_byte': 0x05,
         'message_magic': b"\xF9\xBE\xB4\xD4",
-        'genesis_date': datetime(1, 1, 1),
+        'genesis_date': datetime(2014, 3, 20, 19, 13, 49),
         'header_hash_algo': 'groestl',
         'transaction_hash_algo': 'single-sha256',
         'script_hash_algo': 'groestl',
@@ -1229,12 +1222,12 @@ crypto_data = {
                 'btc': [Bittrex],
                 '*': [Cryptonator],
             },
-            'address_balance': [CryptoID],
-            'historical_transactions': [],
-            'single_transaction': [CryptoID],
-            'push_tx': [],
-            'unspent_outputs': [CryptoID],
-            'get_block': []
+            'address_balance': [CryptoID, Groestlsight],
+            'historical_transactions': [Groestlsight],
+            'single_transaction': [CryptoID, Groestlsight],
+            'push_tx': [Groestlsight],
+            'unspent_outputs': [CryptoID, Groestlsight],
+            'get_block': [Groestlsight]
         },
     },
     'sys': {
@@ -2273,8 +2266,6 @@ crypto_data = {
         'genesis_date': datetime(2017, 7, 17, 13, 0),
         'github_link': 'https://github.com/particl/particl-core',
         'header_hash_algo': None,
-        'transaction_hash_algo': 'double-sha256',
-        'script_hash_algo': 'double-sha256',
         'port': None,
         'supply_data': {
             'method': 'standard',
