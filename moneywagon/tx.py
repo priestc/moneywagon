@@ -5,12 +5,13 @@ from moneywagon import (
 from moneywagon.core import get_optimal_services, get_magic_bytes
 from bitcoin import mktx, sign, pubtoaddr, privtopub
 from .crypto_data import crypto_data
+from .currency_support import CurrencySupport
 
 class Transaction(object):
     def __init__(self, crypto, hex=None, verbose=False):
-        d = crypto_data[crypto.lower()]
-        form = d.get('transaction_form', "btc-standard")
-        if form != 'btc-standard':
+        c = CurrencySupport()
+        if crypto not in c.supported_currencies('moneywagon', 'transaction'):
+            form = crypto_data[crypto]['transaction_form']
             raise NotImplementedError("%s not yet supported (tx form: %s)" % (
                 crypto.upper(), form
             ))

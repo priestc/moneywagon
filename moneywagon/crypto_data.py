@@ -2226,8 +2226,7 @@ crypto_data = {
         'genesis_date': datetime(2017, 3, 23, 9, 23, 36),
         "github_link": "https://github.com/mergecoin-project/Mergecoin-master",
         'header_hash_algo': None,
-        'transaction_hash_algo': 'double-sha256',
-        'script_hash_algo': 'double-sha256',
+        "transaction_form": "ppc-timestamp",
         'port': None,
         'seeds': [
             "47.89.43.73", "43.241.232.45", "47.89.178.249", "120.55.82.131",

@@ -26,10 +26,6 @@ class CurrencySupport(object):
             'script_hash_algo': ('double-sha256', ),
             'header_hash_algo': ('double-sha256', )
         },
-        'multiexplorer': {
-            'wallet': ('push_tx', 'tx_history', 'single_tx', 'current_price', 'bip44'),
-            'block_explorer': ('address_balance', 'current_price'),
-        }
     }
 
     def __init__(self, verbose=False):
@@ -69,6 +65,8 @@ class CurrencySupport(object):
                 if len(data.get('services', {}).get("historical_transactions", [])) < 1:
                     continue
                 if len(data.get('services', {}).get("single_transaction", [])) < 1:
+                    continue
+                if len(data.get('services', {}).get("unspent_outputs", [])) < 1:
                     continue
                 ret.append(currency)
 
