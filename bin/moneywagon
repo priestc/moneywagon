@@ -18,7 +18,7 @@ from moneywagon import (
 )
 from moneywagon.wallet import fetch_wallet_balances
 from moneywagon.network_replay import replay_block
-from moneywagon.altcore import CurrencySupport
+from moneywagon.currency_support import CurrencySupport
 
 parser = argparse.ArgumentParser() #version='1.0.2')
 
@@ -311,8 +311,8 @@ elif argz.subparser_name == 'service-table':
 elif argz.subparser_name == 'generate-altcore-networks':
     print("networks = [")
     prints = []
-    c = CurrencySupport()
-    for currency in c.altcore_data():
+    cs = CurrencySupport()
+    for currency in cs.altcore_data():
         prints.append(json.dumps(currency, indent=4))
 
     print(",\n".join(prints))

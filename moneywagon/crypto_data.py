@@ -271,9 +271,7 @@ crypto_data = {
         'private_key_prefix': 178,
         'script_hash_byte': 9,
         'genesis_date': datetime(2014, 2, 23),
-        'header_hash_algo': None,
-        'transaction_hash_algo': None,
-        'script_hash_algo': None,
+        'transaction_form': 'cryptonote',
         'port': None,
         'github_link': "https://github.com/myriadteam/myriadcoin",
         'supply_data': {
@@ -2323,12 +2321,12 @@ crypto_data = {
                 'btc': [Kraken, Bittrex, HitBTC], 'eur': [Kraken],
                 'usd': [HitBTC, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
             },
-            'address_balance': [BlockDozer],
-            'historical_transactions': [BlockDozer],
-            'single_transaction': [BlockDozer],
-            'push_tx': [BlockDozer],
-            'unspent_outputs': [BlockDozer],
-            'get_block': [BlockDozer],
+            'address_balance': [BlockDozer, CashExplorer],
+            'historical_transactions': [CashExplorer, BlockDozer],
+            'single_transaction': [BlockDozer, CashExplorer],
+            'push_tx': [CashExplorer, BlockDozer],
+            'unspent_outputs': [BlockDozer, CashExplorer],
+            'get_block': [CashExplorer, BlockDozer],
             "get_optimal_fee": []
         },
     },
@@ -2440,6 +2438,45 @@ crypto_data = {
                 'doge': [Cryptopia, NovaExchange], 'eth': [NovaExchange],
             },
             'address_balance': [UnifyIquidus],
+            'historical_transactions': [],
+            'single_transaction': [UnifyIquidus],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [UnifyIquidus],
+            'get_optimal_fee': []
+        },
+    },
+    'dgb': {
+        'name': 'Digibyte',
+        'address_version_byte': 30,
+        'bip44_coin_type': 0x80000014,
+        'private_key_prefix': 128,
+        'script_hash_byte': 5,
+        'message_magic': b"\xfa\xc3\xb6\xda",
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': None,
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        "seed_nodes": [
+            "seed.digibyte.co",
+            "digiexplorer.info",
+            "digihash.co"
+        ],
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [], 'ltc': [], 'usd': [], 'doge': []
+            },
+            'address_balance': [],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],

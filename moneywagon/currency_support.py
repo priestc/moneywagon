@@ -113,17 +113,17 @@ class CurrencySupport(object):
             supported['name'] = data['name']
             supported['alias'] = symbol
 
-            if pub:
-                supported['pubkeyhash'] =  hex(pub)
+            if pub is not None:
+                supported['pubkeyhash'] = int(pub)
             if priv:
-                supported['privatekey'] = hex(priv)
-            supported['scripthash'] = hex(shb) if shb else 0x05
+                supported['privatekey'] = priv
+            supported['scripthash'] = shb if shb else 5
             if 'transaction_form' in data:
                 supported['transactionForm'] = data['transaction_form']
             if 'private_key_form' in data:
                 supported['privateKeyForm'] = data['private_key_form']
-            if 'message_magic' in data and data['message_magic']:
-                supported['networkMagic'] = '0x%s' % binascii.hexlify(data['message_magic'])
+            #if 'message_magic' in data and data['message_magic']:
+            #    supported['networkMagic'] = '0x%s' % binascii.hexlify(data['message_magic'])
             supported['port'] = data.get('port') or None
             if hha not in (None, 'double-sha256'):
                 supported['headerHashAlgo'] = hha

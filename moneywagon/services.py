@@ -1234,6 +1234,7 @@ class BitpayInsight(Service):
 
         return dict(
             time=block_time,
+            block_number=d.get("blockheight"),
             size=d['size'],
             confirmations=d['confirmations'] if block_time else 0,
             fee=currency_to_protocol(d['fees']) if 'fees' in d else None,
@@ -3223,3 +3224,13 @@ class Groestlsight(BitpayInsight):
     domain = "groestlsight.groestlcoin.org"
     supported_cryptos = ['grs']
     protocol = "http"
+
+class DigiExplorer(BitpayInsight):
+    service_id = 123
+    domain = "digiexplorer.info"
+    supported_cryptos = ['dgb']
+
+class CashExplorer(BitpayInsight):
+    service_id = 124
+    domain = "cashexplorer.bitcoin.com"
+    supported_cryptos = ['bch']
