@@ -2321,12 +2321,12 @@ crypto_data = {
                 'btc': [Kraken, Bittrex, HitBTC], 'eur': [Kraken],
                 'usd': [HitBTC, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
             },
-            'address_balance': [BlockDozer, CashExplorer],
-            'historical_transactions': [CashExplorer, BlockDozer],
-            'single_transaction': [BlockDozer, CashExplorer],
-            'push_tx': [CashExplorer, BlockDozer],
-            'unspent_outputs': [BlockDozer, CashExplorer],
-            'get_block': [CashExplorer, BlockDozer],
+            'address_balance': [BlockExplorerCash, BlockDozer, BitcoinComCashExplorer],
+            'historical_transactions': [BitcoinComCashExplorer, BlockExplorerCash, BlockDozer],
+            'single_transaction': [BlockDozer, BitcoinComCashExplorer, BlockExplorerCash],
+            'push_tx': [BlockExplorerCash, BitcoinComCashExplorer, BlockDozer],
+            'unspent_outputs': [BlockDozer, BlockExplorerCash, BitcoinComCashExplorer],
+            'get_block': [BitcoinComCashExplorer, BlockDozer, BlockExplorerCash],
             "get_optimal_fee": []
         },
     },

@@ -3230,7 +3230,12 @@ class DigiExplorer(BitpayInsight):
     domain = "digiexplorer.info"
     supported_cryptos = ['dgb']
 
-class CashExplorer(BitpayInsight):
+class BitcoinComCashExplorer(BitpayInsight):
     service_id = 124
     domain = "cashexplorer.bitcoin.com"
+    supported_cryptos = ['bch']
+
+class BlockExplorerCach(BitpayInsight):
+    service_id = 125
+    domain = "bitcoincash.blockexplorer.com"
     supported_cryptos = ['bch']
