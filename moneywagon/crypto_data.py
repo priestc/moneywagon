@@ -2321,12 +2321,12 @@ crypto_data = {
                 'btc': [Kraken, Bittrex, HitBTC], 'eur': [Kraken],
                 'usd': [HitBTC, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
             },
-            'address_balance': [BlockDozer, CashExplorer],
-            'historical_transactions': [CashExplorer, BlockDozer],
-            'single_transaction': [BlockDozer, CashExplorer],
-            'push_tx': [CashExplorer, BlockDozer],
-            'unspent_outputs': [BlockDozer, CashExplorer],
-            'get_block': [CashExplorer, BlockDozer],
+            'address_balance': [BlockExplorerCash, BlockDozer, BitcoinComCashExplorer],
+            'historical_transactions': [BitcoinComCashExplorer, BlockExplorerCash, BlockDozer],
+            'single_transaction': [BlockDozer, BitcoinComCashExplorer, BlockExplorerCash],
+            'push_tx': [BlockExplorerCash, BitcoinComCashExplorer, BlockDozer],
+            'unspent_outputs': [BlockDozer, BlockExplorerCash, BitcoinComCashExplorer],
+            'get_block': [BitcoinComCashExplorer, BlockDozer, BlockExplorerCash],
             "get_optimal_fee": []
         },
     },
@@ -2482,6 +2482,46 @@ crypto_data = {
             'push_tx': [],
             'unspent_outputs': [],
             'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'zcl': {
+        'name': 'ZClassic',
+        'address_version_byte': 7352,
+        'bip44_coin_type': None,
+        'private_key_prefix': 128,
+        'script_hash_byte': 0x1cbd,
+        'genesis_date': datetime(2016, 10, 28, 7, 56),
+        'message_magic': b"\x24\xe9\x27\x64",
+        'github_link': "https://github.com/z-classic/zclassic",
+        'header_hash_algo': 'double-sha256',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'seed_nodes': [
+            'dnsseed.zclassic.org',
+            'dnsseed.indieonion.org',
+            'dnsseed.rotorproject.org'
+        ]
+        'port': 8233,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex, CexIO, Cryptopia],
+                'ltc': [], 'usd': [], 'doge': []
+            },
+            'address_balance': [ZCLexplorer],
+            'historical_transactions': [ZCLexplorer],
+            'single_transaction': [ZCLexplorer],
+            'push_tx': [ZCLexplorer],
+            'unspent_outputs': [ZCLexplorer],
+            'get_block': [ZCLexplorer],
             'get_optimal_fee': []
         },
     },
