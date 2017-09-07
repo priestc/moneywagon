@@ -485,7 +485,7 @@ crypto_data = {
             'single_transaction': [ReddcoinCom],
             'push_tx': [ReddcoinCom],
             'unspent_outputs': [ReddcoinCom],
-            'get_block': [ReddcoinCom, ProHashing]
+            'get_block': [ReddcoinCom, ProHashing],
         },
     },
 
@@ -2287,7 +2287,7 @@ crypto_data = {
     },
     'bch': {
         'name': 'Bitcoin Cash',
-        'forked_from': ('btc', 478559),
+            'forked_from': ('btc', 478559),
         'address_version_byte': 0,
         'message_magic': b"\xf9\xbe\xb4\xd9",
         'bip44_coin_type': 0x80000091,

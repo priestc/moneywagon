@@ -17,7 +17,7 @@ from moneywagon import (
     generate_keypair, sweep, get_explorer_url, service_table, get_single_transaction
 )
 from moneywagon.wallet import fetch_wallet_balances
-from moneywagon.network_replay import replay_block
+from moneywagon.network_replay import NetworkReplay
 from moneywagon.currency_support import CurrencySupport
 
 parser = argparse.ArgumentParser() #version='1.0.2')
@@ -320,10 +320,9 @@ elif argz.subparser_name == 'generate-altcore-networks':
     print("module.exports = {networks: networks}")
 
 elif argz.subparser_name == 'network-replay':
-    results = list(replay_block(
-        argz.source, argz.destination, block_to_replay=argz.block_to_replay,
-        verbose=argz.verbose, limit=int(argz.limit or 5)
-    ))
+    n = NetworkReplay(argz.source, argz.destination, verbose=argz.verbose)
+    n.replay_block(argz.block_to_replay, limit=int(argz.limit or 5))
+
     if all(x[0] == 'failure' for x in results):
         print("All %s replay attempts failed" % len(results))
     else:
