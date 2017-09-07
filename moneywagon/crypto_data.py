@@ -2485,6 +2485,46 @@ crypto_data = {
             'get_optimal_fee': []
         },
     },
+    'zcl': {
+        'name': 'ZClassic',
+        'address_version_byte': 7352,
+        'bip44_coin_type': 0x80000085,
+        'private_key_prefix': 128,
+        'script_hash_byte': 0x1cbd,
+        'genesis_date': datetime(2016, 10, 28, 7, 56),
+        'message_magic': b"\x24\xe9\x27\x64",
+        'github_link': "https://github.com/z-classic/zclassic",
+        'header_hash_algo': 'double-sha256',
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'seed_nodes': [
+            'dnsseed.zclassic.org',
+            'dnsseed.indieonion.org',
+            'dnsseed.rotorproject.org'
+        ],
+        'port': 8233,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex, CexIO, Cryptopia],
+                'ltc': [], 'usd': [], 'doge': []
+            },
+            'address_balance': [ZCLexplorer],
+            'historical_transactions': [ZCLexplorer],
+            'single_transaction': [ZCLexplorer],
+            'push_tx': [ZCLexplorer],
+            'unspent_outputs': [ZCLexplorer],
+            'get_block': [ZCLexplorer],
+            'get_optimal_fee': []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',

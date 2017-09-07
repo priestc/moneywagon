@@ -3235,7 +3235,13 @@ class BitcoinComCashExplorer(BitpayInsight):
     domain = "cashexplorer.bitcoin.com"
     supported_cryptos = ['bch']
 
-class BlockExplorerCach(BitpayInsight):
+class BlockExplorerCash(BitpayInsight):
     service_id = 125
     domain = "bitcoincash.blockexplorer.com"
     supported_cryptos = ['bch']
+
+class ZCLexplorer(BitpayInsight):
+    service_id = 126
+    domain = "zclexplorer.org"
+    protocol = "http"
+    supported_cryptos = ['zcl']
