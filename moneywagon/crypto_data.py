@@ -2489,7 +2489,7 @@ crypto_data = {
         'name': 'ZClassic',
         'address_version_byte': 7352,
         'bip44_coin_type': 0x80000085,
-        'private_key_prefix': 128,
+        'private_key_prefix': None,
         'script_hash_byte': 0x1cbd,
         'genesis_date': datetime(2016, 10, 28, 7, 56),
         'message_magic': b"\x24\xe9\x27\x64",
