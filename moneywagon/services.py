@@ -1164,6 +1164,7 @@ class BitpayInsight(Service):
     explorer_address_url = "{protocol}://{domain}/address/{address}"
     api_tag = 'api'
     name = "Bitpay Insight"
+    socketio_url = "%s://%s" % (protocol, domain)
 
     def check_error(self, response):
         if response.status_code == 400:

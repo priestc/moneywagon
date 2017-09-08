@@ -13,6 +13,7 @@ from .core import (
 from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey, privkey_to_address
+from socketIO_client import SocketIO
 
 is_py2 = False
 if sys.version_info <= (3,0):
@@ -738,3 +739,25 @@ def wif_to_address(crypto, wif):
 
     address_byte = crypto_data[crypto.lower()]['address_version_byte']
     return privkey_to_address(wif, address_byte)
+
+def watch_mempool(crypto, callback=lambda tx: print(tx['txid']), verbose=False):
+    if verbose:
+        import logging
+        logging.getLogger('socketIO-client').setLevel(logging.DEBUG)
+        logging.basicConfig()
+
+    services = get_optimal_services(crypto, 'address_balance')
+
+    for service in services:
+        socketio_url = service.socketio_url
+        if not socketio_url:
+            continue
+        try:
+            socketIO = SocketIO(socketio_url, verify=False,) # namespace=LoggingNamespace)
+            socketIO.emit('subscribe', 'inv');
+            socketIO.on('tx', callback)
+            socketIO.wait()
+        except KeyboardInterrupt:
+            return
+        except:
+            print("failed")

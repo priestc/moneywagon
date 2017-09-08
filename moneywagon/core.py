@@ -59,6 +59,7 @@ class Service(object):
     explorer_blocknum_url = None # {blocknum}
     explorer_blockhash_url = None # {blockhash}
     ssl_verify = True
+    socketio_url = None
 
     @ClassProperty
     @classmethod
