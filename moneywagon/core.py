@@ -341,9 +341,24 @@ class Service(object):
         )
 
     def get_pairs(self):
+        """
+        Only for exchanges. Returns list of all trading pairs supported by this
+        service. All items are lower case, and seperated with a "-".
+        """
         raise NotImplementedError(
             "This service does not support getting all exchange pairs. "
             "Or rather it has no defined 'get_pairs' method."
+        )
+
+    def get_orderbook(self, crypto, fiat):
+        """
+        Only for exchznges. Returns the current orderbook as a dict with two keys:
+        bids and asks. Each is a list of floats. The first float is price, the
+        second is order size.
+        """
+        raise NotImplementedError(
+            "This service does not support getting orderbook. "
+            "Or rather it has no defined 'get_orderbook' method."
         )
 
 class AutoFallbackFetcher(object):

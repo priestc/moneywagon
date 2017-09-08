@@ -2280,6 +2280,14 @@ class GDAX(Service):
         r = self.get_url(url).json()
         return [x['id'].lower() for x in r]
 
+    def get_orderbook(self, crypto, fiat):
+        url = "%s/products/%s-%s/book?level=3" % (self.base_url, crypto.upper(), fiat.upper())
+        r = self.get_url(url).json()
+        return {
+            'bids': [(float(x[0]), float(x[1])) for x in r['bids']],
+            'asks': [(float(x[0]), float(x[1])) for x in r['asks']]
+        }
+
 
 class OKcoin(Service):
     service_id = 60
@@ -2469,7 +2477,7 @@ class Bittrex(Service):
 
         super(Bittrex, self).check_error(response)
 
-    def get_current_price(self, crypto, fiat):
+    def _make_market(self, crypto, fiat):
         if fiat.lower() == 'usd':
             fiat = 'usdt'
 
@@ -2482,12 +2490,24 @@ class Bittrex(Service):
         if crypto == 'bch':
             crypto = 'bcc'
 
-        url = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s" % (
-            fiat.upper(), crypto.upper()
-        )
+        return "%s-%s" % (fiat.upper(), crypto.upper())
 
+    def get_current_price(self, crypto, fiat):
+        url = "https://bittrex.com/api/v1.1/public/getticker?market=%s" % (
+            self._make_market(crypto, fiat)
+        )
         r = self.get_url(url).json()
         return r['result']['Last']
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://bittrex.com/api/v1.1/public/getorderbook?market=%s&type=both" % (
+            self._make_market(crypto, fiat)
+        )
+        r = self.get_url(url).json()['result']
+        return {
+            'bids': [(x['Rate'], x['Quantity']) for x in r['buy']],
+            'asks': [(x['Rate'], x['Quantity']) for x in r['sell']],
+        }
 
     def get_pairs(self):
         url = "https://bittrex.com/api/v1.1/public/getmarkets"
