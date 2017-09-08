@@ -473,7 +473,11 @@ crypto_data = {
         'transaction_hash_algo': None,
         'script_hash_algo': None,
         'transaction_form': 'ppc-timestamp',
-        'port': None,
+        'port': 45444,
+        'last_pow_block': 260799,
+        'seed_nodes': [
+            'seed.reddcoin.com'
+        ],
         'services': {
             'current_price': {
                 'btc': [Bittrex, YoBit, BleuTrade, Cryptopia, NovaExchange],
@@ -2488,7 +2492,7 @@ crypto_data = {
     'zcl': {
         'name': 'ZClassic',
         'address_version_byte': 7352,
-        'bip44_coin_type': None,
+        'bip44_coin_type': 0x80000093,
         'private_key_prefix': 128,
         'script_hash_byte': 0x1cbd,
         'genesis_date': datetime(2016, 10, 28, 7, 56),
@@ -2501,7 +2505,7 @@ crypto_data = {
             'dnsseed.zclassic.org',
             'dnsseed.indieonion.org',
             'dnsseed.rotorproject.org'
-        ]
+        ],
         'port': 8233,
         'supply_data': {
             'method': 'standard',
