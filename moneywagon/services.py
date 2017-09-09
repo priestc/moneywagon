@@ -11,6 +11,9 @@ import arrow
 from bs4 import BeautifulSoup
 import re
 
+import hmac, hashlib, time, requests, base64
+from requests.auth import AuthBase
+
 class FullNodeCLIInterface(Service):
     service_id = None
     cli_path = "" # set to full path to bitcoin-cli executable
@@ -2254,12 +2257,40 @@ class Etherscan(Service):
         response = self.get_url(url).json()
         return int(response['result']) / 1e18
 
+class CoinbaseExchangeAuth(AuthBase):
+    def __init__(self, api_key, secret_key, passphrase):
+        self.api_key = api_key
+        self.secret_key = secret_key
+        self.passphrase = passphrase
+
+    def __call__(self, request):
+        timestamp = str(time.time())
+        message = timestamp + request.method + request.path_url + (request.body or '')
+        hmac_key = base64.b64decode(self.secret_key)
+        signature = hmac.new(hmac_key, message, hashlib.sha256)
+        signature_b64 = signature.digest().encode('base64').rstrip('\n')
+
+        request.headers.update({
+            'CB-ACCESS-SIGN': signature_b64,
+            'CB-ACCESS-TIMESTAMP': timestamp,
+            'CB-ACCESS-KEY': self.api_key,
+            'CB-ACCESS-PASSPHRASE': self.passphrase,
+            'Content-Type': 'application/json'
+        })
+        return request
+
 class GDAX(Service):
     service_id = 59
     name = "GDAX"
     base_url = "https://api.gdax.com"
     api_homepage = "https://docs.gdax.com/"
     supported_cryptos = ['btc', 'ltc', 'eth']
+
+    def __init__(self, api_key=None, api_secret=None, api_pass=None, verbose=False):
+        self.auth = None
+        if api_key and api_secret and api_pass:
+            self.auth = CoinbaseExchangeAuth(api_key, api_secret, api_pass)
+        super(GDAX, self).__init__(verbose=verbose)
 
     def check_error(self, response):
         if response.status_code != 200:
@@ -2287,6 +2318,19 @@ class GDAX(Service):
             'bids': [(float(x[0]), float(x[1])) for x in r['bids']],
             'asks': [(float(x[0]), float(x[1])) for x in r['asks']]
         }
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        if not self.auth:
+            raise Exception("Authentication required to use this endpoint")
+        data = {
+            "size": amount,
+            "type": type,
+            "price": price,
+            "side": side,
+            "product_id": "%s-%s" % (crypto.upper(), fiat.upper())
+        }
+        response = self.post_url(url, data, auth=self.auth).json()
+        return response
 
 
 class OKcoin(Service):
@@ -2468,7 +2512,12 @@ class Poloniex(Service):
 
 class Bittrex(Service):
     service_id = 66
-    api_homepage = "https://bittrex.com/Home/Api"
+    api_homepage = "https://bittrex.com/home/api"
+
+    def __init__(self, api_key=None, api_secret=None, verbose=False):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(Bittrex, self).__init__(verbose=verbose)
 
     def check_error(self, response):
         j = response.json()
@@ -2520,6 +2569,22 @@ class Bittrex(Service):
                 fiat = 'usd'
             ret.append("%s-%s" % (crypto, fiat))
         return ret
+
+    def _make_signature(self, url):
+        if not self.api_key or not self.api_secret:
+            raise Exception("This endpoint requires an API key and secret.")
+        return hmac.new(
+            self.api_secret.encode(), url.encode(), hashlib.sha512
+        ).hexdigest()
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        url = "https://bittrex.com/api/v1.1/market/%slimit?market=%s&quantity=%s&rate=%s" % (
+            side, self._make_market(crypto, fiat), amount, price
+        )
+        nonce = str(int(time.time() * 1000))
+        url += '&apikey=' + self.api_key + "&nonce=" + nonce
+        r = self.get_url(url, headers={"apisign": self._make_signature(url)})
+        return r.json()
 
 
 class Huobi(Service):

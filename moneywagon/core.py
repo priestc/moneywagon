@@ -361,6 +361,12 @@ class Service(object):
             "Or rather it has no defined 'get_orderbook' method."
         )
 
+    def make_order(self, crypto, fiat, amount, price, type="limit"):
+        raise NotImplementedError(
+            "This service does not support making orders. "
+            "Or rather it has no defined 'make_order' method."
+        )
+
 class AutoFallbackFetcher(object):
     """
     Calls a succession of services until one returns a value.
