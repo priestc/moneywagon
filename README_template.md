@@ -102,27 +102,7 @@ $  openssl rand 10000 | moneywagon generate-keypair ppc - | python -mjson.tool
     }
 }
 ```
-
-## current-price [crypto] [fiat]
-
-This gets the current exchange rate between any cryptocurrency and any fiat currency.
-
-examples:
-
-```
-$ moneywagon current-price ltc eur
-3.798
-```
-
-Additionally, you can include `--verbose` to get more output:
-
-```
-$ moneywagon current-price btc usd --verbose
-* Trying: <Service: Bitstamp (0 in cache)>
-URL: https://www.bitstamp.net/api/ticker/
-279.01
-
-```
+# Blockchain Operations
 
 ## address-balance [crypto] [address]
 
@@ -353,7 +333,6 @@ doge (16.43 USD) == 99405.6048377 x 0.00016531 (cryptonator)
 btc (1.06 USD) == 0.00379546 x 279.58 (bitstamp)
 Total amount of all crypto: 17.49 USD
 ```
-
 
 # Python Interface
 
@@ -756,6 +735,39 @@ You can also pass in an explicit set of services:
 In this example, one single call will be made to either Blockchain.info or Toshi (chosen at random).
 If one of those services happens to be down at the moment, then the other one will be called and its
 value returned.
+
+## Exchange operations
+
+## current-price [crypto] [fiat]
+
+This gets the current exchange rate between any cryptocurrency and any fiat currency.
+
+examples:
+
+```
+$ moneywagon current-price ltc eur
+3.798
+```
+
+Additionally, you can include `--verbose` to get more output:
+
+```
+$ moneywagon current-price btc usd --verbose
+* Trying: <Service: Bitstamp (0 in cache)>
+URL: https://www.bitstamp.net/api/ticker/
+279.01
+
+```
+
+# Make Order
+
+This example buys 0.05 worth of BCH with bitcoin at 0.1386 BCH/BTC.
+
+```python
+>>> from moneywagon.services import Bittrex
+>>> b = Bittrex(api_key='91ead6e3308a4daa...', api_secret='3617806dc4b...')
+>>> b.make_order('btc', 'bch', 0.05, 0.13860113, side="buy")
+```
 
 ## Utilities
 
