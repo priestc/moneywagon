@@ -3234,3 +3234,8 @@ class Litecore(BitpayInsight):
     service_id = 127
     domain = "insight.litecore.io"
     supported_cryptos = ['ltc']
+
+class TrezorBCH(BitpayInsight):
+    service_id = 128
+    domain = "bch-bitcore2.trezor.io"
+    supported_cryptos = ['bch']

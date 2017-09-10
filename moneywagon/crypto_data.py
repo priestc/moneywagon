@@ -2291,7 +2291,7 @@ crypto_data = {
     },
     'bch': {
         'name': 'Bitcoin Cash',
-            'forked_from': ('btc', 478559),
+        'forked_from': ('btc', 478559),
         'address_version_byte': 0,
         'message_magic': b"\xf9\xbe\xb4\xd9",
         'bip44_coin_type': 0x80000091,
@@ -2325,12 +2325,24 @@ crypto_data = {
                 'btc': [Kraken, Bittrex, HitBTC], 'eur': [Kraken],
                 'usd': [HitBTC, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
             },
-            'address_balance': [BlockExplorerCash, BlockDozer, BitcoinComCashExplorer],
-            'historical_transactions': [BitcoinComCashExplorer, BlockExplorerCash, BlockDozer],
-            'single_transaction': [BlockDozer, BitcoinComCashExplorer, BlockExplorerCash],
-            'push_tx': [BlockExplorerCash, BitcoinComCashExplorer, BlockDozer],
-            'unspent_outputs': [BlockDozer, BlockExplorerCash, BitcoinComCashExplorer],
-            'get_block': [BitcoinComCashExplorer, BlockDozer, BlockExplorerCash],
+            'address_balance': [
+                TrezorBCH, BlockExplorerCash, BlockDozer, BitcoinComCashExplorer
+            ],
+            'historical_transactions': [
+                BitcoinComCashExplorer, TrezorBCH, BlockExplorerCash, BlockDozer
+            ],
+            'single_transaction': [
+                BlockDozer, BitcoinComCashExplorer, TrezorBCH, BlockExplorerCash
+            ],
+            'push_tx': [
+                TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer, BlockDozer
+            ],
+            'unspent_outputs': [
+                BlockDozer, TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer
+            ],
+            'get_block': [
+                BitcoinComCashExplorer, BlockDozer, TrezorBCH, BlockExplorerCash
+            ],
             "get_optimal_fee": []
         },
     },
