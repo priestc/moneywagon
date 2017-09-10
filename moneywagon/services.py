@@ -2375,21 +2375,30 @@ class Poloniex(Service):
         str_args = urlencode(args)
         return hmac.new(self.api_secret, str_args, hashlib.sha512).hexdigest()
 
-    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+    def _trade_api(self, command, args):
         url = "https://poloniex.com/tradingApi"
-        args = {
-            "command": side,
-            "currencyPair": ("%s_%s" % (fiat, crypto)).upper(),
-            "rate": price,
-            "amount": amount,
-            "nonce": int(time.time() * 1000),
-        }
+        args["nonce"] = int(time.time() * 1000)
         headers = {
             'Sign': self._make_signature(args),
             'Key': self.api_key
         }
-        r = self.post_url(url, args, headers=headers)
-        return r.json()
+        return self.post_url(url, args, headers=headers)
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        r = self._trade_api({
+            "command": side,
+            "currencyPair": ("%s_%s" % (fiat, crypto)).upper(),
+            "rate": price,
+            "amount": amount
+        })
+        return r.json()['orderNumber']
+
+    def cancel_order(self, order_id):
+        r = self._trade_api({
+            "command": "cancelOrder",
+            "orderNumber": order_id
+        })
+        return r['success'] == 1
 
 class Bittrex(Service):
     service_id = 66
@@ -2452,20 +2461,28 @@ class Bittrex(Service):
         return ret
 
     def _make_signature(self, url):
-        if not self.api_key or not self.api_secret:
-            raise Exception("This endpoint requires an API key and secret.")
         return hmac.new(
             self.api_secret.encode(), url.encode(), hashlib.sha512
         ).hexdigest()
+
+    def _trade_api(self, url):
+        if not self.api_key or not self.api_secret:
+            raise Exception("Trade API requires an API key and secret.")
+        nonce = str(int(time.time() * 1000))
+        url += '&apikey=' + self.api_key + "&nonce=" + nonce
+        return self.get_url(url, headers={"apisign": self._make_signature(url)})
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         url = "https://bittrex.com/api/v1.1/market/%slimit?market=%s&quantity=%s&rate=%s" % (
             side, self._make_market(crypto, fiat), amount, price
         )
-        nonce = str(int(time.time() * 1000))
-        url += '&apikey=' + self.api_key + "&nonce=" + nonce
-        r = self.get_url(url, headers={"apisign": self._make_signature(url)})
-        return r.json()
+        r = self._trade_api(url)
+        return r.json()['result']['uuid']
+
+    def cancel_order(self, order_id):
+        url = "https://bittrex.com/api/v1.1/market/cancel?uuid=%s" % order_id
+        r = self._trade_api(url)
+        return r['success']
 
 
 class Huobi(Service):

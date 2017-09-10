@@ -166,11 +166,11 @@ crypto_data = {
                 ], 'doge': [BleuTrade], 'cny': [BTC38],
                 '*': [Cryptonator]
             },
-            'address_balance': [Blockr, Mintr, HolyTransaction],
-            'historical_transactions': [Blockr],
-            'single_transaction': [Mintr, Blockr],
+            'address_balance': [Mintr, HolyTransaction],
+            'historical_transactions': [],
+            'single_transaction': [Mintr],
             'push_tx': [MultiCoins],
-            'unspent_outputs': [Blockr],
+            'unspent_outputs': [],
             'get_block': [Mintr, HolyTransaction]
         },
     },
