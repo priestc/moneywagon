@@ -771,9 +771,9 @@ This example buys 0.05 worth of BCH with bitcoin at 0.1386 BCH/BTC.
 
 # Get all supported markets
 
-Use the `get_pairs()` method to return s list of all pairs supported by the given
+Use the `get_pairs()` method to return a list of all pairs supported by the given
 service. Always returns lowercase identifiers. Crypto identifier is shown first, then a
-dash character, then the fiat currency.
+dash character, then the fiat currency identifier.
 
 ```python
 >>> from moneywagon.services import Poloniex

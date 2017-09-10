@@ -50,28 +50,28 @@ crypto_data = {
                 'krw': [CoinOne], '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
-                BlockCypher, Blockr, ChainSo,
+                BlockCypher, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
                 BitpayInsight, CoinPrism, BitGo, LocalBitcoinsChain, Bchain
             ],
             'historical_transactions': [
-                Blockr, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
+                BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
                 BitpayInsight, Blockonomics, LocalBitcoinsChain
             ],
             'single_transaction': [
-                BitpayInsight, Blockr, BlockCypher, BlockExplorerCom,
+                BitpayInsight, BlockCypher, BlockExplorerCom,
                 ChainSo, CoinPrism, SmartBitAU, LocalBitcoinsChain
             ],
             'push_tx': [
-                BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
+                BlockChainInfo, BlockExplorerCom, ChainSo, CoinPrism,
                 BitpayInsight, LocalBitcoinsChain
             ],
             'unspent_outputs': [
-                Blockr, BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
+                BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
                 BitGo, LocalBitcoinsChain
             ],
             'get_block': [
-                BitpayInsight, ChainRadar, Blockr, OKcoin, BlockExplorerCom, ChainSo,
+                BitpayInsight, ChainRadar, OKcoin, BlockExplorerCom, ChainSo,
                 BitGo, LocalBitcoinsChain, BitFlyer
             ],
             "get_optimal_fee": [
@@ -121,22 +121,22 @@ crypto_data = {
                 '*': [Cryptonator, Vircurex, YoBit],
             },
             'address_balance': [
-                BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction, Bchain
+                BlockCypher, Litecore, ChainSo, ProHashing, HolyTransaction, Bchain
             ],
             'historical_transactions': [
-                ProHashing, Blockr, ChainSo
+                ProHashing, ChainSo, Litecore
             ],
             'single_transaction': [
-                Blockr, BlockCypher
+                BlockCypher, Litecore
             ],
             'push_tx': [
-                Blockr, ChainSo
+                ChainSo, Litecore
             ],
             'unspent_outputs': [
-                ChainSo, Blockr
+                Litecore, ChainSo
             ],
             'get_block': [
-                ChainSo, Blockr, OKcoin, ProHashing, HolyTransaction
+                ChainSo, OKcoin, ProHashing, Litecore, HolyTransaction
             ],
             "get_optimal_fee": [
                 BlockCypher
