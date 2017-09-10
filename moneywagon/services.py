@@ -14,6 +14,11 @@ import re
 import hmac, hashlib, time, requests, base64
 from requests.auth import AuthBase
 
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
+
 class FullNodeCLIInterface(Service):
     service_id = None
     cli_path = "" # set to full path to bitcoin-cli executable
@@ -2473,6 +2478,18 @@ class Poloniex(Service):
     api_homepage = "https://poloniex.com/support/api/"
     name = "Poloniex"
 
+    def __init__(self, api_key=None, api_secret=None, verbose=False):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(Poloniex, self).__init__(verbose=verbose)
+
+    def check_error(self, response):
+        j = response.json()
+        if 'error' in j:
+            raise ServiceError("Poloniex returned error: %s" % j['error'])
+
+        super(Poloniex, self).check_error(response)
+
     def get_current_price(self, crypto, fiat):
         url = "https://poloniex.com/public?command=returnTicker"
         response = self.get_url(url).json()
@@ -2509,6 +2526,36 @@ class Poloniex(Service):
             if fiat == 'usdt': fiat = 'usd'
             ret.append("%s-%s" % (crypto, fiat))
         return ret
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=%s" % (
+            ("%s_%s" % (fiat, crypto)).upper()
+        )
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), x[1]) for x in resp['asks']],
+            'bids': [(float(x[0]), x[1]) for x in resp['bids']]
+        }
+
+    def _make_signature(self, args):
+        str_args = urlencode(args)
+        return hmac.new(self.api_secret, str_args, hashlib.sha512).hexdigest()
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        url = "https://poloniex.com/tradingApi"
+        args = {
+            "command": side,
+            "currencyPair": ("%s_%s" % (fiat, crypto)).upper(),
+            "rate": price,
+            "amount": amount,
+            "nonce": int(time.time() * 1000),
+        }
+        headers = {
+            'Sign': self._make_signature(args),
+            'Key': self.api_key
+        }
+        r = self.post_url(url, args, headers=headers)
+        return r.json()
 
 class Bittrex(Service):
     service_id = 66
