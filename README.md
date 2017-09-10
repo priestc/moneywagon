@@ -55,7 +55,6 @@ $ moneywagon service-table
 <tr><td style="text-align: right;">   2</td><td>BlockCypher           </td><td><a href='http://dev.blockcypher.com/' target='_blank'>http://dev.blockcypher.com/</a>                                                                                                                                </td><td>btc, ltc, doge                                        </td></tr>
 <tr><td style="text-align: right;">   3</td><td>BlockSeer             </td><td><a href='https://www.blockseer.com/about' target='_blank'>https://www.blockseer.com/about</a>                                                                                                                        </td><td>btc                                                   </td></tr>
 <tr><td style="text-align: right;">   4</td><td>SmartBitAU            </td><td><a href='https://www.smartbit.com.au/api' target='_blank'>https://www.smartbit.com.au/api</a>                                                                                                                        </td><td>btc                                                   </td></tr>
-<tr><td style="text-align: right;">   5</td><td>Blockr                </td><td><a href='http://blockr.io/documentation/api' target='_blank'>http://blockr.io/documentation/api</a>                                                                                                                  </td><td>btc, ltc, ppc, mec, qrk, dgc, tbtc                    </td></tr>
 <tr><td style="text-align: right;">   7</td><td>BTCE                  </td><td><a href='https://btc-e.com/api/documentation' target='_blank'>https://btc-e.com/api/documentation</a>                                                                                                                </td><td>                                                      </td></tr>
 <tr><td style="text-align: right;">   8</td><td>Cryptonator           </td><td><a href='https://www.cryptonator.com/api' target='_blank'>https://www.cryptonator.com/api</a>                                                                                                                        </td><td>                                                      </td></tr>
 <tr><td style="text-align: right;">   9</td><td>Winkdex               </td><td><a href='http://docs.winkdex.com/' target='_blank'>http://docs.winkdex.com/</a>                                                                                                                                      </td><td>btc                                                   </td></tr>
@@ -156,6 +155,8 @@ $ moneywagon service-table
 <tr><td style="text-align: right;"> 124</td><td>BitcoinComCashExplorer</td><td><a href='https://cashexplorer.bitcoin.com/api' target='_blank'>https://cashexplorer.bitcoin.com/api</a>                                                                                                              </td><td>bch                                                   </td></tr>
 <tr><td style="text-align: right;"> 125</td><td>BlockExplorerCash     </td><td><a href='https://bitcoincash.blockexplorer.com/api' target='_blank'>https://bitcoincash.blockexplorer.com/api</a>                                                                                                    </td><td>bch                                                   </td></tr>
 <tr><td style="text-align: right;"> 126</td><td>ZCLexplorer           </td><td><a href='http://zclexplorer.org/api' target='_blank'>http://zclexplorer.org/api</a>                                                                                                                                  </td><td>zcl                                                   </td></tr>
+<tr><td style="text-align: right;"> 127</td><td>Litecore              </td><td><a href='https://insight.litecore.io/api' target='_blank'>https://insight.litecore.io/api</a>                                                                                                                        </td><td>ltc                                                   </td></tr>
+<tr><td style="text-align: right;"> 128</td><td>TrezorBCH             </td><td><a href='https://bch-bitcore2.trezor.io/api' target='_blank'>https://bch-bitcore2.trezor.io/api</a>                                                                                                                  </td><td>bch                                                   </td></tr>
 </tbody>
 </table>
 
@@ -878,6 +879,25 @@ This example buys 0.05 worth of BCH with bitcoin at 0.1386 BCH/BTC.
 >>> from moneywagon.services import Bittrex
 >>> b = Bittrex(api_key='91ead6e3308a4daa...', api_secret='3617806dc4b...')
 >>> b.make_order('btc', 'bch', 0.05, 0.13860113, side="buy")
+```
+
+# Get all supported markets
+
+Use the `get_pairs()` method to return a list of all pairs supported by the given
+service. Always returns lowercase identifiers. Crypto identifier is shown first, then a
+dash character, then the fiat currency identifier.
+
+```python
+>>> from moneywagon.services import Poloniex
+>>> p = Poloniex()
+>>> p.get_pairs()
+[u'rep-usd',
+ u'xvc-btc',
+ u'pink-btc',
+ u'sys-btc',
+ u'emc2-btc',
+ u'rads-btc',
+ ...
 ```
 
 ## Utilities
