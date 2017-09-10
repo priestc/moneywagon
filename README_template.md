@@ -769,6 +769,25 @@ This example buys 0.05 worth of BCH with bitcoin at 0.1386 BCH/BTC.
 >>> b.make_order('btc', 'bch', 0.05, 0.13860113, side="buy")
 ```
 
+# Get all supported markets
+
+Use the `get_pairs()` method to return a list of all pairs supported by the given
+service. Always returns lowercase identifiers. Crypto identifier is shown first, then a
+dash character, then the fiat currency identifier.
+
+```python
+>>> from moneywagon.services import Poloniex
+>>> p = Poloniex()
+>>> p.get_pairs()
+[u'rep-usd',
+ u'xvc-btc',
+ u'pink-btc',
+ u'sys-btc',
+ u'emc2-btc',
+ u'rads-btc',
+ ...
+```
+
 ## Utilities
 
 ```python

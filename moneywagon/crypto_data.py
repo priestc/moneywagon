@@ -50,28 +50,28 @@ crypto_data = {
                 'krw': [CoinOne], '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
-                BlockCypher, Blockr, ChainSo,
+                BlockCypher, ChainSo,
                 BitEasy, SmartBitAU, BlockExplorerCom, BlockChainInfo, Blockonomics,
                 BitpayInsight, CoinPrism, BitGo, LocalBitcoinsChain, Bchain
             ],
             'historical_transactions': [
-                Blockr, BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
+                BlockExplorerCom, BitGo, SmartBitAU, ChainSo, CoinPrism, BlockSeer,
                 BitpayInsight, Blockonomics, LocalBitcoinsChain
             ],
             'single_transaction': [
-                BitpayInsight, Blockr, BlockCypher, BlockExplorerCom,
+                BitpayInsight, BlockCypher, BlockExplorerCom,
                 ChainSo, CoinPrism, SmartBitAU, LocalBitcoinsChain
             ],
             'push_tx': [
-                BlockChainInfo, BlockExplorerCom, Blockr, ChainSo, CoinPrism,
+                BlockChainInfo, BlockExplorerCom, ChainSo, CoinPrism,
                 BitpayInsight, LocalBitcoinsChain
             ],
             'unspent_outputs': [
-                Blockr, BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
+                BitpayInsight, BlockExplorerCom, SmartBitAU, BlockChainInfo, CoinPrism, ChainSo,
                 BitGo, LocalBitcoinsChain
             ],
             'get_block': [
-                BitpayInsight, ChainRadar, Blockr, OKcoin, BlockExplorerCom, ChainSo,
+                BitpayInsight, ChainRadar, OKcoin, BlockExplorerCom, ChainSo,
                 BitGo, LocalBitcoinsChain, BitFlyer
             ],
             "get_optimal_fee": [
@@ -121,22 +121,22 @@ crypto_data = {
                 '*': [Cryptonator, Vircurex, YoBit],
             },
             'address_balance': [
-                BlockCypher, Blockr, ChainSo, ProHashing, HolyTransaction, Bchain
+                BlockCypher, Litecore, ChainSo, ProHashing, HolyTransaction, Bchain
             ],
             'historical_transactions': [
-                ProHashing, Blockr, ChainSo
+                ProHashing, ChainSo, Litecore
             ],
             'single_transaction': [
-                Blockr, BlockCypher
+                BlockCypher, Litecore
             ],
             'push_tx': [
-                Blockr, ChainSo
+                ChainSo, Litecore
             ],
             'unspent_outputs': [
-                ChainSo, Blockr
+                Litecore, ChainSo
             ],
             'get_block': [
-                ChainSo, Blockr, OKcoin, ProHashing, HolyTransaction
+                ChainSo, OKcoin, ProHashing, Litecore, HolyTransaction
             ],
             "get_optimal_fee": [
                 BlockCypher
@@ -166,11 +166,11 @@ crypto_data = {
                 ], 'doge': [BleuTrade], 'cny': [BTC38],
                 '*': [Cryptonator]
             },
-            'address_balance': [Blockr, Mintr, HolyTransaction],
-            'historical_transactions': [Blockr],
-            'single_transaction': [Mintr, Blockr],
+            'address_balance': [Mintr, HolyTransaction],
+            'historical_transactions': [],
+            'single_transaction': [Mintr],
             'push_tx': [MultiCoins],
-            'unspent_outputs': [Blockr],
+            'unspent_outputs': [],
             'get_block': [Mintr, HolyTransaction]
         },
     },
@@ -2291,7 +2291,7 @@ crypto_data = {
     },
     'bch': {
         'name': 'Bitcoin Cash',
-            'forked_from': ('btc', 478559),
+        'forked_from': ('btc', 478559),
         'address_version_byte': 0,
         'message_magic': b"\xf9\xbe\xb4\xd9",
         'bip44_coin_type': 0x80000091,
@@ -2325,12 +2325,24 @@ crypto_data = {
                 'btc': [Kraken, Bittrex, HitBTC], 'eur': [Kraken],
                 'usd': [HitBTC, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
             },
-            'address_balance': [BlockExplorerCash, BlockDozer, BitcoinComCashExplorer],
-            'historical_transactions': [BitcoinComCashExplorer, BlockExplorerCash, BlockDozer],
-            'single_transaction': [BlockDozer, BitcoinComCashExplorer, BlockExplorerCash],
-            'push_tx': [BlockExplorerCash, BitcoinComCashExplorer, BlockDozer],
-            'unspent_outputs': [BlockDozer, BlockExplorerCash, BitcoinComCashExplorer],
-            'get_block': [BitcoinComCashExplorer, BlockDozer, BlockExplorerCash],
+            'address_balance': [
+                TrezorBCH, BlockExplorerCash, BlockDozer, BitcoinComCashExplorer
+            ],
+            'historical_transactions': [
+                BitcoinComCashExplorer, TrezorBCH, BlockExplorerCash, BlockDozer
+            ],
+            'single_transaction': [
+                BlockDozer, BitcoinComCashExplorer, TrezorBCH, BlockExplorerCash
+            ],
+            'push_tx': [
+                TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer, BlockDozer
+            ],
+            'unspent_outputs': [
+                BlockDozer, TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer
+            ],
+            'get_block': [
+                BitcoinComCashExplorer, BlockDozer, TrezorBCH, BlockExplorerCash
+            ],
             "get_optimal_fee": []
         },
     },

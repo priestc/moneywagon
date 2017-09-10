@@ -14,6 +14,11 @@ import re
 import hmac, hashlib, time, requests, base64
 from requests.auth import AuthBase
 
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
+
 class FullNodeCLIInterface(Service):
     service_id = None
     cli_path = "" # set to full path to bitcoin-cli executable
@@ -390,172 +395,6 @@ class SmartBitAU(Service):
             txid=txid,
             confirmations=r['confirmations'],
             fee=r['fee_int']
-        )
-
-
-class Blockr(Service):
-    service_id = 5
-    supported_cryptos = ['btc', 'ltc', 'ppc', 'mec', 'qrk', 'dgc', 'tbtc']
-    api_homepage = "http://blockr.io/documentation/api"
-
-    explorer_address_url = "http://blockr.io/address/info/{address}"
-    explorer_tx_url = "http://blockr.io/address/info/{txid}"
-    explorer_blockhash_url = "http://blockr.io/block/info/{blockhash}"
-    explorer_blocknum_url = "http://blockr.io/block/info/{blocknum}"
-    explorer_latest_block = "http://blockr.io/block/info/latest"
-
-    json_address_url = "http://{crypto}.blockr.io/api/v1/address/info/{address}"
-    json_single_tx_url = "http://{crypto}.blockr.io/api/v1/tx/info/{txid}"
-    json_txs_url = url = "http://{crypto}.blockr.io/api/v1/address/txs/{address}?unconfirmed=1"
-    json_unspent_outputs_url = "http://{crypto}.blockr.io/api/v1/address/unspent/{address}"
-    name = "Blockr.io"
-
-    def get_balance(self, crypto, address, confirmations=1):
-        url = self.json_address_url.format(address=address, crypto=crypto)
-        response = self.get_url(url)
-        return response.json()['data']['balance']
-
-    def get_balance_multi(self, crypto, addresses, confirmations=1):
-        url = self.json_address_url.format(address=','.join(addresses), crypto=crypto)
-        balances = {}
-        for bal in self.get_url(url).json()['data']:
-            balances[bal['address']] = bal['balance']
-        return balances
-
-    def _format_tx(self, tx, address):
-        return dict(
-            date=arrow.get(tx['time_utc']).datetime,
-            amount=tx['amount'],
-            txid=tx['tx'],
-            confirmations=tx['confirmations'],
-            addresses=[address],
-        )
-
-    def get_transactions(self, crypto, address, confirmations=1):
-        url = self.json_txs_url.format(address=address, crypto=crypto)
-        response = self.get_url(url)
-
-        transactions = []
-        for tx in response.json()['data']['txs']:
-            transactions.append(self._format_tx(tx, address))
-        return transactions
-
-    def get_transactions_multi(self, crypto, addresses, confirmation=1):
-        url = self.json_txs_url.format(address=','.join(addresses), crypto=crypto)
-        transactions = []
-        for data in self.get_url(url).json()['data']:
-            for tx in data['txs']:
-                transactions.append(self._format_tx(tx, data['address']))
-        return transactions
-
-    def _format_single_tx(self, tx):
-        ins = [
-            {
-                'address': x['address'],
-                'amount': currency_to_protocol(x['amount']) * -1,
-                'txid': x['vout_tx']
-            } for x in tx['vins']
-        ]
-        outs = [
-            {
-                'address': x['address'],
-                'amount': currency_to_protocol(x['amount']),
-                'scriptPubKey': x['extras']['script'] if 'extras' in x else None
-            } for x in tx['vouts']
-        ]
-
-        return dict(
-            time=arrow.get(tx['time_utc']).datetime,
-            block_number=tx['block'],
-            inputs=ins,
-            outputs=outs,
-            txid=tx['tx'],
-            total_in=sum(x['amount'] for x in ins),
-            total_out=sum(x['amount'] for x in outs),
-            confirmations=tx['confirmations'],
-            fee=float(tx['fee'])
-        )
-
-    def get_single_transaction(self, crypto, txid):
-        url = self.json_single_tx_url.format(crypto=crypto, txid=txid)
-        r = self.get_url(url).json()['data']
-        return self._format_single_tx(r)
-
-
-    def get_single_transaction_multi(self, crypto, txids):
-        url = self.json_single_tx_url.format(crypto=crypto, txid=','.join(txids))
-        txs = []
-        for tx in self.get_url(url).json()['data']:
-            txs.append(self._format_single_tx(tx))
-        return txs
-
-    def _format_utxo(self, utxo, address):
-        return dict(
-            amount=currency_to_protocol(utxo['amount']),
-            address=address,
-            output="%s:%s" % (utxo['tx'], utxo['n']),
-            txid=utxo['tx'],
-            vout=utxo['n'],
-            confirmations=utxo['confirmations'],
-            scriptPubKey=utxo['script']
-        )
-
-    def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = self.json_unspent_outputs_url.format(address=address, crypto=crypto)
-        utxos = []
-        for utxo in self.get_url(url).json()['data']['unspent']:
-            cons = utxo['confirmations']
-            if cons < confirmations:
-                continue
-            utxos.append(self._format_utxo(utxo, address))
-        return utxos
-
-    def get_unspent_outputs_multi(self, crypto, addresses, confirmations=1):
-        url = self.json_unspent_outputs_url.format(address=','.join(addresses), crypto=crypto)
-        utxos = []
-        for data in self.get_url(url).json()['data']:
-            for utxo in data['unspent']:
-                cons = utxo['confirmations']
-                if cons < confirmations:
-                    continue
-                utxos.append(self._format_utxo(utxo, data['address']))
-        return utxos
-
-    def push_tx(self, crypto, tx_hex):
-        url = "http://%s.blockr.io/api/v1/tx/push" % crypto
-        resp = self.post_url(url, {'tx': tx_hex}).json()
-        if resp['status'] == 'fail':
-            raise ValueError(
-                "Blockr returned error: %s %s %s" % (
-                    resp['code'], resp['data'], resp['message']
-                )
-            )
-        return resp['data']
-
-    def get_block(self, crypto, block_hash=None, block_number=None, latest=False):
-        if block_number == 0:
-            raise SkipThisService("Block 0 not supported (bug in Blockr.io?)")
-
-        url ="http://%s.blockr.io/api/v1/block/info/%s%s%s" % (
-            crypto,
-            block_hash if block_hash is not None else '',
-            block_number if block_number is not None else '',
-            'last' if latest else ''
-        )
-        r = self.get_url(url).json()['data']
-        return dict(
-            block_number=r['nb'],
-            confirmations=r['confirmations'],
-            time=arrow.get(r['time_utc']).datetime,
-            sent_value=r['vout_sum'],
-            total_fees=float(r['fee']),
-            mining_difficulty=r['difficulty'],
-            size=int(r['size']),
-            hash=r['hash'],
-            merkle_root=r['merkleroot'],
-            previous_hash=r['prev_block_hash'],
-            next_hash=r['next_block_hash'],
-            tx_count=r['nb_txs'],
         )
 
 
@@ -2473,6 +2312,18 @@ class Poloniex(Service):
     api_homepage = "https://poloniex.com/support/api/"
     name = "Poloniex"
 
+    def __init__(self, api_key=None, api_secret=None, verbose=False):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(Poloniex, self).__init__(verbose=verbose)
+
+    def check_error(self, response):
+        j = response.json()
+        if 'error' in j:
+            raise ServiceError("Poloniex returned error: %s" % j['error'])
+
+        super(Poloniex, self).check_error(response)
+
     def get_current_price(self, crypto, fiat):
         url = "https://poloniex.com/public?command=returnTicker"
         response = self.get_url(url).json()
@@ -2509,6 +2360,45 @@ class Poloniex(Service):
             if fiat == 'usdt': fiat = 'usd'
             ret.append("%s-%s" % (crypto, fiat))
         return ret
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=%s" % (
+            ("%s_%s" % (fiat, crypto)).upper()
+        )
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), x[1]) for x in resp['asks']],
+            'bids': [(float(x[0]), x[1]) for x in resp['bids']]
+        }
+
+    def _make_signature(self, args):
+        str_args = urlencode(args)
+        return hmac.new(self.api_secret, str_args, hashlib.sha512).hexdigest()
+
+    def _trade_api(self, command, args):
+        url = "https://poloniex.com/tradingApi"
+        args["nonce"] = int(time.time() * 1000)
+        headers = {
+            'Sign': self._make_signature(args),
+            'Key': self.api_key
+        }
+        return self.post_url(url, args, headers=headers)
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        r = self._trade_api({
+            "command": side,
+            "currencyPair": ("%s_%s" % (fiat, crypto)).upper(),
+            "rate": price,
+            "amount": amount
+        })
+        return r.json()['orderNumber']
+
+    def cancel_order(self, order_id):
+        r = self._trade_api({
+            "command": "cancelOrder",
+            "orderNumber": order_id
+        })
+        return r['success'] == 1
 
 class Bittrex(Service):
     service_id = 66
@@ -2571,20 +2461,28 @@ class Bittrex(Service):
         return ret
 
     def _make_signature(self, url):
-        if not self.api_key or not self.api_secret:
-            raise Exception("This endpoint requires an API key and secret.")
         return hmac.new(
             self.api_secret.encode(), url.encode(), hashlib.sha512
         ).hexdigest()
+
+    def _trade_api(self, url):
+        if not self.api_key or not self.api_secret:
+            raise Exception("Trade API requires an API key and secret.")
+        nonce = str(int(time.time() * 1000))
+        url += '&apikey=' + self.api_key + "&nonce=" + nonce
+        return self.get_url(url, headers={"apisign": self._make_signature(url)})
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         url = "https://bittrex.com/api/v1.1/market/%slimit?market=%s&quantity=%s&rate=%s" % (
             side, self._make_market(crypto, fiat), amount, price
         )
-        nonce = str(int(time.time() * 1000))
-        url += '&apikey=' + self.api_key + "&nonce=" + nonce
-        r = self.get_url(url, headers={"apisign": self._make_signature(url)})
-        return r.json()
+        r = self._trade_api(url)
+        return r.json()['result']['uuid']
+
+    def cancel_order(self, order_id):
+        url = "https://bittrex.com/api/v1.1/market/cancel?uuid=%s" % order_id
+        r = self._trade_api(url)
+        return r['success']
 
 
 class Huobi(Service):
@@ -3331,3 +3229,13 @@ class ZCLexplorer(BitpayInsight):
     domain = "zclexplorer.org"
     protocol = "http"
     supported_cryptos = ['zcl']
+
+class Litecore(BitpayInsight):
+    service_id = 127
+    domain = "insight.litecore.io"
+    supported_cryptos = ['ltc']
+
+class TrezorBCH(BitpayInsight):
+    service_id = 128
+    domain = "bch-bitcore2.trezor.io"
+    supported_cryptos = ['bch']
