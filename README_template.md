@@ -738,11 +738,11 @@ value returned.
 
 ## Exchange operations
 
-## current-price [crypto] [fiat]
+### Get current price
 
 This gets the current exchange rate between any cryptocurrency and any fiat currency.
 
-examples:
+command line examples:
 
 ```
 $ moneywagon current-price ltc eur
@@ -759,7 +759,14 @@ URL: https://www.bitstamp.net/api/ticker/
 
 ```
 
-# Make Order
+```python
+>>> from moneywagon import Bittrex
+>>> b = Bittrex()
+>>> b.get_current_price('ltc', 'btc')
+0.01619
+```
+
+### Make Order
 
 This example buys 0.05 worth of LTC with bitcoin at 0.1386 LTC/BTC.
 Returned is the "order ID" which can then be used to cancel order.
@@ -772,7 +779,7 @@ Supported by the following exchanges: GDAX, Poloniex, Bittrex, NovaExchange
 'b1c95c62-2f81-4005-b19c-80608c30d543'
 ```
 
-# Cancel order
+### Cancel order
 
 ```python
 >>> from moneywagon.services import GDAX
@@ -780,7 +787,7 @@ Supported by the following exchanges: GDAX, Poloniex, Bittrex, NovaExchange
 >>> g.cancel_order('b1c95c62-2f81-4005-b19c-80608c30d543')
 ```
 
-# List orders
+### List orders
 
 This lists all orders you have made. Proper authentication credentials are required
 for this endpoint. To get all orders for an exchange, use the `get_orderbook` endpoint instead.
@@ -810,7 +817,7 @@ for this endpoint. To get all orders for an exchange, use the `get_orderbook` en
 Note: Moneywagon does not yet convert open orders to a unified format across all exchanges.
 Each individual exchange will return this data in a unique format.
 
-# Initiate withdrawl
+### Initiate withdrawl
 
 ```python
 >>> n = NovaExchange(api_pass='dg38dh3...', api_key='dhwbjfi438shjf...')
@@ -830,7 +837,7 @@ u'wd_fee': u'0.00000000'}
 
 The output format of this method is not yet unified amongst all exchange implementations.
 
-# Get deposit address
+### Get deposit address
 
 ```python
 >>> n = NovaExchange(api_pass='dg38dh3...', api_key='dhwbjfi438shjf...')
@@ -838,7 +845,7 @@ The output format of this method is not yet unified amongst all exchange impleme
 u'XqGnkQPntNvshNt5qvfHnGYfjPuJWfYGLU'
 ```
 
-# Get all supported markets
+### Get all supported markets
 
 Use the `get_pairs()` method to return a list of all pairs supported by the given
 service. Always returns lowercase identifiers. Crypto identifier is shown first, then a
@@ -855,6 +862,7 @@ dash character, then the fiat currency identifier.
  u'emc2-btc',
  u'rads-btc',
  ...
+]
 ```
 
 ## Utilities
