@@ -2871,7 +2871,7 @@ class NovaExchange(Service):
             'bids': [(float(x['price']), float(x['amount'])) for x in r['buyorders']],
             'asks': [(float(x['price']), float(x['amount'])) for x in r['sellorders']],
         }
-    
+
     def _make_signature(self, url):
         return base64.b64encode(
             hmac.new(self.api_secret, url, hashlib.sha512).digest()
@@ -2910,6 +2910,16 @@ class NovaExchange(Service):
         resp = self._trade_api(url, {})
         return resp.json()['items']
 
+    def get_deposit_address(self, crypto):
+        url = "https://novaexchange.com/remote/v2/private/getdepositaddress/%s/" % crypto
+        resp = self._trade_api(url, {})
+        return resp.json()['address']
+
+    def initiate_withdrawl(self, crypto, amount, address):
+        url = "https://novaexchange.com/remote/v2/private/withdraw/%s/" % crypto
+        params = {'currency': crypto, 'amount': amount, 'address': address}
+        resp = self._trade_api(url, params)
+        return resp.json()
 
 class xBTCe(Service):
     service_id = 90
