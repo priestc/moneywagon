@@ -15,9 +15,9 @@ import hmac, hashlib, time, requests, base64
 from requests.auth import AuthBase
 
 try:
-    from urllib import urlencode
+    from urllib import urlencode, quote_plus
 except ImportError:
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode, quote_plus
 
 class FullNodeCLIInterface(Service):
     service_id = None
@@ -2159,8 +2159,7 @@ class GDAX(Service):
         }
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
-        if not self.auth:
-            raise Exception("Authentication required to use this endpoint")
+        url = "%s/orders" % self.base_url
         data = {
             "size": amount,
             "type": type,
@@ -2168,8 +2167,18 @@ class GDAX(Service):
             "side": side,
             "product_id": "%s-%s" % (crypto.upper(), fiat.upper())
         }
-        response = self.post_url(url, data, auth=self.auth).json()
-        return response
+        response = self.post_url(url, json=data, auth=self.auth).json()
+        return response['id']
+
+    def list_orders(self, status="open"):
+        url = "%s/orders" % self.base_url
+        response = self.get_url(url, auth=self.auth)
+        return response.json()
+
+    def cancel_order(self, order_id):
+        url = "%s/orders/%s" % (self.base_url, order_id)
+        response = self.delete_url(url, auth=self.auth)
+        return response.json()
 
 
 class OKcoin(Service):
@@ -2691,6 +2700,11 @@ class Cryptopia(Service):
     service_id = 82
     api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
 
+    def __init__(self, api_key=None, api_secret=None, verbose=False):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(Cryptopia, self).__init__(verbose=verbose)
+
     def check_error(self, response):
         r = response.json()
         error = r.get('Error', False)
@@ -2720,6 +2734,57 @@ class Cryptopia(Service):
             ret.append(("%s-%s" % (crypto, fiat)).lower())
 
         return ret
+
+    def _make_signature_header(self, url, params):
+
+        nonce = str(int(time.time()*1000));
+        b64 = base64.b64encode(hashlib.md5(json.dumps(params)).digest());
+        signature = self.api_key + "POST" + url.lower() + nonce + b64;
+
+        hmacsignature = base64.b64encode(hmac.new(base64.b64decode(self.api_secret), signature, hashlib.sha256).digest())
+        parameter = self.api_key + ":" + hmacsignature + ":" + nonce;
+
+        header_value = "amx " + parameter;
+        return header_value
+
+
+        strsecret = str(self.api_secret)
+        strpublic = str(self.api_key)
+        # Generate and grab the nonce
+        tmpnonce = str(int(time.time() * 1000))
+        # Set up MD5 object, encode params to bytes, MD5 hash
+        md5params = hashlib.md5()
+        encparams = json.dumps(params).encode("UTF-8")
+        md5params.update(encparams)
+        # Base64 the MD5 Hash & Return the bytes to a string, then assemble the request string
+        b64request = base64.b64encode(md5params.digest())
+        str64request = b64request.decode("UTF-8")
+        reqstr = strpublic + "POST" + quote_plus(uri).lower() + tmpnonce + str64request
+        # Sign the request string with the private key
+        try:
+            hmacraw = hmac.new(base64.b64decode(strsecret), reqstr.encode("UTF-8"), hashlib.sha256).digest()
+        except:
+            return "HMAC-SHA256 Signature failed! Check Private Key."
+        # Base64 the signed parameters, assemble the header string and dict.
+        hmacreq = base64.b64encode(hmacraw)
+        return "amx " + strpublic + ":" + hmacreq.decode("UTF-8") + ":" + tmpnonce
+
+    def _trade_api(self, url, args):
+        return self.post_url(url, args, headers={
+            "Authorization": self._make_signature_header(url, args),
+            "Content-Type": "application/json; charset=utf-8"
+        })
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        url = "https://www.cryptopia.co.nz/api/SubmitTrade"
+        args = {
+            'Market': ("%s/%s" % (crypto, fiat)).upper(),
+            'Type': side,
+            'Rate': price,
+            'Amount': amount
+        }
+        resp = self._trade_api(url, args)
+        return resp['Data']['OrderId']
 
 
 class BeavercoinBlockchain(BitpayInsight):
@@ -2768,6 +2833,14 @@ class NovaExchange(Service):
     name = "NovaExchange"
     api_homepage = "https://novaexchange.com/remote/faq/"
 
+    def __init__(self, api_key=None, api_secret=None, verbose=False):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(NovaExchange, self).__init__(verbose=verbose)
+
+    def make_market(self, crypto, fiat):
+        return "%s_%s" % (fiat, crypto)
+
     def check_error(self, response):
         if response.json()['status'] == 'error':
             raise ServiceError("NovaExchange returned error: %s" % response.json()['message'])
@@ -2775,7 +2848,7 @@ class NovaExchange(Service):
         super(NovaExchange, self).check_error(response)
 
     def get_current_price(self, crypto, fiat):
-        url = "https://novaexchange.com/remote/v2/market/info/%s_%s/" % (fiat, crypto)
+        url = "https://novaexchange.com/remote/v2/market/info/%s" % self.make_market(crypto, fiat)
         r = self.get_url(url).json()
         return float(r['markets'][0]['last_price'])
 
@@ -2788,6 +2861,65 @@ class NovaExchange(Service):
             crypto = pair['currency'].lower()
             ret.append("%s-%s" % (crypto, fiat))
         return ret
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://novaexchange.com/remote/v2/market/openorders/%s/both/" % (
+            self.make_market(crypto, fiat)
+        )
+        r = self.get_url(url).json()
+        return {
+            'bids': [(float(x['price']), float(x['amount'])) for x in r['buyorders']],
+            'asks': [(float(x['price']), float(x['amount'])) for x in r['sellorders']],
+        }
+
+    def _make_signature(self, url):
+        return base64.b64encode(
+            hmac.new(self.api_secret, url, hashlib.sha512).digest()
+        )
+
+    def _trade_api(self, url, params):
+        url += '?nonce=' + str(int(time.time()))
+        params['apikey'] = self.api_key
+        params['signature'] = self._make_signature(url)
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+        return self.post_url(url, data=params, headers=headers, timeout=60)
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        url = "https://novaexchange.com/remote/v2/private/trade/%s/" % (
+            self.make_market(crypto, fiat)
+        )
+        params = {
+            'tradetype': side.upper(),
+            'tradeamount': amount,
+            'tradeprice': price,
+            'tradebase': 0, # indicates "amount" is in crypto units, not fiat units
+        }
+        resp = self._trade_api(url, params)
+        return resp.json()['tradeitems'][0]['orderid']
+
+    def cancel_order(self, order_id):
+        url = "https://novaexchange.com/remote/v2/private/cancelorder/%s/" % order_id
+        resp = self._trade_api(url, {})
+        return resp.json()['status'] == 'ok'
+
+    def list_orders(self, status="open"):
+        if status == 'open':
+            url = "https://novaexchange.com/remote/v2/private/myopenorders/"
+        else:
+            NotImplementedError("getting orders by status=%s not implemented yet" % status)
+        resp = self._trade_api(url, {})
+        return resp.json()['items']
+
+    def get_deposit_address(self, crypto):
+        url = "https://novaexchange.com/remote/v2/private/getdepositaddress/%s/" % crypto
+        resp = self._trade_api(url, {})
+        return resp.json()['address']
+
+    def initiate_withdrawl(self, crypto, amount, address):
+        url = "https://novaexchange.com/remote/v2/private/withdraw/%s/" % crypto
+        params = {'currency': crypto, 'amount': amount, 'address': address}
+        resp = self._trade_api(url, params)
+        return resp.json()
 
 class xBTCe(Service):
     service_id = 90
