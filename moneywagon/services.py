@@ -2838,6 +2838,9 @@ class NovaExchange(Service):
         self.api_secret = api_secret
         super(NovaExchange, self).__init__(verbose=verbose)
 
+    def make_market(self, crypto, fiat):
+        return "%s_%s" % (fiat, crypto)
+
     def check_error(self, response):
         if response.json()['status'] == 'error':
             raise ServiceError("NovaExchange returned error: %s" % response.json()['message'])
@@ -2845,7 +2848,7 @@ class NovaExchange(Service):
         super(NovaExchange, self).check_error(response)
 
     def get_current_price(self, crypto, fiat):
-        url = "https://novaexchange.com/remote/v2/market/info/%s_%s/" % (fiat, crypto)
+        url = "https://novaexchange.com/remote/v2/market/info/%s" % self.make_market(crypto, fiat)
         r = self.get_url(url).json()
         return float(r['markets'][0]['last_price'])
 
@@ -2859,6 +2862,16 @@ class NovaExchange(Service):
             ret.append("%s-%s" % (crypto, fiat))
         return ret
 
+    def get_orderbook(self, crypto, fiat):
+        url = "https://novaexchange.com/remote/v2/market/openorders/%s/both/" % (
+            self.make_market(crypto, fiat)
+        )
+        r = self.get_url(url).json()
+        return {
+            'bids': [(float(x['price']), float(x['amount'])) for x in r['buyorders']],
+            'asks': [(float(x['price']), float(x['amount'])) for x in r['sellorders']],
+        }
+    
     def _make_signature(self, url):
         return base64.b64encode(
             hmac.new(self.api_secret, url, hashlib.sha512).digest()
@@ -2872,7 +2885,9 @@ class NovaExchange(Service):
         return self.post_url(url, data=params, headers=headers, timeout=60)
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
-        url = "https://novaexchange.com/remote/v2/private/trade/%s_%s/" % (fiat, crypto)
+        url = "https://novaexchange.com/remote/v2/private/trade/%s/" % (
+            self.make_market(crypto, fiat)
+        )
         params = {
             'tradetype': side.upper(),
             'tradeamount': amount,
