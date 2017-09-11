@@ -2833,6 +2833,11 @@ class NovaExchange(Service):
     name = "NovaExchange"
     api_homepage = "https://novaexchange.com/remote/faq/"
 
+    def __init__(self, api_key=None, api_secret=None, verbose=False):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(NovaExchange, self).__init__(verbose=verbose)
+
     def check_error(self, response):
         if response.json()['status'] == 'error':
             raise ServiceError("NovaExchange returned error: %s" % response.json()['message'])
@@ -2853,6 +2858,43 @@ class NovaExchange(Service):
             crypto = pair['currency'].lower()
             ret.append("%s-%s" % (crypto, fiat))
         return ret
+
+    def _make_signature(self, url):
+        return base64.b64encode(
+            hmac.new(self.api_secret, url, hashlib.sha512).digest()
+        )
+
+    def _trade_api(self, url, params):
+        url += '?nonce=' + str(int(time.time()))
+        params['apikey'] = self.api_key
+        params['signature'] = self._make_signature(url)
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+        return self.post_url(url, data=params, headers=headers, timeout=60)
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        url = "https://novaexchange.com/remote/v2/private/trade/%s_%s/" % (fiat, crypto)
+        params = {
+            'tradetype': side.upper(),
+            'tradeamount': amount,
+            'tradeprice': price,
+            'tradebase': 0, # indicates "amount" is in crypto units, not fiat units
+        }
+        resp = self._trade_api(url, params)
+        return resp.json()['tradeitems'][0]['orderid']
+
+    def cancel_order(self, order_id):
+        url = "https://novaexchange.com/remote/v2/private/cancelorder/%s/" % order_id
+        resp = self._trade_api(url, {})
+        return resp.json()['status'] == 'ok'
+
+    def list_orders(self, status="open"):
+        if status == 'open':
+            url = "https://novaexchange.com/remote/v2/private/myopenorders/"
+        else:
+            NotImplementedError("getting orders by status=%s not implemented yet" % status)
+        resp = self._trade_api(url, {})
+        return resp.json()['items']
+
 
 class xBTCe(Service):
     service_id = 90

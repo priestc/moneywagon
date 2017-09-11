@@ -379,7 +379,7 @@ class Service(object):
     def list_orders(self, status="open"):
         raise NotImplementedError(
             "This service does not support listing orders. "
-            "Or rather it has no defined 'list_order' method."
+            "Or rather it has no defined 'list_orders' method."
         )
 
 class AutoFallbackFetcher(object):
