@@ -850,11 +850,11 @@ value returned.
 
 ## Exchange operations
 
-## current-price [crypto] [fiat]
+### Get current price
 
 This gets the current exchange rate between any cryptocurrency and any fiat currency.
 
-examples:
+command line examples:
 
 ```
 $ moneywagon current-price ltc eur
@@ -871,17 +871,93 @@ URL: https://www.bitstamp.net/api/ticker/
 
 ```
 
-# Make Order
-
-This example buys 0.05 worth of BCH with bitcoin at 0.1386 BCH/BTC.
-
 ```python
->>> from moneywagon.services import Bittrex
->>> b = Bittrex(api_key='91ead6e3308a4daa...', api_secret='3617806dc4b...')
->>> b.make_order('btc', 'bch', 0.05, 0.13860113, side="buy")
+>>> from moneywagon import Bittrex
+>>> b = Bittrex()
+>>> b.get_current_price('ltc', 'btc')
+0.01619
 ```
 
-# Get all supported markets
+### Make Order
+
+This example buys 0.05 worth of LTC with bitcoin at 0.1386 LTC/BTC.
+Returned is the "order ID" which can then be used to cancel order.
+
+Supported by the following exchanges: GDAX, Poloniex, Bittrex, NovaExchange
+```python
+>>> from moneywagon.services import GDAX
+>>> g = GDAX(api_key='91ead6e3308a4daa...', api_secret='3617806dc4b...', api_pass='3dfr38s...')
+>>> g.make_order('ltc', 'btc', 0.05, 0.13860113, side="buy")
+'b1c95c62-2f81-4005-b19c-80608c30d543'
+```
+
+### Cancel order
+
+```python
+>>> from moneywagon.services import GDAX
+>>> g = GDAX(api_key='91ead6e3308a4daa...', api_secret='3617806dc4b...')
+>>> g.cancel_order('b1c95c62-2f81-4005-b19c-80608c30d543')
+```
+
+### List orders
+
+This lists all orders you have made. Proper authentication credentials are required
+for this endpoint. To get all orders for an exchange, use the `get_orderbook` endpoint instead.
+
+```python
+>>> from moneywagon.services import GDAX
+>>> g = GDAX(api_key='91ead6e3308a4daa...', api_secret='3617806dc4b...', api_pass='3dfr38s...')
+>>> g.list_orders()
+[{u'created_at': u'2017-07-05T16:00:53.70265Z',
+  u'executed_value': u'0.0000000000000000',
+  u'fill_fees': u'0.0000000000000000',
+  u'filled_size': u'0.00000000',
+  u'id': u'0ed4825c-d703-4aa8-aca4-0807bd76b6cd',
+  u'post_only': True,
+  u'price': u'1000.00000000',
+  u'product_id': u'BTC-USD',
+  u'settled': False,
+  u'side': u'buy',
+  u'size': u'0.30000000',
+  u'status': u'open',
+  u'stp': u'dc',
+  u'time_in_force': u'GTC',
+  u'type': u'limit'}
+]
+```
+
+Note: Moneywagon does not yet convert open orders to a unified format across all exchanges.
+Each individual exchange will return this data in a unique format.
+
+### Initiate withdrawl
+
+```python
+>>> n = NovaExchange(api_pass='dg38dh3...', api_key='dhwbjfi438shjf...')
+>>> n.withdrawl('dash', 0.05, 'XmgKAkuZAT6vnunfCX9ewQ6vv8DQGJXamV')
+{u'address': u'XmgKAkuZAT6vnunfCX9ewQ6vv8DQGJXamV',
+u'amount': u'0.05000000',
+u'amount_after_withdraw': u'0.10934224',
+u'amount_before_withdraw': u'0.15934224',
+u'amount_in_orders': u'0.00000000',
+u'amount_sent': u'0.04980000',
+u'currency': u'DASH',
+u'message': u'Withdrawal requested successfully',
+u'status': u'success',
+u'tx_fee': u'0.00020000',
+u'wd_fee': u'0.00000000'}
+```
+
+The output format of this method is not yet unified amongst all exchange implementations.
+
+### Get deposit address
+
+```python
+>>> n = NovaExchange(api_pass='dg38dh3...', api_key='dhwbjfi438shjf...')
+>>> n.get_deposit_address('dash')
+u'XqGnkQPntNvshNt5qvfHnGYfjPuJWfYGLU'
+```
+
+### Get all supported markets
 
 Use the `get_pairs()` method to return a list of all pairs supported by the given
 service. Always returns lowercase identifiers. Crypto identifier is shown first, then a
@@ -898,6 +974,7 @@ dash character, then the fiat currency identifier.
  u'emc2-btc',
  u'rads-btc',
  ...
+]
 ```
 
 ## Utilities
