@@ -15,9 +15,9 @@ import hmac, hashlib, time, requests, base64
 from requests.auth import AuthBase
 
 try:
-    from urllib import urlencode
+    from urllib import urlencode, quote_plus
 except ImportError:
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode, quote_plus
 
 class FullNodeCLIInterface(Service):
     service_id = None
@@ -2161,6 +2161,8 @@ class GDAX(Service):
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         if not self.auth:
             raise Exception("Authentication required to use this endpoint")
+
+        url = "%s/orders" % self.base_url
         data = {
             "size": amount,
             "type": type,
@@ -2168,8 +2170,8 @@ class GDAX(Service):
             "side": side,
             "product_id": "%s-%s" % (crypto.upper(), fiat.upper())
         }
-        response = self.post_url(url, data, auth=self.auth).json()
-        return response
+        response = self.post_url(url, json=data, auth=self.auth).json()
+        return response['id']
 
 
 class OKcoin(Service):
@@ -2691,6 +2693,11 @@ class Cryptopia(Service):
     service_id = 82
     api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
 
+    def __init__(self, api_key=None, api_secret=None, verbose=False):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(Cryptopia, self).__init__(verbose=verbose)
+
     def check_error(self, response):
         r = response.json()
         error = r.get('Error', False)
@@ -2720,6 +2727,57 @@ class Cryptopia(Service):
             ret.append(("%s-%s" % (crypto, fiat)).lower())
 
         return ret
+
+    def _make_signature_header(self, url, params):
+
+        nonce = str(int(time.time()*1000));
+        b64 = base64.b64encode(hashlib.md5(json.dumps(params)).digest());
+        signature = self.api_key + "POST" + url.lower() + nonce + b64;
+
+        hmacsignature = base64.b64encode(hmac.new(base64.b64decode(self.api_secret), signature, hashlib.sha256).digest())
+        parameter = self.api_key + ":" + hmacsignature + ":" + nonce;
+
+        header_value = "amx " + parameter;
+        return header_value
+
+
+        strsecret = str(self.api_secret)
+        strpublic = str(self.api_key)
+        # Generate and grab the nonce
+        tmpnonce = str(int(time.time() * 1000))
+        # Set up MD5 object, encode params to bytes, MD5 hash
+        md5params = hashlib.md5()
+        encparams = json.dumps(params).encode("UTF-8")
+        md5params.update(encparams)
+        # Base64 the MD5 Hash & Return the bytes to a string, then assemble the request string
+        b64request = base64.b64encode(md5params.digest())
+        str64request = b64request.decode("UTF-8")
+        reqstr = strpublic + "POST" + quote_plus(uri).lower() + tmpnonce + str64request
+        # Sign the request string with the private key
+        try:
+            hmacraw = hmac.new(base64.b64decode(strsecret), reqstr.encode("UTF-8"), hashlib.sha256).digest()
+        except:
+            return "HMAC-SHA256 Signature failed! Check Private Key."
+        # Base64 the signed parameters, assemble the header string and dict.
+        hmacreq = base64.b64encode(hmacraw)
+        return "amx " + strpublic + ":" + hmacreq.decode("UTF-8") + ":" + tmpnonce
+
+    def _trade_api(self, url, args):
+        return self.post_url(url, args, headers={
+            "Authorization": self._make_signature_header(url, args),
+            "Content-Type": "application/json; charset=utf-8"
+        })
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        url = "https://www.cryptopia.co.nz/api/SubmitTrade"
+        args = {
+            'Market': ("%s/%s" % (crypto, fiat)).upper(),
+            'Type': side,
+            'Rate': price,
+            'Amount': amount
+        }
+        resp = self._trade_api(url, args)
+        return resp['Data']['OrderId']
 
 
 class BeavercoinBlockchain(BitpayInsight):
