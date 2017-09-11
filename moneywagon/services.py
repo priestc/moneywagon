@@ -2159,9 +2159,6 @@ class GDAX(Service):
         }
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
-        if not self.auth:
-            raise Exception("Authentication required to use this endpoint")
-
         url = "%s/orders" % self.base_url
         data = {
             "size": amount,
@@ -2172,6 +2169,16 @@ class GDAX(Service):
         }
         response = self.post_url(url, json=data, auth=self.auth).json()
         return response['id']
+
+    def list_orders(self, status="open"):
+        url = "%s/orders" % self.base_url
+        response = self.get_url(url, auth=self.auth)
+        return response.json()
+
+    def cancel_order(self, order_id):
+        url = "%s/orders/%s" % (self.base_url, order_id)
+        response = self.delete_url(url, auth=self.auth)
+        return response.json()
 
 
 class OKcoin(Service):

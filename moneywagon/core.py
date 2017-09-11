@@ -83,6 +83,9 @@ class Service(object):
     def post_url(self, url, *args, **kwargs):
         return self._external_request('post', url, *args, **kwargs)
 
+    def delete_url(self, url, *args, **kwargs):
+        return self._external_request('delete', url, *args, **kwargs)
+
     def check_error(self, response):
         """
         If the service is returning an error, this function should raise an exception.
@@ -365,6 +368,18 @@ class Service(object):
         raise NotImplementedError(
             "This service does not support making orders. "
             "Or rather it has no defined 'make_order' method."
+        )
+
+    def cancel_order(self, order_id):
+        raise NotImplementedError(
+            "This service does not support canceling orders. "
+            "Or rather it has no defined 'cancel_order' method."
+        )
+
+    def list_orders(self, status="open"):
+        raise NotImplementedError(
+            "This service does not support listing orders. "
+            "Or rather it has no defined 'list_order' method."
         )
 
 class AutoFallbackFetcher(object):
