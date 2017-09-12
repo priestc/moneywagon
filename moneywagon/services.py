@@ -2297,6 +2297,12 @@ class CexIO(Service):
     api_homepage = "https://cex.io/rest-api"
     name = "Cex.io"
 
+    def __init__(self, api_key=None, api_secret=None, user_id=None, verbose=False):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.user_id = user_id
+        super(CexIO, self).__init__(verbose=verbose)
+
     def check_error(self, response):
         super(CexIO, self).check_error(response)
         j = response.json()
@@ -2314,6 +2320,57 @@ class CexIO(Service):
         url = "https://c-cex.com/t/pairs.json"
         r = self.get_url(url).json()
         return r['pairs']
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://cex.io/api/order_book/%s/%s/" % (crypto.upper(), fiat.upper())
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(x[0], x[1]) for x in resp['bids']],
+            'asks': [(x[0], x[1]) for x in resp['asks']]
+        }
+
+    def _make_signature(self, nonce):
+        message = nonce + self.user_id + self.api_key
+        return hmac.new(self.api_secret, message, hashlib.sha256).hexdigest().upper()
+
+    def _trade_api(self, url, params):
+        nonce = str(int(time.time() * 1000))
+        params['nonce'] = nonce
+        params['signature'] = self._make_signature(nonce)
+        params['key'] = self.api_key
+        return self.post_url(url, params)
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        url = "https://cex.io/api/place_order/%s/%s" % (crypto.upper(), fiat.upper())
+        if type in ('limit', 'market'):
+            params = {
+                'type': side,
+                'amount': amount,
+            }
+            if type == 'market':
+                params['order_type'] = 'market'
+            if type == 'limit':
+                params['price'] = price
+        else:
+            raise Exception("Order with type=%s not yet supported" % type)
+
+        resp = self._trade_api(url, params)
+        return resp['id']
+
+    def list_orders(self):
+        url = "https://cex.io/api/open_orders/"
+        resp = self._trade_api(url, {})
+        return resp.json()
+
+    def cancel_order(self, order_id):
+        url = "https://cex.io/api/cancel_order/"
+        resp = self._trade_api(url, {'id': order_id})
+        return resp.content == 'true'
+
+    def get_deposit_address(self, crypto):
+        url = "https://cex.io/api/get_address"
+        resp = self._trade_api(url, {'currency': crypto.upper()})
+        return resp.json()['data']
 
 
 class Poloniex(Service):
