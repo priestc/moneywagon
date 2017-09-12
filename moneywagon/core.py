@@ -394,6 +394,22 @@ class Service(object):
             "Or rather it has no defined 'get_deposit_address' method."
         )
 
+    def get_exchange_balance(self, crypto):
+        """
+        Gives you the balance you have on that exchange. Not to be confused with
+        `get_balance`, which is for address balance. Returned is a float.
+        """
+        raise NotImplementedError(
+            "This service does not support getting exchange balance. "
+            "Or rather it has no defined 'get_exchange_balance' method."
+        )
+
+    def generate_new_deposit_address(self, crypto):
+        raise NotImplementedError(
+            "This service does not support generating new deposit address. "
+            "Or rather it has no defined 'generate_new_deposit_address' method."
+        )
+
 class AutoFallbackFetcher(object):
     """
     Calls a succession of services until one returns a value.

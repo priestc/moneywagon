@@ -2429,7 +2429,7 @@ class Poloniex(Service):
 
     def get_orderbook(self, crypto, fiat):
         url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=%s" % (
-            ("%s_%s" % (fiat, crypto)).upper()
+            self.make_market(crypto, fiat)
         )
         resp = self.get_url(url).json()
         return {
@@ -2437,11 +2437,14 @@ class Poloniex(Service):
             'bids': [(float(x[0]), x[1]) for x in resp['bids']]
         }
 
+    def make_market(self, crypto, fiat):
+        return ("%s_%s" % (fiat, crypto)).upper()
+
     def _make_signature(self, args):
         str_args = urlencode(args)
         return hmac.new(self.api_secret, str_args, hashlib.sha512).hexdigest()
 
-    def _trade_api(self, command, args):
+    def _trade_api(self, args):
         url = "https://poloniex.com/tradingApi"
         args["nonce"] = int(time.time() * 1000)
         headers = {
@@ -2453,7 +2456,7 @@ class Poloniex(Service):
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         r = self._trade_api({
             "command": side,
-            "currencyPair": ("%s_%s" % (fiat, crypto)).upper(),
+            "currencyPair": self.make_market(crypto, fiat),
             "rate": price,
             "amount": amount
         })
@@ -2465,6 +2468,47 @@ class Poloniex(Service):
             "orderNumber": order_id
         })
         return r['success'] == 1
+
+    def list_orders(self, crypto=None, fiat=None):
+        if not crypto and not fiat:
+            pair = "all"
+        else:
+            self.make_market(crypto, fiat)
+
+        resp = self._trade_api({
+            "command": "returnOpenOrders",
+            "currencyPair": pair,
+        })
+        return resp.json()
+
+    def initiate_withdrawl(self, crypto, amount, address):
+        resp = self._trade_api({
+            "command": "withdrawl",
+            "currency": crypto,
+            "amount": amount,
+            "address": address
+        })
+        return resp.json()
+
+    def get_deposit_address(self, crypto):
+        resp = self._trade_api({"command": "returnDepositAddresses"})
+        address = resp.json().get(crypto.upper())
+        if not address:
+            return self.generate_new_deposit_address(crypto)
+        return address
+
+    def generate_new_deposit_address(self, crypto):
+        resp = self._trade_api({
+            "command": "generateNewAddress",
+            "currency": crypto.upper()
+        })
+        return resp.json()['response']
+
+    def get_exchange_balance(self, crypto):
+        resp = self._trade_api({
+            "command": "returnBalances"
+        })
+        return float(resp.json().get(crypto.upper()))
 
 class Bittrex(Service):
     service_id = 66
