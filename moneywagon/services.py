@@ -2125,11 +2125,11 @@ class GDAX(Service):
     api_homepage = "https://docs.gdax.com/"
     supported_cryptos = ['btc', 'ltc', 'eth']
 
-    def __init__(self, api_key=None, api_secret=None, api_pass=None, verbose=False):
+    def __init__(self, api_key=None, api_secret=None, api_pass=None, **kwargs):
         self.auth = None
         if api_key and api_secret and api_pass:
             self.auth = CoinbaseExchangeAuth(api_key, api_secret, api_pass)
-        super(GDAX, self).__init__(verbose=verbose)
+        super(GDAX, self).__init__(**kwargs)
 
     def check_error(self, response):
         if response.status_code != 200:
@@ -2297,11 +2297,11 @@ class CexIO(Service):
     api_homepage = "https://cex.io/rest-api"
     name = "Cex.io"
 
-    def __init__(self, api_key=None, api_secret=None, user_id=None, verbose=False):
+    def __init__(self, api_key=None, api_secret=None, user_id=None, **kwargs):
         self.api_key = api_key
         self.api_secret = api_secret
         self.user_id = user_id
-        super(CexIO, self).__init__(verbose=verbose)
+        super(CexIO, self).__init__(**kwargs)
 
     def check_error(self, response):
         super(CexIO, self).check_error(response)
@@ -2378,10 +2378,10 @@ class Poloniex(Service):
     api_homepage = "https://poloniex.com/support/api/"
     name = "Poloniex"
 
-    def __init__(self, api_key=None, api_secret=None, verbose=False):
+    def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
         self.api_secret = api_secret
-        super(Poloniex, self).__init__(verbose=verbose)
+        super(Poloniex, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -2514,10 +2514,10 @@ class Bittrex(Service):
     service_id = 66
     api_homepage = "https://bittrex.com/home/api"
 
-    def __init__(self, api_key=None, api_secret=None, verbose=False):
+    def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
         self.api_secret = api_secret
-        super(Bittrex, self).__init__(verbose=verbose)
+        super(Bittrex, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -2801,10 +2801,10 @@ class Cryptopia(Service):
     service_id = 82
     api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
 
-    def __init__(self, api_key=None, api_secret=None, verbose=False):
+    def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
         self.api_secret = api_secret
-        super(Cryptopia, self).__init__(verbose=verbose)
+        super(Cryptopia, self).__init__(**kwargs)
 
     def check_error(self, response):
         r = response.json()
@@ -2934,10 +2934,10 @@ class NovaExchange(Service):
     name = "NovaExchange"
     api_homepage = "https://novaexchange.com/remote/faq/"
 
-    def __init__(self, api_key=None, api_secret=None, verbose=False):
+    def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
         self.api_secret = api_secret
-        super(NovaExchange, self).__init__(verbose=verbose)
+        super(NovaExchange, self).__init__(**kwargs)
 
     def make_market(self, crypto, fiat):
         return "%s_%s" % (fiat, crypto)
@@ -3403,9 +3403,14 @@ class BitFinex(Service):
     service_id = 120
     api_homepage = "https://bitfinex.readme.io/v2/reference"
 
+    def __init__(self, api_key=None, api_secret=None, **kwargs):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(BitFinex, self).__init__(**kwargs)
+
     def check_error(self, response):
         j = response.json()
-        if j[0] == 'error':
+        if j and j[0] == 'error':
             raise SkipThisService(
                 "BitFinex returned Error: %s (%s)" % (j[2], j[1])
             )
@@ -3430,6 +3435,26 @@ class BitFinex(Service):
         url = "https://api.bitfinex.com/v2/ticker/%s%s" % (crypto, fiat)
         r = self.get_url(url).json()
         return r[6]
+
+    def _make_signature(self, path, args, nonce):
+        msg = '/api/' + path + nonce + json.dumps(args)
+        return hmac.new(self.api_secret, msg, hashlib.sha384).hexdigest()
+
+    def _trade_api(self, path, params):
+        url = "https://api.bitfinex.com/"
+        nonce = str(int(time.time() * 1000))
+        headers = {
+            'bfx-nonce': nonce,
+            'bfx-apikey': self.api_key,
+            'bfx-signature': self._make_signature(path, params, nonce)
+        }
+        return self.post_url(url + path, json=params, headers=headers)
+
+    def get_deposit_address(self, crypto):
+        path = "v2/auth/r/wallets"
+        resp = self._trade_api(path, {})
+        return resp.json()
+
 
 class UnifyIquidus(Iquidus):
     service_id = 121
