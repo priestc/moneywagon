@@ -674,20 +674,51 @@ def wif_to_hex(wif):
     return hexlify(b58decode_check(wif)[1:]).upper()
 
 class ExchangeUniverse(object):
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, services=None):
         self._all_pairs = {}
-        for Service in ALL_SERVICES:
+        self.services = [x(verbose=verbose) for x in (services or ALL_SERVICES)]
+        self.verbose = verbose
+
+    def multi_orderbook(self, crypto, fiat):
+        combined = {'bids': [], 'asks': []}
+        for service in self.services:
             try:
-                self._all_pairs[Service] = Service(verbose=verbose).get_pairs()
+                book = service.get_orderbook(crypto, fiat)
+                combined = self._combine_orderbook(combined, book, service.name)
             except NotImplementedError:
                 pass
             except Exception as exc:
-                print("%s returned error: %s" % (Service.__name__, exc))
+                print("%s failed: %s" % (service.name, str(exc)))
+
+        return combined
+
+    def _combine_orderbook(self, combined_book, new_book, new_book_name):
+        for side in ['bids', 'asks']:
+            for order in new_book[side]:
+                with_name = (order[0], order[1], new_book_name)
+                combined_book[side].append(with_name)
+
+            combined_book[side] = sorted(combined_book[side], key=lambda x: x[0])
+
+        return combined_book
+
+    def fetch_pairs(self):
+        if self._all_pairs:
+            return
+
+        for service in self.services:
+            try:
+                self._all_pairs[service.name] = service.get_pairs()
+            except NotImplementedError:
+                pass
+            except Exception as exc:
+                print("%s returned error: %s" % (service.__name__, exc))
 
     def find_pair(self, crypto="", fiat="", verbose=False):
         """
         This utility is used to find an exchange that supports a given exchange pair.
         """
+        self.fetch_pairs()
         if not crypto and not fiat:
             raise Exception("Fiat or Crypto required")
 
@@ -708,6 +739,7 @@ class ExchangeUniverse(object):
         return matched_pairs
 
     def all_cryptos(self):
+        self.fetch_pairs()
         all_cryptos = set()
         for Service, pairs in self._all_pairs.items():
             for pair in pairs:
@@ -716,6 +748,7 @@ class ExchangeUniverse(object):
         return sorted(all_cryptos)
 
     def most_supported(self, skip_supported=False):
+        self.fetch_pairs()
         counts = []
         for crypto in self.all_cryptos():
             if skip_supported and crypto in crypto_data:

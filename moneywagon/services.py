@@ -19,6 +19,9 @@ try:
 except ImportError:
     from urllib.parse import urlencode, quote_plus
 
+def make_standard_nonce():
+    return str(int(time.time() * 1000))
+
 class FullNodeCLIInterface(Service):
     service_id = None
     cli_path = "" # set to full path to bitcoin-cli executable
@@ -105,15 +108,50 @@ class Bitstamp(Service):
     api_homepage = "https://www.bitstamp.net/api/"
     name = "Bitstamp"
 
+    def __init__(self, api_key=None, api_secret=None, customer_id=None, **kwargs):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.customer_id = customer_id
+        super(Bitstamp, self).__init__(**kwargs)
+
+    def make_market(self, crypto, fiat):
+        return ("%s%s" % (crypto, fiat)).lower()
+
     def get_current_price(self, crypto, fiat):
-        url = "https://www.bitstamp.net/api/v2/ticker/%s%s" % (
-            crypto.lower(), fiat.lower()
+        url = "https://www.bitstamp.net/api/v2/ticker/%s" % (
+            self.make_market(crypto, fiat)
         )
         response = self.get_url(url).json()
         return float(response['last'])
 
     def get_pairs(self):
         return ['btc-usd', 'btc-eur', 'xrp-usd', 'xrp-eur', 'xrp-btc']
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://www.bitstamp.net/api/v2/order_book/%s/" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']]
+        }
+
+    def _make_signature(self, nonce):
+        message = nonce + self.customer_id + self.api_key
+        return hmac.new(
+            self.api_secret,
+            msg=message,
+            digestmod=hashlib.sha256
+        ).hexdigest().upper()
+
+    def _trade_api(self, url, params):
+        nonce = make_standard_nonce()
+        params.update({
+            'nonce': nonce,
+            'signature': self._make_signature(nonce),
+            'key': self.api_key,
+        })
+        return self.post_url(url, params)
+
 
 class BlockCypher(Service):
     service_id = 2
@@ -2334,7 +2372,7 @@ class CexIO(Service):
         return hmac.new(self.api_secret, message, hashlib.sha256).hexdigest().upper()
 
     def _trade_api(self, url, params):
-        nonce = str(int(time.time() * 1000))
+        nonce = make_standard_nonce()
         params['nonce'] = nonce
         params['signature'] = self._make_signature(nonce)
         params['key'] = self.api_key
@@ -2446,7 +2484,7 @@ class Poloniex(Service):
 
     def _trade_api(self, args):
         url = "https://poloniex.com/tradingApi"
-        args["nonce"] = int(time.time() * 1000)
+        args["nonce"] = make_standard_nonce()
         headers = {
             'Sign': self._make_signature(args),
             'Key': self.api_key
@@ -2578,7 +2616,7 @@ class Bittrex(Service):
     def _trade_api(self, url):
         if not self.api_key or not self.api_secret:
             raise Exception("Trade API requires an API key and secret.")
-        nonce = str(int(time.time() * 1000))
+        nonce = make_standard_nonce()
         url += '&apikey=' + self.api_key + "&nonce=" + nonce
         return self.get_url(url, headers={"apisign": self._make_signature(url)})
 
@@ -2871,7 +2909,7 @@ class Cryptopia(Service):
         return "amx " + strpublic + ":" + hmacreq.decode("UTF-8") + ":" + tmpnonce
 
     def _trade_api(self, url, args):
-        return self.post_url(url, args, headers={
+        return self.post_url(url, json=args, headers={
             "Authorization": self._make_signature_header(url, args),
             "Content-Type": "application/json; charset=utf-8"
         })
@@ -2979,7 +3017,7 @@ class NovaExchange(Service):
         )
 
     def _trade_api(self, url, params):
-        url += '?nonce=' + str(int(time.time()))
+        url += '?nonce=' + make_standard_nonce()
         params['apikey'] = self.api_key
         params['signature'] = self._make_signature(url)
         headers = {'content-type': 'application/x-www-form-urlencoded'}
@@ -3436,13 +3474,18 @@ class BitFinex(Service):
         r = self.get_url(url).json()
         return r[6]
 
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.bitfinex.com/v2/book/%s%s/P0" % (crypto.upper(), fiat.upper())
+        resp = self.get_url(url).json()
+        return resp.json()
+
     def _make_signature(self, path, args, nonce):
         msg = '/api/' + path + nonce + json.dumps(args)
         return hmac.new(self.api_secret, msg, hashlib.sha384).hexdigest()
 
     def _trade_api(self, path, params):
         url = "https://api.bitfinex.com/"
-        nonce = str(int(time.time() * 1000))
+        nonce = make_standard_nonce()
         headers = {
             'bfx-nonce': nonce,
             'bfx-apikey': self.api_key,
@@ -3453,7 +3496,8 @@ class BitFinex(Service):
     def get_deposit_address(self, crypto):
         path = "v2/auth/r/wallets"
         resp = self._trade_api(path, {})
-        return resp.json()
+        filt = [x[2] for x in resp.json() if x[1] == crypto.upper()]
+        return filt[0] if filt else 0
 
 
 class UnifyIquidus(Iquidus):
