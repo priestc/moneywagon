@@ -2661,10 +2661,22 @@ class Bittrex(Service):
     def get_exchange_balance(self, currency, type="available"):
         if currency.lower() == 'usd':
             currency = 'usdt'
-        url = "https://bittrex.com/api/v1.1/account/getbalances"
-        resp = self._trade_api(url, {}).json()['result']
-        match = [x for x in resp if currency.upper() == x['Currency']][0]
-        return match[type.capitalize()]
+        url = "https://bittrex.com/api/v1.1/account/getbalance"
+        resp = self._trade_api(url, {'currency': currency}).json()['result']
+        return resp[type.capitalize()]
+
+    def get_deposit_address(self, crypto):
+        url = "https://bittrex.com/api/v1.1/account/getdepositaddress"
+        resp = self._trade_api(url, {'currency': crypto})
+        return resp.json()['result']['Address']
+
+    def initiate_withdrawl(self, crypto, amount, address):
+        url = "https://bittrex.com/api/v1.1/account/withdraw"
+        resp = self._trade_api(url, {
+            'currency': crypto, 'quantity': amount, 'address': address
+        })
+        return resp.json()
+
 
 class Huobi(Service):
     service_id = 67

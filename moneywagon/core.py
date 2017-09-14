@@ -194,7 +194,7 @@ class Service(object):
         fiat/crypto pair. Returned is a float.
         """
         raise NotImplementedError(
-            "This service does not support getting the current fiat exchange rate. "
+            self.name + " does not support getting the current fiat exchange rate. "
             "Or rather it has no defined 'get_current_price' method."
         )
 
@@ -202,7 +202,7 @@ class Service(object):
         """
         """
         raise NotImplementedError(
-            "This service does not support getting historical price. "
+            self.name + " does not support getting historical price. "
             "Or rather it has no defined 'get_historical_price' method."
         )
 
@@ -218,13 +218,13 @@ class Service(object):
 
         """
         raise NotImplementedError(
-            "This service does not support getting historical transactions. "
+            self.name + " does not support getting historical transactions. "
             "Or rather it has no defined 'get_transactions' method."
         )
 
     def get_transactions_multi(self, crypto, addresses, confirmations=1):
         raise NotImplementedError(
-            "This service does not support getting historical transactions by multiple addresses. "
+            self.name + " does not support getting historical transactions by multiple addresses. "
             "Or rather it has no defined 'get_transactions_multi' method."
         )
 
@@ -247,13 +247,13 @@ class Service(object):
 
         """
         raise NotImplementedError(
-            "This service does not support getting single transactions. "
+            self.name + " does not support getting single transactions. "
             "Or rather it has no defined 'get_single_transaction' method."
         )
 
     def get_single_transaction_multi(self, crypto, txids):
         raise NotImplementedError(
-            "This service does not support getting single transactions by multiple txids. "
+            self.name + " does not support getting single transactions by multiple txids. "
             "Or rather it has no defined 'get_single_transaction_multi' method."
         )
 
@@ -281,13 +281,13 @@ class Service(object):
 
         """
         raise NotImplementedError(
-            "This service does not support getting unspent outputs. "
+            self.name + " does not support getting unspent outputs. "
             "Or rather it has no defined 'get_unspent_outputs' method."
         )
 
     def get_unspent_outputs_multi(self, crypto, addresses):
         raise NotImplementedError(
-            "This service does not support getting unspent outputs by multiple addresses. "
+            self.name + " does not support getting unspent outputs by multiple addresses. "
             "Or rather it has no defined 'get_unspent_outputs_multi' method."
         )
 
@@ -297,7 +297,7 @@ class Service(object):
         Always returns a single float.
         """
         raise NotImplementedError(
-            "This service does not support getting address balances. "
+            self.name + " does not support getting address balances. "
             "Or rather it has no defined 'get_balance' method."
         )
 
@@ -307,7 +307,7 @@ class Service(object):
         just a single string.
         """
         raise NotImplementedError(
-            "This service does not support getting multiple address balances. "
+            self.name + " does not support getting multiple address balances. "
             "Or rather it has no defined 'get_balance_multi' method."
         )
 
@@ -317,7 +317,7 @@ class Service(object):
         successfully.
         """
         raise NotImplementedError(
-            "This service does not support pushing transactions to the network. "
+            self.name + " does not support pushing transactions to the network. "
             "Or rather it has no defined 'push_tx' method."
         )
 
@@ -349,13 +349,13 @@ class Service(object):
         version - block version
         """
         raise NotImplementedError(
-            "This service does not support getting getting block data. "
+            self.name + " does not support getting getting block data. "
             "Or rather it has no defined 'get_block' method."
         )
 
     def get_optimal_fee(self, crypto, tx_bytes):
         raise NotImplementedError(
-            "This service does not support getting optimal fee. "
+            self.name + " does not support getting optimal fee. "
             "Or rather it has no defined 'get_optimal_fee' method."
         )
 
@@ -365,7 +365,7 @@ class Service(object):
         service. All items are lower case, and seperated with a "-".
         """
         raise NotImplementedError(
-            "This service does not support getting all exchange pairs. "
+            self.name + " does not support getting all exchange pairs. "
             "Or rather it has no defined 'get_pairs' method."
         )
 
@@ -376,37 +376,37 @@ class Service(object):
         second is order size.
         """
         raise NotImplementedError(
-            "This service does not support getting orderbook. "
+            self.name + " does not support getting orderbook. "
             "Or rather it has no defined 'get_orderbook' method."
         )
 
     def make_order(self, crypto, fiat, amount, price, type="limit"):
         raise NotImplementedError(
-            "This service does not support making orders. "
+            self.name + " does not support making orders. "
             "Or rather it has no defined 'make_order' method."
         )
 
     def cancel_order(self, order_id):
         raise NotImplementedError(
-            "This service does not support canceling orders. "
+            self.name + " does not support canceling orders. "
             "Or rather it has no defined 'cancel_order' method."
         )
 
     def list_orders(self, status="open"):
         raise NotImplementedError(
-            "This service does not support listing orders. "
+            self.name + " does not support listing orders. "
             "Or rather it has no defined 'list_orders' method."
         )
 
     def initiate_withdrawl(self, crypto, amount, address):
          raise NotImplementedError(
-             "This service does not support initiating withdraws. "
+             self.name + " does not support initiating withdraws. "
              "Or rather it has no defined 'withdrawl' method."
          )
 
     def get_deposit_address(self, crypto):
         raise NotImplementedError(
-            "This service does not support getting deposit addresses. "
+            self.name + " does not support getting deposit addresses. "
             "Or rather it has no defined 'get_deposit_address' method."
         )
 
@@ -416,13 +416,13 @@ class Service(object):
         `get_balance`, which is for address balance. Returned is a float.
         """
         raise NotImplementedError(
-            "This service does not support getting exchange balance. "
+            self.name + " does not support getting exchange balance. "
             "Or rather it has no defined 'get_exchange_balance' method."
         )
 
     def generate_new_deposit_address(self, crypto):
         raise NotImplementedError(
-            "This service does not support generating new deposit address. "
+            self.name + " does not support generating new deposit address. "
             "Or rather it has no defined 'generate_new_deposit_address' method."
         )
 
