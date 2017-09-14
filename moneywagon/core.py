@@ -5,6 +5,7 @@ from subprocess import check_output, CalledProcessError, STDOUT
 import requests
 import time
 import datetime
+import os
 import pkg_resources
 
 from bitcoin import serialize
@@ -73,6 +74,21 @@ class Service(object):
         self.last_raw_response = None
         self.timeout = timeout
         self.random_wait_seconds = random_wait_seconds
+
+        try:
+            with open(os.path.expanduser('~/.exchange_keys')) as f:
+                config = json.loads(f.read())
+
+            for key, value in config[self.name].items():
+                if not hasattr(self, key) or not getattr(self, key):
+                    # only load if no other values have been passed in.
+                    setattr(self, key, str(value))
+                    if verbose:
+                        print("Loaded from config:", key)
+        except Exception as exc:
+            if verbose:
+                print("config file broke", str(exc))
+
 
     def __repr__(self):
         return "<Service: %s (%s in cache)>" % (self.__class__.__name__, len(self.responses))

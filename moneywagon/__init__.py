@@ -645,6 +645,12 @@ def _get_all_services(crypto=None):
 
 ALL_SERVICES = _get_all_services()
 
+def get_service(name=None, id=None):
+    for service in ALL_SERVICES:
+        if (name and service.name == name) or (id and service.id == id):
+            return service
+
+
 def service_table(format='simple'):
     """
     Returns a string depicting all services currently installed.
@@ -678,6 +684,7 @@ class ExchangeUniverse(object):
         self._all_pairs = {}
         self.services = [x(verbose=verbose) for x in (services or ALL_SERVICES)]
         self.verbose = verbose
+        self._multi_orderbook_services = ""
 
     def multi_orderbook(self, crypto, fiat):
         combined = {'bids': [], 'asks': []}
@@ -685,6 +692,7 @@ class ExchangeUniverse(object):
             try:
                 book = service.get_orderbook(crypto, fiat)
                 combined = self._combine_orderbook(combined, book, service.name)
+                self._multi_orderbook_services += (service.name + " ")
             except NotImplementedError:
                 pass
             except Exception as exc:
@@ -698,7 +706,8 @@ class ExchangeUniverse(object):
                 with_name = (order[0], order[1], new_book_name)
                 combined_book[side].append(with_name)
 
-            combined_book[side] = sorted(combined_book[side], key=lambda x: x[0])
+        combined_book['bids'] = sorted(combined_book['bids'], key=lambda x: x[0], reverse=True)
+        combined_book['asks'] = sorted(combined_book['asks'], key=lambda x: x[0])
 
         return combined_book
 
@@ -758,7 +767,6 @@ class ExchangeUniverse(object):
             counts.append([crypto, count])
 
         return sorted(counts, key=lambda x: x[1], reverse=True)
-
 
 def wif_to_address(crypto, wif):
     if is_py2:

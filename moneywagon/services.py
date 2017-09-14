@@ -2165,9 +2165,14 @@ class GDAX(Service):
 
     def __init__(self, api_key=None, api_secret=None, api_pass=None, **kwargs):
         self.auth = None
-        if api_key and api_secret and api_pass:
-            self.auth = CoinbaseExchangeAuth(api_key, api_secret, api_pass)
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.api_pass = api_pass
+
         super(GDAX, self).__init__(**kwargs)
+
+        if self.api_key and self.api_secret and self.api_pass:
+            self.auth = CoinbaseExchangeAuth(self.api_key, self.api_secret, self.api_pass)
 
     def check_error(self, response):
         if response.status_code != 200:
@@ -2218,6 +2223,11 @@ class GDAX(Service):
         response = self.delete_url(url, auth=self.auth)
         return response.json()
 
+    def get_exchange_balance(self, currency):
+        url = "%s/accounts" % self.base_url
+        resp = self.get_url(url, auth=self.auth).json()
+        match = [x for x in resp if currency.upper() == x['currency']][0]
+        return float(match['available'])
 
 class OKcoin(Service):
     service_id = 60
@@ -2410,6 +2420,11 @@ class CexIO(Service):
         resp = self._trade_api(url, {'currency': crypto.upper()})
         return resp.json()['data']
 
+    def get_exchange_balance(self, currency):
+        url = "https://cex.io/api/balance/"
+        resp = self._trade_api(url, {})
+        return float(resp.json()[currency.upper()]['available'])
+
 
 class Poloniex(Service):
     service_id = 65
@@ -2427,6 +2442,11 @@ class Poloniex(Service):
             raise ServiceError("Poloniex returned error: %s" % j['error'])
 
         super(Poloniex, self).check_error(response)
+
+    def fix_symbols(self, crypto=None, fiat=None):
+        if fiat.lower() == 'usd':
+            return 'usdt'
+        return
 
     def get_current_price(self, crypto, fiat):
         url = "https://poloniex.com/public?command=returnTicker"
@@ -2542,11 +2562,13 @@ class Poloniex(Service):
         })
         return resp.json()['response']
 
-    def get_exchange_balance(self, crypto):
+    def get_exchange_balance(self, currency):
+        if currency == 'usd':
+            currency = 'usdt'
         resp = self._trade_api({
             "command": "returnBalances"
         })
-        return float(resp.json().get(crypto.upper()))
+        return float(resp.json().get(currency.upper()))
 
 class Bittrex(Service):
     service_id = 66
@@ -2613,25 +2635,36 @@ class Bittrex(Service):
             self.api_secret.encode(), url.encode(), hashlib.sha512
         ).hexdigest()
 
-    def _trade_api(self, url):
+    def _trade_api(self, url, params):
         if not self.api_key or not self.api_secret:
             raise Exception("Trade API requires an API key and secret.")
         nonce = make_standard_nonce()
-        url += '&apikey=' + self.api_key + "&nonce=" + nonce
+        params["apikey"] = self.api_key
+        params["nonce"] = nonce
+        url += "?" + urlencode(params)
         return self.get_url(url, headers={"apisign": self._make_signature(url)})
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
-        url = "https://bittrex.com/api/v1.1/market/%slimit?market=%s&quantity=%s&rate=%s" % (
-            side, self._make_market(crypto, fiat), amount, price
-        )
-        r = self._trade_api(url)
+        url = "https://bittrex.com/api/v1.1/market/%slimit" % side
+        r = self._trade_api(url, {
+            'market': self._make_market(crypto, fiat),
+            'quantity': amount,
+            'rate': price
+        })
         return r.json()['result']['uuid']
 
     def cancel_order(self, order_id):
-        url = "https://bittrex.com/api/v1.1/market/cancel?uuid=%s" % order_id
-        r = self._trade_api(url)
+        url = "https://bittrex.com/api/v1.1/market/cancel"
+        r = self._trade_api(url, {'uuid': order_id})
         return r['success']
 
+    def get_exchange_balance(self, currency, type="available"):
+        if currency.lower() == 'usd':
+            currency = 'usdt'
+        url = "https://bittrex.com/api/v1.1/account/getbalances"
+        resp = self._trade_api(url, {}).json()['result']
+        match = [x for x in resp if currency.upper() == x['Currency']][0]
+        return match[type.capitalize()]
 
 class Huobi(Service):
     service_id = 67
