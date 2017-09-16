@@ -107,6 +107,7 @@ class Bitstamp(Service):
     supported_cryptos = ['btc']
     api_homepage = "https://www.bitstamp.net/api/"
     name = "Bitstamp"
+    exchange_fee_rate = 0.0025
 
     def __init__(self, api_key=None, api_secret=None, customer_id=None, **kwargs):
         self.api_key = api_key
@@ -152,6 +153,11 @@ class Bitstamp(Service):
         })
         return self.post_url(url, params)
 
+    def get_exchange_balance(self, currency):
+        url = "https://www.bitstamp.net/api/balance/"
+        resp = self._trade_api(url, {}).json()
+        return resp
+        return [x for x in resp]
 
 class BlockCypher(Service):
     service_id = 2
@@ -436,10 +442,10 @@ class SmartBitAU(Service):
         )
 
 
-class BTCE(Service):
+class Wex(Service):
     service_id = 7
-    api_homepage = "https://btc-e.com/api/documentation"
-    name = "BTCe"
+    api_homepage = "https://wex.nz/api/documentation"
+    name = "Wex"
 
     def check_error(self, response):
         j = response.json()
@@ -449,12 +455,12 @@ class BTCE(Service):
 
     def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
-        url = "https://btc-e.com/api/3/ticker/" + pair
+        url = "https://wex.nz/api/3/ticker/" + pair
         response = self.get_url(url).json()
         return response[pair]['last']
 
     def get_pairs(self):
-        url = "https://btc-e.com/api/3/info"
+        url = "https://wex.nz/api/3/info"
         r = self.get_url(url).json()
         return [x.replace('_', '-') for x in r['pairs'].keys()]
 
@@ -2162,6 +2168,7 @@ class GDAX(Service):
     base_url = "https://api.gdax.com"
     api_homepage = "https://docs.gdax.com/"
     supported_cryptos = ['btc', 'ltc', 'eth']
+    exchange_fee_rate = 0.0025
 
     def __init__(self, api_key=None, api_secret=None, api_pass=None, **kwargs):
         self.auth = None
@@ -2202,16 +2209,23 @@ class GDAX(Service):
         }
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        time_in_force = 'GTC'
+        if type == 'fill-or-kill':
+            type = 'limit'
+            time_in_force = 'FOK'
+
         url = "%s/orders" % self.base_url
         data = {
             "size": amount,
             "type": type,
             "price": price,
             "side": side,
+            "time_in_force": time_in_force,
             "product_id": "%s-%s" % (crypto.upper(), fiat.upper())
         }
         response = self.post_url(url, json=data, auth=self.auth).json()
         return response['id']
+    make_order.supported_types = ['fill-or-kill', 'limit', 'market', 'stop']
 
     def list_orders(self, status="open"):
         url = "%s/orders" % self.base_url
@@ -2226,7 +2240,10 @@ class GDAX(Service):
     def get_exchange_balance(self, currency):
         url = "%s/accounts" % self.base_url
         resp = self.get_url(url, auth=self.auth).json()
-        match = [x for x in resp if currency.upper() == x['currency']][0]
+        try:
+            match = [x for x in resp if currency.upper() == x['currency']][0]
+        except IndexError:
+            return 0
         return float(match['available'])
 
 class OKcoin(Service):
@@ -2344,6 +2361,7 @@ class CexIO(Service):
     service_id = 64
     api_homepage = "https://cex.io/rest-api"
     name = "Cex.io"
+    exchange_fee_rate = 0.002
 
     def __init__(self, api_key=None, api_secret=None, user_id=None, **kwargs):
         self.api_key = api_key
@@ -2393,7 +2411,7 @@ class CexIO(Service):
         if type in ('limit', 'market'):
             params = {
                 'type': side,
-                'amount': amount,
+                'amount': "%.8f" % amount,
             }
             if type == 'market':
                 params['order_type'] = 'market'
@@ -2402,8 +2420,9 @@ class CexIO(Service):
         else:
             raise Exception("Order with type=%s not yet supported" % type)
 
-        resp = self._trade_api(url, params)
+        resp = self._trade_api(url, params).json()
         return resp['id']
+    make_order.supported_types = ['limit', 'market']
 
     def list_orders(self):
         url = "https://cex.io/api/open_orders/"
@@ -2512,13 +2531,20 @@ class Poloniex(Service):
         return self.post_url(url, args, headers=headers)
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
-        r = self._trade_api({
+        params = {}
+        if type == "fill-or-kill":
+            params = {'fillOrKill': 1}
+        if type == 'post-only':
+            params = {'postOnly': 1}
+        params.update({
             "command": side,
             "currencyPair": self.make_market(crypto, fiat),
             "rate": price,
             "amount": amount
         })
+        r = self._trade_api(params)
         return r.json()['orderNumber']
+    make_order.supported_types = ['limit', 'fill-or-kill', 'post-only']
 
     def cancel_order(self, order_id):
         r = self._trade_api({
@@ -2573,6 +2599,7 @@ class Poloniex(Service):
 class Bittrex(Service):
     service_id = 66
     api_homepage = "https://bittrex.com/home/api"
+    exchange_fee_rate = 0.0025
 
     def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
@@ -2652,6 +2679,7 @@ class Bittrex(Service):
             'rate': price
         })
         return r.json()['result']['uuid']
+    make_order.supported_types = ['limit']
 
     def cancel_order(self, order_id):
         url = "https://bittrex.com/api/v1.1/market/cancel"
@@ -3485,6 +3513,7 @@ class LeoCoinInsight(BitpayInsight):
 class BitFinex(Service):
     service_id = 120
     api_homepage = "https://bitfinex.readme.io/v2/reference"
+    exchange_fee_rate = 0.002
 
     def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
@@ -3493,7 +3522,7 @@ class BitFinex(Service):
 
     def check_error(self, response):
         j = response.json()
-        if j and j[0] == 'error':
+        if j and type(j) is list and j[0] == 'error':
             raise SkipThisService(
                 "BitFinex returned Error: %s (%s)" % (j[2], j[1])
             )
@@ -3520,30 +3549,66 @@ class BitFinex(Service):
         return r[6]
 
     def get_orderbook(self, crypto, fiat):
-        url = "https://api.bitfinex.com/v2/book/%s%s/P0" % (crypto.upper(), fiat.upper())
+        url = "https://api.bitfinex.com/v1/book/%s%s" % (crypto.upper(), fiat.upper())
         resp = self.get_url(url).json()
-        return resp.json()
+        return {
+            'bids': [(float(x['price']), float(x['amount'])) for x in resp['bids']],
+            'asks': [(float(x['price']), float(x['amount'])) for x in resp['asks']]
+        }
 
-    def _make_signature(self, path, args, nonce):
-        msg = '/api/' + path + nonce + json.dumps(args)
+    def _make_signature(self, path, args, nonce, version=2):
+        if version == 2:
+            msg = '/api/' + path + nonce + json.dumps(args)
+        elif version == 1:
+            msg = nonce # actually payload, but passed in as nonce
         return hmac.new(self.api_secret, msg, hashlib.sha384).hexdigest()
 
-    def _trade_api(self, path, params):
-        url = "https://api.bitfinex.com/"
+    def _trade_api(self, path, params, version=2):
+        url = "https://api.bitfinex.com"
         nonce = make_standard_nonce()
-        headers = {
-            'bfx-nonce': nonce,
-            'bfx-apikey': self.api_key,
-            'bfx-signature': self._make_signature(path, params, nonce)
-        }
+        if version == 2:
+            headers = {
+                'bfx-nonce': nonce,
+                'bfx-apikey': self.api_key,
+                'bfx-signature': self._make_signature(path, params, nonce)
+            }
+        elif version == 1:
+            params['request'] = path
+            params['nonce'] = nonce
+            payload = base64.b64encode(json.dumps(params))
+            headers = {
+                'X-BFX-PAYLOAD': payload,
+                'X-BFX-APIKEY': self.api_key,
+                'X-BFX-SIGNATURE': self._make_signature(path, params, payload, version=1)
+            }
         return self.post_url(url + path, json=params, headers=headers)
 
     def get_deposit_address(self, crypto):
-        path = "v2/auth/r/wallets"
+        path = "/v2/auth/r/wallets"
         resp = self._trade_api(path, {})
         filt = [x[2] for x in resp.json() if x[1] == crypto.upper()]
         return filt[0] if filt else 0
 
+    def get_exchange_balance(self, currency, type="available"):
+        url = "/v1/balances"
+        resp = self._trade_api(url, {}, version=1).json()
+        try:
+            matched = [x for x in resp if x['currency'] == currency.lower()][0]
+        except IndexError:
+            return 0
+        return float(matched[type])
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        url = "/v1/order/new"
+        resp = self._trade_api(url, {
+            'symbol': "%s%s" % (crypto.lower(), fiat.lower()),
+            'amount': str(amount),
+            'price': str(price),
+            'side': side,
+            'type': 'exchange %s' % type,
+        }, version=1)
+        return resp.json()
+    make_order.supported_types = ['fill-or-kill', 'market', 'limit', 'stop', 'trailing-stop']
 
 class UnifyIquidus(Iquidus):
     service_id = 121
