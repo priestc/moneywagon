@@ -450,11 +450,14 @@ class Wex(Service):
     def check_error(self, response):
         j = response.json()
         if 'error' in j:
-            raise ServiceError("BTCe returned error: %s" % j['error'])
-        super(BTCE, self).check_error(response)
+            raise ServiceError("Wex returned error: %s" % j['error'])
+        super(Wex, self).check_error(response)
+
+    def _make_market(self, crypto, fiat):
+        return "%s_%s" % (crypto.lower(), fiat.lower())
 
     def get_current_price(self, crypto, fiat):
-        pair = "%s_%s" % (crypto.lower(), fiat.lower())
+        pair = self._make_market(crypto, fiat)
         url = "https://wex.nz/api/3/ticker/" + pair
         response = self.get_url(url).json()
         return response[pair]['last']
@@ -464,6 +467,40 @@ class Wex(Service):
         r = self.get_url(url).json()
         return [x.replace('_', '-') for x in r['pairs'].keys()]
 
+    def get_orderbook(self, crypto, fiat):
+        m = self._make_market(crypto, fiat)
+        url = "https://wex.nz/api/3/depth/%s" % m
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(x[0], x[1]) for x in resp[m]['asks']],
+            'asks': [(x[0], x[1]) for x in resp[m]['asks']]
+        }
+
+    def _make_signature(self, params):
+        return hmac.new(
+            self.api_secret, urlencode(params), hashlib.sha512
+        ).hexdigest()
+
+    def _trade_api(self, params):
+        params['nonce'] = int(make_standard_nonce())
+        headers = {"Key": self.api_key, "Sign": self._make_signature(params)}
+        return self.post_url("https://wex.nz/tapi", params, headers=headers)
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        params = {
+            'method': 'Trade',
+            'pair': self._make_market(crypto, fiat),
+            'type': type,
+            'rate': price,
+            'amount': amount,
+        }
+        return self._trade_api(params)
+    make_order.supported_types = ['limit']
+
+    def get_deposit_address(self, crypto):
+        params = {'coinName': crypto.lower(), 'method': 'CoinDepositAddress'}
+        resp = self._trade_api(params).json()
+        return resp['return']['address']
 
 class Cryptonator(Service):
     service_id = 8
