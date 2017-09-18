@@ -807,7 +807,7 @@ class Bittrex(Service):
 
         if symbol == 'bch':
             return 'bcc'
-        
+
         return symbol
 
     def _make_market(self, crypto, fiat):
@@ -980,7 +980,7 @@ class Wex(Service):
         url = "https://wex.nz/api/3/depth/%s" % m
         resp = self.get_url(url).json()
         return {
-            'bids': [(x[0], x[1]) for x in resp[m]['asks']],
+            'bids': [(x[0], x[1]) for x in resp[m]['bids']],
             'asks': [(x[0], x[1]) for x in resp[m]['asks']]
         }
 
