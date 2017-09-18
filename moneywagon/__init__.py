@@ -14,6 +14,9 @@ from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey, privkey_to_address
 from socketIO_client import SocketIO
+from moneywagon.services import _get_all_services
+
+ALL_SERVICES = _get_all_services()
 
 is_py2 = False
 if sys.version_info <= (3,0):
@@ -607,50 +610,6 @@ class HistoricalPrice(object):
         return self.service.responses
 
 
-def _get_all_services(crypto=None):
-    """
-    Go through the crypto_data structure and return all list of all (unique)
-    installed services. Optionally filter by crypto-currency.
-    """
-    if not crypto:
-        # no currency specified, get all services
-        to_iterate = crypto_data.items()
-    else:
-        # limit to one currency
-        to_iterate = [(crypto, crypto_data[crypto])]
-
-    services = []
-    for currency, data in to_iterate:
-        if 'services' not in data:
-            continue
-        if currency == '':
-            continue # template
-
-        # price services are defined as dictionaries, all other services
-        # are defined as a list.
-        price_services = data['services']['current_price']
-        del data['services']['current_price']
-
-        all_services = list(data['services'].values()) + list(price_services.values())
-        data['services']['current_price'] = price_services
-
-        services.append([
-            item for sublist in all_services for item in sublist
-        ])
-
-    return sorted(
-        set([item for sublist in services for item in sublist]),
-        key=lambda x: x.__name__
-    )
-
-ALL_SERVICES = _get_all_services()
-
-def get_service(name=None, id=None):
-    for service in ALL_SERVICES:
-        if (name and service.name == name) or (id and service.id == id):
-            return service
-
-
 def service_table(format='simple'):
     """
     Returns a string depicting all services currently installed.
@@ -684,7 +643,11 @@ class ExchangeUniverse(object):
         self._all_pairs = {}
         self.services = [x(verbose=verbose) for x in (services or ALL_SERVICES)]
         self.verbose = verbose
-        self._multi_orderbook_services = ""
+        self._multi_orderbook_services = []
+
+    @classmethod
+    def get_authenticated_services(self):
+        return [x for x in ALL_SERVICES if x().api_key]
 
     def multi_orderbook(self, crypto, fiat):
         combined = {'bids': [], 'asks': []}
@@ -692,7 +655,7 @@ class ExchangeUniverse(object):
             try:
                 book = service.get_orderbook(crypto, fiat)
                 combined = self._combine_orderbook(combined, book, service.name)
-                self._multi_orderbook_services += (service.name + " ")
+                self._multi_orderbook_services.append(service)
             except NotImplementedError:
                 pass
             except Exception as exc:

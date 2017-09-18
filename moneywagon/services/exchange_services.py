@@ -619,13 +619,16 @@ class CexIO(Service):
     def get_exchange_balance(self, currency):
         url = "https://cex.io/api/balance/"
         resp = self._trade_api(url, {})
-        return float(resp.json()[currency.upper()]['available'])
-
+        try:
+            return float(resp.json()[currency.upper()]['available'])
+        except KeyError:
+            return 0
 
 class Poloniex(Service):
     service_id = 65
     api_homepage = "https://poloniex.com/support/api/"
     name = "Poloniex"
+    exchange_fee_rate = 0.0025
 
     def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
@@ -682,6 +685,8 @@ class Poloniex(Service):
         return ret
 
     def get_orderbook(self, crypto, fiat):
+        if fiat == 'usd':
+            fiat = 'usdt'
         url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=%s" % (
             self.make_market(crypto, fiat)
         )
@@ -967,7 +972,8 @@ class Wex(Service):
         ).hexdigest()
 
     def _trade_api(self, params):
-        params['nonce'] = int(make_standard_nonce())
+        # max nonce wex will accept is 4294967294
+        params['nonce'] = int(make_standard_nonce()) - 1505772471381
         headers = {"Key": self.api_key, "Sign": self._make_signature(params)}
         return self.post_url("https://wex.nz/tapi", params, headers=headers)
 
@@ -986,6 +992,13 @@ class Wex(Service):
         params = {'coinName': crypto.lower(), 'method': 'CoinDepositAddress'}
         resp = self._trade_api(params).json()
         return resp['return']['address']
+
+    def get_exchange_balance(self, currency):
+        resp = self._trade_api({'method': 'getInfo'}).json()
+        try:
+            return resp['return']['funds'][currency.lower()]
+        except IndexError:
+            return 0
 
 
 class ViaBTC(Service):
