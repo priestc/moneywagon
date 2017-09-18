@@ -795,20 +795,26 @@ class Bittrex(Service):
 
         super(Bittrex, self).check_error(response)
 
-    def _make_market(self, crypto, fiat):
-        if fiat.lower() == 'usd':
-            fiat = 'usdt'
+    def _fix_symbol(self, symbol):
+        if symbol.lower() == 'usd':
+            return 'usdt'
 
-        if crypto == 'xmy':
-            crypto = 'myr'
+        if symbol == 'xmy':
+            return 'myr'
 
-        if crypto == 'bcc':
+        if symbol == 'bcc':
             raise SkipThisService("BCC not supported (maybe you want BCH?)")
 
-        if crypto == 'bch':
-            crypto = 'bcc'
+        if symbol == 'bch':
+            return 'bcc'
+        
+        return symbol
 
-        return "%s-%s" % (fiat.upper(), crypto.upper())
+    def _make_market(self, crypto, fiat):
+        return "%s-%s" % (
+            self._fix_symbol(fiat).upper(),
+            self._fix_symbol(crypto).upper()
+        )
 
     def get_current_price(self, crypto, fiat):
         url = "https://bittrex.com/api/v1.1/public/getticker?market=%s" % (
@@ -872,7 +878,7 @@ class Bittrex(Service):
         if currency.lower() == 'usd':
             currency = 'usdt'
         url = "https://bittrex.com/api/v1.1/account/getbalance"
-        resp = self._trade_api(url, {'currency': currency}).json()['result']
+        resp = self._trade_api(url, {'currency': self._fix_symbol(currency)}).json()['result']
         return resp[type.capitalize()]
 
     def get_deposit_address(self, crypto):
@@ -936,6 +942,7 @@ class Wex(Service):
     service_id = 7
     api_homepage = "https://wex.nz/api/documentation"
     name = "Wex"
+    exchange_fee_rate = 0.002
 
     def check_error(self, response):
         j = response.json()
@@ -944,7 +951,18 @@ class Wex(Service):
         super(Wex, self).check_error(response)
 
     def _make_market(self, crypto, fiat):
-        return "%s_%s" % (crypto.lower(), fiat.lower())
+        return "%s_%s" % (
+            self._fix_symbol(crypto).lower(),
+            self._fix_symbol(fiat).lower()
+        )
+
+    def _fix_symbol(self, symbol):
+        if symbol == 'dash':
+            return 'dsh'
+        return symbol
+
+    def _fix_fiat_symbol(self, fiat):
+        return fiat
 
     def get_current_price(self, crypto, fiat):
         pair = self._make_market(crypto, fiat)
@@ -996,7 +1014,7 @@ class Wex(Service):
     def get_exchange_balance(self, currency):
         resp = self._trade_api({'method': 'getInfo'}).json()
         try:
-            return resp['return']['funds'][currency.lower()]
+            return resp['return']['funds'][self._fix_symbol(currency).lower()]
         except IndexError:
             return 0
 
