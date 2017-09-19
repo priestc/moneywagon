@@ -14,6 +14,9 @@ from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey, privkey_to_address
 from socketIO_client import SocketIO
+from moneywagon.services import _get_all_services
+
+ALL_SERVICES = _get_all_services()
 
 is_py2 = False
 if sys.version_info <= (3,0):
@@ -607,44 +610,6 @@ class HistoricalPrice(object):
         return self.service.responses
 
 
-def _get_all_services(crypto=None):
-    """
-    Go through the crypto_data structure and return all list of all (unique)
-    installed services. Optionally filter by crypto-currency.
-    """
-    if not crypto:
-        # no currency specified, get all services
-        to_iterate = crypto_data.items()
-    else:
-        # limit to one currency
-        to_iterate = [(crypto, crypto_data[crypto])]
-
-    services = []
-    for currency, data in to_iterate:
-        if 'services' not in data:
-            continue
-        if currency == '':
-            continue # template
-
-        # price services are defined as dictionaries, all other services
-        # are defined as a list.
-        price_services = data['services']['current_price']
-        del data['services']['current_price']
-
-        all_services = list(data['services'].values()) + list(price_services.values())
-        data['services']['current_price'] = price_services
-
-        services.append([
-            item for sublist in all_services for item in sublist
-        ])
-
-    return sorted(
-        set([item for sublist in services for item in sublist]),
-        key=lambda x: x.__name__
-    )
-
-ALL_SERVICES = _get_all_services()
-
 def service_table(format='simple'):
     """
     Returns a string depicting all services currently installed.
@@ -674,20 +639,58 @@ def wif_to_hex(wif):
     return hexlify(b58decode_check(wif)[1:]).upper()
 
 class ExchangeUniverse(object):
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, services=None):
         self._all_pairs = {}
-        for Service in ALL_SERVICES:
+        self.services = [x(verbose=verbose) for x in (services or ALL_SERVICES)]
+        self.verbose = verbose
+        self._multi_orderbook_services = []
+
+    @classmethod
+    def get_authenticated_services(self):
+        return [x for x in ALL_SERVICES if x().api_key]
+
+    def multi_orderbook(self, crypto, fiat):
+        combined = {'bids': [], 'asks': []}
+        for service in self.services:
             try:
-                self._all_pairs[Service] = Service(verbose=verbose).get_pairs()
+                book = service.get_orderbook(crypto, fiat)
+                combined = self._combine_orderbook(combined, book, service.name)
+                self._multi_orderbook_services.append(service)
             except NotImplementedError:
                 pass
             except Exception as exc:
-                print("%s returned error: %s" % (Service.__name__, exc))
+                print("%s failed: %s" % (service.name, str(exc)))
+
+        return combined
+
+    def _combine_orderbook(self, combined_book, new_book, new_book_name):
+        for side in ['bids', 'asks']:
+            for order in new_book[side]:
+                with_name = (order[0], order[1], new_book_name)
+                combined_book[side].append(with_name)
+
+        combined_book['bids'] = sorted(combined_book['bids'], key=lambda x: x[0], reverse=True)
+        combined_book['asks'] = sorted(combined_book['asks'], key=lambda x: x[0])
+
+        return combined_book
+
+    def fetch_pairs(self):
+        if self._all_pairs:
+            return
+
+        for service in self.services:
+            try:
+                self._all_pairs[service.name] = service.get_pairs()
+            except NotImplementedError:
+                pass
+            except Exception as exc:
+                print("%s returned error: %s" % (service.__name__, exc))
 
     def find_pair(self, crypto="", fiat="", verbose=False):
         """
         This utility is used to find an exchange that supports a given exchange pair.
         """
+        self.fetch_pairs()
         if not crypto and not fiat:
             raise Exception("Fiat or Crypto required")
 
@@ -708,6 +711,7 @@ class ExchangeUniverse(object):
         return matched_pairs
 
     def all_cryptos(self):
+        self.fetch_pairs()
         all_cryptos = set()
         for Service, pairs in self._all_pairs.items():
             for pair in pairs:
@@ -716,6 +720,7 @@ class ExchangeUniverse(object):
         return sorted(all_cryptos)
 
     def most_supported(self, skip_supported=False):
+        self.fetch_pairs()
         counts = []
         for crypto in self.all_cryptos():
             if skip_supported and crypto in crypto_data:
@@ -725,7 +730,6 @@ class ExchangeUniverse(object):
             counts.append([crypto, count])
 
         return sorted(counts, key=lambda x: x[1], reverse=True)
-
 
 def wif_to_address(crypto, wif):
     if is_py2:

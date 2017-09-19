@@ -38,12 +38,12 @@ crypto_data = {
         'services': {
             'current_price': {
                 'usd': [
-                    Bitstamp, GDAX, BTCE, Gemini, Huobi, Bittrex, CexIO, YoBit,
+                    Bitstamp, GDAX, Wex, Gemini, Huobi, Bittrex, CexIO, YoBit,
                     Poloniex, Winkdex, ChainSo, Kraken, BitFinex, xBTCe, Vircurex,
                     HitBTC, LiveCoin
                 ],
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
-                'rur': [BTCE, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
+                'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo],
                 'cad': [Kraken],
                 'idr': [BitcoinIndonesia], 'mxn': [Bitso], 'bgn': [CryptoBG],
@@ -107,13 +107,13 @@ crypto_data = {
         'services': {
             'current_price': {
                 'usd': [
-                    BTCE, GDAX, Poloniex, Kraken, Cryptopia, CexIO, ChainSo,
+                    Wex, GDAX, Poloniex, Kraken, Cryptopia, CexIO, ChainSo,
                     xBTCe, YoBit, UseCryptos, HitBTC, LiveCoin, BitFinex
                 ],
-                'cny': [BTCE, Huobi, BTER, xBTCe, ViaBTC, ChainSo, OKcoin, BTC38, BTCChina],
-                'rur': [YoBit, xBTCe], 'eur': [Kraken, HitBTC, BTCE, GDAX, UseCryptos, xBTCe],
+                'cny': [Wex, Huobi, BTER, xBTCe, ViaBTC, ChainSo, OKcoin, BTC38, BTCChina],
+                'rur': [YoBit, xBTCe], 'eur': [Kraken, HitBTC, Wex, GDAX, UseCryptos, xBTCe],
                 'btc': [
-                    GDAX, BTCE, CexIO, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
+                    GDAX, Wex, CexIO, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
                     ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange, BitFinex,
                     BitcoinIndonesia, BTCChina, Liqui, LiveCoin, CryptoDao
                 ],
@@ -159,9 +159,9 @@ crypto_data = {
         'supply_data': {},
         'services': {
             'current_price': {
-                'usd': [BTCE, xBTCe, ChainSo, LiveCoin], 'eur': [UseCryptos],
+                'usd': [Wex, xBTCe, ChainSo, LiveCoin], 'eur': [UseCryptos],
                 'btc': [
-                    BTCE, xBTCe, BleuTrade, ChainSo, Bittrex, BTER, Poloniex, Vircurex,
+                    Wex, xBTCe, BleuTrade, ChainSo, Bittrex, BTER, Poloniex, Vircurex,
                     YoBit, UseCryptos
                 ], 'doge': [BleuTrade], 'cny': [BTC38],
                 '*': [Cryptonator]
