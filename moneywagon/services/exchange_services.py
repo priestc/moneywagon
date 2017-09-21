@@ -73,7 +73,7 @@ class Bitstamp(Service):
         })
         return self.post_url(url, params)
 
-    def get_exchange_balance(self, currency):
+    def get_exchange_balance(self, currency, type="available"):
         url = "https://www.bitstamp.net/api/balance/"
         resp = self._trade_api(url, {}).json()
         return resp
@@ -177,7 +177,7 @@ class GDAX(Service):
         response = self.delete_url(url, auth=self.auth)
         return response.json()
 
-    def get_exchange_balance(self, currency):
+    def get_exchange_balance(self, currency, type="available"):
         url = "%s/accounts" % self.base_url
         resp = self.get_url(url, auth=self.auth).json()
         try:
@@ -526,13 +526,88 @@ class Gemini(Service):
     service_id = 63
     api_homepage = "https://docs.gemini.com/rest-api/"
     name = "Gemini"
+    exchange_fee_rate = 0.0025
+
+    def check_error(self, response):
+        j = response.json()
+        if 'result' in j and j['result'] == 'error':
+            raise ServiceError("Gemini returned error: %s" % j['reason'])
+
+        super(Gemini, self).check_error(response)
+
+    def make_market(self, crypto, fiat):
+        return "%s%s" % (crypto.lower(), fiat.lower())
 
     def get_current_price(self, crypto, fiat):
-        url = "https://api.gemini.com/v1/pubticker/%s%s" % (
-            crypto.lower(), fiat.lower()
-        )
+        url = "https://api.gemini.com/v1/pubticker/%s" % self.make_market(crypto, fiat)
         response = self.get_url(url).json()
         return float(response['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.gemini.com/v1/book/%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(float(x['price']), float(x['amount'])) for x in resp['bids']],
+            'asks': [(float(x['price']), float(x['amount'])) for x in resp['asks']]
+        }
+
+    def _make_signature(self, payload):
+        return hmac.new(self.api_secret, payload, hashlib.sha384).hexdigest()
+
+    def _trade_api(self, path, params):
+        params['nonce'] = make_standard_nonce()
+        params['request'] = path
+        payload = base64.b64encode(json.dumps(params))
+        headers = {
+            'X-GEMINI-APIKEY': self.api_key,
+            'X-GEMINI-PAYLOAD': payload,
+            'X-GEMINI-SIGNATURE': self._make_signature(payload)
+        }
+        return self.post_url("https://api.gemini.com" + path, headers=headers)
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        path = "/v1/order/new"
+        #order_token = "" % datetime.datetime.now()
+        opts = []
+
+        if type == 'fill-or-kill':
+            opts = ['immediate-or-cancel']
+            type = "limit"
+
+        if type == 'post-only':
+            opts = ["maker-or-cancel"]
+            type = 'limit'
+
+        if type != "limit":
+            raise NotImplementedError("Only limit orders currently supported")
+
+        params = {
+            #"client_order_id": order_token, # A client-specified order token
+            "symbol": self.make_market(crypto, fiat), # Or any symbol from the /symbols api
+            "amount": str(amount), # Once again, a quoted number
+            "price": str(price),
+            "side": side, # must be "buy" or "sell"
+            "type": "exchange %s" % type, # the order type; only "exchange limit" supported
+            "options": opts # execution options; may be omitted for a standard limit order
+        }
+        resp = self._trade_api(path, params).json()
+        return resp
+    make_order.supported_types = ['post-only', 'limit', 'fill-or-kill']
+
+    def get_deposit_address(self, currency):
+        path = "/v1/deposit/%s/newAddress" % currency.lower()
+        resp = self._trade_api(path, {})
+        return resp.json()['address']
+
+    def get_exchange_balance(self, currency, type="available"):
+        path = "/v1/balances"
+        resp = self._trade_api(path, {})
+        try:
+            match = [x for x in resp.json() if x['currency'] == currency.upper()][0]
+        except IndexError:
+            return 0
+        return float(match[type])
+
 
 class CexIO(Service):
     service_id = 64
@@ -616,7 +691,7 @@ class CexIO(Service):
         resp = self._trade_api(url, {'currency': crypto.upper()})
         return resp.json()['data']
 
-    def get_exchange_balance(self, currency):
+    def get_exchange_balance(self, currency, type="available"):
         url = "https://cex.io/api/balance/"
         resp = self._trade_api(url, {})
         try:
@@ -770,7 +845,7 @@ class Poloniex(Service):
         })
         return resp.json()['response']
 
-    def get_exchange_balance(self, currency):
+    def get_exchange_balance(self, currency, type="available"):
         if currency == 'usd':
             currency = 'usdt'
         resp = self._trade_api({
@@ -879,7 +954,7 @@ class Bittrex(Service):
             currency = 'usdt'
         url = "https://bittrex.com/api/v1.1/account/getbalance"
         resp = self._trade_api(url, {'currency': self._fix_symbol(currency)}).json()['result']
-        return resp[type.capitalize()]
+        return resp[type.capitalize()] or 0
 
     def get_deposit_address(self, crypto):
         url = "https://bittrex.com/api/v1.1/account/getdepositaddress"
@@ -1011,7 +1086,7 @@ class Wex(Service):
         resp = self._trade_api(params).json()
         return resp['return']['address']
 
-    def get_exchange_balance(self, currency):
+    def get_exchange_balance(self, currency, type="available"):
         resp = self._trade_api({'method': 'getInfo'}).json()
         try:
             return resp['return']['funds'][self._fix_symbol(currency).lower()]

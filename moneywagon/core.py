@@ -383,6 +383,12 @@ class Service(object):
         )
 
     def make_order(self, crypto, fiat, amount, price, type="limit"):
+        """
+        This method buys or sells `crypto` on an exchange using `fiat` balance.
+        Type can either be "fill-or-kill", "post-only", "market", or "limit".
+        To get what modes are supported, consult make_order.supported_types
+        if one is defined.
+        """
         raise NotImplementedError(
             self.name + " does not support making orders. "
             "Or rather it has no defined 'make_order' method."
