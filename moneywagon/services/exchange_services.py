@@ -717,10 +717,10 @@ class Poloniex(Service):
 
         super(Poloniex, self).check_error(response)
 
-    def fix_symbols(self, crypto=None, fiat=None):
-        if fiat.lower() == 'usd':
+    def fix_symbol(self, symbol):
+        if symbol.lower() == 'usd':
             return 'usdt'
-        return
+        return symbol
 
     def get_current_price(self, crypto, fiat):
         url = "https://poloniex.com/public?command=returnTicker"
@@ -760,8 +760,6 @@ class Poloniex(Service):
         return ret
 
     def get_orderbook(self, crypto, fiat):
-        if fiat == 'usd':
-            fiat = 'usdt'
         url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=%s" % (
             self.make_market(crypto, fiat)
         )
@@ -772,7 +770,7 @@ class Poloniex(Service):
         }
 
     def make_market(self, crypto, fiat):
-        return ("%s_%s" % (fiat, crypto)).upper()
+        return ("%s_%s" % (self.fix_symbol(fiat), self.fix_symbol(crypto))).upper()
 
     def _make_signature(self, args):
         str_args = urlencode(args)
@@ -1020,7 +1018,11 @@ class Wex(Service):
     exchange_fee_rate = 0.002
 
     def check_error(self, response):
-        j = response.json()
+        try:
+            j = response.json()
+        except:
+            raise ServiceError("Wex returned error: %s" % response.content)
+
         if 'error' in j:
             raise ServiceError("Wex returned error: %s" % j['error'])
         super(Wex, self).check_error(response)
@@ -1074,7 +1076,7 @@ class Wex(Service):
         params = {
             'method': 'Trade',
             'pair': self._make_market(crypto, fiat),
-            'type': type,
+            'type': side,
             'rate': price,
             'amount': amount,
         }
