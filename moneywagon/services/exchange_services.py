@@ -829,11 +829,12 @@ class Poloniex(Service):
         })
         return resp.json()
 
-    def get_deposit_address(self, crypto):
+    def get_deposit_address(self, currency):
+        c = self.fix_symbol(currency)
         resp = self._trade_api({"command": "returnDepositAddresses"})
-        address = resp.json().get(crypto.upper())
+        address = resp.json().get(c.upper())
         if not address:
-            return self.generate_new_deposit_address(crypto)
+            return self.generate_new_deposit_address(c)
         return address
 
     def generate_new_deposit_address(self, crypto):
@@ -956,13 +957,13 @@ class Bittrex(Service):
 
     def get_deposit_address(self, crypto):
         url = "https://bittrex.com/api/v1.1/account/getdepositaddress"
-        resp = self._trade_api(url, {'currency': crypto})
+        resp = self._trade_api(url, {'currency': self._fix_symbol(crypto)})
         return resp.json()['result']['Address']
 
     def initiate_withdrawl(self, crypto, amount, address):
         url = "https://bittrex.com/api/v1.1/account/withdraw"
         resp = self._trade_api(url, {
-            'currency': crypto, 'quantity': amount, 'address': address
+            'currency': self._fix_symbol(crypto), 'quantity': amount, 'address': address
         })
         return resp.json()
 
