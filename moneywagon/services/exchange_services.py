@@ -166,6 +166,7 @@ class GDAX(Service):
         response = self.post_url(url, json=data, auth=self.auth).json()
         return response['id']
     make_order.supported_types = ['fill-or-kill', 'limit', 'market', 'stop']
+    make_order.minimums = {}
 
     def list_orders(self, status="open"):
         url = "%s/orders" % self.base_url
@@ -205,28 +206,39 @@ class BitFinex(Service):
             )
         super(BitFinex, self).check_error(response)
 
+    def parse_market(self, market):
+        crypto = market[:3]
+        fiat = market[3:]
+        if crypto == 'dsh':
+            crypto = 'dash'
+        if crypto == 'iot':
+            crypto = 'miota'
+        return crypto, fiat
+
+    def fix_symbol(self, symbol):
+        if symbol == 'dash':
+            return 'dsh'
+        if symbol == 'miota':
+            return 'iot'
+        return symbol
+
+    def make_market(self, crypto, fiat):
+        return "%s%s" % (
+            self.fix_symbol(crypto).lower(), self.fix_symbol(fiat).lower()
+        )
+
     def get_pairs(self):
         url = "https://api.bitfinex.com/v1/symbols"
         r = self.get_url(url).json()
-        def fix_symbol(symbol):
-            crypto = symbol[:3]
-            fiat = symbol[3:]
-            if crypto == 'dsh':
-                crypto = 'dash'
-            if crypto == 'iot':
-                crypto = 'miota'
-            return "%s-%s" % (crypto, fiat)
-        return [fix_symbol(x) for x in r]
+        return ["%s-%s" % self.parse_market(x) for x in r]
 
     def get_current_price(self, crypto, fiat):
-        crypto = 't' + crypto.upper()
-        fiat = fiat.upper()
-        url = "https://api.bitfinex.com/v2/ticker/%s%s" % (crypto, fiat)
+        url = "https://api.bitfinex.com/v2/ticker/t%s" % self.make_market(crypto, fiat).upper()
         r = self.get_url(url).json()
         return r[6]
 
     def get_orderbook(self, crypto, fiat):
-        url = "https://api.bitfinex.com/v1/book/%s%s" % (crypto.upper(), fiat.upper())
+        url = "https://api.bitfinex.com/v1/book/%s" % self.make_market(crypto, fiat)
         resp = self.get_url(url).json()
         return {
             'bids': [(float(x['price']), float(x['amount'])) for x in resp['bids']],
@@ -240,16 +252,16 @@ class BitFinex(Service):
             msg = nonce # actually payload, but passed in as nonce
         return hmac.new(self.api_secret, msg, hashlib.sha384).hexdigest()
 
-    def _trade_api(self, path, params, version=2):
+    def _trade_api(self, path, params):
         url = "https://api.bitfinex.com"
         nonce = make_standard_nonce()
-        if version == 2:
+        if path.startswith("/v2/"):
             headers = {
                 'bfx-nonce': nonce,
                 'bfx-apikey': self.api_key,
-                'bfx-signature': self._make_signature(path, params, nonce)
+                'bfx-signature': self._make_signature(path, params, nonce, version=2)
             }
-        elif version == 1:
+        elif path.startswith("/v1/"):
             params['request'] = path
             params['nonce'] = nonce
             payload = base64.b64encode(json.dumps(params))
@@ -261,14 +273,12 @@ class BitFinex(Service):
         return self.post_url(url + path, json=params, headers=headers)
 
     def get_deposit_address(self, crypto):
-        path = "/v2/auth/r/wallets"
-        resp = self._trade_api(path, {})
+        resp = self._trade_api("/v2/auth/r/wallets", {})
         filt = [x[2] for x in resp.json() if x[1] == crypto.upper()]
         return filt[0] if filt else 0
 
     def get_exchange_balance(self, currency, type="available"):
-        url = "/v1/balances"
-        resp = self._trade_api(url, {}, version=1).json()
+        resp = self._trade_api("/v1/balances", {}).json()
         try:
             matched = [x for x in resp if x['currency'] == currency.lower()][0]
         except IndexError:
@@ -278,14 +288,29 @@ class BitFinex(Service):
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         url = "/v1/order/new"
         resp = self._trade_api(url, {
-            'symbol': "%s%s" % (crypto.lower(), fiat.lower()),
+            'symbol': self.make_market(crypto, fiat),
             'amount': str(amount),
             'price': str(price),
             'side': side,
             'type': 'exchange %s' % type,
-        }, version=1)
+        })
         return resp.json()
     make_order.supported_types = ['fill-or-kill', 'market', 'limit', 'stop', 'trailing-stop']
+    make_order.minimums = {}
+
+    def initiate_withdraw(self, crypto, amount, address):
+        from moneywagon.crypto_data import crypto_data
+        if crypto == 'etc':
+            type = "ethereumc"
+        else:
+            type = crypto_data[crypto.lower()]['name'].lower()
+        resp = self._trade_api("/v1/withdraw", {
+            "withdraw_type": type,
+            "walletselected": "exchange",
+            "amount": "%.8f" % amount,
+            "address": address,
+        }).json()
+        return resp
 
 
 class NovaExchange(Service):
@@ -356,6 +381,7 @@ class NovaExchange(Service):
         }
         resp = self._trade_api(url, params)
         return resp.json()['tradeitems'][0]['orderid']
+    make_order.minimums = {}
 
     def cancel_order(self, order_id):
         url = "https://novaexchange.com/remote/v2/private/cancelorder/%s/" % order_id
@@ -375,7 +401,7 @@ class NovaExchange(Service):
         resp = self._trade_api(url, {})
         return resp.json()['address']
 
-    def initiate_withdrawl(self, crypto, amount, address):
+    def initiate_withdraw(self, crypto, amount, address):
         url = "https://novaexchange.com/remote/v2/private/withdraw/%s/" % crypto
         params = {'currency': crypto, 'amount': amount, 'address': address}
         resp = self._trade_api(url, params)
@@ -584,7 +610,7 @@ class Gemini(Service):
         params = {
             #"client_order_id": order_token, # A client-specified order token
             "symbol": self.make_market(crypto, fiat), # Or any symbol from the /symbols api
-            "amount": str(amount), # Once again, a quoted number
+            "amount": "%.8f" % amount, # Once again, a quoted number
             "price": str(price),
             "side": side, # must be "buy" or "sell"
             "type": "exchange %s" % type, # the order type; only "exchange limit" supported
@@ -593,6 +619,7 @@ class Gemini(Service):
         resp = self._trade_api(path, params).json()
         return resp
     make_order.supported_types = ['post-only', 'limit', 'fill-or-kill']
+    make_order.minimums = {}
 
     def get_deposit_address(self, currency):
         path = "/v1/deposit/%s/newAddress" % currency.lower()
@@ -675,6 +702,7 @@ class CexIO(Service):
         resp = self._trade_api(url, params).json()
         return resp['id']
     make_order.supported_types = ['limit', 'market']
+    make_order.minimums = {}
 
     def list_orders(self):
         url = "https://cex.io/api/open_orders/"
@@ -800,6 +828,7 @@ class Poloniex(Service):
         r = self._trade_api(params)
         return r.json()['orderNumber']
     make_order.supported_types = ['limit', 'fill-or-kill', 'post-only']
+    make_order.minimums = {}
 
     def cancel_order(self, order_id):
         r = self._trade_api({
@@ -820,7 +849,7 @@ class Poloniex(Service):
         })
         return resp.json()
 
-    def initiate_withdrawl(self, crypto, amount, address):
+    def initiate_withdraw(self, crypto, amount, address):
         resp = self._trade_api({
             "command": "withdrawl",
             "currency": crypto,
@@ -869,7 +898,7 @@ class Bittrex(Service):
 
         super(Bittrex, self).check_error(response)
 
-    def _fix_symbol(self, symbol):
+    def fix_symbol(self, symbol):
         if symbol.lower() == 'usd':
             return 'usdt'
 
@@ -884,22 +913,22 @@ class Bittrex(Service):
 
         return symbol
 
-    def _make_market(self, crypto, fiat):
+    def make_market(self, crypto, fiat):
         return "%s-%s" % (
-            self._fix_symbol(fiat).upper(),
-            self._fix_symbol(crypto).upper()
+            self.fix_symbol(fiat).upper(),
+            self.fix_symbol(crypto).upper()
         )
 
     def get_current_price(self, crypto, fiat):
         url = "https://bittrex.com/api/v1.1/public/getticker?market=%s" % (
-            self._make_market(crypto, fiat)
+            self.make_market(crypto, fiat)
         )
         r = self.get_url(url).json()
         return r['result']['Last']
 
     def get_orderbook(self, crypto, fiat):
         url = "https://bittrex.com/api/v1.1/public/getorderbook?market=%s&type=both" % (
-            self._make_market(crypto, fiat)
+            self.make_market(crypto, fiat)
         )
         r = self.get_url(url).json()['result']
         return {
@@ -936,12 +965,13 @@ class Bittrex(Service):
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         url = "https://bittrex.com/api/v1.1/market/%slimit" % side
         r = self._trade_api(url, {
-            'market': self._make_market(crypto, fiat),
+            'market': self.make_market(crypto, fiat),
             'quantity': amount,
             'rate': price
         })
         return r.json()['result']['uuid']
     make_order.supported_types = ['limit']
+    make_order.minimums = {}
 
     def cancel_order(self, order_id):
         url = "https://bittrex.com/api/v1.1/market/cancel"
@@ -952,18 +982,18 @@ class Bittrex(Service):
         if currency.lower() == 'usd':
             currency = 'usdt'
         url = "https://bittrex.com/api/v1.1/account/getbalance"
-        resp = self._trade_api(url, {'currency': self._fix_symbol(currency)}).json()['result']
+        resp = self._trade_api(url, {'currency': self.fix_symbol(currency)}).json()['result']
         return resp[type.capitalize()] or 0
 
     def get_deposit_address(self, crypto):
         url = "https://bittrex.com/api/v1.1/account/getdepositaddress"
-        resp = self._trade_api(url, {'currency': self._fix_symbol(crypto)})
+        resp = self._trade_api(url, {'currency': self.fix_symbol(crypto)})
         return resp.json()['result']['Address']
 
-    def initiate_withdrawl(self, crypto, amount, address):
+    def initiate_withdraw(self, crypto, amount, address):
         url = "https://bittrex.com/api/v1.1/account/withdraw"
         resp = self._trade_api(url, {
-            'currency': self._fix_symbol(crypto), 'quantity': amount, 'address': address
+            'currency': self.fix_symbol(crypto), 'quantity': amount, 'address': address
         })
         return resp.json()
 
@@ -1028,13 +1058,13 @@ class Wex(Service):
             raise ServiceError("Wex returned error: %s" % j['error'])
         super(Wex, self).check_error(response)
 
-    def _make_market(self, crypto, fiat):
+    def make_market(self, crypto, fiat):
         return "%s_%s" % (
-            self._fix_symbol(crypto).lower(),
-            self._fix_symbol(fiat).lower()
+            self.fix_symbol(crypto).lower(),
+            self.fix_symbol(fiat).lower()
         )
 
-    def _fix_symbol(self, symbol):
+    def fix_symbol(self, symbol):
         if symbol == 'dash':
             return 'dsh'
         return symbol
@@ -1043,7 +1073,7 @@ class Wex(Service):
         return fiat
 
     def get_current_price(self, crypto, fiat):
-        pair = self._make_market(crypto, fiat)
+        pair = self.make_market(crypto, fiat)
         url = "https://wex.nz/api/3/ticker/" + pair
         response = self.get_url(url).json()
         return response[pair]['last']
@@ -1054,7 +1084,7 @@ class Wex(Service):
         return [x.replace('_', '-') for x in r['pairs'].keys()]
 
     def get_orderbook(self, crypto, fiat):
-        m = self._make_market(crypto, fiat)
+        m = self.make_market(crypto, fiat)
         url = "https://wex.nz/api/3/depth/%s" % m
         resp = self.get_url(url).json()
         return {
@@ -1076,13 +1106,14 @@ class Wex(Service):
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         params = {
             'method': 'Trade',
-            'pair': self._make_market(crypto, fiat),
+            'pair': self.make_market(crypto, fiat),
             'type': side,
             'rate': price,
-            'amount': amount,
+            'amount': "%.8f" % amount,
         }
         return self._trade_api(params)
     make_order.supported_types = ['limit']
+    make_order.minimums = {'btc': 0.001, 'ltc': 0.1}
 
     def get_deposit_address(self, crypto):
         params = {'coinName': crypto.lower(), 'method': 'CoinDepositAddress'}
@@ -1092,7 +1123,7 @@ class Wex(Service):
     def get_exchange_balance(self, currency, type="available"):
         resp = self._trade_api({'method': 'getInfo'}).json()
         try:
-            return resp['return']['funds'][self._fix_symbol(currency).lower()]
+            return resp['return']['funds'][self.fix_symbol(currency).lower()]
         except IndexError:
             return 0
 
@@ -1153,12 +1184,25 @@ class Liqui(Service):
             ret.append(pair)
         return ret
 
+    def make_market(self, crypto, fiat):
+        return "%s_%s" % (
+            self.fix_symbol(crypto).lower(), self.fix_symbol(fiat).lower()
+        )
+
+    def fix_symbol(self, symbol):
+        if symbol == 'usd':
+            return 'usdt'
+        return symbol
+
     def get_current_price(self, crypto, fiat):
-        if fiat == 'usd':
-            fiat = 'usdt'
-        pair = "%s_%s" % (crypto.lower(), fiat.lower())
+        pair = self.make_market(crypto, fiat)
         url = "https://api.liqui.io/api/3/ticker/%s" % pair
         return self.get_url(url).json()[pair]['last']
+
+    def get_orderbook(self, crypto, fiat):
+        pair = self.make_market(crypto, fiat)
+        url = "https://api.liqui.io/api/3/depth/%s" % pair
+        return self.get_url(url).json()[pair]
 
 
 class CoinOne(Service):
@@ -1446,6 +1490,7 @@ class Cryptopia(Service):
         }
         resp = self._trade_api(url, args)
         return resp['Data']['OrderId']
+    make_order.minimums = {}
 
 
 class YoBit(Service):

@@ -134,6 +134,27 @@ class Service(object):
         except KeyError:
             raise Exception("Can not convert %s to %s" % (base_fiat, target_fiat))
 
+    def make_market(self, crypto, fiat):
+        """
+        Make market identifier the service can understand with the passed in
+        moneywagon format crypto and fiat. Usually calls `self.fix_symbol`.
+        """
+        raise NotImplementedError()
+
+    def fix_symbol(self, symbol):
+        """
+        In comes a moneywagon format symbol, and returned in the symbol converted
+        to one the service can understand.
+        """
+        raise NotImplementedError()
+
+    def parse_market(self, market):
+        """
+        In comes the market identifier directly from the service. Returned is
+        the crypto and fiat identifier in moneywagon format.
+        """
+        raise NotImplementedError()
+
     def make_rpc_call(self, args, internal=False, skip_json=False):
         cmd = [self.cli_path] + [str(a) for a in args]
         if not self.cli_path:
@@ -406,10 +427,10 @@ class Service(object):
             "Or rather it has no defined 'list_orders' method."
         )
 
-    def initiate_withdrawl(self, crypto, amount, address):
+    def initiate_withdraw(self, crypto, amount, address):
          raise NotImplementedError(
              self.name + " does not support initiating withdraws. "
-             "Or rather it has no defined 'withdrawl' method."
+             "Or rather it has no defined 'initiate_withdraw' method."
          )
 
     def get_deposit_address(self, crypto):
