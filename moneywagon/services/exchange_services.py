@@ -19,8 +19,11 @@ try:
 except ImportError:
     from urllib.parse import urlencode, quote_plus
 
-def make_standard_nonce():
-    return str(int(time.time() * 1000))
+def make_standard_nonce(small=False):
+    num = int(time.time() * 1000)
+    if small:
+        return str(num - 1506215312123)
+    return str(num)
 
 class Bitstamp(Service):
     service_id = 1
@@ -1173,16 +1176,16 @@ class HitBTC(Service):
 class Liqui(Service):
     service_id = 106
 
+    def parse_market(self, market):
+        crypto, fiat = market.split("_")
+        if fiat == 'usdt':
+            fiat = 'usd'
+        return crypto, fiat
+
     def get_pairs(self):
         url = "https://api.liqui.io/api/3/info"
         r = self.get_url(url).json()['pairs']
-        ret = []
-        for item in r.keys():
-            pair = item.replace("_", '-')
-            if pair.endswith("usdt"):
-                pair = pair[:-1]
-            ret.append(pair)
-        return ret
+        return ["%s-%s" % self.parse_market(x) for x in r.keys()]
 
     def make_market(self, crypto, fiat):
         return "%s_%s" % (
@@ -1204,6 +1207,26 @@ class Liqui(Service):
         url = "https://api.liqui.io/api/3/depth/%s" % pair
         return self.get_url(url).json()[pair]
 
+    def _make_signature(self, params):
+        return hmac.new(
+            self.api_secret, urlencode(params), hashlib.sha512
+        ).hexdigest()
+
+    def _trade_api(self, params):
+        params['nonce'] = make_standard_nonce(small=True)
+        headers = {
+            'Key':self.api_key,
+            'Sign': self._make_signature(params)
+        }
+        return self.post_url('https://api.liqui.io', params, headers=headers)
+
+    def get_exchange_balance(self, currency):
+        resp = self._trade_api({'method': 'getInfo'}).json()
+        return resp
+
+    def list_orders(self, crypto=None, fiat=None):
+        resp = self._trade_api({'method': 'ActiveOrders'}).json()
+        return resp
 
 class CoinOne(Service):
     service_id = 105

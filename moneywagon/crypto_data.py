@@ -2326,22 +2326,28 @@ crypto_data = {
                 'usd': [HitBTC, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
             },
             'address_balance': [
-                TrezorBCH, BlockExplorerCash, BlockDozer, BitcoinComCashExplorer
+                BitpayInsightBCH, TrezorBCH, BlockExplorerCash, BlockDozer,
+                BitcoinComCashExplorer
             ],
             'historical_transactions': [
-                BitcoinComCashExplorer, TrezorBCH, BlockExplorerCash, BlockDozer
+                BitcoinComCashExplorer, BitpayInsightBCH, TrezorBCH, BlockExplorerCash,
+                BlockDozer
             ],
             'single_transaction': [
-                BlockDozer, BitcoinComCashExplorer, TrezorBCH, BlockExplorerCash
+                BlockDozer, BitcoinComCashExplorer, BitpayInsightBCH, TrezorBCH,
+                BlockExplorerCash
             ],
             'push_tx': [
-                TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer, BlockDozer
+                TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer,
+                BitpayInsightBCH, BlockDozer
             ],
             'unspent_outputs': [
-                BlockDozer, TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer
+                BlockDozer, TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer,
+                BitpayInsightBCH
             ],
             'get_block': [
-                BitcoinComCashExplorer, BlockDozer, TrezorBCH, BlockExplorerCash
+                BitpayInsightBCH, BitcoinComCashExplorer, BlockDozer, TrezorBCH,
+                BlockExplorerCash
             ],
             "get_optimal_fee": []
         },

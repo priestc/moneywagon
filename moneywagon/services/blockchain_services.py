@@ -2357,3 +2357,8 @@ class TrezorBCH(BitpayInsight):
     service_id = 128
     domain = "bch-bitcore2.trezor.io"
     supported_cryptos = ['bch']
+
+class BitpayInsightBCH(BitpayInsight):
+    service_id = 129
+    domain = "bch-insight.bitpay.com"
+    supported_cryptos = ['bch']
