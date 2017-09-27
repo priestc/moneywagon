@@ -25,6 +25,22 @@ def make_standard_nonce(small=False):
         return str(num - 1506215312123)
     return str(num)
 
+def eight_decimal_places(num, format="str"):
+    """
+    >>> eight_decimal_places(3.12345678912345)
+    "3.12345679"
+    >>> eight_decimal_places("3.12345678912345")
+    "3.12345679"
+    >>> eight_decimal_places(3.12345678912345, format='float')
+    3.12345679
+    >>> eight_decimal_places("3.12345678912345", format='float')
+    3.12345679
+    """
+    if format == 'str':
+        return "%.8f" % amount
+    if format == 'float':
+        return float("%.8f" % amount)
+
 class Bitstamp(Service):
     service_id = 1
     supported_cryptos = ['btc']
@@ -79,8 +95,18 @@ class Bitstamp(Service):
     def get_exchange_balance(self, currency, type="available"):
         url = "https://www.bitstamp.net/api/balance/"
         resp = self._trade_api(url, {}).json()
-        return resp
-        return [x for x in resp]
+        return float(resp["%s_%s" % (currency.lower(), type)])
+
+    def get_deposit_address(self, currency):
+        if currency.lower() == 'btc':
+            url = "https://www.bitstamp.net/api/bitcoin_deposit_address/"
+            return self._trade_api(url, {}).json()
+        if currency.lower() == 'xrp':
+            url = "https://www.bitstamp.net/api/ripple_address/"
+            return self._trade_api(url, {}).json()['address']
+        if currency.lower() in ['eth', 'ltc']:
+            url = "https://www.bitstamp.net/api/v2/%s_address/" % currency.lower()
+            return self._trade_api(url, {}).json()['address']
 
 
 class CoinbaseExchangeAuth(AuthBase):
@@ -159,7 +185,7 @@ class GDAX(Service):
 
         url = "%s/orders" % self.base_url
         data = {
-            "size": amount,
+            "size": eight_decimal_places(amount),
             "type": type,
             "price": price,
             "side": side,
@@ -292,7 +318,7 @@ class BitFinex(Service):
         url = "/v1/order/new"
         resp = self._trade_api(url, {
             'symbol': self.make_market(crypto, fiat),
-            'amount': str(amount),
+            'amount': eight_decimal_places(amount),
             'price': str(price),
             'side': side,
             'type': 'exchange %s' % type,
@@ -310,7 +336,7 @@ class BitFinex(Service):
         resp = self._trade_api("/v1/withdraw", {
             "withdraw_type": type,
             "walletselected": "exchange",
-            "amount": "%.8f" % amount,
+            "amount": eight_decimal_places(amount),
             "address": address,
         }).json()
         return resp
@@ -378,7 +404,7 @@ class NovaExchange(Service):
         )
         params = {
             'tradetype': side.upper(),
-            'tradeamount': amount,
+            'tradeamount': eight_decimal_places(amount),
             'tradeprice': price,
             'tradebase': 0, # indicates "amount" is in crypto units, not fiat units
         }
@@ -406,7 +432,7 @@ class NovaExchange(Service):
 
     def initiate_withdraw(self, crypto, amount, address):
         url = "https://novaexchange.com/remote/v2/private/withdraw/%s/" % crypto
-        params = {'currency': crypto, 'amount': amount, 'address': address}
+        params = {'currency': crypto, 'amount': eight_decimal_places(amount), 'address': address}
         resp = self._trade_api(url, params)
         return resp.json()
 
@@ -613,7 +639,7 @@ class Gemini(Service):
         params = {
             #"client_order_id": order_token, # A client-specified order token
             "symbol": self.make_market(crypto, fiat), # Or any symbol from the /symbols api
-            "amount": "%.8f" % amount, # Once again, a quoted number
+            "amount": eight_decimal_places(amount), # Once again, a quoted number
             "price": str(price),
             "side": side, # must be "buy" or "sell"
             "type": "exchange %s" % type, # the order type; only "exchange limit" supported
@@ -693,7 +719,7 @@ class CexIO(Service):
         if type in ('limit', 'market'):
             params = {
                 'type': side,
-                'amount': "%.8f" % amount,
+                'amount': eight_decimal_places(amount),
             }
             if type == 'market':
                 params['order_type'] = 'market'
@@ -826,7 +852,7 @@ class Poloniex(Service):
             "command": side,
             "currencyPair": self.make_market(crypto, fiat),
             "rate": price,
-            "amount": amount
+            "amount": eight_decimal_places(amount)
         })
         r = self._trade_api(params)
         return r.json()['orderNumber']
@@ -856,7 +882,7 @@ class Poloniex(Service):
         resp = self._trade_api({
             "command": "withdrawl",
             "currency": crypto,
-            "amount": amount,
+            "amount": eight_decimal_places(amount),
             "address": address
         })
         return resp.json()
@@ -969,7 +995,7 @@ class Bittrex(Service):
         url = "https://bittrex.com/api/v1.1/market/%slimit" % side
         r = self._trade_api(url, {
             'market': self.make_market(crypto, fiat),
-            'quantity': amount,
+            'quantity': eight_decimal_places(amount),
             'rate': price
         })
         return r.json()['result']['uuid']
@@ -996,7 +1022,9 @@ class Bittrex(Service):
     def initiate_withdraw(self, crypto, amount, address):
         url = "https://bittrex.com/api/v1.1/account/withdraw"
         resp = self._trade_api(url, {
-            'currency': self.fix_symbol(crypto), 'quantity': amount, 'address': address
+            'currency': self.fix_symbol(crypto),
+            'quantity': eight_decimal_places(amount),
+            'address': address
         })
         return resp.json()
 
@@ -1112,7 +1140,7 @@ class Wex(Service):
             'pair': self.make_market(crypto, fiat),
             'type': side,
             'rate': price,
-            'amount': "%.8f" % amount,
+            'amount': eight_decimal_places(amount),
         }
         return self._trade_api(params)
     make_order.supported_types = ['limit']
@@ -1209,7 +1237,7 @@ class Liqui(Service):
 
     def _make_signature(self, params):
         return hmac.new(
-            self.api_secret, urlencode(params), hashlib.sha512
+            self.api_secret, "?" + urlencode(params), hashlib.sha512
         ).hexdigest()
 
     def _trade_api(self, params):
@@ -1509,7 +1537,7 @@ class Cryptopia(Service):
             'Market': ("%s/%s" % (crypto, fiat)).upper(),
             'Type': side,
             'Rate': price,
-            'Amount': amount
+            'Amount': eight_decimal_places(amount)
         }
         resp = self._trade_api(url, args)
         return resp['Data']['OrderId']
