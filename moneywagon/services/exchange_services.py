@@ -25,7 +25,7 @@ def make_standard_nonce(small=False):
         return str(num - 1506215312123)
     return str(num)
 
-def eight_decimal_places(num, format="str"):
+def eight_decimal_places(amount, format="str"):
     """
     >>> eight_decimal_places(3.12345678912345)
     "3.12345679"
@@ -36,6 +36,8 @@ def eight_decimal_places(num, format="str"):
     >>> eight_decimal_places("3.12345678912345", format='float')
     3.12345679
     """
+    if type(amount) == str:
+        return amount
     if format == 'str':
         return "%.8f" % amount
     if format == 'float':
