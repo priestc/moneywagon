@@ -439,7 +439,7 @@ class Service(object):
             "Or rather it has no defined 'get_deposit_address' method."
         )
 
-    def get_exchange_balance(self, crypto):
+    def get_exchange_balance(self, crypto, type="available"):
         """
         Gives you the balance you have on that exchange. Not to be confused with
         `get_balance`, which is for address balance. Returned is a float.

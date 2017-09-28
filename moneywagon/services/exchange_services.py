@@ -1207,6 +1207,17 @@ class CryptoDao(Service):
 class HitBTC(Service):
     service_id = 109
 
+    def check_error(self, response):
+        j = response.json()
+        if 'code' in j:
+            raise SkipThisService("HitBTC returned %s: %s" % (j['code'], j['message']))
+        super(HitBTC, self).check_error(response)
+
+    def fix_symbol(self, symbol):
+        if symbol.lower() == 'bch':
+            return 'bcc'
+        return symbol
+
     def make_market(self, crypto, fiat):
         if crypto == 'bcc':
             raise SkipThisService("BCC not supported (maybe try BCH?)")
@@ -1232,6 +1243,36 @@ class HitBTC(Service):
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
             'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
         }
+
+    def _trade_api(self, path, params, method="post"):
+        params['nonce'] = make_standard_nonce()
+        params['apikey'] = self.api_key
+        headers = {"X-Signature": self._make_signature(path, params)}
+        return self._external_request(
+            method, "https://api.hitbtc.com" + path, params, headers=headers
+        )
+
+    def _make_signature(self, path, params):
+        msg = path + "?" + urlencode(params)
+        return hmac.new(self.api_secret, msg, hashlib.sha512).hexdigest()
+
+    def get_exchange_balance(self, currency, type="available"):
+        resp = self._trade_api("/api/1/trading/balance", {}, method="get").json()
+        c = self.fix_symbol(currency).upper()
+        try:
+            matched = [x for x in resp['balance'] if x['currency_code'] == c][0]
+        except IndexError:
+            return 0
+
+        if type == 'available':
+            return matched['cash']
+
+        raise NotImplemented()
+
+    def get_deposit_address(self, currency):
+        path = "/api/1/payment/address/%s" % self.fix_symbol(currency).upper()
+        resp = self._trade_api(path, {}, method="get").json()
+        return resp['address']
 
 class Liqui(Service):
     service_id = 106
