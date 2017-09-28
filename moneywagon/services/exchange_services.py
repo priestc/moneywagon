@@ -110,6 +110,27 @@ class Bitstamp(Service):
             url = "https://www.bitstamp.net/api/v2/%s_address/" % currency.lower()
             return self._trade_api(url, {}).json()['address']
 
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        if type == 'limit':
+            url = "https://www.bitstamp.net/api/v2/%s/%s/" % (
+                side, self.make_market(crypto, fiat)
+            )
+            resp = self._trade_api(url, {
+                'amount': eight_decimal_places(amount),
+                'price': price,
+            })
+        if type == 'market':
+            url = "https://www.bitstamp.net/api/v2/%s/market/%s/" % (
+                side, self.make_market(crypto, fiat)
+            )
+            resp = self._trade_api(url, {
+                'amount': eight_decimal_places(amount),
+            })
+
+        return resp.json()
+    make_order.supported_types = ['limit', 'market']
+    make_order.minimums = {}
+
 
 class CoinbaseExchangeAuth(AuthBase):
     def __init__(self, api_key, secret_key, passphrase):
