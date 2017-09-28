@@ -1245,15 +1245,18 @@ class HitBTC(Service):
         }
 
     def _trade_api(self, path, params, method="post"):
-        params['nonce'] = make_standard_nonce()
-        params['apikey'] = self.api_key
+        path = path + "?" + urlencode({
+            'nonce': make_standard_nonce(),
+            'apikey': self.api_key
+        })
         headers = {"X-Signature": self._make_signature(path, params)}
         return self._external_request(
-            method, "https://api.hitbtc.com" + path, params, headers=headers
+            method, "https://api.hitbtc.com" + path,
+            params, headers=headers
         )
 
     def _make_signature(self, path, params):
-        msg = path + "?" + urlencode(params)
+        msg = path + urlencode(params)
         return hmac.new(self.api_secret, msg, hashlib.sha512).hexdigest()
 
     def get_exchange_balance(self, currency, type="available"):
@@ -1273,6 +1276,24 @@ class HitBTC(Service):
         path = "/api/1/payment/address/%s" % self.fix_symbol(currency).upper()
         resp = self._trade_api(path, {}, method="get").json()
         return resp['address']
+
+    def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
+        path = "/api/1/trading/new_order"
+        import random, string
+        clientOrderId = "".join(random.choice(string.digits + string.ascii_lowercase) for _ in range(30))
+        params = {
+            'symbol': self.make_market(crypto, fiat),
+            'side': side,
+            'price': price,
+            'quantity': eight_decimal_places(amount),
+            'clientOrderId': clientOrderId
+        }
+        if type == 'fill-or-kill':
+            params['timeInForce'] = 'FOK'
+
+        resp = self._trade_api(path, params).json()
+        return resp
+
 
 class Liqui(Service):
     service_id = 106
