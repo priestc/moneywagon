@@ -1207,22 +1207,31 @@ class CryptoDao(Service):
 class HitBTC(Service):
     service_id = 109
 
+    def make_market(self, crypto, fiat):
+        if crypto == 'bcc':
+            raise SkipThisService("BCC not supported (maybe try BCH?)")
+        if crypto == 'bch':
+            crypto = 'bcc'
+
+        return ("%s%s" % (crypto, fiat)).upper()
+
     def get_pairs(self):
         url = 'https://api.hitbtc.com/api/1/public/symbols'
         r = self.get_url(url).json()['symbols']
         return [("%s-%s" % (x['commodity'], x['currency'])).lower() for x in r]
 
     def get_current_price(self, crypto, fiat):
-        if crypto == 'bcc':
-            raise SkipThisService("BCC not supported (maybe try BCH?)")
-        if crypto == 'bch':
-            crypto = 'bcc'
-
-        pair = ("%s%s" % (crypto, fiat)).upper()
-        url = "https://api.hitbtc.com/api/1/public/%s/ticker" % pair
+        url = "https://api.hitbtc.com/api/1/public/%s/ticker" % self.make_market(crypto, fiat)
         r = self.get_url(url).json()
         return float(r['last'])
 
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.hitbtc.com/api/1/public/%s/orderbook" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
+        }
 
 class Liqui(Service):
     service_id = 106
@@ -1656,3 +1665,24 @@ class LiveCoin(Service):
             self.base_url, crypto.upper(), fiat.upper()
         )
         return self.get_url(url).json()['last']
+
+class Bithumb(Service):
+    service_id = 129
+
+    def get_current_price(self, crypto, fiat):
+        if fiat != 'krw':
+            raise SkipThisService("Only KRW supported")
+        url = "https://api.bithumb.com/public/ticker/%s" % crypto.upper()
+        resp = self.get_url(url).json()
+        return float(resp['data']['average_price'])
+
+    def get_orderbook(self, crypto, fiat):
+        if fiat != 'krw':
+            raise SkipThisService("Only KRW supported")
+
+        url = "https://api.bithumb.com/public/orderbook/%s" % crypto
+        resp =  self.get_url(url).json()['data']
+        return {
+            'bids': [(float(x['price']), float(x['quantity'])) for x in resp['bids']],
+            'asks': [(float(x['price']), float(x['quantity'])) for x in resp['asks']]
+        }
