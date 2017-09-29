@@ -1790,6 +1790,14 @@ class Binance(Service):
             return "bcc"
         return symbol
 
+    def get_current_price(self, crypto, fiat):
+        url = "https://www.binance.com/api/v1/ticker/allPrices"
+        resp = self.get_url(url).json()
+        for data in resp:
+            if data['symbol'] == self.make_market(crypto, fiat):
+                return float(data['price'])
+        raise SkipThisService("Market not found")
+
     def get_pairs(self):
         url = "https://www.binance.com/api/v1/ticker/allPrices"
         resp = self.get_url(url).json()
@@ -1805,3 +1813,29 @@ class Binance(Service):
             'bids': [(float(x[1]), float(x[0])) for x in resp['bids']],
             'asks': [(float(x[1]), float(x[0])) for x in resp['asks']]
         }
+
+    def _trade_api(self, path, params, method="post"):
+        params['timestamp'] = make_standard_nonce()
+        params['signature'] = self._make_signature(params)
+        headers = {"X-MBX-APIKEY": self.api_key}
+        return self._external_request(
+            method, "https://www.binance.com" + path, params, headers=headers
+        )
+
+    def _make_signature(self, params):
+        return hmac.new(
+            self.api_secret, urlencode(params), hashlib.sha256
+        ).hexdigest()
+
+    def get_exchange_balance(self, currency, type="available"):
+        if type == 'available':
+            type = 'free'
+        else:
+            type == 'locked'
+        path = "/api/v3/account"
+        resp = self._trade_api(path, {}, method="get").json()
+        for data in resp['balances']:
+            if data['asset'].lower() == currency.lower():
+                return float(data[type])
+
+        return 0

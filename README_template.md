@@ -817,11 +817,11 @@ for this endpoint. To get all orders for an exchange, use the `get_orderbook` en
 Note: Moneywagon does not yet convert open orders to a unified format across all exchanges.
 Each individual exchange will return this data in a unique format.
 
-### Initiate withdrawl
+### Initiate withdraw
 
 ```python
 >>> n = NovaExchange(api_pass='dg38dh3...', api_key='dhwbjfi438shjf...')
->>> n.withdrawl('dash', 0.05, 'XmgKAkuZAT6vnunfCX9ewQ6vv8DQGJXamV')
+>>> n.withdraw('dash', 0.05, 'XmgKAkuZAT6vnunfCX9ewQ6vv8DQGJXamV')
 {u'address': u'XmgKAkuZAT6vnunfCX9ewQ6vv8DQGJXamV',
 u'amount': u'0.05000000',
 u'amount_after_withdraw': u'0.10934224',

@@ -2326,39 +2326,47 @@ class Groestlsight(BitpayInsight):
     domain = "groestlsight.groestlcoin.org"
     supported_cryptos = ['grs']
     protocol = "http"
+    name = "Groestlsight"
 
 class DigiExplorer(BitpayInsight):
     service_id = 123
     domain = "digiexplorer.info"
     supported_cryptos = ['dgb']
+    name = "DigiExplorer"
 
 class BitcoinComCashExplorer(BitpayInsight):
     service_id = 124
     domain = "cashexplorer.bitcoin.com"
     supported_cryptos = ['bch']
+    name = "Bitcoin.com BCH"
 
 class BlockExplorerCash(BitpayInsight):
     service_id = 125
     domain = "bitcoincash.blockexplorer.com"
     supported_cryptos = ['bch']
+    name = "BlockExplorer BCH"
 
 class ZCLexplorer(BitpayInsight):
     service_id = 126
     domain = "zclexplorer.org"
     protocol = "http"
     supported_cryptos = ['zcl']
+    name = "Zclassic Insight"
 
 class Litecore(BitpayInsight):
     service_id = 127
     domain = "insight.litecore.io"
     supported_cryptos = ['ltc']
+    name = "Litecore (Insight)"
 
 class TrezorBCH(BitpayInsight):
     service_id = 128
     domain = "bch-bitcore2.trezor.io"
     supported_cryptos = ['bch']
+    name = "Trezor BCH Insight"
 
 class BitpayInsightBCH(BitpayInsight):
     service_id = 129
     domain = "bch-insight.bitpay.com"
     supported_cryptos = ['bch']
+    name = "Insight BCH (Bitpay)"
