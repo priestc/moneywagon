@@ -86,7 +86,7 @@ class Service(object):
                     # only load if no other values have been passed in.
                     setattr(self, key, str(value))
                     if verbose:
-                        print("Loaded from config:", key)
+                        print(self.name, "loaded from config:", key)
         except Exception as exc:
             if verbose:
                 print("config file broke", str(exc))
@@ -133,6 +133,27 @@ class Service(object):
             return data['rates'][target_fiat.upper()] * base_amount
         except KeyError:
             raise Exception("Can not convert %s to %s" % (base_fiat, target_fiat))
+
+    def make_market(self, crypto, fiat):
+        """
+        Make market identifier the service can understand with the passed in
+        moneywagon format crypto and fiat. Usually calls `self.fix_symbol`.
+        """
+        raise NotImplementedError()
+
+    def fix_symbol(self, symbol):
+        """
+        In comes a moneywagon format symbol, and returned in the symbol converted
+        to one the service can understand.
+        """
+        raise NotImplementedError()
+
+    def parse_market(self, market):
+        """
+        In comes the market identifier directly from the service. Returned is
+        the crypto and fiat identifier in moneywagon format.
+        """
+        raise NotImplementedError()
 
     def make_rpc_call(self, args, internal=False, skip_json=False):
         cmd = [self.cli_path] + [str(a) for a in args]
@@ -383,6 +404,12 @@ class Service(object):
         )
 
     def make_order(self, crypto, fiat, amount, price, type="limit"):
+        """
+        This method buys or sells `crypto` on an exchange using `fiat` balance.
+        Type can either be "fill-or-kill", "post-only", "market", or "limit".
+        To get what modes are supported, consult make_order.supported_types
+        if one is defined.
+        """
         raise NotImplementedError(
             self.name + " does not support making orders. "
             "Or rather it has no defined 'make_order' method."
@@ -400,10 +427,10 @@ class Service(object):
             "Or rather it has no defined 'list_orders' method."
         )
 
-    def initiate_withdrawl(self, crypto, amount, address):
+    def initiate_withdraw(self, crypto, amount, address):
          raise NotImplementedError(
              self.name + " does not support initiating withdraws. "
-             "Or rather it has no defined 'withdrawl' method."
+             "Or rather it has no defined 'initiate_withdraw' method."
          )
 
     def get_deposit_address(self, crypto):
@@ -412,7 +439,7 @@ class Service(object):
             "Or rather it has no defined 'get_deposit_address' method."
         )
 
-    def get_exchange_balance(self, crypto):
+    def get_exchange_balance(self, crypto, type="available"):
         """
         Gives you the balance you have on that exchange. Not to be confused with
         `get_balance`, which is for address balance. Returned is a float.

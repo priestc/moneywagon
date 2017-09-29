@@ -639,9 +639,11 @@ def wif_to_hex(wif):
     return hexlify(b58decode_check(wif)[1:]).upper()
 
 class ExchangeUniverse(object):
-    def __init__(self, verbose=False, services=None):
+    def __init__(self, verbose=False, services=None, timeout=6):
         self._all_pairs = {}
-        self.services = [x(verbose=verbose) for x in (services or ALL_SERVICES)]
+        self.services = [
+            x(verbose=verbose, timeout=timeout) for x in (services or ALL_SERVICES)
+        ]
         self.verbose = verbose
         self._multi_orderbook_services = []
 
