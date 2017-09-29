@@ -1206,6 +1206,7 @@ class CryptoDao(Service):
 
 class HitBTC(Service):
     service_id = 109
+    api_homepage = "https://hitbtc.com/api"
 
     def check_error(self, response):
         j = response.json()
@@ -1747,4 +1748,60 @@ class Bithumb(Service):
         return {
             'bids': [(float(x['price']), float(x['quantity'])) for x in resp['bids']],
             'asks': [(float(x['price']), float(x['quantity'])) for x in resp['asks']]
+        }
+
+class Binance(Service):
+    service_id = 130
+
+    def check_error(self, response):
+        j = response.json()
+        if 'code' in j:
+            raise ServiceError("Binance returned error: %s %s" % (j['code'], j['msg']))
+        super(Binance, self).check_error(response)
+
+    def make_market(self, crypto, fiat):
+        return ("%s%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
+
+    def parse_market(self, market):
+        market = market.lower()
+        if market.endswith("usdt"):
+            crypto, fiat = market[:-4], "usd"
+        elif market.endswith("eth"):
+            crypto, fiat = market[:-3], "eth"
+        elif market.endswith("btc"):
+            crypto, fiat = market[:-3], "btc"
+        else:
+            crypto, fiat = market[:-3], market[-3:]
+
+        if crypto == 'iota':
+            crypto = 'miota'
+
+        if crypto == 'bcc':
+            crypto = 'bch'
+
+        return "%s-%s" % (crypto, fiat)
+
+    def fix_symbol(self, symbol):
+        if symbol.lower() == 'usd':
+            return 'usdt'
+        if symbol == 'miota':
+            return 'iota'
+        if symbol == 'bch':
+            return "bcc"
+        return symbol
+
+    def get_pairs(self):
+        url = "https://www.binance.com/api/v1/ticker/allPrices"
+        resp = self.get_url(url).json()
+        symbols = []
+        for data in resp:
+            symbols.append(self.parse_market(data['symbol']))
+        return symbols
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://www.binance.com/api/v1/depth"
+        resp = self.get_url(url, {'symbol': self.make_market(crypto, fiat)}).json()
+        return {
+            'bids': [(float(x[1]), float(x[0])) for x in resp['bids']],
+            'asks': [(float(x[1]), float(x[0])) for x in resp['asks']]
         }
