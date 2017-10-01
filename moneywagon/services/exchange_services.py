@@ -1269,7 +1269,7 @@ class HitBTC(Service):
             return 0
 
         if type == 'available':
-            return matched['cash']
+            return float(matched['cash'])
 
         raise NotImplemented()
 
@@ -1839,3 +1839,55 @@ class Binance(Service):
                 return float(data[type])
 
         return 0
+
+
+class BitFlyer(Service):
+    service_id = 111
+    api_homepage = "https://bitflyer.jp/API?top_link&footer"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.bitflyer.jp/v1/getticker?product_code=%s" % (
+            self.make_market(crypto, fiat)
+        )
+        r = self.get_url(url).json()
+        return r['ltp']
+
+    def get_pairs(self):
+        return ['btc-jpy', 'eth-btc', 'btc-usd']
+
+    def make_market(self, crypto, fiat):
+        return ("%s_%s" % (crypto, fiat)).upper()
+
+    def get_orderbook(self, crypto, fiat):
+        if fiat.lower() == 'jpy':
+            domain = "api.bitflyer.jp"
+        elif fiat.lower() == 'usd':
+            domain = "api.bitflyer.com"
+        else:
+            raise SkipThisService("Only jpy and usd suppported")
+        url = "https://%s/v1/getboard?product_code=%s" % (
+            domain, self.make_market(crypto, fiat)
+        )
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(x['price'], x['size']) for x in resp['bids']],
+            'asks': [(x['price'], x['size']) for x in resp['asks']],
+        }
+
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
+        url = "https://chainflyer.bitflyer.jp/v1/block/%s" % (
+            block_hash or
+            ('height/%s' % block_number if block_number else None) or
+            ('latest' if latest else 'None')
+        )
+        r = self.get_url(url).json()
+        return dict(
+            block_number=r['height'],
+            time=arrow.get(r['timestamp']).datetime,
+            #mining_difficulty=r['difficulty'],
+            hash=r['block_hash'],
+            next_hash=r.get('nextblockhash', None),
+            previous_hash=r.get('prev_block'),
+            txids=r['tx_hashes'],
+            version=r['version']
+        )

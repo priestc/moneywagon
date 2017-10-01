@@ -85,8 +85,6 @@ class Service(object):
                 if not hasattr(self, key) or not getattr(self, key):
                     # only load if no other values have been passed in.
                     setattr(self, key, str(value))
-                    if verbose:
-                        print(self.name, "loaded from config:", key)
         except Exception as exc:
             if verbose:
                 print("config file broke", str(exc))
