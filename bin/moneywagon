@@ -340,13 +340,20 @@ elif argz.subparser_name == 'network-replay':
 
 elif argz.subparser_name == 'install-key':
     path = os.path.expanduser('~/.exchange_keys')
-    service_name = get_service(name=argz.service_name).name
+    Service = get_service(name=argz.service_name)
+    try:
+        Service(**{argz.type: argz.key})
+    except TypeError:
+        raise SystemExit("Error: Unknown key type: %s for %s" % (
+            argz.type, Service.name
+        ))
+
     with open(path) as f:
         j = json.loads(f.read())
-        if service_name not in j:
+        if Service.name not in j:
             j[service_name] = {}
 
-        j[service_name][argz.type] = argz.key
+        j[Service.name][argz.type] = argz.key
 
     with open(path, 'w') as f:
         f.write(json.dumps(j, indent=4))
