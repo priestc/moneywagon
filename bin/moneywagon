@@ -7,6 +7,7 @@ import argparse
 import json
 import datetime
 import binascii
+import os
 
 from concurrent import futures
 from tabulate import tabulate
@@ -14,11 +15,12 @@ from tabulate import tabulate
 from moneywagon import (
     CurrentPrice, HistoricalPrice, AddressBalance, get_address_balance,
     get_historical_transactions, get_block, get_unspent_outputs, get_current_price,
-    generate_keypair, sweep, get_explorer_url, service_table, get_single_transaction
+    generate_keypair, sweep, get_explorer_url, service_table, get_single_transaction,
 )
 from moneywagon.wallet import fetch_wallet_balances
 from moneywagon.network_replay import NetworkReplay
 from moneywagon.currency_support import CurrencySupport
+from moneywagon.services import get_service
 
 parser = argparse.ArgumentParser() #version='1.0.2')
 
@@ -132,6 +134,11 @@ x.add_argument('destination', action='store', help='3-letter code for the networ
 x.add_argument('block_to_replay', action='store', help='Block number to replay.')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 x.add_argument('--limit', action='store', help='How many transactions to replay. 0 is unimited, default is 5.')
+
+x = subparsers.add_parser('install-key', help='Add service API key to .exchange_keys file')
+x.add_argument('service_name', action='store', help='The name of the service the key is from.')
+x.add_argument('type', action='store', help='Can be either api_secret or api_key, or other')
+x.add_argument('key', action='store', help='The Key to add.')
 
 argz = parser.parse_args()
 
@@ -330,3 +337,16 @@ elif argz.subparser_name == 'network-replay':
         print("%s of %s replay attempts succeeded!" % (len(succeeded), len(results)))
         for result in succeeded:
             print(result)
+
+elif argz.subparser_name == 'install-key':
+    path = os.path.expanduser('~/.exchange_keys')
+    service_name = get_service(name=argz.service_name).name
+    with open(path) as f:
+        j = json.loads(f.read())
+        if service_name not in j:
+            j[service_name] = {}
+
+        j[service_name][argz.type] = argz.key
+
+    with open(path, 'w') as f:
+        f.write(json.dumps(j, indent=4))
