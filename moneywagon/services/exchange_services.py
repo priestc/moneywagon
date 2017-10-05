@@ -1214,6 +1214,11 @@ class HitBTC(Service):
     service_id = 109
     api_homepage = "https://hitbtc.com/api"
 
+    def __init__(self, api_key=None, api_secret=None, **kwargs):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(HitBTC, self).__init__(**kwargs)
+
     def check_error(self, response):
         j = response.json()
         if 'code' in j:
@@ -1648,6 +1653,11 @@ class Cryptopia(Service):
 class YoBit(Service):
     service_id = 77
     api_homepage = "https://www.yobit.net/en/api/"
+
+    def __init__(self, api_key=None, api_secret=None, **kwargs):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        super(YoBit, self).__init__(**kwargs)
 
     def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())

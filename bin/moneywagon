@@ -348,10 +348,15 @@ elif argz.subparser_name == 'install-key':
             argz.type, Service.name
         ))
 
+    if not os.path.exists(path):
+        with open(path, "w+") as f:
+            f.write("{}")
+
     with open(path) as f:
         j = json.loads(f.read())
+
         if Service.name not in j:
-            j[service_name] = {}
+            j[Service.name] = {}
 
         j[Service.name][argz.type] = argz.key
 
