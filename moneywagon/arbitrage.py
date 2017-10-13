@@ -5,13 +5,19 @@ def all_balances(currency, services=None, verbose=False, timeout=None):
     Get balances for passed in currency for all exchanges.
     """
     balances = {}
-    for Exchange in (services or ExchangeUniverse.get_authenticated_services()):
+    if not services:
+        services = [
+            x(verbose=verbose, timeout=timeout)
+            for x in ExchangeUniverse.get_authenticated_services()
+        ]
+
+    for e in services:
         try:
-            balances[Exchange.name] = Exchange(verbose=verbose, timeout=timeout).get_exchange_balance(currency)
+            balances[e] = e.get_exchange_balance(currency)
         except NotImplementedError:
             pass
         except Exception as exc:
-            print(Exchange.name, "failed:", str(exc))
+            print(e.name, "failed:", str(exc))
 
     return balances
 

@@ -8,7 +8,7 @@ from base58 import b58decode_check
 
 from .core import (
     AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes,
-    RevertToPrivateMode, CurrencyNotSupported, NoService, NoServicesDefined
+    RevertToPrivateMode, CurrencyNotSupported, NoService, NoServicesDefined, Service
 )
 from .historical_price import Quandl
 from .crypto_data import crypto_data
@@ -610,17 +610,22 @@ class HistoricalPrice(object):
         return self.service.responses
 
 
-def service_table(format='simple'):
+def service_table(format='simple', authenticated=False):
     """
     Returns a string depicting all services currently installed.
     """
+    if authenticated:
+        all_services = ExchangeUniverse.get_authenticated_services()
+    else:
+        all_services = ALL_SERVICES
+
     if format == 'html':
         linkify = lambda x: "<a href='{0}' target='_blank'>{0}</a>".format(x)
     else:
         linkify = lambda x: x
 
     ret = []
-    for service in sorted(ALL_SERVICES, key=lambda x: x.service_id):
+    for service in sorted(all_services, key=lambda x: x.service_id):
         ret.append([
             service.service_id,
             service.__name__, linkify(service.api_homepage.format(
@@ -642,7 +647,8 @@ class ExchangeUniverse(object):
     def __init__(self, verbose=False, services=None, timeout=6):
         self._all_pairs = {}
         self.services = [
-            x(verbose=verbose, timeout=timeout) for x in (services or ALL_SERVICES)
+            x(verbose=verbose, timeout=timeout) if not isinstance(x, Service) else x
+            for x in (services or ALL_SERVICES)
         ]
         self.verbose = verbose
         self._multi_orderbook_services = []
@@ -656,19 +662,19 @@ class ExchangeUniverse(object):
         for service in self.services:
             try:
                 book = service.get_orderbook(crypto, fiat)
-                combined = self._combine_orderbook(combined, book, service.name)
+                combined = self._combine_orderbook(combined, book, service)
                 self._multi_orderbook_services.append(service)
             except NotImplementedError:
                 pass
             except Exception as exc:
-                print("%s failed: %s" % (service.name, str(exc)))
+                print("%s orderbook failed: %s: %s" % (service.name, exc.__class__, str(exc)))
 
         return combined
 
-    def _combine_orderbook(self, combined_book, new_book, new_book_name):
+    def _combine_orderbook(self, combined_book, new_book, new_book_service):
         for side in ['bids', 'asks']:
             for order in new_book[side]:
-                with_name = (order[0], order[1], new_book_name)
+                with_name = (order[0], order[1], new_book_service)
                 combined_book[side].append(with_name)
 
         combined_book['bids'] = sorted(combined_book['bids'], key=lambda x: x[0], reverse=True)

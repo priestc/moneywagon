@@ -2341,3 +2341,15 @@ class BitpayInsightBCH(BitpayInsight):
     domain = "bch-insight.bitpay.com"
     supported_cryptos = ['bch']
     name = "Insight BCH (Bitpay)"
+
+class EthPlorer(Service):
+    service_id = 130
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "https://api.ethplorer.io/getAddressInfo/%s?apiKey=freekey" % address
+        resp = self.get_url(url).json()
+        if crypto.lower() == 'eth':
+            return resp['ETH']['balance']
+        for token in resp['tokens']:
+            if token['tokenInfo']['symbol'] == crypto.upper():
+                return token['balance']

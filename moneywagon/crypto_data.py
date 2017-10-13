@@ -1022,7 +1022,7 @@ crypto_data = {
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
             },
-            'address_balance': [Etherscan, EtherChain, ETCchain],
+            'address_balance': [Etherscan, EtherChain, ETCchain, EthPlorer],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],
