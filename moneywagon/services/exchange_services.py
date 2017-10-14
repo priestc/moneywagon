@@ -99,7 +99,7 @@ class Bitstamp(Service):
         resp = self._auth_request(url, {}).json()
         try:
             return float(resp["%s_%s" % (currency.lower(), type)])
-        except IndexError:
+        except KeyError:
             return 0
 
     def get_deposit_address(self, currency):
@@ -1209,10 +1209,18 @@ class CryptoDao(Service):
         r = self.get_url(url).json()
         return r['last']
 
+    def get_orderbook(self, crypto, fiat):
+        url = "https://cryptodao.com/api/depth?source=%s&target=%s" % (
+            fiat.upper(), crypto.upper()
+        )
+        resp = self.get_url(url).json()
+        return resp
+
 
 class HitBTC(Service):
     service_id = 109
     api_homepage = "https://hitbtc.com/api"
+    exchange_fee_rate = 0.001
 
     def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
@@ -1305,6 +1313,7 @@ class HitBTC(Service):
 
         resp = self._auth_request(path, params).json()
         return resp
+    make_order.minimums = {}
 
 
 class Liqui(Service):
@@ -1598,56 +1607,45 @@ class Cryptopia(Service):
         return ret
 
     def _make_signature_header(self, url, params):
+        nonce = str(int(time.time()))
+        post_data = json.dumps(params);
+        m = hashlib.md5()
+        m.update(post_data)
+        requestContentBase64String = base64.b64encode(m.digest())
+        signature = self.api_key + "POST" + quote_plus(url).lower() + nonce + requestContentBase64String
+        hmacsignature = base64.b64encode(
+            hmac.new(base64.b64decode(self.api_secret), signature, hashlib.sha256).digest()
+        )
+        header_value = "amx " + self.api_key + ":" + hmacsignature + ":" + nonce
+        return {'Authorization': header_value, 'Content-Type':'application/json; charset=utf-8' }
 
-        nonce = str(int(time.time()*1000));
-        b64 = base64.b64encode(hashlib.md5(json.dumps(params)).digest());
-        signature = self.api_key + "POST" + url.lower() + nonce + b64;
-
-        hmacsignature = base64.b64encode(hmac.new(base64.b64decode(self.api_secret), signature, hashlib.sha256).digest())
-        parameter = self.api_key + ":" + hmacsignature + ":" + nonce;
-
-        header_value = "amx " + parameter;
-        return header_value
-
-
-        strsecret = str(self.api_secret)
-        strpublic = str(self.api_key)
-        # Generate and grab the nonce
-        tmpnonce = str(int(time.time() * 1000))
-        # Set up MD5 object, encode params to bytes, MD5 hash
-        md5params = hashlib.md5()
-        encparams = json.dumps(params).encode("UTF-8")
-        md5params.update(encparams)
-        # Base64 the MD5 Hash & Return the bytes to a string, then assemble the request string
-        b64request = base64.b64encode(md5params.digest())
-        str64request = b64request.decode("UTF-8")
-        reqstr = strpublic + "POST" + quote_plus(uri).lower() + tmpnonce + str64request
-        # Sign the request string with the private key
-        try:
-            hmacraw = hmac.new(base64.b64decode(strsecret), reqstr.encode("UTF-8"), hashlib.sha256).digest()
-        except:
-            return "HMAC-SHA256 Signature failed! Check Private Key."
-        # Base64 the signed parameters, assemble the header string and dict.
-        hmacreq = base64.b64encode(hmacraw)
-        return "amx " + strpublic + ":" + hmacreq.decode("UTF-8") + ":" + tmpnonce
-
-    def _auth_request(self, url, args):
-        return self.post_url(url, json=args, headers={
-            "Authorization": self._make_signature_header(url, args),
-            "Content-Type": "application/json; charset=utf-8"
-        })
+    def _auth_request(self, method, args):
+        url = "https://www.cryptopia.co.nz/Api/" + method
+        return self.post_url(url, json=args, headers=self._make_signature_header(url, args))
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
-        url = "https://www.cryptopia.co.nz/api/SubmitTrade"
         args = {
             'Market': ("%s/%s" % (crypto, fiat)).upper(),
             'Type': side,
             'Rate': price,
             'Amount': eight_decimal_places(amount)
         }
-        resp = self._auth_request(url, args)
+        resp = self._auth_request("SubmitTrade", args).json()
         return resp['Data']['OrderId']
     make_order.minimums = {}
+
+    def get_exchange_balance(self, currency):
+        try:
+            resp = self._auth_request('GetBalance', {'Currency': currency.upper()})
+        except ServiceError:
+            return 0
+        for item in resp.json()['Data']:
+            if item['Symbol'] == currency.upper():
+                return item['Total']
+
+    def get_deposit_address(self, currency):
+        resp = self._auth_request('GetDepositAddress', {'Currency': currency.upper()})
+        return resp.json()['Data']['Address']
 
 
 class YoBit(Service):
