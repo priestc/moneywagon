@@ -675,9 +675,9 @@ class ExchangeUniverse(object):
     def get_benchmarks(self):
         ret = {}
         for s in self.services:
-            if not s.total_external_fetch_time:
+            if not s.total_external_fetch_duration:
                 continue # no call was made to this service, do not include in benchmark
-            ret[s.name] = s.total_external_fetch_time.total_seconds()
+            ret[s.name] = s.total_external_fetch_duration.total_seconds()
         return ret
 
 

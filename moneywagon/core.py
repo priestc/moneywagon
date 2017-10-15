@@ -69,15 +69,14 @@ class Service(object):
     def name(cls):
         return cls.__name__
 
-    def __init__(self, verbose=False, responses=None, timeout=None, random_wait_seconds=0, benchmark=False):
+    def __init__(self, verbose=False, responses=None, timeout=None, random_wait_seconds=0):
         self.responses = responses or {} # for caching
         self.verbose = verbose
         self.last_url = None
         self.last_raw_response = None
         self.timeout = timeout
         self.random_wait_seconds = random_wait_seconds
-        self.benchmark = benchmark
-        self.total_external_fetch_time = 0
+        self.total_external_fetch_duration = datetime.timedelta(0)
 
         try:
             with open(os.path.expanduser('~/.exchange_keys')) as f:
@@ -199,16 +198,12 @@ class Service(object):
             # add timeout parameter to requests.get if one was passed in on construction...
             kwargs['timeout'] = self.timeout
 
-        if self.benchmark:
-            start = datetime.datetime.now()
-
+        start = datetime.datetime.now()
         response = getattr(requests, method)(url, verify=self.ssl_verify, *args, **kwargs)
-
-        if self.benchmark:
-            self.total_external_fetch_time += datetime.datetime.now() - start
+        self.total_external_fetch_duration += datetime.datetime.now() - start
 
         if self.verbose:
-            print("Got Response: %s" % url)
+            print("Got Response: %s (took %s)" % (url, (datetime.datetime.now() - start)))
 
         self.last_raw_response = response
 
