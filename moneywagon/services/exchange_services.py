@@ -245,6 +245,14 @@ class GDAX(Service):
             return 0
         return float(match[type])
 
+    def initiate_withdraw(self, currency, amount, address):
+        url = "%s/withdrawals/crypto" % self.base_url
+        resp = self.post_url(url, auth=self.auth, json={
+            'crypto_address': address,
+            'currency': currency.upper(),
+            'amount': eight_decimal_places(amount)
+        })
+        return resp.json()
 
 class BitFinex(Service):
     service_id = 120
