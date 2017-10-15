@@ -1583,13 +1583,17 @@ class Cryptopia(Service):
             raise ServiceError("Cryptopia returned error: %s" % r['Error'])
         super(Cryptopia, self).check_error(response)
 
+    def fix_symbol(self, symbol):
+        if symbol.lower() in ['nzd', 'usd']:
+            symbol += "t"
+        return symbol
+
     def make_market(self, crypto, fiat):
-        return "%s_%s" % (crypto.upper(), fiat.upper())
+        return "%s_%s" % (
+            self.fix_symbol(crypto).upper(), self.fix_symbol(fiat).upper()
+        )
 
     def get_current_price(self, crypto, fiat):
-        if fiat in ['nzd', 'usd']:
-            fiat += "t"
-
         url = "https://www.cryptopia.co.nz/api/GetMarket/%s" % self.make_market(crypto, fiat)
         r = self.get_url(url).json()
         return r['Data']['LastPrice']

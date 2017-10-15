@@ -1,6 +1,8 @@
+from __future__ import print_function
+
 from moneywagon import ExchangeUniverse
 
-def all_balances(currency, services=None, verbose=False, timeout=None):
+def all_balances(currency, services=None, verbose=False, timeout=None, benchmark=False):
     """
     Get balances for passed in currency for all exchanges.
     """
@@ -12,6 +14,7 @@ def all_balances(currency, services=None, verbose=False, timeout=None):
         ]
 
     for e in services:
+        e.benchmark = benchmark
         try:
             balances[e] = e.get_exchange_balance(currency)
         except NotImplementedError:

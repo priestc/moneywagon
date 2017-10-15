@@ -657,9 +657,10 @@ class ExchangeUniverse(object):
     def get_authenticated_services(self):
         return [x for x in ALL_SERVICES if x().api_key]
 
-    def multi_orderbook(self, crypto, fiat):
+    def multi_orderbook(self, crypto, fiat, benchmark=False):
         combined = {'bids': [], 'asks': []}
         for service in self.services:
+            service.benchmark = benchmark
             try:
                 book = service.get_orderbook(crypto, fiat)
                 combined = self._combine_orderbook(combined, book, service)
@@ -670,6 +671,15 @@ class ExchangeUniverse(object):
                 print("%s orderbook failed: %s: %s" % (service.name, exc.__class__, str(exc)))
 
         return combined
+
+    def get_benchmarks(self):
+        ret = {}
+        for s in self.services:
+            if not s.total_external_fetch_time:
+                continue # no call was made to this service, do not include in benchmark
+            ret[s.name] = s.total_external_fetch_time.total_seconds()
+        return ret
+
 
     def _combine_orderbook(self, combined_book, new_book, new_book_service):
         for side in ['bids', 'asks']:
