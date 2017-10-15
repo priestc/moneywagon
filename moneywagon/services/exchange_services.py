@@ -1583,13 +1583,14 @@ class Cryptopia(Service):
             raise ServiceError("Cryptopia returned error: %s" % r['Error'])
         super(Cryptopia, self).check_error(response)
 
+    def make_market(self, crypto, fiat):
+        return "%s_%s" % (crypto.upper(), fiat.upper())
+
     def get_current_price(self, crypto, fiat):
         if fiat in ['nzd', 'usd']:
             fiat += "t"
 
-        url = "https://www.cryptopia.co.nz/api/GetMarket/%s_%s" % (
-            crypto.upper(), fiat.upper()
-        )
+        url = "https://www.cryptopia.co.nz/api/GetMarket/%s" % self.make_market(crypto, fiat)
         r = self.get_url(url).json()
         return r['Data']['LastPrice']
 
@@ -1605,6 +1606,15 @@ class Cryptopia(Service):
             ret.append(("%s-%s" % (crypto, fiat)).lower())
 
         return ret
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://www.cryptopia.co.nz/api/GetMarketOrders/%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(x['Price'], x['Total']) for x in resp['Data']['Buy']],
+            'asks': [(x['Price'], x['Total']) for x in resp['Data']['Sell']]
+        }
+
 
     def _make_signature_header(self, url, params):
         nonce = str(int(time.time()))
@@ -1647,6 +1657,13 @@ class Cryptopia(Service):
         resp = self._auth_request('GetDepositAddress', {'Currency': currency.upper()})
         return resp.json()['Data']['Address']
 
+    def initiate_withdraw(self, currency, amount, address):
+        resp = self._auth_request('SubmitWithdraw', {
+            'Currency': currency.upper(),
+            'Address': address,
+            'Amount': amount
+        })
+        return resp.json()
 
 class YoBit(Service):
     service_id = 77
