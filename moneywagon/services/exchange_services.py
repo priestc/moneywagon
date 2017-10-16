@@ -1972,3 +1972,30 @@ class BitX(Service):
             'bids': [(float(x['price']), float(x['volume'])) for x in resp['bids']],
             'asks': [(float(x['price']), float(x['volume'])) for x in resp['asks']]
         }
+
+class ItBit(Service):
+    service_id = 132
+
+    def fix_symbol(self, symbol):
+        if symbol.lower() == 'btc':
+            return 'XBT'
+        return symbol
+
+    def make_market(self, crypto, fiat):
+        return ("%s%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.itbit.com/v1/markets/%s/ticker" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['lastPrice'])
+
+    def get_pairs(self):
+        return ['btc-usd', 'btc-sgd', 'btc-eur']
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.itbit.com/v1/markets/%s/order_book" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']]
+        }

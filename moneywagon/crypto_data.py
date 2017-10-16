@@ -40,14 +40,14 @@ crypto_data = {
                 'usd': [
                     Bitstamp, GDAX, Wex, Gemini, Huobi, Bittrex, CexIO, YoBit,
                     Poloniex, Winkdex, ChainSo, Kraken, BitFinex, xBTCe, Vircurex,
-                    HitBTC, LiveCoin, BitFlyer
+                    HitBTC, LiveCoin, BitFlyer, ItBit
                 ],
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
                 'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
-                'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo],
+                'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo, ItBit],
                 'cad': [Kraken], 'zar': [BitX], 'myr': [BitX], 'ngn': [BitX],
                 'idr': [BitcoinIndonesia, BitX], 'mxn': [Bitso], 'bgn': [CryptoBG],
-                'krw': [CoinOne], '*': [Cryptonator, Yunbi]
+                'krw': [CoinOne], 'sgd': [ItBit], '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
                 BlockCypher, ChainSo,
