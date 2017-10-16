@@ -9,9 +9,6 @@ alternative to the outdated "SPV" method of building lightweight cryptocurrency
 services.
 
 
-## Statement regarding S2X hard fork
-https://gist.github.com/priestc/5b06e3dc4718d73cd601aff75b13daf4
-
 ## Features
 * Lightweight wallet functionality - Use Moneywagon to build a bitcoin enabled device
 Works on all cryptocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.
@@ -161,6 +158,9 @@ $ moneywagon service-table
 <tr><td style="text-align: right;"> 127</td><td>Litecore              </td><td><a href='https://insight.litecore.io/api' target='_blank'>https://insight.litecore.io/api</a>                                                                                                                        </td><td>ltc                                                   </td></tr>
 <tr><td style="text-align: right;"> 128</td><td>TrezorBCH             </td><td><a href='https://bch-bitcore2.trezor.io/api' target='_blank'>https://bch-bitcore2.trezor.io/api</a>                                                                                                                  </td><td>bch                                                   </td></tr>
 <tr><td style="text-align: right;"> 129</td><td>BitpayInsightBCH      </td><td><a href='https://bch-insight.bitpay.com/api' target='_blank'>https://bch-insight.bitpay.com/api</a>                                                                                                                  </td><td>bch                                                   </td></tr>
+<tr><td style="text-align: right;"> 130</td><td>EthPlorer             </td><td><a href='' target='_blank'></a>                                                                                                                                                                                      </td><td>                                                      </td></tr>
+<tr><td style="text-align: right;"> 131</td><td>BitX                  </td><td><a href='https://www.luno.com/en/api' target='_blank'>https://www.luno.com/en/api</a>                                                                                                                                </td><td>                                                      </td></tr>
+<tr><td style="text-align: right;"> 132</td><td>ItBit                 </td><td><a href='' target='_blank'></a>                                                                                                                                                                                      </td><td>                                                      </td></tr>
 </tbody>
 </table>
 
@@ -933,11 +933,11 @@ for this endpoint. To get all orders for an exchange, use the `get_orderbook` en
 Note: Moneywagon does not yet convert open orders to a unified format across all exchanges.
 Each individual exchange will return this data in a unique format.
 
-### Initiate withdrawl
+### Initiate withdraw
 
 ```python
 >>> n = NovaExchange(api_pass='dg38dh3...', api_key='dhwbjfi438shjf...')
->>> n.withdrawl('dash', 0.05, 'XmgKAkuZAT6vnunfCX9ewQ6vv8DQGJXamV')
+>>> n.withdraw('dash', 0.05, 'XmgKAkuZAT6vnunfCX9ewQ6vv8DQGJXamV')
 {u'address': u'XmgKAkuZAT6vnunfCX9ewQ6vv8DQGJXamV',
 u'amount': u'0.05000000',
 u'amount_after_withdraw': u'0.10934224',
