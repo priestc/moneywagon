@@ -1999,3 +1999,6 @@ class ItBit(Service):
             'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']]
         }
+
+    def _make_signature(self):
+        pass # https://github.com/itbit/itbit-restapi-python/blob/master/itbit_api.py

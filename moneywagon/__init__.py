@@ -17,6 +17,7 @@ from socketIO_client import SocketIO
 from moneywagon.services import _get_all_services
 
 ALL_SERVICES = _get_all_services()
+EXCHANGE_SERVICES = _get_all_services(just_exchange=True)
 
 is_py2 = False
 if sys.version_info <= (3,0):

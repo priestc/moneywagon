@@ -1,7 +1,10 @@
 import itertools
 import collections
 import binascii
+
+from moneywagon.services import get_service
 from moneywagon.crypto_data import crypto_data
+from moneywagon import ALL_SERVICES
 
 class CurrencySupport(object):
     support_categories = {
@@ -139,11 +142,11 @@ class CurrencySupport(object):
         return ret
 
 
-def service_support(service_name, timeout=0.1):
-    from moneywagon import ALL_SERVICES
+def service_support(method=None, service=None, timeout=0.1, verbose=False):
     possible_args = {
         'get_current_price': ['btc', 'usd'],
         'get_balance': ['btc', '123445'],
+        'get_orderbook': ['btc', 'usd'],
         'push_tx': ['btc', '23984729847298'],
         'make_order': ['btc', 'usd', 9999999999, 99999999, "sell"],
         'get_exchange_balance': ['btc'],
@@ -151,13 +154,29 @@ def service_support(service_name, timeout=0.1):
         'initiate_withdraw': ['btc', 999999999999, '123456'],
     }
     matched = []
-    for Service in ALL_SERVICES:
+
+    def determine_support(s, method):
         try:
-            s = Service(timeout=timeout)
-            getattr(s, service_name)(*possible_args[service_name])
+            getattr(s, method)(*possible_args[method])
         except NotImplementedError:
-            print("not implemented", s.name)
+            if verbose:
+                print("not implemented", s.name)
+            return False
         except Exception as exc:
-            print ("implemented", s.name, exc, str(exc))
-            matched.append(s.name)
+            if verbose:
+                print ("implemented", s.name, exc, str(exc))
+            return True
+
+    if method:
+        for Service in ALL_SERVICES:
+            s = Service(timeout=timeout)
+            if determine_support(s, method):
+                matched.append(s.name)
+
+    elif service:
+        s = get_service(name=service)(timeout=timeout)
+        for method in possible_args:
+            if determine_support(s, method):
+                matched.append(method)
+
     return matched
