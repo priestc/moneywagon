@@ -45,8 +45,8 @@ crypto_data = {
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
                 'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo],
-                'cad': [Kraken],
-                'idr': [BitcoinIndonesia], 'mxn': [Bitso], 'bgn': [CryptoBG],
+                'cad': [Kraken], 'zar': [BitX], 'myr': [BitX], 'ngn': [BitX],
+                'idr': [BitcoinIndonesia, BitX], 'mxn': [Bitso], 'bgn': [CryptoBG],
                 'krw': [CoinOne], '*': [Cryptonator, Yunbi]
             },
             'address_balance': [

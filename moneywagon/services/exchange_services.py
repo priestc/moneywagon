@@ -1934,3 +1934,41 @@ class BitFlyer(Service):
             txids=r['tx_hashes'],
             version=r['version']
         )
+
+class BitX(Service):
+    service_id = 131
+    api_homepage = "https://www.luno.com/en/api"
+
+    def parse_market(self, market):
+        if market.startswith("XBT"):
+            crypto = "BTC"
+            fiat = market[3:]
+        return crypto, fiat
+
+    def fix_symbol(self, symbol):
+        if symbol.lower() == 'btc':
+            return 'XBT'
+        return symbol
+
+    def make_market(self, crypto, fiat):
+        return ("%s%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.mybitx.com/api/1/ticker?pair=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['last_trade'])
+
+    def get_pairs(self):
+        url = "https://api.mybitx.com/api/1/tickers"
+        resp = self.get_url(url).json()['tickers']
+        return [
+            ("%s-%s" % self.parse_market(x['pair'])).lower() for x in resp
+        ]
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.mybitx.com/api/1/orderbook?pair=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(float(x['price']), float(x['volume'])) for x in resp['bids']],
+            'asks': [(float(x['price']), float(x['volume'])) for x in resp['asks']]
+        }
