@@ -40,14 +40,14 @@ crypto_data = {
                 'usd': [
                     Bitstamp, GDAX, Wex, Gemini, Huobi, Bittrex, CexIO, YoBit,
                     Poloniex, Winkdex, ChainSo, Kraken, BitFinex, xBTCe, Vircurex,
-                    HitBTC, LiveCoin
+                    HitBTC, LiveCoin, BitFlyer, ItBit
                 ],
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
                 'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
-                'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo],
-                'cad': [Kraken],
-                'idr': [BitcoinIndonesia], 'mxn': [Bitso], 'bgn': [CryptoBG],
-                'krw': [CoinOne], '*': [Cryptonator, Yunbi]
+                'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo, ItBit],
+                'cad': [Kraken], 'zar': [BitX], 'myr': [BitX], 'ngn': [BitX],
+                'idr': [BitcoinIndonesia, BitX], 'mxn': [Bitso], 'bgn': [CryptoBG],
+                'krw': [CoinOne], 'sgd': [ItBit], '*': [Cryptonator, Yunbi]
             },
             'address_balance': [
                 BlockCypher, ChainSo,
@@ -1017,12 +1017,12 @@ crypto_data = {
                 'btc': [
                     Poloniex, GDAX, BitFinex, Kraken, xBTCe, BleuTrade, Bittrex,
                     CexIO, HitBTC, BitcoinIndonesia, EtherChain, YoBit, Cryptopia,
-                    Bitso, Liqui, LiveCoin
+                    Bitso, Liqui, LiveCoin, BitFlyer
                 ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
             },
-            'address_balance': [Etherscan, EtherChain, ETCchain],
+            'address_balance': [Etherscan, EtherChain, ETCchain, EthPlorer],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],

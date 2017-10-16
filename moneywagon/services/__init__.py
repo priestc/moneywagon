@@ -4,7 +4,7 @@ from .exchange_services import *
 def get_service(name=None, id=None):
     from moneywagon import ALL_SERVICES
     for service in ALL_SERVICES:
-        if (name and service.name == name) or (id and service.id == id):
+        if (name and service.name.lower() == name.lower()) or (id and service.id == id):
             return service
 
 def _get_all_services(crypto=None):

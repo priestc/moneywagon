@@ -9,6 +9,9 @@ alternative to the outdated "SPV" method of building lightweight cryptocurrency
 services.
 
 
+## Statement regarding S2X hard fork
+https://gist.github.com/priestc/5b06e3dc4718d73cd601aff75b13daf4
+
 ## Features
 * Lightweight wallet functionality - Use Moneywagon to build a bitcoin enabled device
 Works on all cryptocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.

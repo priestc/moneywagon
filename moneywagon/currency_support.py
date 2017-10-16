@@ -137,3 +137,27 @@ class CurrencySupport(object):
             ret.append(supported)
 
         return ret
+
+
+def service_support(service_name, timeout=0.1):
+    from moneywagon import ALL_SERVICES
+    possible_args = {
+        'get_current_price': ['btc', 'usd'],
+        'get_balance': ['btc', '123445'],
+        'push_tx': ['btc', '23984729847298'],
+        'make_order': ['btc', 'usd', 9999999999, 99999999, "sell"],
+        'get_exchange_balance': ['btc'],
+        'get_deposit_address': ['btc'],
+        'initiate_withdraw': ['btc', 999999999999, '123456'],
+    }
+    matched = []
+    for Service in ALL_SERVICES:
+        try:
+            s = Service(timeout=timeout)
+            getattr(s, service_name)(*possible_args[service_name])
+        except NotImplementedError:
+            print("not implemented", s.name)
+        except Exception as exc:
+            print ("implemented", s.name, exc, str(exc))
+            matched.append(s.name)
+    return matched

@@ -2247,35 +2247,6 @@ class MercerWeiss(BitpayInsight):
     supported_cryptos = ['zec']
 
 
-class BitFlyer(Service):
-    service_id = 111
-    api_homepage = "https://bitflyer.jp/API?top_link&footer"
-
-    def get_current_price(self, crypto, fiat):
-        if crypto != 'btc' or fiat != 'jpy':
-            raise SkipThisService("Pair not supported")
-        url = "https://bitflyer.jp/api/echo/price"
-        r = self.get_url(url).json()
-        return r['mid']
-
-    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
-        url = "https://chainflyer.bitflyer.jp/v1/block/%s" % (
-            block_hash or
-            ('height/%s' % block_number if block_number else None) or
-            ('latest' if latest else 'None')
-        )
-        r = self.get_url(url).json()
-        return dict(
-            block_number=r['height'],
-            time=arrow.get(r['timestamp']).datetime,
-            #mining_difficulty=r['difficulty'],
-            hash=r['block_hash'],
-            next_hash=r.get('nextblockhash', None),
-            previous_hash=r.get('prev_block'),
-            txids=r['tx_hashes'],
-            version=r['version']
-        )
-
 class NoLimitCoinIquidus(Iquidus):
     service_id = 112
     base_url = "http://nolimitcoin.info"
@@ -2326,39 +2297,59 @@ class Groestlsight(BitpayInsight):
     domain = "groestlsight.groestlcoin.org"
     supported_cryptos = ['grs']
     protocol = "http"
+    name = "Groestlsight"
 
 class DigiExplorer(BitpayInsight):
     service_id = 123
     domain = "digiexplorer.info"
     supported_cryptos = ['dgb']
+    name = "DigiExplorer"
 
 class BitcoinComCashExplorer(BitpayInsight):
     service_id = 124
     domain = "cashexplorer.bitcoin.com"
     supported_cryptos = ['bch']
+    name = "Bitcoin.com BCH"
 
 class BlockExplorerCash(BitpayInsight):
     service_id = 125
     domain = "bitcoincash.blockexplorer.com"
     supported_cryptos = ['bch']
+    name = "BlockExplorer BCH"
 
 class ZCLexplorer(BitpayInsight):
     service_id = 126
     domain = "zclexplorer.org"
     protocol = "http"
     supported_cryptos = ['zcl']
+    name = "Zclassic Insight"
 
 class Litecore(BitpayInsight):
     service_id = 127
     domain = "insight.litecore.io"
     supported_cryptos = ['ltc']
+    name = "Litecore (Insight)"
 
 class TrezorBCH(BitpayInsight):
     service_id = 128
     domain = "bch-bitcore2.trezor.io"
     supported_cryptos = ['bch']
+    name = "Trezor BCH Insight"
 
 class BitpayInsightBCH(BitpayInsight):
     service_id = 129
     domain = "bch-insight.bitpay.com"
     supported_cryptos = ['bch']
+    name = "Insight BCH (Bitpay)"
+
+class EthPlorer(Service):
+    service_id = 130
+
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "https://api.ethplorer.io/getAddressInfo/%s?apiKey=freekey" % address
+        resp = self.get_url(url).json()
+        if crypto.lower() == 'eth':
+            return resp['ETH']['balance']
+        for token in resp['tokens']:
+            if token['tokenInfo']['symbol'] == crypto.upper():
+                return token['balance']
