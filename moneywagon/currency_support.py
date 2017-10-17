@@ -166,6 +166,7 @@ def service_support(method=None, service=None, timeout=0.1, verbose=False):
             if verbose:
                 print ("implemented", s.name, exc, str(exc))
             return True
+        return True
 
     if method:
         for Service in ALL_SERVICES:

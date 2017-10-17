@@ -1098,8 +1098,16 @@ class BTER(Service):
     api_homepage = "https://bter.com/api"
     name = "BTER"
 
+    def fix_symbol(self, symbol):
+        if symbol == 'bch':
+            return 'bcc'
+        return symbol
+
+    def make_market(self, crypto, fiat):
+        return ("%s_%s" % (self.fix_symbol(crypto), fiat)).lower()
+
     def get_current_price(self, crypto, fiat):
-        url = "http://data.bter.com/api/1/ticker/%s_%s" % (crypto, fiat)
+        url = "http://data.bter.com/api/1/ticker/%s" % self.make_market(crypto, fiat)
         response = self.get_url(url).json()
         if response.get('result', '') == 'false':
             raise ServiceError("BTER returned error: " + r['message'])
@@ -1109,6 +1117,14 @@ class BTER(Service):
         url = "http://data.bter.com/api/1/pairs"
         r = self.get_url(url).json()
         return [x.replace("_", "-") for x in r]
+
+    def get_orderbook(self, crypto, fiat):
+        url = "http://data.bter.com/api2/1/orderBook/%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
+        }
 
 class Wex(Service):
     service_id = 7
@@ -1194,6 +1210,15 @@ class Wex(Service):
             return resp['return']['funds'][self.fix_symbol(currency).lower()]
         except IndexError:
             return 0
+
+    def initiate_withdraw(self, currency, amount, address):
+        resp = self._auth_request({
+            'method': 'WithdrawCoin',
+            'coinName': self.fix_symbol(currency),
+            'amount': amount,
+            'address': address,
+        })
+        return resp.json()
 
 
 class ViaBTC(Service):
