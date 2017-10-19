@@ -1672,7 +1672,7 @@ class Cryptopia(Service):
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         args = {
-            'Market': ("%s/%s" % (crypto, fiat)).upper(),
+            'Market': ("%s/%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper(),
             'Type': side,
             'Rate': price,
             'Amount': eight_decimal_places(amount)
@@ -1682,21 +1682,24 @@ class Cryptopia(Service):
     make_order.minimums = {}
 
     def get_exchange_balance(self, currency):
+        curr = self.fix_symbol(currency).upper()
         try:
-            resp = self._auth_request('GetBalance', {'Currency': currency.upper()})
+            resp = self._auth_request('GetBalance', {'Currency': curr})
         except ServiceError:
             return 0
         for item in resp.json()['Data']:
-            if item['Symbol'] == currency.upper():
+            if item['Symbol'] == curr:
                 return item['Total']
 
     def get_deposit_address(self, currency):
-        resp = self._auth_request('GetDepositAddress', {'Currency': currency.upper()})
+        curr = self.fix_symbol(currency).upper()
+        resp = self._auth_request('GetDepositAddress', {'Currency': curr})
         return resp.json()['Data']['Address']
 
     def initiate_withdraw(self, currency, amount, address):
+        curr = self.fix_symbol(currency).upper()
         resp = self._auth_request('SubmitWithdraw', {
-            'Currency': currency.upper(),
+            'Currency': curr,
             'Address': address,
             'Amount': amount
         })
