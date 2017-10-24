@@ -25,6 +25,15 @@ def all_balances(currency, services=None, verbose=False, timeout=None):
 
     return balances
 
-def transfer_balance_on_exchange(currency, amount, from_ex, to_ex):
+def transfer_balance_on_exchange(currency, from_ex, to_ex, percent=None, amount=None, verbose=False):
+    if not amount and not percent:
+        raise Exception("One of `amount` or `percent` required.")
+    if percent and amount:
+        raise Exception("Either `amount` or `percent`, not both")
+    if percent:
+        balance = from_ex.get_exchange_balance(currency)
+        amount = balance * (percent / 100)
+        if verbose:
+            print("Sending %.2f%% of %.8f which is %.8f" % (percent, balance, amount))
     to_address = to_ex.get_deposit_address(currency)
     return from_ex.initiate_withdraw(currency, amount, to_address)

@@ -1126,6 +1126,32 @@ class BTER(Service):
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
         }
 
+    def _make_signature(self, params):
+        return hmac.new(
+            self.api_secret, urlencode(params), hashlib.sha512
+        ).hexdigest()
+
+    def _auth_request(self, url, params):
+        raise Exception("Not tested")
+        return self.post_url(url, headers={
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Key': self.api_key,
+            'Sign': self._make_signature(params)
+        })
+
+    def get_exchange_balance(self, currency, type="available"):
+        url = "https://api.bter.com/api2/1/private/balances"
+        resp = self._auth_request(url, {})
+        for curr, bal in resp.json()[type].items():
+            if curr == currency.upper():
+                return float(bal)
+
+    def get_deposit_address(self, currency):
+        url = "https://bter.com/api2/1/private/depositAddress"
+        resp = self._auth_request(url, {'currency': currency.upper()})
+        return resp.json()['addr']
+
+
 class Wex(Service):
     service_id = 7
     api_homepage = "https://wex.nz/api/documentation"
