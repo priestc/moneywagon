@@ -1296,12 +1296,7 @@ class HitBTC(Service):
         return symbol
 
     def make_market(self, crypto, fiat):
-        if crypto == 'bcc':
-            raise SkipThisService("BCC not supported (maybe try BCH?)")
-        if crypto == 'bch':
-            crypto = 'bcc'
-
-        return ("%s%s" % (crypto, fiat)).upper()
+        return ("%s%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
 
     def get_pairs(self):
         url = 'https://api.hitbtc.com/api/1/public/symbols'
