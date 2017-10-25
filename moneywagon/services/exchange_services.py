@@ -344,12 +344,12 @@ class BitFinex(Service):
         return filt[0] if filt else 0
 
     def get_exchange_balance(self, currency, type="available"):
+        curr = self.fix_symbol(currency)
         resp = self._auth_request("/v1/balances", {}).json()
-        try:
-            matched = [x for x in resp if x['currency'] == currency.lower()][0]
-        except IndexError:
-            return 0
-        return float(matched[type])
+        for item in resp:
+            if item['currency'] == curr.lower():
+                return float(item[type])
+        return 0
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         url = "/v1/order/new"
