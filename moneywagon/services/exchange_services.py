@@ -1293,8 +1293,6 @@ class HitBTC(Service):
         super(HitBTC, self).check_error(response)
 
     def fix_symbol(self, symbol):
-        if symbol.lower() == 'bch':
-            return 'bcc'
         return symbol
 
     def make_market(self, crypto, fiat):
