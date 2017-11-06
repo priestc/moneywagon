@@ -2083,3 +2083,8 @@ class KuCoin(Service):
             'bids': [(x[0], x[1]) for x in resp['BUY']],
             'asks': [(x[0], x[1]) for x in resp['SELL']]
         }
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.kucoin.com/v1/open/tick?symbol=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()['data']
+        return resp['lastDealPrice']
