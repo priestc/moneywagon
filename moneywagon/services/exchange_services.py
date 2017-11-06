@@ -2049,3 +2049,37 @@ class ItBit(Service):
 
     def _make_signature(self):
         pass # https://github.com/itbit/itbit-restapi-python/blob/master/itbit_api.py
+
+class KuCoin(Service):
+    service_id = 133
+
+    def make_market(self, crypto, fiat):
+        return ("%s-%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
+
+    def fix_symbol(self, symbol):
+        if symbol == 'usd':
+            return 'usdt'
+        return symbol
+
+    def parse_market(self, market):
+        crypto, fiat = market.lower().split('-')
+        if fiat == 'usdt':
+            fiat = 'usd'
+        return crypto, fiat
+
+    def get_pairs(self):
+        url = "https://api.kucoin.com/v1/market/open/symbols"
+        resp = self.get_url(url).json()
+        pairs = []
+        for pair in resp['data']:
+            crypto, fiat = self.parse_market(pair['symbol'])
+            pairs.append("%s-%s" % (crypto, fiat))
+        return pairs
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.kucoin.com/v1/open/orders?symbol=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()['data']
+        return {
+            'bids': [(x[0], x[1]) for x in resp['BUY']],
+            'asks': [(x[0], x[1]) for x in resp['SELL']]
+        }
