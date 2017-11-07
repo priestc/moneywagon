@@ -621,7 +621,10 @@ def enforce_service_mode(services, FetcherClass, kwargs, modes):
         to_compare, used_services = _prepare_consensus(FetcherClass, results)
 
         if not len(set(to_compare)) == 1:
-            ServiceDisagreement("Differing values returned: %s" % results)
+            show_error = ", ".join(
+                "%s: %s" % (used_services[i].name, x) for i, x in enumerate(to_compare)
+            )
+            raise ServiceDisagreement("Differing values returned: %s" % show_error)
 
         # if all values match, return any one (in this case the first one).
         # also return the list of all services that confirm this result.
@@ -652,12 +655,12 @@ def _prepare_consensus(FetcherClass, results):
     # when determining consensus amoung services, only take into account values returned.
     if hasattr(FetcherClass, "strip_for_consensus"):
         to_compare = [
-            FetcherClass.strip_for_consensus(value) for (service, value) in results
+            FetcherClass.strip_for_consensus(value) for (fetcher, value) in results
         ]
     else:
-        to_compare = [value for service, value in results]
+        to_compare = [value for fetcher, value in results]
 
-    return to_compare, [service._successful_service for service, values in results]
+    return to_compare, [fetcher._successful_service for fetcher, values in results]
 
 def _get_results(FetcherClass, services, kwargs, num_results=None, fast=0, verbose=False, timeout=None):
     """

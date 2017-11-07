@@ -48,3 +48,9 @@ def _get_all_services(crypto=None, just_exchange=False):
         set([item for sublist in services for item in sublist]),
         key=lambda x: x.__name__
     )
+
+class BadService(Service):
+    service_id = 0
+
+    def get_balance(self, crypto, address, confirmations=1):
+        return 999999
