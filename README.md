@@ -42,6 +42,7 @@ $ pip install moneywagon
 
 * [Supported Services](https://github.com/priestc/moneywagon/wiki/Supported-Services)
 * [Exchange Operations](https://github.com/priestc/moneywagon/wiki/Exchange-Operations)
+** [Service Support List](https://github.com/priestc/moneywagon/wiki/Exchange-Service-Support-Table)
 * [Blockchain Operations](https://github.com/priestc/moneywagon/wiki/Blockchain-Operations)
 * [Command Line Interface](https://github.com/priestc/moneywagon/wiki/Command-Line-Interface)
 * [Python Interface](https://github.com/priestc/moneywagon/wiki/Python-Interface)
