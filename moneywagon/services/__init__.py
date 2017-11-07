@@ -7,7 +7,7 @@ def get_service(name=None, id=None):
         if (name and service.name.lower() == name.lower()) or (id and service.id == id):
             return service
 
-def _get_all_services(crypto=None):
+def _get_all_services(crypto=None, just_exchange=False):
     """
     Go through the crypto_data structure and return all list of all (unique)
     installed services. Optionally filter by crypto-currency.
@@ -33,7 +33,11 @@ def _get_all_services(crypto=None):
         price_services = data['services']['current_price']
         del data['services']['current_price']
 
-        all_services = list(data['services'].values()) + list(price_services.values())
+        all_services = list(price_services.values())
+        if not just_exchange:
+            all_services += list(data['services'].values())
+
+        # replace
         data['services']['current_price'] = price_services
 
         services.append([

@@ -344,12 +344,12 @@ class BitFinex(Service):
         return filt[0] if filt else 0
 
     def get_exchange_balance(self, currency, type="available"):
+        curr = self.fix_symbol(currency)
         resp = self._auth_request("/v1/balances", {}).json()
-        try:
-            matched = [x for x in resp if x['currency'] == currency.lower()][0]
-        except IndexError:
-            return 0
-        return float(matched[type])
+        for item in resp:
+            if item['currency'] == curr.lower():
+                return float(item[type])
+        return 0
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         url = "/v1/order/new"
@@ -1098,8 +1098,16 @@ class BTER(Service):
     api_homepage = "https://bter.com/api"
     name = "BTER"
 
+    def fix_symbol(self, symbol):
+        if symbol == 'bch':
+            return 'bcc'
+        return symbol
+
+    def make_market(self, crypto, fiat):
+        return ("%s_%s" % (self.fix_symbol(crypto), fiat)).lower()
+
     def get_current_price(self, crypto, fiat):
-        url = "http://data.bter.com/api/1/ticker/%s_%s" % (crypto, fiat)
+        url = "http://data.bter.com/api/1/ticker/%s" % self.make_market(crypto, fiat)
         response = self.get_url(url).json()
         if response.get('result', '') == 'false':
             raise ServiceError("BTER returned error: " + r['message'])
@@ -1109,6 +1117,40 @@ class BTER(Service):
         url = "http://data.bter.com/api/1/pairs"
         r = self.get_url(url).json()
         return [x.replace("_", "-") for x in r]
+
+    def get_orderbook(self, crypto, fiat):
+        url = "http://data.bter.com/api2/1/orderBook/%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
+        }
+
+    def _make_signature(self, params):
+        return hmac.new(
+            self.api_secret, urlencode(params), hashlib.sha512
+        ).hexdigest()
+
+    def _auth_request(self, url, params):
+        raise Exception("Not tested")
+        return self.post_url(url, headers={
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Key': self.api_key,
+            'Sign': self._make_signature(params)
+        })
+
+    def get_exchange_balance(self, currency, type="available"):
+        url = "https://api.bter.com/api2/1/private/balances"
+        resp = self._auth_request(url, {})
+        for curr, bal in resp.json()[type].items():
+            if curr == currency.upper():
+                return float(bal)
+
+    def get_deposit_address(self, currency):
+        url = "https://bter.com/api2/1/private/depositAddress"
+        resp = self._auth_request(url, {'currency': currency.upper()})
+        return resp.json()['addr']
+
 
 class Wex(Service):
     service_id = 7
@@ -1195,6 +1237,15 @@ class Wex(Service):
         except IndexError:
             return 0
 
+    def initiate_withdraw(self, currency, amount, address):
+        resp = self._auth_request({
+            'method': 'WithdrawCoin',
+            'coinName': self.fix_symbol(currency),
+            'amount': amount,
+            'address': address,
+        })
+        return resp.json()
+
 
 class ViaBTC(Service):
     service_id = 116
@@ -1242,17 +1293,10 @@ class HitBTC(Service):
         super(HitBTC, self).check_error(response)
 
     def fix_symbol(self, symbol):
-        if symbol.lower() == 'bch':
-            return 'bcc'
         return symbol
 
     def make_market(self, crypto, fiat):
-        if crypto == 'bcc':
-            raise SkipThisService("BCC not supported (maybe try BCH?)")
-        if crypto == 'bch':
-            crypto = 'bcc'
-
-        return ("%s%s" % (crypto, fiat)).upper()
+        return ("%s%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
 
     def get_pairs(self):
         url = 'https://api.hitbtc.com/api/1/public/symbols'
@@ -1647,7 +1691,7 @@ class Cryptopia(Service):
 
     def make_order(self, crypto, fiat, amount, price, type="limit", side="buy"):
         args = {
-            'Market': ("%s/%s" % (crypto, fiat)).upper(),
+            'Market': ("%s/%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper(),
             'Type': side,
             'Rate': price,
             'Amount': eight_decimal_places(amount)
@@ -1657,21 +1701,24 @@ class Cryptopia(Service):
     make_order.minimums = {}
 
     def get_exchange_balance(self, currency):
+        curr = self.fix_symbol(currency).upper()
         try:
-            resp = self._auth_request('GetBalance', {'Currency': currency.upper()})
+            resp = self._auth_request('GetBalance', {'Currency': curr})
         except ServiceError:
             return 0
         for item in resp.json()['Data']:
-            if item['Symbol'] == currency.upper():
+            if item['Symbol'] == curr:
                 return item['Total']
 
     def get_deposit_address(self, currency):
-        resp = self._auth_request('GetDepositAddress', {'Currency': currency.upper()})
+        curr = self.fix_symbol(currency).upper()
+        resp = self._auth_request('GetDepositAddress', {'Currency': curr})
         return resp.json()['Data']['Address']
 
     def initiate_withdraw(self, currency, amount, address):
+        curr = self.fix_symbol(currency).upper()
         resp = self._auth_request('SubmitWithdraw', {
-            'Currency': currency.upper(),
+            'Currency': curr,
             'Address': address,
             'Amount': amount
         })
@@ -1999,3 +2046,45 @@ class ItBit(Service):
             'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']]
         }
+
+    def _make_signature(self):
+        pass # https://github.com/itbit/itbit-restapi-python/blob/master/itbit_api.py
+
+class KuCoin(Service):
+    service_id = 133
+
+    def make_market(self, crypto, fiat):
+        return ("%s-%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
+
+    def fix_symbol(self, symbol):
+        if symbol == 'usd':
+            return 'usdt'
+        return symbol
+
+    def parse_market(self, market):
+        crypto, fiat = market.lower().split('-')
+        if fiat == 'usdt':
+            fiat = 'usd'
+        return crypto, fiat
+
+    def get_pairs(self):
+        url = "https://api.kucoin.com/v1/market/open/symbols"
+        resp = self.get_url(url).json()
+        pairs = []
+        for pair in resp['data']:
+            crypto, fiat = self.parse_market(pair['symbol'])
+            pairs.append("%s-%s" % (crypto, fiat))
+        return pairs
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.kucoin.com/v1/open/orders?symbol=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()['data']
+        return {
+            'bids': [(x[0], x[1]) for x in resp['BUY']],
+            'asks': [(x[0], x[1]) for x in resp['SELL']]
+        }
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.kucoin.com/v1/open/tick?symbol=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()['data']
+        return resp['lastDealPrice']

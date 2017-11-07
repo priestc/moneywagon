@@ -147,7 +147,7 @@ class Service(object):
         In comes a moneywagon format symbol, and returned in the symbol converted
         to one the service can understand.
         """
-        raise NotImplementedError()
+        return symbol
 
     def parse_market(self, market):
         """
