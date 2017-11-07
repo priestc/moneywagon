@@ -38,11 +38,6 @@ with open("setup.py", 'w') as f, open("setup_template.py") as t:
     setup = t.read().replace("{{ version }}", version)
     f.write(setup)
 
-with open("README.md", 'w') as f, open("README_template.md") as t:
-    table = service_table(format='html')
-    readme = t.read().replace("{{ service_table }}", table)
-    f.write(readme)
-
 call(["python", "setup.py", "sdist", "upload"])
 call(["python", "setup.py", "develop"])
 call(["git", "commit", "-am", "Made release %s" % version])
