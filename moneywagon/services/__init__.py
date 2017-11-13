@@ -53,4 +53,8 @@ class BadService(Service):
     service_id = 0
 
     def get_balance(self, crypto, address, confirmations=1):
+        class FakeResponse(object):
+            def json(self):
+                return {}
+        self.last_raw_response = FakeResponse()
         return 999999
