@@ -1622,6 +1622,7 @@ class xBTCe(Service):
 class Cryptopia(Service):
     service_id = 82
     api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
+    exchange_fee_rate = 0.002
 
     def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key

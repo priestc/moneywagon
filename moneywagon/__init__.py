@@ -652,26 +652,10 @@ class ExchangeUniverse(object):
             for x in (services or ALL_SERVICES)
         ]
         self.verbose = verbose
-        self._multi_orderbook_services = []
 
     @classmethod
     def get_authenticated_services(self):
         return [x for x in ALL_SERVICES if x().api_key]
-
-    def multi_orderbook(self, crypto, fiat, benchmark=False):
-        combined = {'bids': [], 'asks': []}
-        for service in self.services:
-            service.benchmark = benchmark
-            try:
-                book = service.get_orderbook(crypto, fiat)
-                combined = self._combine_orderbook(combined, book, service)
-                self._multi_orderbook_services.append(service)
-            except NotImplementedError:
-                pass
-            except Exception as exc:
-                print("%s orderbook failed: %s: %s" % (service.name, exc.__class__, str(exc)))
-
-        return combined
 
     def get_benchmarks(self):
         ret = {}
@@ -680,18 +664,6 @@ class ExchangeUniverse(object):
                 continue # no call was made to this service, do not include in benchmark
             ret[s.name] = s.total_external_fetch_duration.total_seconds()
         return ret
-
-
-    def _combine_orderbook(self, combined_book, new_book, new_book_service):
-        for side in ['bids', 'asks']:
-            for order in new_book[side]:
-                with_name = (order[0], order[1], new_book_service)
-                combined_book[side].append(with_name)
-
-        combined_book['bids'] = sorted(combined_book['bids'], key=lambda x: x[0], reverse=True)
-        combined_book['asks'] = sorted(combined_book['asks'], key=lambda x: x[0])
-
-        return combined_book
 
     def fetch_pairs(self):
         if self._all_pairs:
