@@ -394,3 +394,11 @@ class Blockr(Service):
             next_hash=r['next_block_hash'],
             tx_count=r['nb_txs'],
         )
+
+class ZCLexplorer(BitpayInsight):
+    service_id = 126
+    domain = "zclexplorer.org"
+    protocol = "http"
+    supported_cryptos = ['zcl']
+    name = "Zclassic Insight"
+    version = 0.0

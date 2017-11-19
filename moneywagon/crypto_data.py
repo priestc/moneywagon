@@ -2538,12 +2538,12 @@ crypto_data = {
                 'btc': [Bittrex, CexIO, Cryptopia],
                 'ltc': [], 'usd': [], 'doge': []
             },
-            'address_balance': [ZCLexplorer],
-            'historical_transactions': [ZCLexplorer],
-            'single_transaction': [ZCLexplorer],
-            'push_tx': [ZCLexplorer],
-            'unspent_outputs': [ZCLexplorer],
-            'get_block': [ZCLexplorer],
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
             'get_optimal_fee': []
         },
     },

@@ -56,9 +56,26 @@ class MultiOrderBook(object):
         self.got_orderbook_services = []
         self.verbose = verbose
 
-    def get(self, crypto, fiat, trim_crypto=None, trim_fiat=None):
+    def get(self, crypto, fiat, trim=False, trim_crypto=None, trim_fiat=None):
+        services = None
+        if trim:
+            trim_crypto, trim_fiat = True, True
+        if trim_fiat is True:
+            trim_fiat = all_balances(fiat, services=self.services)
+        if trim_crypto is True:
+            if trim_fiat:
+                services = trim_fiat.keys()
+            else:
+                services = self.services
+            trim_crypto = all_balances(crypto, services=services)
+
+        if trim_crypto or trim_fiat:
+            services = self._services_from_balances(trim_crypto, trim_fiat)
+        elif not services:
+            services = self.services
+
         combined = {'bids': [], 'asks': []}
-        for service in self.services:
+        for service in services:
             try:
                 book = service.get_orderbook(crypto, fiat)
                 combined = self._combine_orderbook(combined, book, service)
@@ -67,11 +84,6 @@ class MultiOrderBook(object):
                 pass
             except Exception as exc:
                 print("%s orderbook failed: %s: %s" % (service.name, exc.__class__, str(exc)))
-
-        if trim_fiat is True:
-            trim_fiat = all_balances(fiat, self.got_orderbook_services)
-        if trim_crypto is True:
-            trim_crypto = all_balances(crypto, self.got_orderbook_services)
 
         if trim_fiat:
             combined['asks'] = self._trim(combined['asks'], trim_fiat, side='fiat')
@@ -125,3 +137,9 @@ class MultiOrderBook(object):
                         break
 
         return sorted(new_book, key=lambda x: x[0], reverse=side == 'fiat')
+
+    def _services_from_balances(self, bal1, bal2):
+        return (
+            set(s for s,b in bal1.items() if b > 0) |
+            set(s for s,b in bal2.items() if b > 0)
+        )

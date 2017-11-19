@@ -953,6 +953,7 @@ class BitpayInsight(Service):
     api_tag = 'api'
     name = "Bitpay Insight"
     socketio_url = "%s://%s" % (protocol, domain)
+    version = 5
 
     def check_error(self, response):
         if response.status_code == 400:
@@ -962,7 +963,7 @@ class BitpayInsight(Service):
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s://%s/%s/addr/%s/balance" % (self.protocol, self.domain, self.api_tag, address)
-        return float(self.get_url(url).content) / 1e8
+        return float(self.get_url(url).content) / (1e8 if self.version < 5 else 1)
 
     def _format_tx(self, tx, addresses):
         matched_addresses = []
@@ -1118,6 +1119,7 @@ class MYRCryptap(BitpayInsight):
     supported_cryptos = ['xmy']
     domain = "insight-myr.cryptap.us"
     name = "MYR cryptap"
+    version = 0.2
 
 
 class BirdOnWheels(BitpayInsight):
@@ -1125,6 +1127,7 @@ class BirdOnWheels(BitpayInsight):
     supported_cryptos = ['xmy']
     domain = "birdonwheels5.no-ip.org:3000"
     name = "Bird on Wheels"
+    version = 0.2
 
 
 class Verters(BitpayInsight):
@@ -1133,14 +1136,14 @@ class Verters(BitpayInsight):
     domain = "explorer.verters.com"
     name = "Verters"
     ssl_verify = False
-
+    version = 0.2
 
 class ReddcoinCom(BitpayInsight):
     service_id = 33
     supported_cryptos = ['rdd']
     domain = "live.reddcoin.com"
     name = "Reddcoin.com"
-
+    version = 0.2
 
 class CoinTape(Service):
     service_id = 35
@@ -1336,6 +1339,7 @@ class BlockExplorerCom(BitpayInsight):
     supported_cryptos = ['btc']
     domain = "blockexplorer.com"
     name = "BlockExplorer.com"
+    version = 0.4
 
 class BitNodes(Service):
     domain = "https://bitnodes.21.co"
@@ -1620,6 +1624,8 @@ class UNOCryptap(BitpayInsight):
     protocol = 'http'
     domain = "insight-uno.cryptap.us"
     name = "UNO cryptap"
+    version = 0.0
+
 
 class RICCryptap(BitpayInsight):
     service_id = 45
@@ -1627,6 +1633,7 @@ class RICCryptap(BitpayInsight):
     protocol = 'http'
     domain = "insight-ric.cryptap.us"
     name = "RIC cryptap"
+    version = 0.0
 
 
 class ProHashing(Service):
@@ -1720,6 +1727,7 @@ class SiampmDashInsight(BitpayInsight):
     protocol = "http"
     domain = "insight.dash.siampm.com"
     name = "Siampm Dash Insight"
+    version = 0.2
 
 class BlockExperts(Service):
     service_id = 48
@@ -2055,6 +2063,7 @@ class ChainTips(BitpayInsight):
     domain = "fsight.chain.tips"
     supported_cryptos = ['ftc']
     name = "Chain Tips (Insight))"
+    version = 0.2
 
 
 class TradeBlock(Service):
@@ -2085,6 +2094,8 @@ class MasterNodeIO(BitpayInsight):
     domain = "blockchain.masternode.io"
     supported_cryptos = ['dash']
     name = "Masternode.io (Insight)"
+    version = 0.0
+
 
 class DashOrgInsight(BitpayInsight):
     service_id = 73
@@ -2093,11 +2104,15 @@ class DashOrgInsight(BitpayInsight):
     supported_cryptos = ['dash']
     protocol = "http"
     name = "Dash.org (Insight)"
+    version = 0.5
+
 
 class LocalBitcoinsChain(BitpayInsight):
     service_id = 74
     domain = "localbitcoinschain.com"
     name = "LocalBitcoinsChain (Insight)"
+    version = 0.4
+
 
 class ETCchain(Service):
     service_id = 75
@@ -2156,6 +2171,7 @@ class BeavercoinBlockchain(BitpayInsight):
     supported_cryptos = ['bvc']
     name = "Beavercoin (insight)"
     protocol = "http"
+    version = 0.0
 
 
 class CryptoChat(Iquidus):
@@ -2191,7 +2207,7 @@ class MarscoinOfficial(BitpayInsight):
     supported_cryptos = ['mars']
     protocol = "http"
     name = "MarsCoin.org (Insight)"
-
+    version = 0.2
 
 class TRCPress(BitcoinAbe):
     service_id = 97
@@ -2209,6 +2225,7 @@ class FujiInsght(BitpayInsight):
     domain = "explorer.fujicoin.org"
     protocol = 'http'
     supported_cryptos = ['fjc']
+    version = 0.2
 
 class WebBTC(Service):
     service_id = 100
@@ -2239,12 +2256,15 @@ class PresetacoinInsight(BitpayInsight):
     domain = "live.pesetacoin.info"
     protocol = "http"
     supported_cryptos = ['ptc']
+    version = 0.2
 
 
 class MercerWeiss(BitpayInsight):
     service_id = 108
     domain = "insight.mercerweiss.com"
     supported_cryptos = ['zec']
+    protocol = 'http'
+    version = 0.4
 
 
 class NoLimitCoinIquidus(Iquidus):
@@ -2264,6 +2284,7 @@ class MergeCoinInsight(BitpayInsight):
     domain = "www.mergechain.com:3000"
     supported_cryptos = ['mgc']
     protocol = "http"
+    version = 0.2
 
 
 class ParticlInsight(BitpayInsight):
@@ -2271,6 +2292,8 @@ class ParticlInsight(BitpayInsight):
     domain = "explorer.particl.io"
     supported_cryptos = ['part']
     api_tag = "particl-insight-api"
+    version = 0.4
+
 
 class BlockDozer(BitpayInsight):
     service_id = 118
@@ -2279,11 +2302,14 @@ class BlockDozer(BitpayInsight):
     api_tag = "insight-api"
     protocol = "http"
     supported_cryptos = ['bch']
+    version = 0.0
+
 
 class LeoCoinInsight(BitpayInsight):
     service_id = 119
     domain = "insight.leocoin.org"
     supported_cryptos = ['leo']
+    version = 0.2
 
 
 class UnifyIquidus(Iquidus):
@@ -2298,49 +2324,52 @@ class Groestlsight(BitpayInsight):
     supported_cryptos = ['grs']
     protocol = "http"
     name = "Groestlsight"
+    version = 0.2
+
 
 class DigiExplorer(BitpayInsight):
     service_id = 123
     domain = "digiexplorer.info"
     supported_cryptos = ['dgb']
     name = "DigiExplorer"
+    version = 0.2
+
 
 class BitcoinComCashExplorer(BitpayInsight):
     service_id = 124
     domain = "cashexplorer.bitcoin.com"
     supported_cryptos = ['bch']
     name = "Bitcoin.com BCH"
+    version = 0.4
+
 
 class BlockExplorerCash(BitpayInsight):
     service_id = 125
     domain = "bitcoincash.blockexplorer.com"
     supported_cryptos = ['bch']
     name = "BlockExplorer BCH"
-
-class ZCLexplorer(BitpayInsight):
-    service_id = 126
-    domain = "zclexplorer.org"
-    protocol = "http"
-    supported_cryptos = ['zcl']
-    name = "Zclassic Insight"
+    version = 0.4
 
 class Litecore(BitpayInsight):
     service_id = 127
     domain = "insight.litecore.io"
     supported_cryptos = ['ltc']
     name = "Litecore (Insight)"
+    version = 0.4
 
 class TrezorBCH(BitpayInsight):
     service_id = 128
     domain = "bch-bitcore2.trezor.io"
     supported_cryptos = ['bch']
     name = "Trezor BCH Insight"
+    version = 0.4
 
 class BitpayInsightBCH(BitpayInsight):
     service_id = 129
     domain = "bch-insight.bitpay.com"
     supported_cryptos = ['bch']
     name = "Insight BCH (Bitpay)"
+    version = 5
 
 class EthPlorer(Service):
     service_id = 130
