@@ -9,7 +9,7 @@ from moneywagon.core import make_standard_halfing_eras
 
 crypto_data = {
     'btc': {
-        'name': 'Bitcoin',
+        'name': 'Bitcoin Legacy',
         'address_version_byte': 0, # base58Prefixes[PUBKEY_ADDRESS] in chainparams.cpp
         'message_magic': b"\xf9\xbe\xb4\xd9", # pchMessageStart in chainparams.cpp
         'bip44_coin_type': 0x80000000,
