@@ -2322,8 +2322,8 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [Kraken, Bittrex, HitBTC], 'eur': [Kraken],
-                'usd': [HitBTC, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
+                'btc': [Bitstamp, Kraken, Bittrex, HitBTC], 'eur': [Kraken],
+                'usd': [HitBTC, Bitstamp, Kraken], 'eth': [HitBTC], '*': [Cryptonator]
             },
             'address_balance': [
                 BitpayInsightBCH, TrezorBCH, BlockExplorerCash, BlockDozer,

@@ -67,7 +67,7 @@ class Bitstamp(Service):
         return float(response['last'])
 
     def get_pairs(self):
-        return ['btc-usd', 'btc-eur', 'xrp-usd', 'xrp-eur', 'xrp-btc']
+        return ['btc-usd', 'btc-eur', 'bch-btc', 'bch-usd', 'xrp-usd', 'xrp-eur', 'xrp-btc']
 
     def get_orderbook(self, crypto, fiat):
         url = "https://www.bitstamp.net/api/v2/order_book/%s/" % self.make_market(crypto, fiat)
