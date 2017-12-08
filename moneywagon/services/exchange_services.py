@@ -721,16 +721,14 @@ class CexIO(Service):
             raise ServiceError("CexIO returned error: %s" % j['error'])
 
     def get_current_price(self, crypto, fiat):
-        url = "https://c-cex.com/t/%s-%s.json" % (
-            crypto.lower(), fiat.lower()
-        )
+        url = "https://cex.io/api/ticker/%s/%s" % (crypto.upper(), fiat.upper())
         response = self.get_url(url).json()
-        return float(response['ticker']['lastprice'])
+        return float(response['last'])
 
     def get_pairs(self):
-        url = "https://c-cex.com/t/pairs.json"
-        r = self.get_url(url).json()
-        return r['pairs']
+        url = "https://cex.io/api/currency_limits"
+        r = self.get_url(url).json()['data']['pairs']
+        return [("%s-%s" % (x['symbol1'], x['symbol2'])).lower() for x in r]
 
     def get_orderbook(self, crypto, fiat):
         url = "https://cex.io/api/order_book/%s/%s/" % (crypto.upper(), fiat.upper())
@@ -2089,3 +2087,18 @@ class KuCoin(Service):
         url = "https://api.kucoin.com/v1/open/tick?symbol=%s" % self.make_market(crypto, fiat)
         resp = self.get_url(url).json()['data']
         return resp['lastDealPrice']
+
+class CCex(Service):
+    service_id = 134
+    
+    def get_current_price(self, crypto, fiat):
+        url = "https://c-cex.com/t/%s-%s.json" % (
+            crypto.lower(), fiat.lower()
+        )
+        response = self.get_url(url).json()
+        return float(response['ticker']['lastprice'])
+
+    def get_pairs(self):
+        url = "https://c-cex.com/t/pairs.json"
+        r = self.get_url(url).json()
+        return r['pairs']
