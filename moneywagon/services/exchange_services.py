@@ -1,4 +1,5 @@
 import json
+import os
 
 from requests.auth import HTTPBasicAuth
 from moneywagon.core import (
@@ -24,6 +25,26 @@ def make_standard_nonce(small=False):
     if small:
         return str(num - 1506215312123)
     return str(num)
+
+def make_stateful_nonce(exchange):
+    path = os.path.expanduser('~/.moneywagon_state')
+    if not os.path.exists(path):
+        # make
+        with open(path, "w+") as f:
+            f.write('{}')
+
+    with open(path) as f:
+        j = json.loads(f.read())
+        if exchange not in j:
+            j[exchange] = {'last_used_nonce': 0}
+
+        nonce = j[exchange].get('last_used_nonce', 0) + 1
+        j[exchange]['last_used_nonce'] = nonce
+
+    with open(path, "w") as f:
+        f.write(json.dumps(j))
+
+    return nonce
 
 def eight_decimal_places(amount, format="str"):
     """
@@ -1207,7 +1228,7 @@ class Wex(Service):
 
     def _auth_request(self, params):
         # max nonce wex will accept is 4294967294
-        params['nonce'] = make_standard_nonce(small=True)
+        params['nonce'] = make_stateful_nonce(self.name)
         headers = {"Key": self.api_key, "Sign": self._make_signature(params)}
         return self.post_url("https://wex.nz/tapi", params, headers=headers)
 
@@ -2090,7 +2111,7 @@ class KuCoin(Service):
 
 class CCex(Service):
     service_id = 134
-    
+
     def get_current_price(self, crypto, fiat):
         url = "https://c-cex.com/t/%s-%s.json" % (
             crypto.lower(), fiat.lower()
