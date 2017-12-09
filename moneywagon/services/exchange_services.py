@@ -71,9 +71,7 @@ class Bitstamp(Service):
     name = "Bitstamp"
     exchange_fee_rate = 0.0025
 
-    def __init__(self, api_key=None, api_secret=None, customer_id=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
+    def __init__(self, customer_id=None, **kwargs):
         self.customer_id = customer_id
         super(Bitstamp, self).__init__(**kwargs)
 
@@ -186,10 +184,8 @@ class GDAX(Service):
     supported_cryptos = ['btc', 'ltc', 'eth']
     exchange_fee_rate = 0.0025
 
-    def __init__(self, api_key=None, api_secret=None, api_pass=None, **kwargs):
+    def __init__(self, api_pass=None, **kwargs):
         self.auth = None
-        self.api_key = api_key
-        self.api_secret = api_secret
         self.api_pass = api_pass
 
         super(GDAX, self).__init__(**kwargs)
@@ -279,11 +275,6 @@ class BitFinex(Service):
     service_id = 120
     api_homepage = "https://bitfinex.readme.io/v2/reference"
     exchange_fee_rate = 0.002
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(BitFinex, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -404,11 +395,6 @@ class NovaExchange(Service):
     service_id = 89
     name = "NovaExchange"
     api_homepage = "https://novaexchange.com/remote/faq/"
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(NovaExchange, self).__init__(**kwargs)
 
     def make_market(self, crypto, fiat):
         return "%s_%s" % (fiat, crypto)
@@ -729,9 +715,7 @@ class CexIO(Service):
     name = "Cex.io"
     exchange_fee_rate = 0.002
 
-    def __init__(self, api_key=None, api_secret=None, user_id=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
+    def __init__(self, user_id=None, **kwargs):
         self.user_id = user_id
         super(CexIO, self).__init__(**kwargs)
 
@@ -818,11 +802,6 @@ class Poloniex(Service):
     api_homepage = "https://poloniex.com/support/api/"
     name = "Poloniex"
     exchange_fee_rate = 0.0025
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(Poloniex, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -971,11 +950,6 @@ class Bittrex(Service):
     service_id = 66
     api_homepage = "https://bittrex.com/home/api"
     exchange_fee_rate = 0.0025
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(Bittrex, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -1299,11 +1273,6 @@ class HitBTC(Service):
     service_id = 109
     api_homepage = "https://hitbtc.com/api"
     exchange_fee_rate = 0.001
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(HitBTC, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -1643,11 +1612,6 @@ class Cryptopia(Service):
     api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
     exchange_fee_rate = 0.002
 
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(Cryptopia, self).__init__(**kwargs)
-
     def check_error(self, response):
         r = response.json()
         error = r.get('Error', False)
@@ -1747,11 +1711,6 @@ class Cryptopia(Service):
 class YoBit(Service):
     service_id = 77
     api_homepage = "https://www.yobit.net/en/api/"
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(YoBit, self).__init__(**kwargs)
 
     def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
@@ -2111,10 +2070,20 @@ class KuCoin(Service):
 
 class CCex(Service):
     service_id = 134
+    api_homepage = "https://c-cex.com/?id=api"
+    base_url = "https://c-cex.com/t/api_pub.html"
+
+    def check_error(self, response):
+        if response.content == "Maintenance...":
+            raise ServiceError("C-Cex is down for maintenance")
+        super(CCex, self).check_error(response)
+
+    def make_market(self, crypto, fiat):
+        return "%s-%s" % (crypto.lower(), fiat.lower())
 
     def get_current_price(self, crypto, fiat):
         url = "https://c-cex.com/t/%s-%s.json" % (
-            crypto.lower(), fiat.lower()
+            self.make_market(crypto, fiat)
         )
         response = self.get_url(url).json()
         return float(response['ticker']['lastprice'])
@@ -2123,3 +2092,37 @@ class CCex(Service):
         url = "https://c-cex.com/t/pairs.json"
         r = self.get_url(url).json()
         return r['pairs']
+
+    def get_orderbook(self, crypto, fiat):
+        url = "%s?a=getorderbook&market=%s&type=both" % (
+            self.base_url, self.make_market(crypto, fiat)
+        )
+        resp = self.get_url(url).json()
+        return resp
+        return {
+            'bids': [(x[0], x[1]) for x in resp['BUY']],
+            'asks': [(x[0], x[1]) for x in resp['SELL']]
+        }
+
+    def _auth_request(self, params):
+        params['nonce'] = make_standard_nonce()
+        params['apikey'] = self.api_key
+        url = "%s?%s" % (self.base_url, urlencode(params))
+        headers = {'apisign': self._make_signature(url)}
+        return self.get_url(url, headers=headers)
+
+    def _make_signature(self, url):
+        return hmac.new(
+            self.api_secret,
+            msg=url,
+            digestmod=hashlib.sha512
+        ).hexdigest()
+
+    def get_exchange_balance(self, currency, type="available"):
+        resp = self._auth_request({'a': 'getbalance', 'currency': currency})
+        if type == 'available':
+            return resp['Available']
+
+    def get_deposit_address(self, currency):
+        resp = self._auth_request({'a': 'getbalance', 'currency': currency})
+        return resp['CryptoAddress']

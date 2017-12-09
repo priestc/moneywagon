@@ -40,7 +40,7 @@ crypto_data = {
                 'usd': [
                     Bitstamp, GDAX, Wex, Gemini, Huobi, Bittrex, CexIO, YoBit,
                     Poloniex, Winkdex, ChainSo, Kraken, BitFinex, xBTCe, Vircurex,
-                    HitBTC, LiveCoin, BitFlyer, ItBit, KuCoin
+                    HitBTC, LiveCoin, BitFlyer, ItBit, KuCoin, CCex
                 ],
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
                 'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
@@ -108,14 +108,15 @@ crypto_data = {
             'current_price': {
                 'usd': [
                     Wex, GDAX, Poloniex, Kraken, Cryptopia, CexIO, ChainSo,
-                    xBTCe, YoBit, UseCryptos, HitBTC, LiveCoin, BitFinex
+                    xBTCe, YoBit, UseCryptos, HitBTC, LiveCoin, BitFinex, CCex
                 ],
                 'cny': [Wex, Huobi, BTER, xBTCe, ViaBTC, ChainSo, OKcoin, BTC38, BTCChina],
                 'rur': [YoBit, xBTCe], 'eur': [Kraken, HitBTC, Wex, GDAX, UseCryptos, xBTCe],
                 'btc': [
                     GDAX, Wex, CexIO, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
                     ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange, BitFinex,
-                    BitcoinIndonesia, BTCChina, Liqui, LiveCoin, CryptoDao, KuCoin
+                    BitcoinIndonesia, BTCChina, Liqui, LiveCoin, CryptoDao, KuCoin,
+                    CCex
                 ],
                 'doge': [CexIO], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
                 '*': [Cryptonator, Vircurex, YoBit],

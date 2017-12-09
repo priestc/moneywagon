@@ -69,13 +69,15 @@ class Service(object):
     def name(cls):
         return cls.__name__
 
-    def __init__(self, verbose=False, responses=None, timeout=None, random_wait_seconds=0):
+    def __init__(self, verbose=False, responses=None, timeout=None, random_wait_seconds=0, api_key=None, api_secret=None):
         self.responses = responses or {} # for caching
         self.verbose = verbose
         self.last_url = None
         self.last_raw_response = None
         self.timeout = timeout
         self.random_wait_seconds = random_wait_seconds
+        self.api_key = api_key
+        self.api_secret = api_secret
         self.total_external_fetch_duration = datetime.timedelta(0)
 
         try:
