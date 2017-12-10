@@ -241,7 +241,7 @@ class GDAX(Service):
         response = self.post_url(url, json=data, auth=self.auth).json()
         return response['id']
     make_order.supported_types = ['fill-or-kill', 'limit', 'market', 'stop']
-    make_order.minimums = {'btc': 0.01}
+    make_order.minimums = {'btc': 0.0001, 'eth': 0.001, 'ltc': 0.01, 'usd': 1, 'eur': 1, 'gbp': 1}
 
     def list_orders(self, status="open"):
         url = "%s/orders" % self.base_url
