@@ -140,6 +140,17 @@ x.add_argument('service_name', action='store', help='The name of the service the
 x.add_argument('type', action='store', help='Can be either api_secret or api_key, or other')
 x.add_argument('key', action='store', help='The Key to add.')
 
+x = subparsers.add_parser('execute-trades', help='Execute best arbitrade trades')
+x.add_argument('crypto', action='store', help='Crypto symbol to find trades of')
+x.add_argument('fiat', action='store', help='Fiat symbol to find trades of')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+
+x = subparsers.add_parser('see-trades', help='See best arbitrage trades')
+x.add_argument('crypto', action='store', help='Crypto symbol to find trades of')
+x.add_argument('fiat', action='store', help='Fiat symbol to find trades of')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+
+
 argz = parser.parse_args()
 
 def prepare_json(high_level_func, *args, **kwargs):
@@ -362,3 +373,12 @@ elif argz.subparser_name == 'install-key':
 
     with open(path, 'w') as f:
         f.write(json.dumps(j, indent=4))
+
+elif argz.subparser_name == 'execute-trades':
+    from moneywagon.trading import TradingEngine
+    te = TradingEngine(argz.crypto, argz.fiat, verbose=argz.verbose)
+    te.execute()
+elif argz.subparser_name == 'see-trades':
+    from moneywagon.trading import TradingEngine
+    te = TradingEngine(argz.crypto, argz.fiat, verbose=argz.verbose)
+    te.show()
