@@ -2154,7 +2154,7 @@ class MyNXT(Service):
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://www.mynxt.info/blockexplorer/nxt/api_getFullAccount.php?account=%s" % address
         r = self.get_url(url).json()
-        return float(r['balanceNQT']) / 1e10
+        return float(r['balanceNQT']) / 1e8
 
 class ZChain(Service):
     service_id = 81

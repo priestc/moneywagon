@@ -2104,11 +2104,10 @@ class CCex(Service):
         url = "%s?a=getorderbook&market=%s&type=both" % (
             self.base_url, self.make_market(crypto, fiat)
         )
-        resp = self.get_url(url).json()
-        return resp
+        resp = self.get_url(url).json()['result']
         return {
-            'bids': [(x[0], x[1]) for x in resp['BUY']],
-            'asks': [(x[0], x[1]) for x in resp['SELL']]
+            'bids': [(x["Rate"], x["Quantity"]) for x in resp['buy']],
+            'asks': [(x["Rate"], x["Quantity"]) for x in resp['sell']]
         }
 
     def _auth_request(self, params):
@@ -2128,8 +2127,8 @@ class CCex(Service):
     def get_exchange_balance(self, currency, type="available"):
         resp = self._auth_request({'a': 'getbalance', 'currency': currency})
         if type == 'available':
-            return resp['Available']
+            return resp.json()['Available']
 
     def get_deposit_address(self, currency):
         resp = self._auth_request({'a': 'getbalance', 'currency': currency})
-        return resp['CryptoAddress']
+        return resp.json()['CryptoAddress']
