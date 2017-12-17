@@ -91,7 +91,7 @@ def fetch_wallet_balances(wallets, fiat, **modes):
         if 'price' in prices[crypto]:
             sources, fiat_price = prices[crypto]['price']
         else:
-            sources, fiat_price = [None], 0
+            sources, fiat_price = [], 0
             error = prices[crypto]['error']
 
         ret.append({
@@ -100,7 +100,7 @@ def fetch_wallet_balances(wallets, fiat, **modes):
             'crypto_value': crypto_value,
             'fiat_value': (crypto_value or 0) * (fiat_price or 0),
             'conversion_price': fiat_price,
-            'price_source': sources[0].name,
+            'price_source': sources[0].name if sources else "None",
             'error': error
         })
 

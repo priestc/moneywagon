@@ -2089,7 +2089,7 @@ class CCex(Service):
         return "%s-%s" % (crypto.lower(), fiat.lower())
 
     def get_current_price(self, crypto, fiat):
-        url = "https://c-cex.com/t/%s-%s.json" % (
+        url = "https://c-cex.com/t/%s.json" % (
             self.make_market(crypto, fiat)
         )
         response = self.get_url(url).json()
