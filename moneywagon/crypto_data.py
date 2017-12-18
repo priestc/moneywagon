@@ -332,12 +332,12 @@ crypto_data = {
                 'doge': [BleuTrade],
                 '*': [Cryptonator],
             },
-            'address_balance': [Bchain, VTConline],
+            'address_balance': [VertcoinInfo, Bchain, VTConline],
             'historical_transactions': [VTConline],
-            'single_transaction': [VTConline],
+            'single_transaction': [VertcoinInfo, VTConline],
             'push_tx': [],
             'unspent_outputs': [],
-            'get_block': [VTConline]
+            'get_block': [VertcoinInfo, VTConline]
         },
     },
     'ftc': {
@@ -907,12 +907,12 @@ crypto_data = {
             'current_price': {
                 'btc': [Bittrex], '*': [Cryptonator],
             },
-            'address_balance': [BlockExperts],
+            'address_balance': [THCBlock, BlockExperts],
             'historical_transactions': [],
-            'single_transaction': [BlockExperts],
+            'single_transaction': [THCBlock, BlockExperts],
             'push_tx': [],
             'unspent_outputs': [],
-            'get_block': [BlockExperts]
+            'get_block': [THCBlock, BlockExperts]
         },
     },
     'dope': {
@@ -1105,7 +1105,7 @@ crypto_data = {
                 '*': [Cryptonator], 'cny': [BTC38],
             },
             'address_balance': [
-                HolyTransaction, Bchain
+                CryptoID, HolyTransaction, Bchain
             ],
             'historical_transactions': [],
             'single_transaction': [],
@@ -1589,7 +1589,7 @@ crypto_data = {
                 'ltc': [CCex, Cryptopia, NovaExchange],
                 'doge': [CCex, Cryptopia, NovaExchange]
             },
-            'address_balance': [TRCPress],
+            'address_balance': [TerracoinIO, Bchain],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],

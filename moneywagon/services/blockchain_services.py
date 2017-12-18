@@ -2219,9 +2219,9 @@ class MarscoinOfficial(BitpayInsight):
     name = "MarsCoin.org (Insight)"
     version = 0.2
 
-class TRCPress(BitcoinAbe):
+class TerracoinIO(BitcoinAbe):
     service_id = 97
-    base_url = "http://trc.press/chain/Terracoin"
+    base_url = "https://explorer.terracoin.io/chain/Sha256NmcAuxPowChain"
     supported_cryptos = ['trc']
 
 class VergeCurrencyInfo(Iquidus):
@@ -2397,3 +2397,9 @@ class VertcoinInfo(Iquidus):
     service_id = 135
     base_url = "http://explorer.vertcoin.info"
     supported_cryptos = ['vtc']
+
+
+class THCBlock(Iquidus):
+    service_id = 136
+    base_url = "http://thcblock.ga"
+    supported_crypto = ['thc']
