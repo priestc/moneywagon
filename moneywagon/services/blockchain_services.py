@@ -873,6 +873,12 @@ class CryptoID(Service):
     name = "CryptoID"
     api_key = "bc1063f00936"
 
+    def check_error(self, response):
+        if response.status_code == 499:
+            raise ServiceError("CryptoID returned error: %s" % response.content)
+
+        super(CryptoID, self).check_error(response)
+
     def get_balance(self, crypto, address, confirmations=1):
         url = "http://chainz.cryptoid.info/%s/api.dws?q=getbalance&a=%s&key=%s" % (
             crypto, address, self.api_key
@@ -2130,13 +2136,17 @@ class ETCchain(Service):
 class Bchain(Service):
     service_id = 76
 
-    def get_balance(self, crypto, address, confirmations=1):
+    def _get_balance(self, crypto, address, confirmations=1):
         url = "https://bchain.info/%s/addr/%s" % (crypto.upper(), address)
         doc = BeautifulSoup(self.get_url(url).content, "html.parser")
         info_script_body = doc.find_all("script")[4].string
         balance = re.findall(";\n\t\tvar balance =.(\d*);", info_script_body)[0]
         return float(balance) / 1e8
 
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "https://bchain.info/%s/api/balance/%s" % (crypto, address)
+        resp = self.get_url(url)
+        return resp.json()['balance'] / 1e8
 
 class PressTab(Service):
     service_id = 79
@@ -2382,3 +2392,8 @@ class EthPlorer(Service):
         for token in resp['tokens']:
             if token['tokenInfo']['symbol'] == crypto.upper():
                 return token['balance']
+
+class VertcoinInfo(Iquidus):
+    service_id = 135
+    base_url = "http://explorer.vertcoin.info"
+    supported_cryptos = ['vtc']
