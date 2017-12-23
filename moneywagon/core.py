@@ -454,6 +454,16 @@ class Service(object):
             "Or rather it has no defined 'get_exchange_balance' method."
         )
 
+    def get_total_exchange_balances(self):
+        """
+        Returns balances for all currencies held on this service. Returned is a
+        dictionary with currency code as key and float as the value.
+        """
+        raise NotImplementedError(
+            self.name + " does not support getting total exchange balances. "
+            "Or rather it has no defined 'get_total_exchange_balances' method."
+        )
+
     def generate_new_deposit_address(self, crypto):
         raise NotImplementedError(
             self.name + " does not support generating new deposit address. "

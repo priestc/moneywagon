@@ -815,6 +815,12 @@ class Poloniex(Service):
             return 'usdt'
         return symbol
 
+    def reverse_fix_symbol(self, symbol):
+        symbol = symbol.lower()
+        if symbol == 'usdt':
+            return 'usd'
+        return symbol
+
     def get_current_price(self, crypto, fiat):
         url = "https://poloniex.com/public?command=returnTicker"
         response = self.get_url(url).json()
@@ -946,6 +952,15 @@ class Poloniex(Service):
         })
         return float(resp.json().get(currency.upper()))
 
+    def get_total_exchange_balances(self):
+        resp = self._auth_request({
+            "command": "returnBalances"
+        })
+        return {
+            self.reverse_fix_symbol(code): float(bal) for code, bal in resp.json().items()
+            if float(bal) > 0
+        }
+
 class Bittrex(Service):
     service_id = 66
     api_homepage = "https://bittrex.com/home/api"
@@ -971,6 +986,14 @@ class Bittrex(Service):
         if symbol == 'bch':
             return 'bcc'
 
+        return symbol.lower()
+
+    def reverse_fix_symbol(self, symbol):
+        symbol = symbol.lower()
+        if symbol == 'usdt':
+            return 'usd'
+        if symbol == 'bcc':
+            return 'bch'
         return symbol
 
     def make_market(self, crypto, fiat):
@@ -1038,11 +1061,19 @@ class Bittrex(Service):
         return r['success']
 
     def get_exchange_balance(self, currency, type="available"):
-        if currency.lower() == 'usd':
-            currency = 'usdt'
+        currency = self.fix_symbol(currency)
         path = "/v1.1/account/getbalance"
         resp = self._auth_request(path, {'currency': self.fix_symbol(currency)}).json()['result']
         return resp[type.capitalize()] or 0
+
+    def get_total_exchange_balances(self):
+        path = "/v1.1/account/getbalances"
+        resp = self._auth_request(path, {}).json()['result']
+        return {
+            self.reverse_fix_symbol(x['Currency']): x['Balance'] for x in resp
+            if x['Balance'] > 0
+        }
+
 
     def get_deposit_address(self, crypto):
         path = "/v1.1/account/getdepositaddress"
@@ -1288,7 +1319,7 @@ class HitBTC(Service):
         super(HitBTC, self).check_error(response)
 
     def fix_symbol(self, symbol):
-        return symbol
+        return symbol.lower()
 
     def make_market(self, crypto, fiat):
         return ("%s%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
@@ -1339,6 +1370,13 @@ class HitBTC(Service):
 
         raise NotImplemented()
 
+    def get_total_exchange_balances(self):
+        resp = self._auth_request("/api/1/trading/balance", {}, method="get")
+        return {
+            self.fix_symbol(x['currency_code']): float(x['cash'])
+            for x in resp.json()['balance'] if float(x['cash']) > 0
+        }
+
     def get_deposit_address(self, currency):
         path = "/api/1/payment/address/%s" % self.fix_symbol(currency).upper()
         resp = self._auth_request(path, {}, method="get").json()
@@ -1361,6 +1399,7 @@ class HitBTC(Service):
         resp = self._auth_request(path, params).json()
         return resp
     make_order.minimums = {}
+    make_order.supported_types = ['fill-or-kill', 'limit']
 
 
 class Liqui(Service):
