@@ -121,6 +121,14 @@ class Bitstamp(Service):
         except KeyError:
             return 0
 
+    def get_total_exchange_balances(self):
+        url = "https://www.bitstamp.net/api/balance/"
+        resp = self._auth_request(url, {}).json()
+        return {
+            code[:-8]: float(bal) for code, bal in resp.items()
+            if code.endswith("balance") and float(bal) > 0
+        }
+
     def get_deposit_address(self, currency):
         if currency.lower() == 'btc':
             url = "https://www.bitstamp.net/api/bitcoin_deposit_address/"
@@ -815,7 +823,6 @@ class CexIO(Service):
     def get_total_exchange_balances(self):
         url = "https://cex.io/api/balance/"
         resp = self._auth_request(url, {})
-        #return resp.json()
         return {
             code.lower(): float(data['available']) for code, data in resp.json().items()
             if code not in ['timestamp', 'username'] and float(data['available']) > 0
@@ -1225,6 +1232,11 @@ class Wex(Service):
             return 'dsh'
         return symbol
 
+    def reverse_fix_symbol(self, symbol):
+        if symbol == 'dsh':
+            return 'dash'
+        return symbol
+
     def _fix_fiat_symbol(self, fiat):
         return fiat
 
@@ -1282,6 +1294,13 @@ class Wex(Service):
             return resp['return']['funds'][self.fix_symbol(currency).lower()]
         except IndexError:
             return 0
+
+    def get_total_exchange_balances(self):
+        resp = self._auth_request({'method': 'getInfo'}).json()['return']['funds']
+        return {
+            self.reverse_fix_symbol(code): bal for code, bal in resp.items()
+            if not code.endswith("et") and bal > 0
+        }
 
     def initiate_withdraw(self, currency, amount, address):
         resp = self._auth_request({
