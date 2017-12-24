@@ -181,7 +181,7 @@ class GDAX(Service):
     name = "GDAX"
     base_url = "https://api.gdax.com"
     api_homepage = "https://docs.gdax.com/"
-    supported_cryptos = ['btc', 'ltc', 'eth']
+    supported_cryptos = ['btc', 'ltc', 'eth', 'bch']
     exchange_fee_rate = 0.0025
 
     def __init__(self, api_pass=None, **kwargs):
@@ -261,6 +261,13 @@ class GDAX(Service):
         except IndexError:
             return 0
         return float(match[type])
+
+    def get_total_exchange_balances(self):
+        url = "%s/accounts" % self.base_url
+        resp = self.get_url(url, auth=self.auth).json()
+        return {
+            x['currency'].lower(): float(x['balance']) for x in resp
+        }
 
     def initiate_withdraw(self, currency, amount, address):
         url = "%s/withdrawals/crypto" % self.base_url
@@ -708,6 +715,14 @@ class Gemini(Service):
             return 0
         return float(match[type])
 
+    def get_total_exchange_balances(self):
+        path = "/v1/balances"
+        resp = self._auth_request(path, {})
+        return {
+            x['currency'].lower(): float(x['amount']) for x in resp.json()
+            if float(x['amount']) > 0
+        }
+
 
 class CexIO(Service):
     service_id = 64
@@ -797,6 +812,15 @@ class CexIO(Service):
         except KeyError:
             return 0
 
+    def get_total_exchange_balances(self):
+        url = "https://cex.io/api/balance/"
+        resp = self._auth_request(url, {})
+        #return resp.json()
+        return {
+            code.lower(): float(data['available']) for code, data in resp.json().items()
+            if code not in ['timestamp', 'username'] and float(data['available']) > 0
+        }
+
 class Poloniex(Service):
     service_id = 65
     api_homepage = "https://poloniex.com/support/api/"
@@ -811,14 +835,19 @@ class Poloniex(Service):
         super(Poloniex, self).check_error(response)
 
     def fix_symbol(self, symbol):
-        if symbol.lower() == 'usd':
+        symbol = symbol.lower()
+        if symbol == 'usd':
             return 'usdt'
+        if symbol == 'xlm':
+            return 'str'
         return symbol
 
     def reverse_fix_symbol(self, symbol):
         symbol = symbol.lower()
         if symbol == 'usdt':
             return 'usd'
+        if symbol == 'str':
+            return 'xlm'
         return symbol
 
     def get_current_price(self, crypto, fiat):
@@ -854,8 +883,7 @@ class Poloniex(Service):
         ret = []
         for pair in r.keys():
             fiat, crypto = pair.lower().split('_')
-            if fiat == 'usdt': fiat = 'usd'
-            ret.append("%s-%s" % (crypto, fiat))
+            ret.append("%s-%s" % (self.reverse_fix_symbol(crypto), self.reverse_fix_symbol(fiat)))
         return ret
 
     def get_orderbook(self, crypto, fiat):
@@ -945,17 +973,11 @@ class Poloniex(Service):
         return resp.json()['response']
 
     def get_exchange_balance(self, currency, type="available"):
-        if currency == 'usd':
-            currency = 'usdt'
-        resp = self._auth_request({
-            "command": "returnBalances"
-        })
-        return float(resp.json().get(currency.upper()))
+        resp = self._auth_request({"command": "returnBalances"})
+        return float(resp.json().get(self.reverse_fix_symbol(currency).upper()))
 
     def get_total_exchange_balances(self):
-        resp = self._auth_request({
-            "command": "returnBalances"
-        })
+        resp = self._auth_request({"command": "returnBalances"})
         return {
             self.reverse_fix_symbol(code): float(bal) for code, bal in resp.json().items()
             if float(bal) > 0

@@ -2549,6 +2549,153 @@ crypto_data = {
             'get_optimal_fee': []
         },
     },
+    'xlm': {
+        'name': 'Stellar',
+        'address_version_byte': None,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'script_hash_byte': None,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': None,
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex, Poloniex, Kraken],
+                'usd': [Poloniex], 'eth': [Bittrex]
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'b2x': {
+        'name': 'Bitcoin 2x',
+        'address_version_byte': None,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'script_hash_byte': None,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': None,
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [HitBTC, YoBit], 'usd': [HitBTC]
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'xem': {
+        'name': 'Nem',
+        'address_version_byte': None,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'script_hash_byte': None,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': None,
+        'header_hash_algo': None,
+        'transaction_hash_algo': None,
+        'script_hash_algo': None,
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex, Poloniex, Cryptopia, HitBTC, LiveCoin, YoBit],
+                'usd': [YoBit, HitBTC, LiveCoin], 'eth': [Bittrex, HitBTC, LiveCoin, YoBit],
+                'doge': [Cryptopia, YoBit], 'rur': [YoBit], 'ltc': [Cryptopia]
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'btg': {
+        'name': 'Bitcoin Gold',
+        'address_version_byte': None,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'script_hash_byte': None,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': None,
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [
+                    Bittrex, BitFinex, BleuTrade, CexIO, Cryptopia, HitBTC,
+                    KuCoin, NovaExchange, YoBit
+                ],
+                'ltc': [Cryptopia],
+                'usd': [BitFinex, Bittrex, CexIO, HitBTC, YoBit], 'eur': [CexIO],
+                'eth': [Bittrex, BleuTrade, HitBTC, KuCoin, NovaExchange, YoBit],
+                'doge': [BleuTrade, Cryptopia, NovaExchange, YoBit], 'rur': [YoBit]
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+
     # TEMPLATE
     '': {
         'name': '',

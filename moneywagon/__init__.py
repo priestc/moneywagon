@@ -677,7 +677,7 @@ class ExchangeUniverse(object):
             except NotImplementedError:
                 pass
             except Exception as exc:
-                print("%s returned error: %s" % (service.__name__, exc))
+                print("%s returned error: %s" % (service.__class__.__name__, exc))
 
     def find_pair(self, crypto="", fiat="", verbose=False):
         """

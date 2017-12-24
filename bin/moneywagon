@@ -22,6 +22,12 @@ from moneywagon.network_replay import NetworkReplay
 from moneywagon.currency_support import CurrencySupport
 from moneywagon.services import get_service
 
+def localized_number(num, euro=False):
+    ret = "{:,.2f}".format(num)
+    if euro:
+        ret = ret.replace(",", "&").replace(".", ",").replace("&", ".")
+    return ret
+
 parser = argparse.ArgumentParser() #version='1.0.2')
 
 subparsers = parser.add_subparsers(help='commands', dest="subparser_name")
@@ -124,6 +130,16 @@ x.add_argument('--async', action='store_true', help='Fetch prices and balances a
 x.add_argument('--random-service', action='store_true', help='Use random sources')
 x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
 x.add_argument("--collapse", action='store_true', help="Collapse same cryptos into a single line.")
+x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
+
+x = subparsers.add_parser('exchange-balance', help='Get current value in fiat of all balances on exchanges.')
+x.add_argument('fiat', action='store', help='Fiat currency')
+x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--euro-format', action='store_true', help='Use european comma style, e.g 2.132.324,87')
+x.add_argument('--async', action='store_true', help='Fetch prices and balances asynchronously')
+x.add_argument('--random-service', action='store_true', help='Use random sources')
+x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
 x.add_argument('--timeout', action='store', help='Time until giving up when making external calls. In seconds.')
 
 x = subparsers.add_parser('generate-altcore-networks', help='Genrate list of networks compatable with altcore.')
@@ -258,13 +274,35 @@ elif argz.subparser_name == 'explorer-urls':
     if argz.blocknum:
         print(" ".join(get_explorer_url(argz.crypto, blocknum=argz.blocknum)))
 
+elif argz.subparser_name == 'exchange-balance':
+    from moneywagon.arbitrage import total_exchange_balances
+    from moneywagon import get_current_price
+    
+    euro = argz.euro_format
+    fiat = argz.fiat
+    errors = []
+    rows = []
+    cumm_amount = 0
+    balances = total_exchange_balances(verbose=argz.verbose)
+
+    for currency, balance in balances.items():
+        if currency == fiat:
+            price = 1
+        else:
+            price = get_current_price(currency, fiat)
+        fiat_value = price * balance
+        rows.append([currency, balance, fiat_value, price, "N/A"])
+        cumm_amount += fiat_value
+
+    rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat), '------'])
+
+    headers = ['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Price Source']
+    print(tabulate(rows, headers=headers, tablefmt=argz.format))
+    for error in errors:
+        print(error)
+
 elif argz.subparser_name == 'wallet-balance':
     euro = argz.euro_format
-    def localized_number(num, euro=False):
-        ret = "{:,.2f}".format(num)
-        if euro:
-            ret = ret.replace(",", "&").replace(".", ",").replace("&", ".")
-        return ret
 
     wallets = [
         (x.split(",")[0], x.split(",")[1].strip())
