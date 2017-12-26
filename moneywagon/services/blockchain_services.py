@@ -2398,8 +2398,12 @@ class VertcoinInfo(Iquidus):
     base_url = "http://explorer.vertcoin.info"
     supported_cryptos = ['vtc']
 
-
 class THCBlock(Iquidus):
     service_id = 136
     base_url = "http://thcblock.ga"
     supported_crypto = ['thc']
+
+class Btgexp(Iquidus):
+    service_id = 137
+    base_url = "http://btgexp.com"
+    supported_cryptos = ['btg']

@@ -1711,6 +1711,12 @@ class Cryptopia(Service):
             symbol += "t"
         return symbol
 
+    def reverse_fix_symbol(self, symbol):
+        symbol = symbol.lower()
+        if symbol in ['nzdt', 'usdt']:
+            symbol = symbol[:-1]
+        return symbol
+
     def make_market(self, crypto, fiat):
         return "%s_%s" % (
             self.fix_symbol(crypto).upper(), self.fix_symbol(fiat).upper()
@@ -1770,6 +1776,7 @@ class Cryptopia(Service):
         resp = self._auth_request("SubmitTrade", args).json()
         return resp['Data']['OrderId']
     make_order.minimums = {}
+    make_order.supported_types = ['limit']
 
     def get_exchange_balance(self, currency):
         curr = self.fix_symbol(currency).upper()
@@ -1780,6 +1787,14 @@ class Cryptopia(Service):
         for item in resp.json()['Data']:
             if item['Symbol'] == curr:
                 return item['Total']
+
+    def get_total_exchange_balances(self):
+        resp = self._auth_request('GetBalance', {}).json()
+        #return resp.json()
+        return {
+            self.reverse_fix_symbol(x['Symbol']): x['Total'] for x in resp['Data']
+            if x['Total'] > 0
+        }
 
     def get_deposit_address(self, currency):
         curr = self.fix_symbol(currency).upper()

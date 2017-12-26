@@ -4,7 +4,7 @@ from binascii import hexlify
 from tabulate import tabulate
 import hashlib
 
-from base58 import b58decode_check
+from base58 import b58decode_check, b58encode_check
 
 from .core import (
     AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes,
@@ -437,6 +437,13 @@ def guess_currency_from_address(address):
 
     raise ValueError("Unknown Currency with first byte: %s" % first_byte)
 
+def change_version_byte(address, new_version):
+    """
+    Convert the passed in address (or any base58 encoded string), and change the
+    version byte to `new_version`.
+    """
+    payload = b58decode_check(address)[1:]
+    return b58encode_check(chr(new_version) + payload)
 
 class OptimalFee(AutoFallbackFetcher):
     def action(self, crypto, tx_bytes):

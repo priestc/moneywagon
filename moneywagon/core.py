@@ -1,4 +1,3 @@
-#lick my dick
 from __future__ import print_function
 import random
 import json

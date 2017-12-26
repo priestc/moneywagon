@@ -167,7 +167,7 @@ crypto_data = {
                 ], 'doge': [BleuTrade], 'cny': [BTC38],
                 '*': [Cryptonator]
             },
-            'address_balance': [Mintr, HolyTransaction],
+            'address_balance': [CryptoID, Mintr, HolyTransaction],
             'historical_transactions': [],
             'single_transaction': [Mintr],
             'push_tx': [MultiCoins],
@@ -2656,7 +2656,7 @@ crypto_data = {
     },
     'btg': {
         'name': 'Bitcoin Gold',
-        'address_version_byte': None,
+        'address_version_byte': 38,
         'bip44_coin_type': None,
         'private_key_prefix': None,
         'script_hash_byte': None,
@@ -2686,7 +2686,7 @@ crypto_data = {
                 'eth': [Bittrex, BleuTrade, HitBTC, KuCoin, NovaExchange, YoBit],
                 'doge': [BleuTrade, Cryptopia, NovaExchange, YoBit], 'rur': [YoBit]
             },
-            'address_balance': [],
+            'address_balance': [Btgexp],
             'historical_transactions': [],
             'single_transaction': [],
             'push_tx': [],

@@ -277,7 +277,7 @@ elif argz.subparser_name == 'explorer-urls':
 elif argz.subparser_name == 'exchange-balance':
     from moneywagon.arbitrage import total_exchange_balances
     from moneywagon import get_current_price
-    
+
     euro = argz.euro_format
     fiat = argz.fiat
     errors = []
@@ -294,7 +294,9 @@ elif argz.subparser_name == 'exchange-balance':
         rows.append([currency, balance, fiat_value, price, "N/A"])
         cumm_amount += fiat_value
 
-    rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat), '------'])
+    rows.sort(key=lambda x: x[2], reverse=True) # order by highest fiat value first
+
+    rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat.upper()), '------'])
 
     headers = ['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Price Source']
     print(tabulate(rows, headers=headers, tablefmt=argz.format))
