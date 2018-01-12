@@ -45,9 +45,9 @@ class CompositeService(object):
         service2 = services2[0]
 
         self.name = "%s -> %s (via %s)" % (
-            service1.name, service2.name, via.upper()
+            service1.name, getattr(service2, 'name', 'None'), via.upper()
         )
-        self.last_url = "%s, %s" % (service1.last_url, service2.last_url)
+        self.last_url = "%s, %s" % (service1.last_url, getattr(service2, 'last_url', None))
         self.last_raw_response = CompositeResponse(service1, service2)
         self.service_id = "%d+%d" % (service1.service_id, service2.service_id)
 
@@ -102,6 +102,7 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, helper_price
         modes['report_services'] = before
 
         if modes.get('report_services', False):
+            #print("composit service:", crypto, fiat, services1, services2)
             serv = CompositeService(services1, services2, convert_crypto)
             return [serv], converted_price * fiat_price
         else:

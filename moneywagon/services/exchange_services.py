@@ -2227,3 +2227,65 @@ class CCex(Service):
     def get_deposit_address(self, currency):
         resp = self._auth_request({'a': 'getbalance', 'currency': currency})
         return resp.json()['CryptoAddress']
+
+class CoinEx(Service):
+    service_id = 138
+
+    def __init__(self, access_id=None, **kwargs):
+        self.access_id = access_id
+        return super(CoinEx, self).__init__(**kwargs)
+
+    def get_pairs(self):
+        url = "https://api.coinex.com/v1/market/list"
+        resp = self.get_url(url).json()['data']
+        return [("%s-%s" % (x[:-3], x[-3:])).lower() for x in resp]
+
+    def make_market(self, crypto, fiat):
+        return ("%s%s" % (crypto, fiat)).upper()
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.coinex.com/v1/market/ticker?market=%s" % (
+            self.make_market(crypto, fiat)
+        )
+        resp = self.get_url(url).json()
+        return float(resp['data']['ticker']['last'])
+
+    def _auth_request(self, url, params=None):
+        params['tonce'] = make_standard_nonce()
+        params['access_id'] = self.access_id
+        str_params = urlencode(sorted(params.items(), key=lambda x: x[0]))
+        to_sign = str_params + "&secret_key=%s" % self.api_secret
+        digest = hashlib.md5(to_sign).hexdigest().upper()
+        return self.get_url(url + str_params, headers={
+            'Content-Type': 'application/json',
+            'authorization': digest
+        })
+
+    def get_exchange_balance(self, crypto):
+        url = "https://api.coinex.com/v1/balance/"
+        resp = self._auth_request(url, {}).json()
+        return resp
+
+
+class OKEX(Service):
+    service_id = 139
+    api_homepage = 'https://www.okex.com/rest_api.html'
+    symbol_mapping = (
+        ('usd', 'usdt'),
+    )
+
+    def check_error(self, response):
+        j = response.json()
+        if 'error_code' in j:
+            raise ServiceError("OKEX returned error: %s" % j['error_code'])
+        super(OKEX, self).check_error(response)
+
+    def make_market(self, crypto, fiat):
+        return ("%s_%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).lower()
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://www.okex.com/api/v1/ticker.do?symbol=%s" % (
+            self.make_market(crypto, fiat)
+        )
+        resp = self.get_url(url).json()
+        return float(resp['ticker']['last'])

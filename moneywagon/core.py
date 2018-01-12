@@ -63,6 +63,7 @@ class Service(object):
     socketio_url = None
     exchange_fee_rate = None
     api_key = False
+    symbol_mapping = None
 
     @ClassProperty
     @classmethod
@@ -144,11 +145,22 @@ class Service(object):
         """
         raise NotImplementedError()
 
-    def fix_symbol(self, symbol):
+    def fix_symbol(self, symbol, reverse=False):
         """
         In comes a moneywagon format symbol, and returned in the symbol converted
         to one the service can understand.
         """
+        if not self.symbol_mapping:
+            return symbol
+
+        for old, new in self.symbol_mapping:
+            if reverse:
+                if symbol == new:
+                    return old
+            else:
+                if symbol == old:
+                    return new
+
         return symbol
 
     def parse_market(self, market):
