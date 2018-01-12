@@ -2289,3 +2289,22 @@ class OKEX(Service):
         )
         resp = self.get_url(url).json()
         return float(resp['ticker']['last'])
+
+class BitZ(Service):
+    service_id = 140
+
+    def check_error(self, response):
+        j = response.json()
+        if not j['code'] == 0:
+            raise ServiceError("BitZ returned error: %s: %s" % (
+                j['code'], j['msg']
+            ))
+        super(BitZ, self).check_error(response)
+
+    def make_market(self, crypto, fiat):
+        return ("%s_%s" % (crypto, fiat)).lower()
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://www.bit-z.com/api_v1/ticker?coin=%s" % (self.make_market(crypto, fiat))
+        resp = self.get_url(url).json()
+        return float(resp['data']['last'])

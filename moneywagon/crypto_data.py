@@ -40,7 +40,7 @@ crypto_data = {
                 'usd': [
                     Bitstamp, GDAX, Wex, Gemini, Huobi, Bittrex, CexIO, YoBit,
                     Poloniex, Winkdex, ChainSo, Kraken, BitFinex, xBTCe, Vircurex,
-                    HitBTC, LiveCoin, BitFlyer, ItBit, KuCoin, CCex, OKEX
+                    HitBTC, LiveCoin, BitFlyer, ItBit, KuCoin, CCex, OKEX, BitZ
                 ],
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
                 'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe], 'gbp': [Kraken, xBTCe],
@@ -107,7 +107,7 @@ crypto_data = {
         'services': {
             'current_price': {
                 'usd': [
-                    Wex, GDAX, Poloniex, Kraken, Cryptopia, ChainSo, OKEX
+                    Wex, GDAX, Poloniex, Kraken, Cryptopia, ChainSo, OKEX,
                     xBTCe, YoBit, UseCryptos, HitBTC, LiveCoin, BitFinex, CCex
                 ],
                 'cny': [Wex, Huobi, BTER, xBTCe, ViaBTC, ChainSo, OKcoin, BTC38, BTCChina],
@@ -116,7 +116,7 @@ crypto_data = {
                     GDAX, Wex, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
                     ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange, BitFinex,
                     BitcoinIndonesia, BTCChina, Liqui, LiveCoin, CryptoDao, KuCoin,
-                    CCex, OKEX
+                    CCex, OKEX, BitZ
                 ],
                 'doge': [CCex], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
                 '*': [Cryptonator, Vircurex, YoBit],
@@ -163,7 +163,7 @@ crypto_data = {
                 'usd': [Wex, xBTCe, ChainSo, LiveCoin], 'eur': [UseCryptos],
                 'btc': [
                     Wex, xBTCe, BleuTrade, ChainSo, Bittrex, BTER, Poloniex, Vircurex,
-                    YoBit, UseCryptos
+                    YoBit, UseCryptos, BitZ
                 ], 'doge': [BleuTrade], 'cny': [BTC38],
                 '*': [Cryptonator]
             },
@@ -215,7 +215,8 @@ crypto_data = {
                 'rur': [YoBit], 'ltc': [NovaExchange],
                 'btc': [
                     Bittrex, Poloniex, BleuTrade, ChainSo, BTER, YoBit, HitBTC,
-                    NovaExchange, Vircurex, BitcoinIndonesia, UseCryptos, LiveCoin
+                    NovaExchange, Vircurex, BitcoinIndonesia, UseCryptos, LiveCoin,
+                    BitZ
                 ],
                 '*': [Cryptonator],
             },
@@ -438,7 +439,7 @@ crypto_data = {
                 'btc': [
                     Bittrex, Poloniex, Cryptopia, ChainSo, YoBit, CexIO, BleuTrade,
                     NovaExchange, Kraken, UseCryptos, Liqui, HitBTC, LiveCoin,
-                    CryptoDao, BitFinex, CCex
+                    CryptoDao, BitFinex, CCex, BitZ
                 ], 'cny': [xBTCe, BTC38], 'eur': [UseCryptos, Kraken],
                 '*': [Cryptonator], 'uno': [Cryptopia], 'moon': [NovaExchange]
             },
@@ -1013,13 +1014,13 @@ crypto_data = {
         'services': {
             'current_price': {
                 'rur': [YoBit, xBTCe, LiveCoin], 'cny': [ViaBTC, Yunbi, xBTCe],
-                'usd': [GDAX, Kraken, BitFinex, HitBTC, OKEX, xBTCe, Liqui, LiveCoin, KuCoin],
+                'usd': [GDAX, Kraken, BitFinex, HitBTC, BitZ, OKEX, xBTCe, Liqui, LiveCoin, KuCoin],
                 'jpy': [Kraken, xBTCe], 'cad': [Kraken],  'krw': [CoinOne],
                 'eur': [xBTCe, Kraken, HitBTC], 'gbp': [Kraken], 'mxn': [Bitso],
                 'btc': [
                     Poloniex, GDAX, BitFinex, Kraken, xBTCe, BleuTrade, Bittrex,
                     CexIO, HitBTC, BitcoinIndonesia, EtherChain, YoBit, Cryptopia,
-                    Bitso, Liqui, LiveCoin, BitFlyer, KuCoin, CCex, OKEX
+                    Bitso, Liqui, LiveCoin, BitFlyer, KuCoin, CCex, OKEX, BitZ
                 ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
@@ -1044,7 +1045,7 @@ crypto_data = {
             'current_price': {
                 'btc': [
                     Poloniex, BitFinex, HitBTC, Bittrex, CCex,
-                    Kraken, Cryptopia, YoBit, Yunbi, OKEX
+                    Kraken, Cryptopia, YoBit, Yunbi, OKEX, BitZ
                 ],
                 'usd': [Kraken, BitFinex, OKEX, CCex, HitBTC], 'doge': [Cryptopia],
                 'ltc': [CCex, Cryptopia], 'uno': [Cryptopia], 'krw': [CoinOne],
@@ -1100,7 +1101,7 @@ crypto_data = {
         'port': None,
         'services': {
             'current_price': {
-                'btc': [Poloniex, Cryptopia, UseCryptos, BleuTrade, LiveCoin],
+                'btc': [Poloniex, Cryptopia, BitZ, UseCryptos, BleuTrade, LiveCoin],
                 'ltc': [Cryptopia], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator], 'cny': [BTC38],
             },
@@ -1126,7 +1127,7 @@ crypto_data = {
         'port': None,
         'services': {
             'current_price': {
-                'btc': [Poloniex, Cryptopia, Vircurex, BleuTrade], 'ltc': [Cryptopia],
+                'btc': [Poloniex, BitZ, Cryptopia, Vircurex, BleuTrade], 'ltc': [Cryptopia],
                 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 'cny': [BTC38],
                 '*': [Cryptonator],
@@ -1189,7 +1190,7 @@ crypto_data = {
         'port': 8233,
         'services': {
             'current_price': {
-                'btc': [Bittrex, BitFinex, HitBTC, YoBit, Kraken],
+                'btc': [Bittrex, BitFinex, HitBTC, YoBit, Kraken, BitZ],
                 'usd': [BitFinex, Kraken, HitBTC], 'bch': [CoinEx],
                 'eth': [HitBTC], 'eur': [Kraken], 'cny': [ViaBTC], '*': [Cryptonator],
             },
@@ -2280,7 +2281,7 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [Bittrex], 'ltc': [], 'usd': [], 'doge': []
+                'btc': [Bittrex, BitZ], 'ltc': [], 'usd': [], 'doge': []
             },
             'address_balance': [CryptoID, ParticlInsight],
             'historical_transactions': [ParticlInsight],
@@ -2324,7 +2325,7 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [Bitstamp, Kraken, Bittrex, HitBTC, OKEX], 'eur': [Kraken],
+                'btc': [Bitstamp, Kraken, Bittrex, HitBTC, OKEX, BitZ], 'eur': [Kraken],
                 'usd': [HitBTC, Bitstamp, Kraken, OKEX], 'eth': [HitBTC], '*': [Cryptonator]
             },
             'address_balance': [
@@ -2381,7 +2382,7 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [LiveCoin], 'ltc': [], 'usd': [CCex, LiveCoin], 'doge': []
+                'btc': [LiveCoin, BitZ], 'ltc': [], 'usd': [CCex, LiveCoin], 'doge': []
             },
             'address_balance': [LeoCoinInsight],
             'historical_transactions': [LeoCoinInsight],
@@ -2422,7 +2423,7 @@ crypto_data = {
         'services': {
             'current_price': {
                 'btc': [
-                    Poloniex, Bittrex, LiveCoin, Cryptopia, YoBit, NovaExchange
+                    Poloniex, Bittrex, LiveCoin, Cryptopia, YoBit, NovaExchange, BitZ
                 ], 'ltc': [Cryptopia], 'usd': [], 'doge': [Cryptopia, NovaExchange]
             },
             'address_balance': [],
@@ -2498,7 +2499,7 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [], 'ltc': [], 'usd': [], 'doge': []
+                'btc': [BitZ], 'ltc': [], 'usd': [], 'doge': []
             },
             'address_balance': [],
             'historical_transactions': [],
@@ -2679,7 +2680,7 @@ crypto_data = {
             'current_price': {
                 'btc': [
                     Bittrex, BitFinex, BleuTrade, CexIO, Cryptopia, HitBTC,
-                    KuCoin, NovaExchange, YoBit, OKEX
+                    KuCoin, NovaExchange, YoBit, OKEX, BitZ
                 ],
                 'ltc': [Cryptopia],
                 'usd': [BitFinex, Bittrex, CexIO, HitBTC, YoBit], 'eur': [CexIO],
