@@ -2308,3 +2308,20 @@ class BitZ(Service):
         url = "https://www.bit-z.com/api_v1/ticker?coin=%s" % (self.make_market(crypto, fiat))
         resp = self.get_url(url).json()
         return float(resp['data']['last'])
+
+class Zaif(Service):
+    service_id = 141
+
+    def check_error(self, response):
+        j = response.json()
+        if 'error' in j:
+            raise ServiceError("Zaif returned error: %s" % (j['error']))
+        super(Zaif, self).check_error(response)
+
+    def make_market(self, crypto, fiat):
+        return ("%s_%s" % (crypto, fiat)).lower()
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.zaif.jp/api/1/ticker/%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return resp['last']
