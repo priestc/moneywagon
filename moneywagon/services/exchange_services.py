@@ -2133,20 +2133,15 @@ class ItBit(Service):
 
 class KuCoin(Service):
     service_id = 133
+    symbol_mapping = (
+        ('usd', 'usdt'),
+    )
 
     def make_market(self, crypto, fiat):
         return ("%s-%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
 
-    def fix_symbol(self, symbol):
-        if symbol == 'usd':
-            return 'usdt'
-        return symbol
-
     def parse_market(self, market):
-        crypto, fiat = market.lower().split('-')
-        if fiat == 'usdt':
-            fiat = 'usd'
-        return crypto, fiat
+        return super(KuCoin, self).parse_market(market.lower(), '-')
 
     def get_pairs(self):
         url = "https://api.kucoin.com/v1/market/open/symbols"
@@ -2280,9 +2275,6 @@ class OKEX(Service):
             raise ServiceError("OKEX returned error: %s" % j['error_code'])
         super(OKEX, self).check_error(response)
 
-    def make_market(self, crypto, fiat):
-        return ("%s_%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).lower()
-
     def get_current_price(self, crypto, fiat):
         url = "https://www.okex.com/api/v1/ticker.do?symbol=%s" % (
             self.make_market(crypto, fiat)
@@ -2301,9 +2293,6 @@ class BitZ(Service):
             ))
         super(BitZ, self).check_error(response)
 
-    def make_market(self, crypto, fiat):
-        return ("%s_%s" % (crypto, fiat)).lower()
-
     def get_current_price(self, crypto, fiat):
         url = "https://www.bit-z.com/api_v1/ticker?coin=%s" % (self.make_market(crypto, fiat))
         resp = self.get_url(url).json()
@@ -2318,10 +2307,24 @@ class Zaif(Service):
             raise ServiceError("Zaif returned error: %s" % (j['error']))
         super(Zaif, self).check_error(response)
 
-    def make_market(self, crypto, fiat):
-        return ("%s_%s" % (crypto, fiat)).lower()
-
     def get_current_price(self, crypto, fiat):
         url = "https://api.zaif.jp/api/1/ticker/%s" % self.make_market(crypto, fiat)
         resp = self.get_url(url).json()
         return resp['last']
+
+class Korbit(Service):
+    service_id = 142
+    api_homepage = "https://apidocs.korbit.co.kr/"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.korbit.co.kr/v1/ticker?currency_pair=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.korbit.co.kr/v1/orderbook?currency_pair=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
+        }
