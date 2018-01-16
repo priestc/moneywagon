@@ -4,7 +4,7 @@ from binascii import hexlify
 from tabulate import tabulate
 import hashlib
 
-from base58 import b58decode_check
+from base58 import b58decode_check, b58encode_check
 
 from .core import (
     AutoFallbackFetcher, enforce_service_mode, get_optimal_services, get_magic_bytes,
@@ -45,9 +45,9 @@ class CompositeService(object):
         service2 = services2[0]
 
         self.name = "%s -> %s (via %s)" % (
-            service1.name, service2.name, via.upper()
+            service1.name, getattr(service2, 'name', 'None'), via.upper()
         )
-        self.last_url = "%s, %s" % (service1.last_url, service2.last_url)
+        self.last_url = "%s, %s" % (service1.last_url, getattr(service2, 'last_url', None))
         self.last_raw_response = CompositeResponse(service1, service2)
         self.service_id = "%d+%d" % (service1.service_id, service2.service_id)
 
@@ -102,12 +102,15 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, helper_price
         modes['report_services'] = before
 
         if modes.get('report_services', False):
+            #print("composit service:", crypto, fiat, services1, services2)
             serv = CompositeService(services1, services2, convert_crypto)
             return [serv], converted_price * fiat_price
         else:
             return converted_price * fiat_price
 
-    for composite_attempt in ['btc', 'ltc', 'doge', 'uno']:
+    all_composite_cryptos = ['btc', 'ltc', 'doge', 'uno']
+    if crypto in all_composite_cryptos: all_composite_cryptos.remove(crypto)
+    for composite_attempt in all_composite_cryptos:
         if composite_attempt in services and services[composite_attempt]:
             result = _do_composite_price_fetch(
                 crypto, composite_attempt, fiat, helper_prices, modes
@@ -435,6 +438,13 @@ def guess_currency_from_address(address):
 
     raise ValueError("Unknown Currency with first byte: %s" % first_byte)
 
+def change_version_byte(address, new_version):
+    """
+    Convert the passed in address (or any base58 encoded string), and change the
+    version byte to `new_version`.
+    """
+    payload = b58decode_check(address)[1:]
+    return b58encode_check(chr(new_version) + payload)
 
 class OptimalFee(AutoFallbackFetcher):
     def action(self, crypto, tx_bytes):
@@ -675,7 +685,7 @@ class ExchangeUniverse(object):
             except NotImplementedError:
                 pass
             except Exception as exc:
-                print("%s returned error: %s" % (service.__name__, exc))
+                print("%s returned error: %s" % (service.__class__.__name__, exc))
 
     def find_pair(self, crypto="", fiat="", verbose=False):
         """

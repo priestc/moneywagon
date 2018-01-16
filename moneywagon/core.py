@@ -63,19 +63,22 @@ class Service(object):
     socketio_url = None
     exchange_fee_rate = None
     api_key = False
+    symbol_mapping = None
 
     @ClassProperty
     @classmethod
     def name(cls):
         return cls.__name__
 
-    def __init__(self, verbose=False, responses=None, timeout=None, random_wait_seconds=0):
+    def __init__(self, verbose=False, responses=None, timeout=None, random_wait_seconds=0, api_key=None, api_secret=None):
         self.responses = responses or {} # for caching
         self.verbose = verbose
         self.last_url = None
         self.last_raw_response = None
         self.timeout = timeout
         self.random_wait_seconds = random_wait_seconds
+        self.api_key = api_key
+        self.api_secret = api_secret
         self.total_external_fetch_duration = datetime.timedelta(0)
 
         try:
@@ -111,18 +114,21 @@ class Service(object):
         such as SkipThisService
         """
         if response.status_code == 500:
-            raise SkipThisService("500 - " + response.content)
+            raise ServiceError("500 - " + response.content)
 
         if response.status_code == 503:
             if "DDoS protection by Cloudflare" in response.content:
-                raise SkipThisService("Foiled by Cloudfare's DDoS protection")
-            raise SkipThisService("503 - Temporarily out of service.")
+                raise ServiceError("Foiled by Cloudfare's DDoS protection")
+            raise ServiceError("503 - Temporarily out of service.")
 
         if response.status_code == 429:
-            raise SkipThisService("429 - Too many requests")
+            raise ServiceError("429 - Too many requests")
 
         if response.status_code == 404:
-            raise SkipThisService("404 - Not Found")
+            raise ServiceError("404 - Not Found")
+
+        if response.status_code == 400:
+            raise ServiceError("400 - Bad Request")
 
     def convert_currency(self, base_fiat, base_amount, target_fiat):
         """
@@ -142,19 +148,42 @@ class Service(object):
         """
         raise NotImplementedError()
 
-    def fix_symbol(self, symbol):
+    def fix_symbol(self, symbol, reverse=False):
         """
         In comes a moneywagon format symbol, and returned in the symbol converted
         to one the service can understand.
         """
+        if not self.symbol_mapping:
+            return symbol
+
+        for old, new in self.symbol_mapping:
+            if reverse:
+                if symbol == new:
+                    return old
+            else:
+                if symbol == old:
+                    return new
+
         return symbol
 
-    def parse_market(self, market):
+    def parse_market(self, market, split_char='_'):
         """
         In comes the market identifier directly from the service. Returned is
         the crypto and fiat identifier in moneywagon format.
         """
-        raise NotImplementedError()
+        crypto, fiat = market.lower().split(split_char)
+        return (
+            self.fix_symbol(crypto, reverse=True),
+            self.fix_symbol(fiat, reverse=True)
+        )
+
+    def make_market(self, crypto, fiat):
+        """
+        Convert a crypto and fiat to a "market" string. All exchanges use their
+        own format for specifying markets. Subclasses can define their own
+        implementation.
+        """
+        return ("%s_%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).lower()
 
     def make_rpc_call(self, args, internal=False, skip_json=False):
         cmd = [self.cli_path] + [str(a) for a in args]
@@ -450,6 +479,16 @@ class Service(object):
         raise NotImplementedError(
             self.name + " does not support getting exchange balance. "
             "Or rather it has no defined 'get_exchange_balance' method."
+        )
+
+    def get_total_exchange_balances(self):
+        """
+        Returns balances for all currencies held on this service. Returned is a
+        dictionary with currency code as key and float as the value.
+        """
+        raise NotImplementedError(
+            self.name + " does not support getting total exchange balances. "
+            "Or rather it has no defined 'get_total_exchange_balances' method."
         )
 
     def generate_new_deposit_address(self, crypto):

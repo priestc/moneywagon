@@ -873,6 +873,12 @@ class CryptoID(Service):
     name = "CryptoID"
     api_key = "bc1063f00936"
 
+    def check_error(self, response):
+        if response.status_code == 499:
+            raise ServiceError("CryptoID returned error: %s" % response.content)
+
+        super(CryptoID, self).check_error(response)
+
     def get_balance(self, crypto, address, confirmations=1):
         url = "http://chainz.cryptoid.info/%s/api.dws?q=getbalance&a=%s&key=%s" % (
             crypto, address, self.api_key
@@ -2130,13 +2136,17 @@ class ETCchain(Service):
 class Bchain(Service):
     service_id = 76
 
-    def get_balance(self, crypto, address, confirmations=1):
+    def _get_balance(self, crypto, address, confirmations=1):
         url = "https://bchain.info/%s/addr/%s" % (crypto.upper(), address)
         doc = BeautifulSoup(self.get_url(url).content, "html.parser")
         info_script_body = doc.find_all("script")[4].string
         balance = re.findall(";\n\t\tvar balance =.(\d*);", info_script_body)[0]
         return float(balance) / 1e8
 
+    def get_balance(self, crypto, address, confirmations=1):
+        url = "https://bchain.info/%s/api/balance/%s" % (crypto, address)
+        resp = self.get_url(url)
+        return resp.json()['balance'] / 1e8
 
 class PressTab(Service):
     service_id = 79
@@ -2154,7 +2164,7 @@ class MyNXT(Service):
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://www.mynxt.info/blockexplorer/nxt/api_getFullAccount.php?account=%s" % address
         r = self.get_url(url).json()
-        return float(r['balanceNQT']) / 1e10
+        return float(r['balanceNQT']) / 1e8
 
 class ZChain(Service):
     service_id = 81
@@ -2209,9 +2219,9 @@ class MarscoinOfficial(BitpayInsight):
     name = "MarsCoin.org (Insight)"
     version = 0.2
 
-class TRCPress(BitcoinAbe):
+class TerracoinIO(BitcoinAbe):
     service_id = 97
-    base_url = "http://trc.press/chain/Terracoin"
+    base_url = "https://explorer.terracoin.io/chain/Sha256NmcAuxPowChain"
     supported_cryptos = ['trc']
 
 class VergeCurrencyInfo(Iquidus):
@@ -2382,3 +2392,18 @@ class EthPlorer(Service):
         for token in resp['tokens']:
             if token['tokenInfo']['symbol'] == crypto.upper():
                 return token['balance']
+
+class VertcoinInfo(Iquidus):
+    service_id = 135
+    base_url = "http://explorer.vertcoin.info"
+    supported_cryptos = ['vtc']
+
+class THCBlock(Iquidus):
+    service_id = 136
+    base_url = "http://thcblock.ga"
+    supported_crypto = ['thc']
+
+class Btgexp(Iquidus):
+    service_id = 137
+    base_url = "http://btgexp.com"
+    supported_cryptos = ['btg']

@@ -71,9 +71,7 @@ class Bitstamp(Service):
     name = "Bitstamp"
     exchange_fee_rate = 0.0025
 
-    def __init__(self, api_key=None, api_secret=None, customer_id=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
+    def __init__(self, customer_id=None, **kwargs):
         self.customer_id = customer_id
         super(Bitstamp, self).__init__(**kwargs)
 
@@ -122,6 +120,14 @@ class Bitstamp(Service):
             return float(resp["%s_%s" % (currency.lower(), type)])
         except KeyError:
             return 0
+
+    def get_total_exchange_balances(self):
+        url = "https://www.bitstamp.net/api/balance/"
+        resp = self._auth_request(url, {}).json()
+        return {
+            code[:-8]: float(bal) for code, bal in resp.items()
+            if code.endswith("balance") and float(bal) > 0
+        }
 
     def get_deposit_address(self, currency):
         if currency.lower() == 'btc':
@@ -183,13 +189,11 @@ class GDAX(Service):
     name = "GDAX"
     base_url = "https://api.gdax.com"
     api_homepage = "https://docs.gdax.com/"
-    supported_cryptos = ['btc', 'ltc', 'eth']
+    supported_cryptos = ['btc', 'ltc', 'eth', 'bch']
     exchange_fee_rate = 0.0025
 
-    def __init__(self, api_key=None, api_secret=None, api_pass=None, **kwargs):
+    def __init__(self, api_pass=None, **kwargs):
         self.auth = None
-        self.api_key = api_key
-        self.api_secret = api_secret
         self.api_pass = api_pass
 
         super(GDAX, self).__init__(**kwargs)
@@ -245,7 +249,7 @@ class GDAX(Service):
         response = self.post_url(url, json=data, auth=self.auth).json()
         return response['id']
     make_order.supported_types = ['fill-or-kill', 'limit', 'market', 'stop']
-    make_order.minimums = {'btc': 0.01}
+    make_order.minimums = {'btc': 0.0001, 'eth': 0.001, 'ltc': 0.01, 'usd': 1, 'eur': 1, 'gbp': 1}
 
     def list_orders(self, status="open"):
         url = "%s/orders" % self.base_url
@@ -266,6 +270,13 @@ class GDAX(Service):
             return 0
         return float(match[type])
 
+    def get_total_exchange_balances(self):
+        url = "%s/accounts" % self.base_url
+        resp = self.get_url(url, auth=self.auth).json()
+        return {
+            x['currency'].lower(): float(x['balance']) for x in resp
+        }
+
     def initiate_withdraw(self, currency, amount, address):
         url = "%s/withdrawals/crypto" % self.base_url
         resp = self.post_url(url, auth=self.auth, json={
@@ -279,11 +290,6 @@ class BitFinex(Service):
     service_id = 120
     api_homepage = "https://bitfinex.readme.io/v2/reference"
     exchange_fee_rate = 0.002
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(BitFinex, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -404,11 +410,6 @@ class NovaExchange(Service):
     service_id = 89
     name = "NovaExchange"
     api_homepage = "https://novaexchange.com/remote/faq/"
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(NovaExchange, self).__init__(**kwargs)
 
     def make_market(self, crypto, fiat):
         return "%s_%s" % (fiat, crypto)
@@ -722,6 +723,14 @@ class Gemini(Service):
             return 0
         return float(match[type])
 
+    def get_total_exchange_balances(self):
+        path = "/v1/balances"
+        resp = self._auth_request(path, {})
+        return {
+            x['currency'].lower(): float(x['amount']) for x in resp.json()
+            if float(x['amount']) > 0
+        }
+
 
 class CexIO(Service):
     service_id = 64
@@ -729,9 +738,7 @@ class CexIO(Service):
     name = "Cex.io"
     exchange_fee_rate = 0.002
 
-    def __init__(self, api_key=None, api_secret=None, user_id=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
+    def __init__(self, user_id=None, **kwargs):
         self.user_id = user_id
         super(CexIO, self).__init__(**kwargs)
 
@@ -813,16 +820,19 @@ class CexIO(Service):
         except KeyError:
             return 0
 
+    def get_total_exchange_balances(self):
+        url = "https://cex.io/api/balance/"
+        resp = self._auth_request(url, {})
+        return {
+            code.lower(): float(data['available']) for code, data in resp.json().items()
+            if code not in ['timestamp', 'username'] and float(data['available']) > 0
+        }
+
 class Poloniex(Service):
     service_id = 65
     api_homepage = "https://poloniex.com/support/api/"
     name = "Poloniex"
     exchange_fee_rate = 0.0025
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(Poloniex, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -832,8 +842,19 @@ class Poloniex(Service):
         super(Poloniex, self).check_error(response)
 
     def fix_symbol(self, symbol):
-        if symbol.lower() == 'usd':
+        symbol = symbol.lower()
+        if symbol == 'usd':
             return 'usdt'
+        if symbol == 'xlm':
+            return 'str'
+        return symbol
+
+    def reverse_fix_symbol(self, symbol):
+        symbol = symbol.lower()
+        if symbol == 'usdt':
+            return 'usd'
+        if symbol == 'str':
+            return 'xlm'
         return symbol
 
     def get_current_price(self, crypto, fiat):
@@ -869,8 +890,7 @@ class Poloniex(Service):
         ret = []
         for pair in r.keys():
             fiat, crypto = pair.lower().split('_')
-            if fiat == 'usdt': fiat = 'usd'
-            ret.append("%s-%s" % (crypto, fiat))
+            ret.append("%s-%s" % (self.reverse_fix_symbol(crypto), self.reverse_fix_symbol(fiat)))
         return ret
 
     def get_orderbook(self, crypto, fiat):
@@ -960,22 +980,20 @@ class Poloniex(Service):
         return resp.json()['response']
 
     def get_exchange_balance(self, currency, type="available"):
-        if currency == 'usd':
-            currency = 'usdt'
-        resp = self._auth_request({
-            "command": "returnBalances"
-        })
-        return float(resp.json().get(currency.upper()))
+        resp = self._auth_request({"command": "returnBalances"})
+        return float(resp.json().get(self.reverse_fix_symbol(currency).upper()))
+
+    def get_total_exchange_balances(self):
+        resp = self._auth_request({"command": "returnBalances"})
+        return {
+            self.reverse_fix_symbol(code): float(bal) for code, bal in resp.json().items()
+            if float(bal) > 0
+        }
 
 class Bittrex(Service):
     service_id = 66
     api_homepage = "https://bittrex.com/home/api"
     exchange_fee_rate = 0.0025
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(Bittrex, self).__init__(**kwargs)
 
     def check_error(self, response):
         j = response.json()
@@ -997,6 +1015,14 @@ class Bittrex(Service):
         if symbol == 'bch':
             return 'bcc'
 
+        return symbol.lower()
+
+    def reverse_fix_symbol(self, symbol):
+        symbol = symbol.lower()
+        if symbol == 'usdt':
+            return 'usd'
+        if symbol == 'bcc':
+            return 'bch'
         return symbol
 
     def make_market(self, crypto, fiat):
@@ -1064,11 +1090,19 @@ class Bittrex(Service):
         return r['success']
 
     def get_exchange_balance(self, currency, type="available"):
-        if currency.lower() == 'usd':
-            currency = 'usdt'
+        currency = self.fix_symbol(currency)
         path = "/v1.1/account/getbalance"
         resp = self._auth_request(path, {'currency': self.fix_symbol(currency)}).json()['result']
         return resp[type.capitalize()] or 0
+
+    def get_total_exchange_balances(self):
+        path = "/v1.1/account/getbalances"
+        resp = self._auth_request(path, {}).json()['result']
+        return {
+            self.reverse_fix_symbol(x['Currency']): x['Balance'] for x in resp
+            if x['Balance'] > 0
+        }
+
 
     def get_deposit_address(self, crypto):
         path = "/v1.1/account/getdepositaddress"
@@ -1198,6 +1232,11 @@ class Wex(Service):
             return 'dsh'
         return symbol
 
+    def reverse_fix_symbol(self, symbol):
+        if symbol == 'dsh':
+            return 'dash'
+        return symbol
+
     def _fix_fiat_symbol(self, fiat):
         return fiat
 
@@ -1256,6 +1295,13 @@ class Wex(Service):
         except IndexError:
             return 0
 
+    def get_total_exchange_balances(self):
+        resp = self._auth_request({'method': 'getInfo'}).json()['return']['funds']
+        return {
+            self.reverse_fix_symbol(code): bal for code, bal in resp.items()
+            if not code.endswith("et") and bal > 0
+        }
+
     def initiate_withdraw(self, currency, amount, address):
         resp = self._auth_request({
             'method': 'WithdrawCoin',
@@ -1300,19 +1346,21 @@ class HitBTC(Service):
     api_homepage = "https://hitbtc.com/api"
     exchange_fee_rate = 0.001
 
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(HitBTC, self).__init__(**kwargs)
-
     def check_error(self, response):
         j = response.json()
+
+        if response.status_code == 400 and 'error' in j:
+            e = j['error']
+            raise SkipThisService("HitBTC returned %s %s: %s" % (
+                e['code'], e['message'], e['description']
+            ))
+
         if 'code' in j:
             raise SkipThisService("HitBTC returned %s: %s" % (j['code'], j['message']))
         super(HitBTC, self).check_error(response)
 
     def fix_symbol(self, symbol):
-        return symbol
+        return symbol.lower()
 
     def make_market(self, crypto, fiat):
         return ("%s%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
@@ -1363,6 +1411,13 @@ class HitBTC(Service):
 
         raise NotImplemented()
 
+    def get_total_exchange_balances(self):
+        resp = self._auth_request("/api/1/trading/balance", {}, method="get")
+        return {
+            self.fix_symbol(x['currency_code']): float(x['cash'])
+            for x in resp.json()['balance'] if float(x['cash']) > 0
+        }
+
     def get_deposit_address(self, currency):
         path = "/api/1/payment/address/%s" % self.fix_symbol(currency).upper()
         resp = self._auth_request(path, {}, method="get").json()
@@ -1385,6 +1440,7 @@ class HitBTC(Service):
         resp = self._auth_request(path, params).json()
         return resp
     make_order.minimums = {}
+    make_order.supported_types = ['fill-or-kill', 'limit']
 
 
 class Liqui(Service):
@@ -1643,11 +1699,6 @@ class Cryptopia(Service):
     api_homepage = "https://www.cryptopia.co.nz/Forum/Thread/255"
     exchange_fee_rate = 0.002
 
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(Cryptopia, self).__init__(**kwargs)
-
     def check_error(self, response):
         r = response.json()
         error = r.get('Error', False)
@@ -1658,6 +1709,12 @@ class Cryptopia(Service):
     def fix_symbol(self, symbol):
         if symbol.lower() in ['nzd', 'usd']:
             symbol += "t"
+        return symbol
+
+    def reverse_fix_symbol(self, symbol):
+        symbol = symbol.lower()
+        if symbol in ['nzdt', 'usdt']:
+            symbol = symbol[:-1]
         return symbol
 
     def make_market(self, crypto, fiat):
@@ -1719,6 +1776,7 @@ class Cryptopia(Service):
         resp = self._auth_request("SubmitTrade", args).json()
         return resp['Data']['OrderId']
     make_order.minimums = {}
+    make_order.supported_types = ['limit']
 
     def get_exchange_balance(self, currency):
         curr = self.fix_symbol(currency).upper()
@@ -1729,6 +1787,14 @@ class Cryptopia(Service):
         for item in resp.json()['Data']:
             if item['Symbol'] == curr:
                 return item['Total']
+
+    def get_total_exchange_balances(self):
+        resp = self._auth_request('GetBalance', {}).json()
+        #return resp.json()
+        return {
+            self.reverse_fix_symbol(x['Symbol']): x['Total'] for x in resp['Data']
+            if x['Total'] > 0
+        }
 
     def get_deposit_address(self, currency):
         curr = self.fix_symbol(currency).upper()
@@ -1747,11 +1813,6 @@ class Cryptopia(Service):
 class YoBit(Service):
     service_id = 77
     api_homepage = "https://www.yobit.net/en/api/"
-
-    def __init__(self, api_key=None, api_secret=None, **kwargs):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        super(YoBit, self).__init__(**kwargs)
 
     def get_current_price(self, crypto, fiat):
         pair = "%s_%s" % (crypto.lower(), fiat.lower())
@@ -2072,20 +2133,15 @@ class ItBit(Service):
 
 class KuCoin(Service):
     service_id = 133
+    symbol_mapping = (
+        ('usd', 'usdt'),
+    )
 
     def make_market(self, crypto, fiat):
         return ("%s-%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).upper()
 
-    def fix_symbol(self, symbol):
-        if symbol == 'usd':
-            return 'usdt'
-        return symbol
-
     def parse_market(self, market):
-        crypto, fiat = market.lower().split('-')
-        if fiat == 'usdt':
-            fiat = 'usd'
-        return crypto, fiat
+        return super(KuCoin, self).parse_market(market.lower(), '-')
 
     def get_pairs(self):
         url = "https://api.kucoin.com/v1/market/open/symbols"
@@ -2111,10 +2167,20 @@ class KuCoin(Service):
 
 class CCex(Service):
     service_id = 134
+    api_homepage = "https://c-cex.com/?id=api"
+    base_url = "https://c-cex.com/t/api_pub.html"
+
+    def check_error(self, response):
+        if response.content == "Maintenance...":
+            raise ServiceError("C-Cex is down for maintenance")
+        super(CCex, self).check_error(response)
+
+    def make_market(self, crypto, fiat):
+        return "%s-%s" % (crypto.lower(), fiat.lower())
 
     def get_current_price(self, crypto, fiat):
-        url = "https://c-cex.com/t/%s-%s.json" % (
-            crypto.lower(), fiat.lower()
+        url = "https://c-cex.com/t/%s.json" % (
+            self.make_market(crypto, fiat)
         )
         response = self.get_url(url).json()
         return float(response['ticker']['lastprice'])
@@ -2123,3 +2189,142 @@ class CCex(Service):
         url = "https://c-cex.com/t/pairs.json"
         r = self.get_url(url).json()
         return r['pairs']
+
+    def get_orderbook(self, crypto, fiat):
+        url = "%s?a=getorderbook&market=%s&type=both" % (
+            self.base_url, self.make_market(crypto, fiat)
+        )
+        resp = self.get_url(url).json()['result']
+        return {
+            'bids': [(x["Rate"], x["Quantity"]) for x in resp['buy']],
+            'asks': [(x["Rate"], x["Quantity"]) for x in resp['sell']]
+        }
+
+    def _auth_request(self, params):
+        params['nonce'] = make_standard_nonce()
+        params['apikey'] = self.api_key
+        url = "%s?%s" % (self.base_url, urlencode(params))
+        headers = {'apisign': self._make_signature(url)}
+        return self.get_url(url, headers=headers)
+
+    def _make_signature(self, url):
+        return hmac.new(
+            self.api_secret,
+            msg=url,
+            digestmod=hashlib.sha512
+        ).hexdigest()
+
+    def get_exchange_balance(self, currency, type="available"):
+        resp = self._auth_request({'a': 'getbalance', 'currency': currency})
+        if type == 'available':
+            return resp.json()['Available']
+
+    def get_deposit_address(self, currency):
+        resp = self._auth_request({'a': 'getbalance', 'currency': currency})
+        return resp.json()['CryptoAddress']
+
+class CoinEx(Service):
+    service_id = 138
+
+    def __init__(self, access_id=None, **kwargs):
+        self.access_id = access_id
+        return super(CoinEx, self).__init__(**kwargs)
+
+    def get_pairs(self):
+        url = "https://api.coinex.com/v1/market/list"
+        resp = self.get_url(url).json()['data']
+        return [("%s-%s" % (x[:-3], x[-3:])).lower() for x in resp]
+
+    def make_market(self, crypto, fiat):
+        return ("%s%s" % (crypto, fiat)).upper()
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.coinex.com/v1/market/ticker?market=%s" % (
+            self.make_market(crypto, fiat)
+        )
+        resp = self.get_url(url).json()
+        return float(resp['data']['ticker']['last'])
+
+    def _auth_request(self, url, params=None):
+        params['tonce'] = make_standard_nonce()
+        params['access_id'] = self.access_id
+        str_params = urlencode(sorted(params.items(), key=lambda x: x[0]))
+        to_sign = str_params + "&secret_key=%s" % self.api_secret
+        digest = hashlib.md5(to_sign).hexdigest().upper()
+        return self.get_url(url + str_params, headers={
+            'Content-Type': 'application/json',
+            'authorization': digest
+        })
+
+    def get_exchange_balance(self, crypto):
+        url = "https://api.coinex.com/v1/balance/"
+        resp = self._auth_request(url, {}).json()
+        return resp
+
+
+class OKEX(Service):
+    service_id = 139
+    api_homepage = 'https://www.okex.com/rest_api.html'
+    symbol_mapping = (
+        ('usd', 'usdt'),
+    )
+
+    def check_error(self, response):
+        j = response.json()
+        if 'error_code' in j:
+            raise ServiceError("OKEX returned error: %s" % j['error_code'])
+        super(OKEX, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://www.okex.com/api/v1/ticker.do?symbol=%s" % (
+            self.make_market(crypto, fiat)
+        )
+        resp = self.get_url(url).json()
+        return float(resp['ticker']['last'])
+
+class BitZ(Service):
+    service_id = 140
+
+    def check_error(self, response):
+        j = response.json()
+        if not j['code'] == 0:
+            raise ServiceError("BitZ returned error: %s: %s" % (
+                j['code'], j['msg']
+            ))
+        super(BitZ, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://www.bit-z.com/api_v1/ticker?coin=%s" % (self.make_market(crypto, fiat))
+        resp = self.get_url(url).json()
+        return float(resp['data']['last'])
+
+class Zaif(Service):
+    service_id = 141
+
+    def check_error(self, response):
+        j = response.json()
+        if 'error' in j:
+            raise ServiceError("Zaif returned error: %s" % (j['error']))
+        super(Zaif, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.zaif.jp/api/1/ticker/%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return resp['last']
+
+class Korbit(Service):
+    service_id = 142
+    api_homepage = "https://apidocs.korbit.co.kr/"
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.korbit.co.kr/v1/ticker?currency_pair=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.korbit.co.kr/v1/orderbook?currency_pair=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
+        }

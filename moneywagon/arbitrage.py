@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+from collections import defaultdict
+
 from moneywagon import ExchangeUniverse
 from moneywagon.services import Service
 
@@ -20,6 +22,31 @@ def all_balances(currency, services=None, verbose=False, timeout=None):
         except NotImplementedError:
             if verbose:
                 print(e.name, "balance not implemented")
+        except Exception as exc:
+            if verbose:
+                print(e.name, "failed:", exc.__class__.__name__, str(exc))
+
+    return balances
+
+def total_exchange_balances(services=None, verbose=None, timeout=None):
+    """
+    Returns all balances for all currencies for all exchanges
+    """
+    balances = defaultdict(lambda: 0)
+    if not services:
+        services = [
+            x(verbose=verbose, timeout=timeout)
+            for x in ExchangeUniverse.get_authenticated_services()
+        ]
+
+    for e in services:
+        try:
+            more_balances = e.get_total_exchange_balances()
+            for code, bal in more_balances.items():
+                balances[code] += bal
+        except NotImplementedError:
+            if verbose:
+                print(e.name, "total balance not implemented")
         except Exception as exc:
             if verbose:
                 print(e.name, "failed:", exc.__class__.__name__, str(exc))
