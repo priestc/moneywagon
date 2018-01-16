@@ -2350,3 +2350,49 @@ class CoinEgg(Service):
             'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']]
         }
+
+class ZB(Service):
+    service_id = 144
+    api_homepage = "https://www.zb.com/i/developer"
+    symbol_mapping = (
+        ('usd', 'usdt'),
+        ('bch', 'bcc')
+    )
+
+    def get_pairs(self):
+        url = "http://api.zb.com/data/v1/markets"
+        resp = self.get_url(url).json()
+        pairs = []
+        for pair in resp.keys():
+            pairs.append("%s-%s" % self.parse_market(pair))
+        return pairs
+
+    def get_current_price(self, crypto, fiat):
+        url = "http://api.zb.com/data/v1/ticker?market=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['ticker']['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "http://api.zb.com/data/v1/depth?market=%s&size=3" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        del resp['timestamp']
+        return resp
+
+class CoinNest(Service):
+    service_id = 145
+    api_homepage = "https://www.coinnest.co.kr/doc/intro.html"
+
+    def get_current_price(self, crypto, fiat):
+        if fiat.lower() != 'krw':
+            raise SkipThisService("Only KRW markets supported")
+        url = "https://api.coinnest.co.kr/api/pub/ticker?coin=%s" % crypto
+        resp = self.get_url(url).json()
+        return resp['last']
+
+    def get_orderbook(self, crypto, fiat):
+        if fiat.lower() != 'krw':
+            raise SkipThisService("Only KRW markets supported")
+        url = "https://api.coinnest.co.kr/api/pub/depth?coin=%s" % crypto
+        resp = self.get_url(url).json()
+        del resp['result']
+        return resp
