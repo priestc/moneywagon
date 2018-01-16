@@ -2328,3 +2328,25 @@ class Korbit(Service):
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
             'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
         }
+
+class CoinEgg(Service):
+    service_id = 143
+    api_homepage = "https://www.coinegg.com/explain.api.html#partone"
+
+    def get_current_price(self, crypto, fiat):
+        if fiat.lower() != 'btc':
+            raise SkipThisService("Only BTC markets supported")
+        url = "https://api.coinegg.com/api/v1/ticker/?coin=%s" % crypto
+        resp = self.get_url(url).json()
+        return float(resp['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        if fiat.lower() != 'btc':
+            raise SkipThisService("Only BTC markets supported")
+
+        url = "https://api.coinegg.com/api/v1/depth/"
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']]
+        }
