@@ -2396,3 +2396,23 @@ class CoinNest(Service):
         resp = self.get_url(url).json()
         del resp['result']
         return resp
+
+class BitBank(Service):
+    service_id = 147
+    api_homepage = "https://docs.bitbank.cc/"
+    symbol_mapping = (
+        ('bch', 'bcc'),
+    )
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://public.bitbank.cc/%s/ticker" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['data']['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://public.bitbank.cc/%s/depth" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), float(x[1])) for x in resp['data']['asks']],
+            'bids': [(float(x[0]), float(x[1])) for x in resp['data']['bids']]
+        }

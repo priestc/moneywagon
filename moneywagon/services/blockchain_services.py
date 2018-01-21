@@ -2407,3 +2407,9 @@ class Btgexp(Iquidus):
     service_id = 137
     base_url = "http://btgexp.com"
     supported_cryptos = ['btg']
+
+class MonaInsight(BitpayInsight):
+    service_id = 146
+    domain = 'mona.chainsight.info'
+    supported_crypto = ['mona']
+    version = 0.2

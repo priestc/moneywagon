@@ -43,7 +43,8 @@ crypto_data = {
                     HitBTC, LiveCoin, BitFlyer, ItBit, KuCoin, CCex, OKEX, BitZ, ZB
                 ],
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
-                'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe, Zaif], 'gbp': [Kraken, xBTCe],
+                'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe, Zaif, BitBank],
+                'gbp': [Kraken, xBTCe],
                 'eur': [Bitstamp, HitBTC, xBTCe, UseCryptos, LiveCoin, Kraken, ChainSo, ItBit],
                 'cad': [Kraken], 'zar': [BitX], 'myr': [BitX], 'ngn': [BitX],
                 'idr': [BitcoinIndonesia, BitX], 'mxn': [Bitso], 'bgn': [CryptoBG],
@@ -116,7 +117,7 @@ crypto_data = {
                     GDAX, Wex, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
                     ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange, BitFinex,
                     BitcoinIndonesia, BTCChina, Liqui, LiveCoin, CryptoDao, KuCoin,
-                    CCex, OKEX, BitZ, CoinEgg, ZB
+                    CCex, OKEX, BitZ, CoinEgg, ZB, BitBank
                 ],
                 'doge': [CCex], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
                 '*': [Cryptonator, Vircurex, YoBit],
@@ -883,7 +884,7 @@ crypto_data = {
                     HitBTC, Bitso, BitcoinIndonesia, Kraken, ZB
                 ],
                 'cad': [Kraken], 'usd': [BitFinex, Bitstamp, Kraken, xBTCe, ZB],
-                'eur': [Bitstamp, Kraken, xBTCe], 'jpy': [Kraken], 'mxn': [Bitso],
+                'eur': [Bitstamp, Kraken, xBTCe], 'jpy': [Kraken, BitBank], 'mxn': [Bitso],
                 'krw': [CoinOne], 'cny': [BTC38], '*': [Cryptonator], 'qc': [ZB],
             },
         }
@@ -1026,7 +1027,8 @@ crypto_data = {
                 'btc': [
                     Poloniex, GDAX, BitFinex, Kraken, xBTCe, BleuTrade, Bittrex,
                     CexIO, HitBTC, BitcoinIndonesia, EtherChain, YoBit, Cryptopia,
-                    Bitso, Liqui, LiveCoin, BitFlyer, KuCoin, CCex, OKEX, BitZ, ZB
+                    Bitso, Liqui, LiveCoin, BitFlyer, KuCoin, CCex, OKEX, BitZ, ZB,
+                    BitBank
                 ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
@@ -2330,8 +2332,8 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [Bitstamp, Kraken, Bittrex, HitBTC, OKEX, BitZ, CoinEgg, ZB],
-                'eur': [Kraken], 'usd': [HitBTC, Bitstamp, Kraken, OKEX, ZB],
+                'btc': [Bitstamp, Kraken, Bittrex, HitBTC, OKEX, BitZ, CoinEgg, ZB, BitBank],
+                'eur': [Kraken], 'usd': [HitBTC, Bitstamp, Kraken, OKEX, ZB], 'jpy': [BitBank],
                 'eth': [HitBTC], 'krw': [CoinNest], '*': [Cryptonator]
             },
             'address_balance': [
@@ -2700,6 +2702,41 @@ crypto_data = {
             'push_tx': [],
             'unspent_outputs': [],
             'get_block': [],
+            'get_optimal_fee': []
+        },
+    },
+    'mona': {
+        'name': 'MonaCoin',
+        'address_version_byte': 50,
+        'bip44_coin_type': 0x80000016,
+        'private_key_prefix': 176,
+        'script_hash_byte': 55,
+        'message_magic': None,
+        'genesis_date': datetime(2013, 12, 31, 8, 44),
+        'github_link': None,
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex, BleuTrade, BitBank], 'ltc': [], 'usd': [],
+                'jpy': [BitBank, Zaif]
+            },
+            'address_balance': [MonaInsight],
+            'historical_transactions': [MonaInsight],
+            'single_transaction': [MonaInsight],
+            'push_tx': [MonaInsight],
+            'unspent_outputs': [MonaInsight],
+            'get_block': [MonaInsight],
             'get_optimal_fee': []
         },
     },
