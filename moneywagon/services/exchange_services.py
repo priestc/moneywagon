@@ -2416,3 +2416,31 @@ class BitBank(Service):
             'asks': [(float(x[0]), float(x[1])) for x in resp['data']['asks']],
             'bids': [(float(x[0]), float(x[1])) for x in resp['data']['bids']]
         }
+
+class EXX(Service):
+    service_id = 148
+    symbol_mapping = (
+        ('usd', 'usdt'),
+        ('bch', 'bcc')
+    )
+
+    def get_pairs(self):
+        url = "https://api.exx.com/data/v1/markets"
+        resp = self.get_url(url).json()
+        pairs = []
+        for pair in resp.keys():
+            pairs.append("%s-%s" % self.parse_market(pair))
+        return pairs
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.exx.com/data/v1/ticker?currency=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['ticker']['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.exx.com/data/v1/depth?currency=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
+        }
