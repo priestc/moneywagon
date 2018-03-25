@@ -2251,7 +2251,7 @@ class CoinEx(Service):
         str_params = urlencode(sorted(params.items(), key=lambda x: x[0]))
         to_sign = str_params + "&secret_key=%s" % self.api_secret
         digest = hashlib.md5(to_sign).hexdigest().upper()
-        return self.get_url(url + str_params, headers={
+        return self.get_url(url + "?" + str_params, headers={
             'Content-Type': 'application/json',
             'authorization': digest
         })
@@ -2323,6 +2323,122 @@ class Korbit(Service):
 
     def get_orderbook(self, crypto, fiat):
         url = "https://api.korbit.co.kr/v1/orderbook?currency_pair=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
+        }
+
+class CoinEgg(Service):
+    service_id = 143
+    api_homepage = "https://www.coinegg.com/explain.api.html#partone"
+
+    def get_current_price(self, crypto, fiat):
+        if fiat.lower() != 'btc':
+            raise SkipThisService("Only BTC markets supported")
+        url = "https://api.coinegg.com/api/v1/ticker/?coin=%s" % crypto
+        resp = self.get_url(url).json()
+        return float(resp['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        if fiat.lower() != 'btc':
+            raise SkipThisService("Only BTC markets supported")
+
+        url = "https://api.coinegg.com/api/v1/depth/"
+        resp = self.get_url(url).json()
+        return {
+            'bids': [(float(x[0]), float(x[1])) for x in resp['bids']],
+            'asks': [(float(x[0]), float(x[1])) for x in resp['asks']]
+        }
+
+class ZB(Service):
+    service_id = 144
+    api_homepage = "https://www.zb.com/i/developer"
+    symbol_mapping = (
+        ('usd', 'usdt'),
+        ('bch', 'bcc')
+    )
+
+    def get_pairs(self):
+        url = "http://api.zb.com/data/v1/markets"
+        resp = self.get_url(url).json()
+        pairs = []
+        for pair in resp.keys():
+            pairs.append("%s-%s" % self.parse_market(pair))
+        return pairs
+
+    def get_current_price(self, crypto, fiat):
+        url = "http://api.zb.com/data/v1/ticker?market=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['ticker']['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "http://api.zb.com/data/v1/depth?market=%s&size=3" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        del resp['timestamp']
+        return resp
+
+class CoinNest(Service):
+    service_id = 145
+    api_homepage = "https://www.coinnest.co.kr/doc/intro.html"
+
+    def get_current_price(self, crypto, fiat):
+        if fiat.lower() != 'krw':
+            raise SkipThisService("Only KRW markets supported")
+        url = "https://api.coinnest.co.kr/api/pub/ticker?coin=%s" % crypto
+        resp = self.get_url(url).json()
+        return resp['last']
+
+    def get_orderbook(self, crypto, fiat):
+        if fiat.lower() != 'krw':
+            raise SkipThisService("Only KRW markets supported")
+        url = "https://api.coinnest.co.kr/api/pub/depth?coin=%s" % crypto
+        resp = self.get_url(url).json()
+        del resp['result']
+        return resp
+
+class BitBank(Service):
+    service_id = 147
+    api_homepage = "https://docs.bitbank.cc/"
+    symbol_mapping = (
+        ('bch', 'bcc'),
+    )
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://public.bitbank.cc/%s/ticker" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['data']['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://public.bitbank.cc/%s/depth" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return {
+            'asks': [(float(x[0]), float(x[1])) for x in resp['data']['asks']],
+            'bids': [(float(x[0]), float(x[1])) for x in resp['data']['bids']]
+        }
+
+class EXX(Service):
+    service_id = 148
+    symbol_mapping = (
+        ('usd', 'usdt'),
+        ('bch', 'bcc')
+    )
+
+    def get_pairs(self):
+        url = "https://api.exx.com/data/v1/markets"
+        resp = self.get_url(url).json()
+        pairs = []
+        for pair in resp.keys():
+            pairs.append("%s-%s" % self.parse_market(pair))
+        return pairs
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.exx.com/data/v1/ticker?currency=%s" % self.make_market(crypto, fiat)
+        resp = self.get_url(url).json()
+        return float(resp['ticker']['last'])
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.exx.com/data/v1/depth?currency=%s" % self.make_market(crypto, fiat)
         resp = self.get_url(url).json()
         return {
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],

@@ -166,6 +166,13 @@ x.add_argument('crypto', action='store', help='Crypto symbol to find trades of')
 x.add_argument('fiat', action='store', help='Fiat symbol to find trades of')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
 
+x = subparsers.add_parser('multi-orderbook', help='Combines all orderbooks from all supported markets')
+x.add_argument('crypto', action='store', help='Crypto symbol of markets')
+x.add_argument('fiat', action='store', help='Fiat symbol of markets')
+x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--just-bids', action='store_true', help='Only show bids (buy orders).')
+x.add_argument('--just-asks', action='store_true', help='Only show asks (sell orders).')
+x.add_argument('--limit', action='store', help='Limits orders shown.')
 
 argz = parser.parse_args()
 
@@ -422,3 +429,20 @@ elif argz.subparser_name == 'see-trades':
     from moneywagon.trading import TradingEngine
     te = TradingEngine(argz.crypto, argz.fiat, verbose=argz.verbose)
     te.show()
+elif argz.subparser_name == 'multi-orderbook':
+    from moneywagon.arbitrage import MultiOrderBook
+    mb = MultiOrderBook(verbose=argz.verbose).get(crypto=argz.crypto, fiat=argz.fiat)
+    both = not argz.just_bids and not argz.just_asks
+
+    def print_order(order):
+        print("%s,%s,%s" % (order[0], order[1], order[2].name))
+
+    lim = int(argz.limit) or len(orders)
+    if argz.just_bids or both:
+        print("Bids:")
+        for order in mb['bids'][:lim]:
+            print_order(order)
+    if argz.just_asks or both:
+        print("Asks:")
+        for order in mb['asks'][:lim]:
+            print_order(order)
