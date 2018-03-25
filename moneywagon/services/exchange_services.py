@@ -2251,7 +2251,7 @@ class CoinEx(Service):
         str_params = urlencode(sorted(params.items(), key=lambda x: x[0]))
         to_sign = str_params + "&secret_key=%s" % self.api_secret
         digest = hashlib.md5(to_sign).hexdigest().upper()
-        return self.get_url(url + str_params, headers={
+        return self.get_url(url + "?" + str_params, headers={
             'Content-Type': 'application/json',
             'authorization': digest
         })

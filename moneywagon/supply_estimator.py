@@ -98,6 +98,8 @@ class SupplyEstimator(object):
         return minute_adjustments
 
     def estimate_height_from_date(self, at_time):
+        if not hasattr(at_time, 'hour'):
+            at_time = datetime.datetime.fromordinal(at_time.toordinal())
         minutes = (at_time - self.genesis_date).total_seconds() / 60.0
         target_block = int(minutes / self.minutes_per_block)
 

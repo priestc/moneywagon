@@ -160,7 +160,10 @@ crypto_data = {
         'transaction_form': 'ppc-timestamp',
         'github_link': "https://github.com/peercoin/peercoin",
         'port': 9901,
-        'supply_data': {},
+        'supply_data': {
+            'method': 'standard',
+            'minutes_per_block': 8.2
+        },
         'services': {
             'current_price': {
                 'usd': [Wex, xBTCe, ChainSo, LiveCoin], 'eur': [UseCryptos],
@@ -2743,6 +2746,40 @@ crypto_data = {
             'push_tx': [MonaInsight],
             'unspent_outputs': [MonaInsight],
             'get_block': [MonaInsight],
+            'get_optimal_fee': []
+        },
+    },
+    'btcp': {
+        'name': 'Bitcoin Private',
+        'address_version_byte': 19,
+        'bip44_coin_type': None,
+        'private_key_prefix': None,
+        'script_hash_byte': None,
+        'message_magic': None,
+        'genesis_date': datetime(1, 1, 1),
+        'github_link': None,
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': None,
+            'minutes_per_block': None,
+            'full_cap': None,
+            'blocks_per_era': None,
+            'reward_ends_at_block': None
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex], 'ltc': [], 'usd': [], 'doge': []
+            },
+            'address_balance': [],
+            'historical_transactions': [],
+            'single_transaction': [],
+            'push_tx': [],
+            'unspent_outputs': [],
+            'get_block': [],
             'get_optimal_fee': []
         },
     },

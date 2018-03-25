@@ -2413,3 +2413,9 @@ class MonaInsight(BitpayInsight):
     domain = 'mona.chainsight.info'
     supported_crypto = ['mona']
     version = 0.2
+
+class PrivateInsight(BitpayInsight):
+    service_id = 147
+    domain = "explorer.btcprivate.org"
+    supported_crypto = ['btcp']
+    version = 0.4
