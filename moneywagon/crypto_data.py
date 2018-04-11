@@ -87,6 +87,7 @@ crypto_data = {
         'message_magic': b"\xfb\xc0\xb6\xdb",
         'bip44_coin_type': 0x80000002,
         'private_key_prefix': 176,
+        'script_hash_byte': 50,
         'genesis_date': datetime(2011, 10, 7),
         'header_hash_algo': 'scrypt',
         'transaction_hash_algo': 'double-sha256',
