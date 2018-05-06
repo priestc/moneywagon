@@ -28,7 +28,7 @@ def all_balances(currency, services=None, verbose=False, timeout=None):
 
     return balances
 
-def total_exchange_balances(services=None, verbose=None, timeout=None):
+def total_exchange_balances(services=None, verbose=None, timeout=None, by_service=False):
     """
     Returns all balances for all currencies for all exchanges
     """
@@ -42,8 +42,11 @@ def total_exchange_balances(services=None, verbose=None, timeout=None):
     for e in services:
         try:
             more_balances = e.get_total_exchange_balances()
-            for code, bal in more_balances.items():
-                balances[code] += bal
+            if by_service:
+                balances[e.__class__] = more_balances
+            else:
+                for code, bal in more_balances.items():
+                    balances[code] += bal
         except NotImplementedError:
             if verbose:
                 print(e.name, "total balance not implemented")

@@ -8,6 +8,7 @@ import json
 import datetime
 import binascii
 import os
+from collections import defaultdict
 
 from concurrent import futures
 from tabulate import tabulate
@@ -136,6 +137,7 @@ x = subparsers.add_parser('exchange-balance', help='Get current value in fiat of
 x.add_argument('fiat', action='store', help='Fiat currency')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--by-service', action='store_true', help='Show total balance for each exchange converted to fiat')
 x.add_argument('--euro-format', action='store_true', help='Use european comma style, e.g 2.132.324,87')
 x.add_argument('--async', action='store_true', help='Fetch prices and balances asynchronously')
 x.add_argument('--random-service', action='store_true', help='Use random sources')
@@ -290,23 +292,48 @@ elif argz.subparser_name == 'exchange-balance':
     errors = []
     rows = []
     cumm_amount = 0
-    balances = total_exchange_balances(verbose=argz.verbose)
+    balances = total_exchange_balances(verbose=argz.verbose, by_service=argz.by_service)
 
-    for currency, balance in balances.items():
-        if currency == fiat:
-            price = 1
-        else:
-            price = get_current_price(currency, fiat, verbose=argz.verbose)
-        fiat_value = price * balance
-        rows.append([currency, balance, fiat_value, price, "N/A"])
-        cumm_amount += fiat_value
+    if argz.by_service:
+        # group by service to get the total amount of fiat on each exchange
+        service_totals = defaultdict(lambda: 0)
+        prices = {fiat.lower(): 1, 'btc': get_current_price('btc', fiat, verbose=argz.verbose)}
+        help = {fiat.lower(): {'btc': ('Service', prices['btc'])}}
 
-    rows.sort(key=lambda x: x[2], reverse=True) # order by highest fiat value first
+        for service, data in balances.items():
+            for code, balance in data.items():
+                if code not in prices:
+                    prices[code] = get_current_price(code, fiat, verbose=argz.verbose, helper_prices=help)
 
-    rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat.upper()), '------'])
+                service_totals[service.name] += prices[code] * balance
 
-    headers = ['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Price Source']
-    print(tabulate(rows, headers=headers, tablefmt=argz.format))
+        rows = []
+        cumm_amount = 0
+        for exchange, total_fiat in sorted(service_totals.items(), key=lambda x: float(x[1]), reverse=True):
+            rows.append([exchange, "%s %s" % (localized_number(total_fiat, euro), fiat.upper())])
+            cumm_amount += total_fiat
+
+        rows.append(['Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat.upper())])
+        headers = ['Exchange', 'Total Fiat Value']
+        print(tabulate(rows, headers=headers, tablefmt=argz.format))
+
+    else:
+        for currency, balance in balances.items():
+            if currency == fiat:
+                price = 1
+            else:
+                price = get_current_price(currency, fiat, verbose=argz.verbose)
+            fiat_value = price * balance
+            rows.append([currency, balance, fiat_value, price, "N/A"])
+            cumm_amount += fiat_value
+
+        rows.sort(key=lambda x: x[2], reverse=True) # order by highest fiat value first
+
+        rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat.upper()), '------'])
+
+        headers = ['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Price Source']
+        print(tabulate(rows, headers=headers, tablefmt=argz.format))
+
     for error in errors:
         print(error)
 
