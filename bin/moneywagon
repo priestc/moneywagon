@@ -296,7 +296,7 @@ elif argz.subparser_name == 'exchange-balance':
         if currency == fiat:
             price = 1
         else:
-            price = get_current_price(currency, fiat)
+            price = get_current_price(currency, fiat, verbose=argz.verbose)
         fiat_value = price * balance
         rows.append([currency, balance, fiat_value, price, "N/A"])
         cumm_amount += fiat_value

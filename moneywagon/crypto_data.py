@@ -2773,7 +2773,7 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [Bittrex], 'ltc': [], 'usd': [], 'doge': []
+                'btc': [HitBTC], 'ltc': [], 'usd': [], 'doge': []
             },
             'address_balance': [],
             'historical_transactions': [],
