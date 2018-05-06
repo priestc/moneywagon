@@ -1349,7 +1349,7 @@ class HitBTC(Service):
     def check_error(self, response):
         j = response.json()
 
-        if response.status_code == 400 and 'error' in j:
+        if response.status_code in (400, 401) and 'error' in j:
             e = j['error']
             raise SkipThisService("HitBTC returned %s %s: %s" % (
                 e['code'], e['message'], e['description']
