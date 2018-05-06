@@ -324,10 +324,10 @@ elif argz.subparser_name == 'exchange-balance':
             else:
                 price = get_current_price(currency, fiat, verbose=argz.verbose)
             fiat_value = price * balance
-            rows.append([currency, balance, fiat_value, price, "N/A"])
+            rows.append([currency, balance, localized_number(fiat_value, euro), price, "N/A"])
             cumm_amount += fiat_value
 
-        rows.sort(key=lambda x: x[2], reverse=True) # order by highest fiat value first
+        rows.sort(key=lambda x: float(x[2].replace(',', '')), reverse=True) # order by highest fiat value first
 
         rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat.upper()), '------'])
 
