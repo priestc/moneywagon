@@ -297,6 +297,8 @@ elif argz.subparser_name == 'exchange-balance':
     if argz.by_service:
         # group by service to get the total amount of fiat on each exchange
         service_totals = defaultdict(lambda: 0)
+
+        # price cache to avoid multiple http requests
         prices = {fiat.lower(): 1, 'btc': get_current_price('btc', fiat, verbose=argz.verbose)}
         help = {fiat.lower(): {'btc': ('Service', prices['btc'])}}
 

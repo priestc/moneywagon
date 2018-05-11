@@ -2419,3 +2419,9 @@ class PrivateInsight(BitpayInsight):
     domain = "explorer.btcprivate.org"
     supported_crypto = ['btcp']
     version = 0.4
+
+class BCCBlock(BitpayInsight):
+    service_id = 149
+    domain = "bccblock.info"
+    supported_crypto = ['bch']
+    version = 0.4

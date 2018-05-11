@@ -2348,27 +2348,27 @@ crypto_data = {
             },
             'address_balance': [
                 BitpayInsightBCH, TrezorBCH, BlockExplorerCash, BlockDozer,
-                BitcoinComCashExplorer
+                BitcoinComCashExplorer, BCCBlock
             ],
             'historical_transactions': [
                 BitcoinComCashExplorer, BitpayInsightBCH, TrezorBCH, BlockExplorerCash,
-                BlockDozer
+                BlockDozer, BCCBlock
             ],
             'single_transaction': [
-                BlockDozer, BitcoinComCashExplorer, BitpayInsightBCH, TrezorBCH,
+                BCCBlock, BlockDozer, BitcoinComCashExplorer, BitpayInsightBCH, TrezorBCH,
                 BlockExplorerCash
             ],
             'push_tx': [
                 TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer,
-                BitpayInsightBCH, BlockDozer
+                BitpayInsightBCH, BlockDozer, BCCBlock
             ],
             'unspent_outputs': [
                 BlockDozer, TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer,
-                BitpayInsightBCH
+                BitpayInsightBCH, BCCBlock
             ],
             'get_block': [
-                BitpayInsightBCH, BitcoinComCashExplorer, BlockDozer, TrezorBCH,
-                BlockExplorerCash
+                BitpayInsightBCH, BitcoinComCashExplorer, BCCBlock, BlockDozer,
+                TrezorBCH, BlockExplorerCash
             ],
             "get_optimal_fee": []
         },
