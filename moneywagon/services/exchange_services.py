@@ -2444,3 +2444,17 @@ class EXX(Service):
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
             'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
         }
+
+class BL3P(Service):
+    service_id = 150
+
+    def check_error(self, response):
+        j = response.json()
+        if j['result'] == 'error':
+            d = j['data']
+            raise ServiceError("BL3P returned error: %s, %s" % (d['code'], d['message']))
+        super(BL3P, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.bl3p.eu/1/%s/ticker" % self.make_market(crypto, fiat).replace("_", '-')
+        return self.get_url(url).json()
