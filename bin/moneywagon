@@ -116,7 +116,8 @@ x = subparsers.add_parser('explorer-urls', help='Get URLS for web-based block ex
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('--address', action='store', help='Wallet address')
 x.add_argument('--blocknum', action='store', help='Block Number (height)')
-x.add_argument('--blockhash', action='store', help='Block Height')
+x.add_argument('--blockhash', action='store', help='Block Hash')
+x.add_argument('--txid', action='store', help='Get single transaction by TXID')
 
 x = subparsers.add_parser('service-table', help='Get list of all currently implemented services.')
 x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
@@ -282,6 +283,8 @@ elif argz.subparser_name == 'explorer-urls':
         print(" ".join(get_explorer_url(argz.crypto, address=argz.address)))
     if argz.blocknum:
         print(" ".join(get_explorer_url(argz.crypto, blocknum=argz.blocknum)))
+    if argz.txid:
+        print(" ".join(get_explorer_url(argz.crypto, txid=argz.txid)))
 
 elif argz.subparser_name == 'exchange-balance':
     from moneywagon.arbitrage import total_exchange_balances

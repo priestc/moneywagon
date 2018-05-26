@@ -177,13 +177,15 @@ class Service(object):
             self.fix_symbol(fiat, reverse=True)
         )
 
-    def make_market(self, crypto, fiat):
+    def make_market(self, crypto, fiat, seperator="_"):
         """
         Convert a crypto and fiat to a "market" string. All exchanges use their
         own format for specifying markets. Subclasses can define their own
         implementation.
         """
-        return ("%s_%s" % (self.fix_symbol(crypto), self.fix_symbol(fiat))).lower()
+        return ("%s%s%s" % (
+            self.fix_symbol(crypto), seperator, self.fix_symbol(fiat))
+        ).lower()
 
     def make_rpc_call(self, args, internal=False, skip_json=False):
         cmd = [self.cli_path] + [str(a) for a in args]

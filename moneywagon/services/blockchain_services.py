@@ -956,6 +956,7 @@ class BitpayInsight(Service):
     protocol = 'https'
     api_homepage = "{protocol}://{domain}/api"
     explorer_address_url = "{protocol}://{domain}/address/{address}"
+    explorer_tx_url = "{protocol}://{domain}/tx/{txid}"
     api_tag = 'api'
     name = "Bitpay Insight"
     socketio_url = "%s://%s" % (protocol, domain)
