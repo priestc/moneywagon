@@ -2426,3 +2426,9 @@ class BCCBlock(BitpayInsight):
     domain = "bccblock.info"
     supported_crypto = ['bch']
     version = 0.4
+
+class DashBlockExplorer(BitpayInsight):
+    service_id = 153
+    domain = 'dashblockexplorer.com'
+    supported_cryptos = ['dash']
+    version = 0.4

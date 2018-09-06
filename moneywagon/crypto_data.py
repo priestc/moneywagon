@@ -455,23 +455,26 @@ crypto_data = {
             },
             'address_balance': [
                 CryptoID, ProHashing, MasterNodeIO, SiampmDashInsight, HolyTransaction,
-                DashOrgInsight
+                DashOrgInsight, DashBlockExplorer
             ],
             'historical_transactions': [
-                ProHashing, DashOrgInsight, SiampmDashInsight, MasterNodeIO
+                ProHashing, DashOrgInsight, SiampmDashInsight, MasterNodeIO,
+                DashBlockExplorer
             ],
             'single_transaction': [
-                DashOrgInsight, SiampmDashInsight, MasterNodeIO, CryptoID
+                DashOrgInsight, SiampmDashInsight, MasterNodeIO, CryptoID,
+                DashBlockExplorer
             ],
             'push_tx': [
-                MasterNodeIO, DashOrgInsight, SiampmDashInsight
+                MasterNodeIO, DashOrgInsight, SiampmDashInsight, DashBlockExplorer
             ],
             'unspent_outputs': [
-                MasterNodeIO, SiampmDashInsight, DashOrgInsight, CryptoID
+                MasterNodeIO, SiampmDashInsight, DashOrgInsight, CryptoID,
+                DashBlockExplorer
             ],
             'get_block': [
                 ProHashing, SiampmDashInsight, HolyTransaction, MasterNodeIO,
-                DashOrgInsight
+                DashOrgInsight, DashBlockExplorer
             ]
         },
     },
