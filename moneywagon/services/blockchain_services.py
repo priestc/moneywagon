@@ -956,6 +956,7 @@ class BitpayInsight(Service):
     protocol = 'https'
     api_homepage = "{protocol}://{domain}/api"
     explorer_address_url = "{protocol}://{domain}/address/{address}"
+    explorer_tx_url = "{protocol}://{domain}/tx/{txid}"
     api_tag = 'api'
     name = "Bitpay Insight"
     socketio_url = "%s://%s" % (protocol, domain)
@@ -2418,4 +2419,16 @@ class PrivateInsight(BitpayInsight):
     service_id = 147
     domain = "explorer.btcprivate.org"
     supported_crypto = ['btcp']
+    version = 0.4
+
+class BCCBlock(BitpayInsight):
+    service_id = 149
+    domain = "bccblock.info"
+    supported_crypto = ['bch']
+    version = 0.4
+
+class DashBlockExplorer(BitpayInsight):
+    service_id = 153
+    domain = 'dashblockexplorer.com'
+    supported_cryptos = ['dash']
     version = 0.4

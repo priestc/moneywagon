@@ -1349,7 +1349,7 @@ class HitBTC(Service):
     def check_error(self, response):
         j = response.json()
 
-        if response.status_code == 400 and 'error' in j:
+        if response.status_code in (400, 401) and 'error' in j:
             e = j['error']
             raise SkipThisService("HitBTC returned %s %s: %s" % (
                 e['code'], e['message'], e['description']
@@ -2443,4 +2443,62 @@ class EXX(Service):
         return {
             'asks': [(float(x[0]), float(x[1])) for x in resp['asks']],
             'bids': [(float(x[0]), float(x[1])) for x in resp['bids']]
+        }
+
+class BL3P(Service):
+    service_id = 150
+
+    def check_error(self, response):
+        j = response.json()
+        if j['result'] == 'error':
+            d = j['data']
+            raise ServiceError("BL3P returned error: %s, %s" % (d['code'], d['message']))
+        super(BL3P, self).check_error(response)
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.bl3p.eu/1/%s/ticker" % self.make_market(crypto, fiat, '-')
+        return self.get_url(url).json()
+
+class BTCbox(Service):
+    service_id = 151
+
+    def get_current_price(self, crypto, fiat):
+        if fiat.lower() != 'jpy':
+            raise SkipThisService("Only JPY trading pairs supported")
+        url = "https://www.btcbox.co.jp/api/v1/ticker/?coin=%s" % crypto
+        r = self.get_url(url).json()
+        return r['last']
+
+class Bibox(Service):
+    service_id = 152
+    api_homepage = "https://github.com/Biboxcom/api_reference/wiki/api_reference"
+    symbol_mapping = (
+        ('usd', 'usdt'),
+    )
+
+    def get_current_price(self, crypto, fiat):
+        url = "https://api.bibox.com/v1/mdata?cmd=ticker&pair=%s" % (
+            self.make_market(crypto, fiat).upper()
+        )
+        r = self.get_url(url).json()
+        return float(r['result']['last'])
+
+    def get_pairs(self):
+        url ="https://api.bibox.com/v1/mdata?cmd=pairList"
+        r = self.get_url(url).json()
+        markets = []
+        for data in r['result']:
+            pair = data['pair']
+            crypto, fiat = self.parse_market(pair)
+            markets.append("%s-%s" % (crypto, fiat))
+        return markets
+
+    def get_orderbook(self, crypto, fiat):
+        url = "https://api.bibox.com/v1/mdata?cmd=depth&pair=%s&size=200" % (
+            self.make_market(crypto, fiat).upper()
+        )
+        resp = self.get_url(url).json()['result']
+        return {
+            'asks': [(float(x['price']), float(x['volume'])) for x in resp['asks']],
+            'bids': [(float(x['price']), float(x['volume'])) for x in resp['bids']]
         }

@@ -41,7 +41,7 @@ crypto_data = {
                     Bitstamp, GDAX, Wex, Gemini, Huobi, Bittrex, CexIO, YoBit,
                     Poloniex, Winkdex, ChainSo, Kraken, BitFinex, xBTCe, Vircurex,
                     HitBTC, LiveCoin, BitFlyer, ItBit, KuCoin, CCex, OKEX, BitZ, ZB,
-                    EXX
+                    EXX, Bibox
                 ],
                 'cny': [BTER, BTCChina, Huobi, ViaBTC, xBTCe, BTC38, ChainSo],
                 'rur': [Wex, LiveCoin], 'jpy': [BitFlyer, Kraken, xBTCe, Zaif, BitBank],
@@ -112,7 +112,7 @@ crypto_data = {
                 'usd': [
                     Wex, GDAX, Poloniex, Kraken, Cryptopia, ChainSo, OKEX,
                     xBTCe, YoBit, UseCryptos, HitBTC, LiveCoin, BitFinex, CCex,
-                    EXX
+                    EXX, Bibox
                 ],
                 'cny': [Wex, Huobi, BTER, xBTCe, ViaBTC, ChainSo, OKcoin, BTC38, BTCChina],
                 'rur': [YoBit, xBTCe], 'eur': [Kraken, HitBTC, Wex, GDAX, UseCryptos, xBTCe],
@@ -120,10 +120,10 @@ crypto_data = {
                     GDAX, Wex, BTER, BleuTrade, HitBTC, Bittrex, Poloniex,
                     ChainSo, xBTCe, YoBit, Cryptopia, Kraken, NovaExchange, BitFinex,
                     BitcoinIndonesia, BTCChina, Liqui, LiveCoin, CryptoDao, KuCoin,
-                    CCex, OKEX, BitZ, CoinEgg, ZB, BitBank, EXX
+                    CCex, OKEX, BitZ, CoinEgg, ZB, BitBank, EXX, Bibox
                 ],
                 'doge': [CCex], 'xmr': [Poloniex], 'jpy': [xBTCe], 'nzd': [Cryptopia],
-                '*': [Cryptonator, Vircurex, YoBit], 'qc': [EXX]
+                '*': [Cryptonator, Vircurex], 'qc': [EXX], 'eth': [Bibox]
             },
             'address_balance': [
                 BlockCypher, Litecore, ChainSo, ProHashing, HolyTransaction, Bchain
@@ -442,36 +442,39 @@ crypto_data = {
             'current_price': {
                 'usd': [
                     HitBTC, CexIO, Cryptopia, BitFinex, Kraken, LiveCoin, xBTCe, Liqui,
-                    CCex, ZB
+                    CCex, ZB, Bibox
                 ],
-                'doge': [NovaExchange, Cryptopia, BleuTrade], 'eth': [Liqui, HitBTC],
+                'doge': [NovaExchange, Cryptopia, BleuTrade], 'eth': [Liqui, HitBTC, Bibox],
                 'rur': [YoBit], 'ltc': [NovaExchange, Cryptopia, CCex], 'gdp': [CexIO],
                 'btc': [
                     Bittrex, Poloniex, Cryptopia, ChainSo, YoBit, CexIO, BleuTrade,
                     NovaExchange, Kraken, UseCryptos, Liqui, HitBTC, LiveCoin,
-                    CryptoDao, BitFinex, CCex, BitZ, ZB
+                    CryptoDao, BitFinex, CCex, BitZ, ZB, Bibox
                 ], 'cny': [xBTCe, BTC38], 'eur': [UseCryptos, Kraken],
                 '*': [Cryptonator], 'uno': [Cryptopia], 'moon': [NovaExchange]
             },
             'address_balance': [
                 CryptoID, ProHashing, MasterNodeIO, SiampmDashInsight, HolyTransaction,
-                DashOrgInsight
+                DashOrgInsight, DashBlockExplorer
             ],
             'historical_transactions': [
-                ProHashing, DashOrgInsight, SiampmDashInsight, MasterNodeIO
+                ProHashing, DashOrgInsight, SiampmDashInsight, MasterNodeIO,
+                DashBlockExplorer
             ],
             'single_transaction': [
-                DashOrgInsight, SiampmDashInsight, MasterNodeIO, CryptoID
+                DashOrgInsight, SiampmDashInsight, MasterNodeIO, CryptoID,
+                DashBlockExplorer
             ],
             'push_tx': [
-                MasterNodeIO, DashOrgInsight, SiampmDashInsight
+                MasterNodeIO, DashOrgInsight, SiampmDashInsight, DashBlockExplorer
             ],
             'unspent_outputs': [
-                MasterNodeIO, SiampmDashInsight, DashOrgInsight, CryptoID
+                MasterNodeIO, SiampmDashInsight, DashOrgInsight, CryptoID,
+                DashBlockExplorer
             ],
             'get_block': [
                 ProHashing, SiampmDashInsight, HolyTransaction, MasterNodeIO,
-                DashOrgInsight
+                DashOrgInsight, DashBlockExplorer
             ]
         },
     },
@@ -1026,7 +1029,7 @@ crypto_data = {
                 'rur': [YoBit, xBTCe, LiveCoin], 'cny': [ViaBTC, Yunbi, xBTCe],
                 'usd': [
                     GDAX, Kraken, BitFinex, HitBTC, BitZ, OKEX, xBTCe, Liqui,
-                    LiveCoin, KuCoin, ZB, EXX
+                    LiveCoin, KuCoin, ZB, EXX, Bibox
                 ],
                 'jpy': [Kraken, xBTCe], 'cad': [Kraken],  'krw': [CoinOne, CoinNest],
                 'eur': [xBTCe, Kraken, HitBTC], 'gbp': [Kraken], 'mxn': [Bitso],
@@ -1034,7 +1037,7 @@ crypto_data = {
                     Poloniex, GDAX, BitFinex, Kraken, xBTCe, BleuTrade, Bittrex,
                     CexIO, HitBTC, BitcoinIndonesia, EtherChain, YoBit, Cryptopia,
                     Bitso, Liqui, LiveCoin, BitFlyer, KuCoin, CCex, OKEX, BitZ, ZB,
-                    BitBank, EXX
+                    BitBank, EXX, Bibox
                 ],
                 'ltc': [Cryptopia, xBTCe], 'doge': [Cryptopia, BleuTrade], 'uno': [Cryptopia],
                 '*': [Cryptonator],
@@ -2341,34 +2344,34 @@ crypto_data = {
             'current_price': {
                 'btc': [
                     Bitstamp, Kraken, Bittrex, HitBTC, OKEX, BitZ,
-                    CoinEgg, ZB, BitBank, EXX
+                    CoinEgg, ZB, BitBank, EXX, Bibox
                 ],
                 'eur': [Kraken], 'usd': [HitBTC, Bitstamp, Kraken, OKEX, ZB], 'jpy': [BitBank],
-                'eth': [HitBTC], 'krw': [CoinNest], '*': [Cryptonator]
+                'eth': [HitBTC, Bibox], 'krw': [CoinNest], '*': [Cryptonator]
             },
             'address_balance': [
                 BitpayInsightBCH, TrezorBCH, BlockExplorerCash, BlockDozer,
-                BitcoinComCashExplorer
+                BitcoinComCashExplorer, BCCBlock
             ],
             'historical_transactions': [
                 BitcoinComCashExplorer, BitpayInsightBCH, TrezorBCH, BlockExplorerCash,
-                BlockDozer
+                BlockDozer, BCCBlock
             ],
             'single_transaction': [
-                BlockDozer, BitcoinComCashExplorer, BitpayInsightBCH, TrezorBCH,
+                BCCBlock, BlockDozer, BitcoinComCashExplorer, BitpayInsightBCH, TrezorBCH,
                 BlockExplorerCash
             ],
             'push_tx': [
                 TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer,
-                BitpayInsightBCH, BlockDozer
+                BitpayInsightBCH, BlockDozer, BCCBlock
             ],
             'unspent_outputs': [
                 BlockDozer, TrezorBCH, BlockExplorerCash, BitcoinComCashExplorer,
-                BitpayInsightBCH
+                BitpayInsightBCH, BCCBlock
             ],
             'get_block': [
-                BitpayInsightBCH, BitcoinComCashExplorer, BlockDozer, TrezorBCH,
-                BlockExplorerCash
+                BitpayInsightBCH, BitcoinComCashExplorer, BCCBlock, BlockDozer,
+                TrezorBCH, BlockExplorerCash
             ],
             "get_optimal_fee": []
         },
@@ -2773,7 +2776,7 @@ crypto_data = {
         },
         'services': {
             'current_price': {
-                'btc': [Bittrex], 'ltc': [], 'usd': [], 'doge': []
+                'btc': [HitBTC], 'ltc': [], 'usd': [], 'doge': []
             },
             'address_balance': [],
             'historical_transactions': [],

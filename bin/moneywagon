@@ -8,6 +8,7 @@ import json
 import datetime
 import binascii
 import os
+from collections import defaultdict
 
 from concurrent import futures
 from tabulate import tabulate
@@ -115,7 +116,8 @@ x = subparsers.add_parser('explorer-urls', help='Get URLS for web-based block ex
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('--address', action='store', help='Wallet address')
 x.add_argument('--blocknum', action='store', help='Block Number (height)')
-x.add_argument('--blockhash', action='store', help='Block Height')
+x.add_argument('--blockhash', action='store', help='Block Hash')
+x.add_argument('--txid', action='store', help='Get single transaction by TXID')
 
 x = subparsers.add_parser('service-table', help='Get list of all currently implemented services.')
 x.add_argument('--format', action='store', help='Table format output, e.g. grid, simple, rst, html')
@@ -136,6 +138,7 @@ x = subparsers.add_parser('exchange-balance', help='Get current value in fiat of
 x.add_argument('fiat', action='store', help='Fiat currency')
 x.add_argument('--paranoid', action='store', help='How many services to use when cross-checking')
 x.add_argument('--verbose', action='store_true', help='Include extra output')
+x.add_argument('--by-service', action='store_true', help='Show total balance for each exchange converted to fiat')
 x.add_argument('--euro-format', action='store_true', help='Use european comma style, e.g 2.132.324,87')
 x.add_argument('--async', action='store_true', help='Fetch prices and balances asynchronously')
 x.add_argument('--random-service', action='store_true', help='Use random sources')
@@ -280,6 +283,8 @@ elif argz.subparser_name == 'explorer-urls':
         print(" ".join(get_explorer_url(argz.crypto, address=argz.address)))
     if argz.blocknum:
         print(" ".join(get_explorer_url(argz.crypto, blocknum=argz.blocknum)))
+    if argz.txid:
+        print(" ".join(get_explorer_url(argz.crypto, txid=argz.txid)))
 
 elif argz.subparser_name == 'exchange-balance':
     from moneywagon.arbitrage import total_exchange_balances
@@ -290,23 +295,50 @@ elif argz.subparser_name == 'exchange-balance':
     errors = []
     rows = []
     cumm_amount = 0
-    balances = total_exchange_balances(verbose=argz.verbose)
+    balances = total_exchange_balances(verbose=argz.verbose, by_service=argz.by_service)
 
-    for currency, balance in balances.items():
-        if currency == fiat:
-            price = 1
-        else:
-            price = get_current_price(currency, fiat)
-        fiat_value = price * balance
-        rows.append([currency, balance, fiat_value, price, "N/A"])
-        cumm_amount += fiat_value
+    if argz.by_service:
+        # group by service to get the total amount of fiat on each exchange
+        service_totals = defaultdict(lambda: 0)
 
-    rows.sort(key=lambda x: x[2], reverse=True) # order by highest fiat value first
+        # price cache to avoid multiple http requests
+        prices = {fiat.lower(): 1, 'btc': get_current_price('btc', fiat, verbose=argz.verbose)}
+        help = {fiat.lower(): {'btc': ('Service', prices['btc'])}}
 
-    rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat.upper()), '------'])
+        for service, data in balances.items():
+            for code, balance in data.items():
+                if code not in prices:
+                    prices[code] = get_current_price(code, fiat, verbose=argz.verbose, helper_prices=help)
 
-    headers = ['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Price Source']
-    print(tabulate(rows, headers=headers, tablefmt=argz.format))
+                service_totals[service.name] += prices[code] * balance
+
+        rows = []
+        cumm_amount = 0
+        for exchange, total_fiat in sorted(service_totals.items(), key=lambda x: float(x[1]), reverse=True):
+            rows.append([exchange, "%s %s" % (localized_number(total_fiat, euro), fiat.upper())])
+            cumm_amount += total_fiat
+
+        rows.append(['Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat.upper())])
+        headers = ['Exchange', 'Total Fiat Value']
+        print(tabulate(rows, headers=headers, tablefmt=argz.format))
+
+    else:
+        for currency, balance in balances.items():
+            if currency == fiat:
+                price = 1
+            else:
+                price = get_current_price(currency, fiat, verbose=argz.verbose)
+            fiat_value = price * balance
+            rows.append([currency, balance, localized_number(fiat_value, euro), price, "N/A"])
+            cumm_amount += fiat_value
+
+        rows.sort(key=lambda x: float(x[2].replace(',', '')), reverse=True) # order by highest fiat value first
+
+        rows.append(['------', 'Total:', "%s %s" % (localized_number(cumm_amount, euro), fiat.upper()), '------'])
+
+        headers = ['Crypto', 'Balance', 'Fiat Value', 'Exchange Rate', 'Price Source']
+        print(tabulate(rows, headers=headers, tablefmt=argz.format))
+
     for error in errors:
         print(error)
 
