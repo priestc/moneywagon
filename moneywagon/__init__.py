@@ -13,7 +13,6 @@ from .core import (
 from .historical_price import Quandl
 from .crypto_data import crypto_data
 from bitcoin import sha256, pubtoaddr, privtopub, encode_privkey, encode_pubkey, privkey_to_address
-from socketIO_client import SocketIO
 from moneywagon.services import _get_all_services
 
 ALL_SERVICES = _get_all_services()
@@ -746,6 +745,7 @@ def wif_to_address(crypto, wif):
     return privkey_to_address(wif, address_byte)
 
 def watch_mempool(crypto, callback=lambda tx: print(tx['txid']), verbose=False):
+    from socketIO_client import SocketIO
     if verbose:
         import logging
         logging.getLogger('socketIO-client').setLevel(logging.DEBUG)
