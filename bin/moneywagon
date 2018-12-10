@@ -177,6 +177,13 @@ x.add_argument('--just-bids', action='store_true', help='Only show bids (buy ord
 x.add_argument('--just-asks', action='store_true', help='Only show asks (sell orders).')
 x.add_argument('--limit', action='store', help='Limits orders shown.')
 
+x = subparsers.add_parser('mcaf', help='Generates a MCAF address')
+x.add_argument('cryptos', action='store', help='Comma seperated list of crypto symbols')
+x.add_argument('address', action='store', help='Address')
+
+x = subparsers.add_parser('decode-mcaf', help='Shows address for each supported currency in MCAF address.')
+x.add_argument('address', action='store', help='Address')
+
 argz = parser.parse_args()
 
 def prepare_json(high_level_func, *args, **kwargs):
@@ -478,3 +485,13 @@ elif argz.subparser_name == 'multi-orderbook':
         print("Asks:")
         for order in mb['asks'][:lim]:
             print_order(order)
+
+elif argz.subparser_name == 'mcaf':
+    from moneywagon.mcaf import make_mcaf
+    print(make_mcaf(argz.cryptos.split(','), argz.address))
+
+elif argz.subparser_name == 'decode-mcaf':
+    from moneywagon.mcaf import decode_mcaf
+    results = decode_mcaf(argz.address)
+    for currency, address in results.items():
+        print(currency, address)

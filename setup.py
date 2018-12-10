@@ -36,6 +36,7 @@ setup(
         'pytz',
         'arrow',
         'bitcoin',
-        'beautifulsoup4'
+        'beautifulsoup4',
+        'primefac',
     ] + extra_install
 )

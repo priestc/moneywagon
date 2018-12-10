@@ -437,7 +437,7 @@ def guess_currency_from_address(address):
 
     raise ValueError("Unknown Currency with first byte: %s" % first_byte)
 
-def change_version_byte(address, new_version):
+def change_version_byte(address, new_version=None, new_crypto=None):
     """
     Convert the passed in address (or any base58 encoded string), and change the
     version byte to `new_version`.
