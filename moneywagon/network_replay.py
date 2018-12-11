@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import random
-from crypto_data import crypto_data
+from .crypto_data import crypto_data
 from moneywagon import get_block, push_tx, get_single_transaction, watch_mempool
 from .core import to_rawtx
 from moneywagon.services import BitpayInsight, ChainSo, LocalBitcoinsChain, BlockDozer

@@ -358,7 +358,7 @@ elif argz.subparser_name == 'wallet-balance':
         if not x.startswith("#")
     ]
 
-    if argz.async:
+    if argz.async_:
         modes['async'] = True
 
     fiat = argz.fiat.upper()

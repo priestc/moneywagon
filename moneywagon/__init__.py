@@ -442,6 +442,12 @@ def change_version_byte(address, new_version=None, new_crypto=None):
     Convert the passed in address (or any base58 encoded string), and change the
     version byte to `new_version`.
     """
+    if not new_version and new_crypto:
+        try:
+            new_version = crypto_data[new_crypto]['address_version_byte']
+        except KeyError:
+            raise CurrencyNotSupported("Can't yet make %s addresses.")
+
     payload = b58decode_check(address)[1:]
     return b58encode_check(chr(new_version) + payload)
 

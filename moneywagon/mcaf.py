@@ -131,10 +131,12 @@ def decode_mcaf(address, mode="P"):
     currencies = decode(token[1:])
     ret = {}
     for currency in currencies:
-        new_version = crypto_data[currency].get('address_version_byte', None)
-        ret[currency] = change_version_byte(
-            payload, new_version
-        ) if new_version else None
+        try:
+            ret[currency] = change_version_byte(
+                payload, to_crypto=currency
+            )
+        except CurrencyNotSupported as exc:
+            ret[currency] = str(exc)
 
     return ret
 
@@ -150,6 +152,7 @@ if __name__ == "__main__":
         case = sorted(case)
         encoded = encode(case)
         result = sorted(decode(encoded))
+
         print("Case %s" % i, end=' ')
         if result == case:
             print("Passed", result, str(encoded))
