@@ -446,10 +446,18 @@ def change_version_byte(address, new_version=None, new_crypto=None):
         try:
             new_version = crypto_data[new_crypto]['address_version_byte']
         except KeyError:
-            raise CurrencyNotSupported("Can't yet make %s addresses.")
+            raise CurrencyNotSupported("Unknown currency symbol: " + new_crypto)
+
+        if not new_version:
+            raise CurrencyNotSupported("Can't yet make %s addresses." % new_crypto)
 
     payload = b58decode_check(address)[1:]
-    return b58encode_check(chr(new_version) + payload)
+    if is_py2:
+        byte = chr(new_version)
+    else:
+        byte = bytes(chr(new_version), 'ascii')
+
+    return b58encode_check(byte + payload)
 
 class OptimalFee(AutoFallbackFetcher):
     def action(self, crypto, tx_bytes):
