@@ -1,9 +1,14 @@
 from __future__ import print_function
+
+import binascii
+import datetime
 from base58 import b58encode, b58decode
-import primefac
+from bitcoin import sha256, pubtoaddr, privtopub, bin_hash160
+import requests
 
 from moneywagon.crypto_data import crypto_data
-from moneywagon import change_version_byte
+from moneywagon import change_version_byte, is_py2, CurrencyNotSupported
+from moneywagon.crypto_data_extractor import crawl_SLIP44
 
 def nthprime(n):
     if n==0:
@@ -75,26 +80,51 @@ def to_number(bytez):
         return py2_from_bytes(bytez)
 
 def get_currency_by_order(order):
+    #print("getting currency for order: %s" % order)
     bip44 = order + 0x80000000
     for currency, data in crypto_data.items():
         if data['bip44_coin_type'] == bip44:
+            #print("found %s" % currency)
             return currency
-    raise Exception("Currency order %s not found" % order)
-
-def get_currency_order(currency):
     try:
-        curr = crypto_data[currency]
-    except KeyError:
-        raise Exception("%s Not Supported" % currency)
-    return curr['bip44_coin_type'] - 0x80000000
+        #print("not a moneywagon currency, crawling slip44")
+        coins = crawl_SLIP44()
+        for currency, data in coins.items():
+            if data[0] == order:
+                #print("found %s at order %s" % (currency, order))
+                return currency
+    except:
+        pass
 
-def encode(currency_list):
+    raise CurrencyNotSupported("Currency order %s not found" % order)
+
+def get_slip44_index(currency):
+    #print("getting index for %s" % currency)
+    try:
+        curr = crypto_data[currency.lower()]
+        index = curr['bip44_coin_type'] - 0x80000000
+        #print("index is %s (from moneywagon)" % index)
+        return index
+    except (KeyError, CurrencyNotSupported):
+        #print("not a moneywagon currency, crawling slip44")
+        coins = crawl_SLIP44()
+        index = coins[currency.lower()][0]
+        #print("index is %s (from slip44)" % index)
+        return index
+
+    raise CurrencyNotSupported("Unknown currency: %s" % currency)
+
+
+def encode_currency_support_token(currency_list):
     token = 1
     for currency in currency_list:
-        order = get_currency_order(currency)
-        #print "adding:", currency, "order:", order, "prime:", primes[order]
-        token *= nthprime(order)
-    #print "final product:", token
+        index = get_slip44_index(currency)
+        t0 = datetime.datetime.now()
+        nth = nthprime(index)
+        token *= nth
+        print("found", index, "th prime: ", nth)
+        print("took", datetime.datetime.now() - t0)
+
     return b58encode(to_bytes(token))
 
 def largest_prime_factor(n):
@@ -106,10 +136,20 @@ def largest_prime_factor(n):
             n //= i
     return n
 
-def decode(token):
+def decode_currency_support_token(token):
     token = to_number(b58decode(token))
     currencies = []
-    factors = sorted(list(primefac.primefac(token)))
+
+    print("factoring %s" % token)
+    t0 = datetime.datetime.now()
+    if is_py2:
+        import primefac
+        factors = sorted(list(primefac.primefac(token)))
+    else:
+        factors = find_factors()
+
+    print("factors are %s" % factors)
+    print("factoring took %s" % (datetime.datetime.now() - t0))
 
     for order, p in enumerate(gen_primes()):
         if p in factors:
@@ -119,16 +159,35 @@ def decode(token):
 
     return sorted(currencies)
 
-def make_mcaf(currencies, address, mode="P"):
-    if mode == 'P':
-        return "P%s0%s" % (encode(currencies), address)
-    else:
-        raise NotImplementedError()
+def generate_mcaf(currencies, seed, mode="P"):
+    priv = sha256(seed)
+    pub = privtopub(priv)
+    #import ipdb; ipdb.set_trace()
+    hash160 = binascii.hexlify(bin_hash160(binascii.unhexlify(pub)))
 
-def decode_mcaf(address, mode="P"):
+    print(hash160, b58encode(hash160))
+
+    if mode == 'P':
+        address = "P%s0%s" % (
+            encode_currency_support_token(currencies).decode("utf-8"),
+            b58encode(hash160).decode("utf-8")
+        )
+    else:
+        raise NotImplementedError("Only P mode implemented")
+
+    return "%s%s" % (address, sha256(address)[:4])
+
+def decode_mcaf(address):
+    if not address.startswith("P"):
+        raise NotImplementedError("Only P mode implemented at this time")
+
     address = address.replace("O", "0")
+
+    if not sha256(address[:-4]) == address[-4:]:
+        raise Exception("Invalid checksum")
+
     token, payload = address.split("0")
-    currencies = decode(token[1:])
+    currencies = decode_currency_support_token(token[1:])
     ret = {}
     for currency in currencies:
         try:
@@ -140,18 +199,30 @@ def decode_mcaf(address, mode="P"):
 
     return ret
 
+def encode_binary(indexes):
+    total = 0
+    for index in indexes:
+        total += pow(2, index)
+    return total
+
+def decode_binary(indexes):
+    pass
 
 if __name__ == "__main__":
+
+    #print(encode_binary([1, 5, 6]))
+    #print(encode_binary([5, 6, 57352]))
+
     cases = [
-        ['ltc', 'btc', 'zec', 'doge', 'eth', 'bch', 'uno'],
-        ['ltc', 'btc'],
-        ['btc', 'bch'],
-        ['dash', 'eth', 'vtc']
+        #['ltc', 'btc', 'zec', 'doge', 'eth', 'bch', 'uno'],
+        #['ltc', 'btc'],
+        #['btc', 'bch'],
+        ['dash', 'eth', 'vtc', 'btv']
     ]
     for i, case in enumerate(cases):
         case = sorted(case)
-        encoded = encode(case)
-        result = sorted(decode(encoded))
+        encoded = encode_currency_support_token(case)
+        result = sorted(decode_currency_support_token(encoded))
 
         print("Case %s" % i, end=' ')
         if result == case:

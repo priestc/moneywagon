@@ -113,3 +113,21 @@ def test_regexes(content, *regexes):
         m = re.search(regex, content)
         if m:
             return m.groups()[0] if len(m.groups()) else True
+
+def crawl_SLIP44():
+    from bs4 import BeautifulSoup
+    url = "https://github.com/satoshilabs/slips/blob/master/slip-0044.md"
+    soup = BeautifulSoup(requests.get(url).content, 'html.parser')
+    table = soup.article.find("table")
+
+    coins = {}
+    for i, row in enumerate(table.find_all("tr")):
+        if i == 0:
+            continue # skip header row
+
+        tds = row.find_all("td")
+        index, symbol, name = int(tds[0].string), tds[2].string, tds[3].string
+        if symbol: # ignore lines with no symbol
+            coins[symbol.lower()] = (index, name)
+
+    return coins
