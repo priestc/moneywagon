@@ -227,21 +227,24 @@ def get_full_id(short_id, sorted_base16, length):
 def decode_superthin_chunk(short_ids, sorted_mempool, length, verbose=False):
     full_ids = []
     duplicates = []
+    missing = []
     for short_id in short_ids:
         found = get_full_id(short_id, sorted_mempool, length)
         if not found:
             if verbose: print("missing:", short_id)
-            full_ids.append(None)
+            full_ids.append(short_id)
+            missing.append(short_id)
         elif len(found) > 1:
-            if verbose: print(
-                "duplicates of %s: %s", short_id, ','.join(x[:10] for x in found)
-            )
+            if verbose:
+                print("found duplicates of %s: %s" % (
+                    short_id, ', '.join("%s..." % x[:10] for x in found)
+                ))
             full_ids.append("dupe")
             duplicates.append(found)
         else:
             full_ids.append(found[0])
 
-    return full_ids, duplicates
+    return full_ids, missing, duplicates
 
 def prod(iterable):
     p = 1
@@ -251,9 +254,9 @@ def prod(iterable):
 
 def all_combinations(duplicates, i=0):
     if i >= prod(len(x) for x in duplicates):
-        return None
+        return None # all combinations have been tried
     this_pass = []
-    for index, item in enumerate(duplicates, 1):
+    for item in duplicates:
         l = len(item)
         this_i = i % l
         i = int(i / l)
@@ -272,24 +275,43 @@ def decode_superthin(short_ids, mempool, hash, threads=4, verbose=False):
         if verbose:
             print("Missing:\n%s...\n" % x[:10] for x in missing)
             return # todo: fetch misssing
+    elif verbose:
+        print("No missing txids!")
 
     if duplicates:
+        i = 0
         while True:
             group = all_combinations(duplicates, i)
-            if not group: return None # decode failed
-            full_ids = []
-            for x in full_ids:
-                if x == 'dupe':
-                    full_ids.append(group.pop())
+            if not group:
+                if verbose: print("Tried all duplicate groups: decode failed")
+                return None # decode failed
+            if verbose: print("Trying duplicate group %s, %s" % (i, str(group)))
+            this_try = []
+            hash_try = sha256()
+            for txid in full_ids:
+                if txid == 'dupe':
+                    try_ = group.pop()
+                    this_try.append(try_)
+                    hash_try.update(try_)
                 else:
-                    full_ids.append(x)
+                    this_try.append(txid)
+                    hash_try.update(txid)
 
-            decoded_hash = sha256(''.join(full_ids)).hexdigest()
-            if decoded_hash == hash:
+            if hash_try.hexdigest() == hash:
+                if verbose: print("Group %s suceeded!" % i)
                 return full_ids
-        i += 1
+            i += 1
 
-    return full_ids
+    elif verbose:
+        print("Found no duplicates!")
+
+    decoded_hash = sha256(''.join(full_ids)).hexdigest()
+    if decoded_hash == hash:
+        if verbose: print("Hash succeeded!")
+        return full_ids
+    else:
+        if verbose: print("Hash failed?")
+        return None
 
 
 
@@ -361,15 +383,20 @@ if __name__ == '__main__':
             encoded, hash = encode_mempool(mp, verbose=True)
             print("-----")
 
-    def test_now_completely_synced():
-        # tesing decoding against not completely synced mempools
-        mp = make_mempool(mb=8, verbose=False)
+    def test_not_completely_synced(from_file=False):
+        """
+        tesing decoding against not completely synced mempools
+        """
+        if not from_file:
+            mp = make_mempool(mb=8, verbose=False)
+        else:
+            mp = _get_mempool_from_file()
         t0 = datetime.datetime.now()
         encoded, hash = encode_mempool(mp, verbose=False)
         encoding_time = datetime.datetime.now() - t0
         print("encoding complete, took: %s" % encoding_time)
 
-        for action in {'add': 1000}:
+        for action in [{'add': 1000}]:
             modified_mempool = modify_mempool(mp, **action)
             t1 = datetime.datetime.now()
             full_ids = decode_superthin(
@@ -377,3 +404,5 @@ if __name__ == '__main__':
             )
             decoding_time = datetime.datetime.now() - t1
             print("decoding took: %s" % decoding_time)
+
+    test_not_completely_synced(from_file=True)
