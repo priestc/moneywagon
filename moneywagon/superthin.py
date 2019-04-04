@@ -28,6 +28,7 @@ def make_mempool(mb=8, kb=None, verbose=False):
             len(mempool),
             datetime.datetime.now() - t0
         ))
+    assert(len(set(mempool)) == n)
     return mempool
 
 def get_start_length(size):
@@ -51,9 +52,9 @@ def find_index_fast(target, sorted_base16, length, start_length=4, verbose=False
 
     while True:
         if index_guess + 1 >= length:
-            found = sorted_base16[-1]
-        else:
-            found = sorted_base16[index_guess]
+            index_guess = length - 1
+
+        found = sorted_base16[index_guess]
 
         if verbose: print("iterating:", index_guess)
 
@@ -119,6 +120,7 @@ def get_unique(txid, sorted_mempool, start_length, mempool_length, extra_bytes=1
     i = start_length
     while txid[:i] in (before[:i], after[:i]):
         if i > 8:
+            import ipdb; ipdb.set_trace()
             print(
                 index, mempool_length, "txid", txid[:i], "before",
                 before[:i], "after", after[:i]
@@ -228,16 +230,16 @@ def decode_superthin_chunk(short_ids, sorted_mempool, length, verbose=False):
     full_ids = []
     duplicates = []
     missing = []
-    for short_id in short_ids:
+    for i, short_id in enumerate(short_ids):
         found = get_full_id(short_id, sorted_mempool, length)
         if not found:
-            if verbose: print("missing:", short_id)
+            if verbose: print("position %s missing:", (i, short_id))
             full_ids.append(short_id)
             missing.append(short_id)
         elif len(found) > 1:
             if verbose:
-                print("found duplicates of %s: %s" % (
-                    short_id, ', '.join("%s..." % x[:10] for x in found)
+                print("found duplicates of %s at pos %s: %s" % (
+                    short_id, i, ', '.join("%s..." % x[:10] for x in found)
                 ))
             full_ids.append("dupe")
             duplicates.append(found)
@@ -285,12 +287,16 @@ def decode_superthin(short_ids, mempool, hash, threads=4, verbose=False):
             if not group:
                 if verbose: print("Tried all duplicate groups: decode failed")
                 return None # decode failed
-            if verbose: print("Trying duplicate group %s, %s" % (i, str(group)))
+            if verbose: print("Trying duplicate group %s, %s" % (
+                i, ', '.join("%s..." % x[:10] for x in group)
+            ))
             this_try = []
             hash_try = sha256()
-            for txid in full_ids:
+            group.reverse()
+            for j, txid in enumerate(full_ids):
                 if txid == 'dupe':
                     try_ = group.pop()
+                    if verbose: print("trying %s at pos %s" % (try_[:10], j))
                     this_try.append(try_)
                     hash_try.update(try_)
                 else:
@@ -392,11 +398,11 @@ if __name__ == '__main__':
         else:
             mp = _get_mempool_from_file()
         t0 = datetime.datetime.now()
-        encoded, hash = encode_mempool(mp, verbose=False)
+        encoded, hash = encode_mempool(mp, extra_bytes=0, verbose=False)
         encoding_time = datetime.datetime.now() - t0
         print("encoding complete, took: %s" % encoding_time)
 
-        for action in [{'add': 1000}]:
+        for action in [{'add': 20}]:
             modified_mempool = modify_mempool(mp, **action)
             t1 = datetime.datetime.now()
             full_ids = decode_superthin(
@@ -405,4 +411,4 @@ if __name__ == '__main__':
             decoding_time = datetime.datetime.now() - t1
             print("decoding took: %s" % decoding_time)
 
-    test_not_completely_synced(from_file=True)
+    test_not_completely_synced(from_file=False)
