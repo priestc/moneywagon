@@ -208,26 +208,27 @@ def get_full_id(short_id, sorted_base16, length, verbose=False):
 
     finds = [sorted_base16[index]]
 
-    forward = lambda index: index + 1
-    backwards = lambda index: index - 1
+    forward = lambda i: index + i
+    backward = lambda i: index - i
     greater_than_zero = lambda try_: try_ > 0
     less_than_end = lambda try_: try_ < length
 
-    for direction, limit in [[forward, less_than_end], [backwards, greater_than_zero]]:
+    for direction, under_limit in [[forward, less_than_end], [backward, greater_than_zero]]:
         i = 1
         while True:
-            try_ = direction(index)
-            if limit(try_):
-                find = sorted_base16[try_]
-                if find.startswith(short_id):
-                    finds.append(find)
-                    i += 1
-                    continue
+            try_ = direction(i)
+            if not under_limit(try_):
+                break
+            find = sorted_base16[try_]
+            if find.startswith(short_id):
+                if verbose: print("dupe found", find)
+                finds.append(find)
+                i += 1
+                continue
+
             break
 
     return finds
-
-
 
 def decode_superthin_chunk(short_ids, sorted_mempool, length, verbose=False):
     full_ids = []
@@ -396,6 +397,15 @@ if __name__ == '__main__':
         smp = _get_mempool_from_file()
         print(find_index_fast(_make_txid(), smp, len(smp), 5, verbose=True))
 
+
+    def test_find_duplicate():
+        #mp = make_mempool(mb=64)
+        mp = _get_mempool_from_file()
+        dupe = _make_txid()
+        print("dupe is: %s" % dupe)
+        mp.append(dupe)
+        print(get_full_id(dupe[:4], sorted(mp), len(mp), True))
+
     def performance_test_encode():
         # testing encoding of large mempools
         for size in [32, 64, 128, 256]:
@@ -412,11 +422,11 @@ if __name__ == '__main__':
         else:
             mp = _get_mempool_from_file()
         t0 = datetime.datetime.now()
-        encoded, hash = encode_mempool(mp, extra_bytes=extra_bytes, verbose=False)
+        encoded, hash = encode_mempool(mp, extra_bytes=extra_bytes, verbose=True)
         encoding_time = datetime.datetime.now() - t0
         print("encoding complete, took: %s" % encoding_time)
 
-        for action in [{'add': 10, 'remove': 0}]:
+        for action in [{'add': 50, 'remove': 0}]:
             action['verbose'] = True
             modified_mempool = modify_mempool(mp, **action)
             t1 = datetime.datetime.now()
@@ -426,6 +436,7 @@ if __name__ == '__main__':
             decoding_time = datetime.datetime.now() - t1
             print("decoding took: %s" % decoding_time)
 
+    #test_find_duplicate()
     #test_fast_index_finder(partial=True, mp=_get_mempool_from_file())
-    test_not_completely_synced(from_file=False, extra_bytes=1)
+    test_not_completely_synced(from_file=False, extra_bytes=0)
     #test_find_index_missing()
