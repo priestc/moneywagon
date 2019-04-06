@@ -5,8 +5,8 @@ import datetime
 from hashlib import sha256
 import random
 
-def _make_txid():
-    return sha256(str(random.random())).hexdigest()
+def _make_txid(seed=''):
+    return sha256(str(random.random()) + str(seed)).hexdigest()
 
 def make_mempool(mb=8, kb=None, verbose=False):
     if verbose:
@@ -19,7 +19,7 @@ def make_mempool(mb=8, kb=None, verbose=False):
 
     mempool = []
     for i in xrange(n):
-        mempool.append(_make_txid())
+        mempool.append(_make_txid(i))
 
     if verbose:
         print("generated %s %s mempool with %s transactions, took: %s" % (
@@ -28,7 +28,8 @@ def make_mempool(mb=8, kb=None, verbose=False):
             len(mempool),
             datetime.datetime.now() - t0
         ))
-    assert(len(set(mempool)) == n)
+    actual_size = len(set(mempool))
+    assert actual_size == n, "%s != %s" % (actual_size, n)
     return mempool
 
 def get_start_length(size):
@@ -46,9 +47,15 @@ def calculate_skip(target, start_length, length):
 
 def find_index_fast(target, sorted_base16, length, start_length=4, verbose=False):
     start_length += 3
+    if len(target) < start_length:
+        start_length = len(target)
+
     target_value = int(target[:start_length], 16)
     index_guess = int(round(target_value / float(16 ** start_length) * length))
     finds = []
+
+    #print("trying to find:", target)
+    #print("initial guess:", index_guess)
 
     while True:
         if index_guess + 1 >= length:
@@ -64,15 +71,20 @@ def find_index_fast(target, sorted_base16, length, start_length=4, verbose=False
             avg = int((prev + index_guess) / 2)
             j = 0
             while True:
+                if verbose: print("oscilation iteration", j)
                 if avg + j < length:
-                    if target == sorted_base16[avg + j]:
-                        ret = avg + j
+                    ret = avg + j
+                    if sorted_base16[ret].startswith(target):
                         break
                 if avg - j > 0:
-                    if target == sorted_base16[avg - j]:
-                        ret = avg - j
+                    ret = avg - j
+                    if sorted_base16[ret].startswith(target):
                         break
                 j += 1
+                if j > 400:
+                    #print("didn't find:", target)
+                    return None
+
             if verbose: print(
                 "found", found[:start_length], "after", len(finds), "iterations",
                 "and", j, "oscilation iterations."
@@ -81,7 +93,7 @@ def find_index_fast(target, sorted_base16, length, start_length=4, verbose=False
 
         finds.append(index_guess)
 
-        if found == target:
+        if found.startswith(target):
             if verbose: print("found", found[:start_length], "after", len(finds), "iterations")
             return index_guess
         found_value = int(found[:start_length] or ('f' * start_length), 16)
@@ -119,7 +131,7 @@ def get_unique(txid, sorted_mempool, start_length, mempool_length, extra_bytes=1
 
     i = start_length
     while txid[:i] in (before[:i], after[:i]):
-        if i > 8:
+        if False:
             import ipdb; ipdb.set_trace()
             print(
                 index, mempool_length, "txid", txid[:i], "before",
@@ -127,7 +139,7 @@ def get_unique(txid, sorted_mempool, start_length, mempool_length, extra_bytes=1
             )
         i += 1
         if i > 30:
-            raise SystemExit()
+            raise SystemExit("possible infinite loop")
 
     return txid[:i+extra_bytes]
 
@@ -189,57 +201,49 @@ def encode_mempool(mempool, extra_bytes=2, verbose=False):
 
     return short_ids, hash
 
-def get_full_id(short_id, sorted_base16, length):
+def get_full_id(short_id, sorted_base16, length, verbose=False):
+    index = find_index_fast(short_id, sorted_base16, length, 5, verbose=False)
+    if index is None:
+        return None
 
-    def extended_find(found_index, positive=False, negative=False):
-        j = 0
-        matches = []
+    finds = [sorted_base16[index]]
+
+    forward = lambda index: index + 1
+    backwards = lambda index: index - 1
+    greater_than_zero = lambda try_: try_ > 0
+    less_than_end = lambda try_: try_ < length
+
+    for direction, limit in [[forward, less_than_end], [backwards, greater_than_zero]]:
+        i = 1
         while True:
-            if positive and found_index + j <= (length - 1):
-                try_ = found_index + j
-            elif negative and found_index - j > 0:
-                try_ = found_index - j
-            else:
-                return matches # no additional matches found
+            try_ = direction(index)
+            if limit(try_):
+                find = sorted_base16[try_]
+                if find.startswith(short_id):
+                    finds.append(find)
+                    i += 1
+                    continue
+            break
 
-            try:
-                next = sorted_base16[try_]
-            except:
-                import ipdb; ipdb.set_trace()
+    return finds
 
-            if not next.startswith(short_id):
-                return matches
-            matches.append(next)
-            j += 1
 
-    i = 0
-    skip = calculate_skip(short_id, 3, length)
-    while True:
-        p_try = skip + i
-        if p_try < length and sorted_base16[p_try].startswith(short_id):
-            return extended_find(p_try, positive=True)
-
-        n_try = skip - i
-        if n_try > 0 and sorted_base16[n_try].startswith(short_id):
-            return extended_find(n_try, negative=True)
-        i += 1
-        if i >= length:
-            return None # no match found
 
 def decode_superthin_chunk(short_ids, sorted_mempool, length, verbose=False):
     full_ids = []
     duplicates = []
     missing = []
     for i, short_id in enumerate(short_ids):
-        found = get_full_id(short_id, sorted_mempool, length)
+        found = get_full_id(short_id, sorted_mempool, length, verbose=verbose)
         if not found:
-            if verbose: print("position %s missing:", (i, short_id))
+            if verbose: print("position %s missing: %s" % (i, short_id))
             full_ids.append(short_id)
             missing.append(short_id)
         elif len(found) > 1:
             if verbose:
-                print("found duplicates of %s at pos %s: %s" % (
-                    short_id, i, ', '.join("%s..." % x[:10] for x in found)
+                print("found %s candidates at position %s: %s" % (
+                    len(found), i,
+                    ', '.join("%s..." % x[:10] for x in found)
                 ))
             full_ids.append("dupe")
             duplicates.append(found)
@@ -268,14 +272,13 @@ def all_combinations(duplicates, i=0):
 
 def decode_superthin(short_ids, mempool, hash, threads=4, verbose=False):
     smp = sorted(mempool)
-    length = len(mempool)
-    full_ids, missing, duplicates = decode_superthin_chunk(
-        short_ids, smp, length, verbose=verbose
-    )
 
+    full_ids, missing, duplicates = decode_superthin_chunk(
+        short_ids, smp, len(mempool), verbose=verbose
+    )
     if missing:
         if verbose:
-            print("Missing:\n%s...\n" % x[:10] for x in missing)
+            print("Missing transactions, can't continue")
             return # todo: fetch misssing
     elif verbose:
         print("No missing txids!")
@@ -287,16 +290,14 @@ def decode_superthin(short_ids, mempool, hash, threads=4, verbose=False):
             if not group:
                 if verbose: print("Tried all duplicate groups: decode failed")
                 return None # decode failed
-            if verbose: print("Trying duplicate group %s, %s" % (
-                i, ', '.join("%s..." % x[:10] for x in group)
-            ))
+            if verbose: print("Trying duplicate group %s" % i)
             this_try = []
             hash_try = sha256()
             group.reverse()
             for j, txid in enumerate(full_ids):
                 if txid == 'dupe':
                     try_ = group.pop()
-                    if verbose: print("trying %s at pos %s" % (try_[:10], j))
+                    if verbose: print("trying %s... at position %s" % (try_[:10], j))
                     this_try.append(try_)
                     hash_try.update(try_)
                 else:
@@ -327,28 +328,37 @@ if __name__ == '__main__':
         Given a list of txids (mempool), add and remove some items to simulate
         an out of sync mempool.
         """
-        random.shuffle(mempool)
+        for i in range(remove):
+            popped = mempool.pop()
+            if verbose: print("removed:", popped)
+
         for i in range(add):
             new_txid = _make_txid()
             mempool.append(new_txid)
             if verbose: print("added:", new_txid)
 
-        for i in range(remove):
-            popped = mempool.pop()
-            if verbose: print("removed:", popped)
-
         return mempool
 
-    def compare_index_finders():
-        mp = make_mempool(mb=32)
-        l = len(mp)
+    def test_fast_index_finder(mp=None, partial=False):
+        if not mp:
+            mp = make_mempool(mb=32, verbose=True)
         smp = sorted(mp)
+        l = len(mp)
         t0 = datetime.datetime.now()
-        for i, txid in enumerate(mp):
-            find_index_fast(txid, smp, l, start_length=4)
-            #print("%.4f%%" % (i / float(l)))
+        for i, txid in enumerate(smp):
+            if partial:
+                txid = txid[:8]
+            result = find_index_fast(txid, smp, l, start_length=4)
+            if not result == i:
+                print("wrong index returned %s %s" % (result, i))
         print("optimized", datetime.datetime.now() - t0)
 
+    def compare_index_finders(from_file=False):
+        if from_file:
+            mp = _get_mempool_from_file()
+        else:
+            mp = make_mempool(mb=32)
+        test_fast_index_finder(mp)
         t0 = datetime.datetime.now()
         for i, txid in enumerate(mp):
             smp.index(txid)
@@ -377,10 +387,14 @@ if __name__ == '__main__':
             result = find_index_fast(key, smp, len(smp))
             print(index, result)
 
-    def test_file_encodde():
+    def test_file_encode():
         mp = _get_mempool_from_file()
         random.shuffle(mp)
         encoded, hash = encode_mempool(mp, verbose=True)
+
+    def test_find_index_missing():
+        smp = _get_mempool_from_file()
+        print(find_index_fast(_make_txid(), smp, len(smp), 5, verbose=True))
 
     def performance_test_encode():
         # testing encoding of large mempools
@@ -389,20 +403,21 @@ if __name__ == '__main__':
             encoded, hash = encode_mempool(mp, verbose=True)
             print("-----")
 
-    def test_not_completely_synced(from_file=False):
+    def test_not_completely_synced(from_file=False, extra_bytes=1):
         """
         tesing decoding against not completely synced mempools
         """
         if not from_file:
-            mp = make_mempool(mb=8, verbose=False)
+            mp = make_mempool(mb=64, verbose=True)
         else:
             mp = _get_mempool_from_file()
         t0 = datetime.datetime.now()
-        encoded, hash = encode_mempool(mp, extra_bytes=0, verbose=False)
+        encoded, hash = encode_mempool(mp, extra_bytes=extra_bytes, verbose=False)
         encoding_time = datetime.datetime.now() - t0
         print("encoding complete, took: %s" % encoding_time)
 
-        for action in [{'add': 20}]:
+        for action in [{'add': 10, 'remove': 0}]:
+            action['verbose'] = True
             modified_mempool = modify_mempool(mp, **action)
             t1 = datetime.datetime.now()
             full_ids = decode_superthin(
@@ -411,4 +426,6 @@ if __name__ == '__main__':
             decoding_time = datetime.datetime.now() - t1
             print("decoding took: %s" % decoding_time)
 
-    test_not_completely_synced(from_file=False)
+    #test_fast_index_finder(partial=True, mp=_get_mempool_from_file())
+    test_not_completely_synced(from_file=False, extra_bytes=1)
+    #test_find_index_missing()
