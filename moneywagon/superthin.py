@@ -5,6 +5,16 @@ import datetime
 from hashlib import sha256
 import random
 
+def make_unit(bytes):
+    if 1024 > bytes:
+        return bytes, "B"
+    elif 1048576.0 > bytes > 1024:
+        return bytes / 1024.0, "KB"
+    elif 1073741824 > bytes > 1048576.0:
+        return bytes / 1048576.0, 'MB' # 1024 ** 2
+    elif 1073741824 < bytes:
+        return bytes / 1073741824.0, 'GB' # 1024 ** 3
+
 def _make_txid(seed=''):
     return sha256(str(random.random()) + str(seed)).hexdigest()
 
@@ -177,13 +187,13 @@ def encode_mempool(mempool, extra_bytes=2, verbose=False):
         avg_bytes_per_tx = size / float(mempool_length)
         print("average bytes per tx: %.4f" % avg_bytes_per_tx)
 
-        total_weight = (size + mempool_length) / 1048576.0 # 1024 ** 2
-        print("total weight: %.2f MB" % total_weight)
+        total_weight = size + mempool_length + 64
+        print("total weight: %.2f %s" % make_unit(total_weight))
 
         mempool_size = ((mempool_length * 266.0) / 1048576)
         print(
             "compression percentage: %.2f%%" % (
-                100 - (100.0 * (total_weight / mempool_size))
+                100 - (100.0 * (total_weight / mempool_size / (1024 ** 2)))
             )
         )
 
@@ -286,6 +296,11 @@ def decode_superthin(short_ids, mempool, hash, threads=4, verbose=False):
 
     if duplicates:
         i = 0
+        total_tries = prod(len(x) for x in duplicates)
+        if total_tries > 1500:
+            if verbose: print("too many duplicates, %s tries required" % total_tries)
+            return None
+
         while True:
             group = all_combinations(duplicates, i)
             if not group:
@@ -320,8 +335,6 @@ def decode_superthin(short_ids, mempool, hash, threads=4, verbose=False):
     else:
         if verbose: print("Hash failed?")
         return None
-
-
 
 if __name__ == '__main__':
     def modify_mempool(mempool, remove=10, add=10, verbose=False):
@@ -397,7 +410,6 @@ if __name__ == '__main__':
         smp = _get_mempool_from_file()
         print(find_index_fast(_make_txid(), smp, len(smp), 5, verbose=True))
 
-
     def test_find_duplicate():
         #mp = make_mempool(mb=64)
         mp = _get_mempool_from_file()
@@ -418,7 +430,7 @@ if __name__ == '__main__':
         tesing decoding against not completely synced mempools
         """
         if not from_file:
-            mp = make_mempool(mb=64, verbose=True)
+            mp = make_mempool(mb=1, verbose=True)
         else:
             mp = _get_mempool_from_file()
         t0 = datetime.datetime.now()
@@ -426,7 +438,7 @@ if __name__ == '__main__':
         encoding_time = datetime.datetime.now() - t0
         print("encoding complete, took: %s" % encoding_time)
 
-        for action in [{'add': 50, 'remove': 0}]:
+        for action in [{'add': 30, 'remove': 3}]:
             action['verbose'] = True
             modified_mempool = modify_mempool(mp, **action)
             t1 = datetime.datetime.now()
