@@ -67,9 +67,6 @@ def find_index_fast(target, sorted_base16, length, start_length=4, verbose=False
     index_guess = int(round(target_value / float(16 ** start_length) * length))
     finds = []
 
-    #print("trying to find:", target)
-    #print("initial guess:", index_guess)
-
     while True:
         if index_guess + 1 >= length:
             index_guess = length - 1
@@ -109,6 +106,7 @@ def find_index_fast(target, sorted_base16, length, start_length=4, verbose=False
         if found.startswith(target):
             if verbose: print("found", found[:start_length], "after", len(finds), "iterations")
             return index_guess
+
         found_value = int(found[:start_length] or ('f' * start_length), 16)
         found_percentage = found_value / float(16**(start_length))
         off_by = found_value - target_value
@@ -243,10 +241,17 @@ def get_full_id(short_id, sorted_base16, length, verbose=False):
 
     return finds
 
+def concurrent_decode_superthin_chunk(chunk, total_chunks):
+    sorted_mempool = shared_sorted_mempool
+    short_ids = get_chunk(shared_short_ids, chunk, total_chunks)
+    print("starting thread %s of %s" % (chunk+1, total_chunks))
+    return decode_superthin_chunk(short_ids, sorted_mempool)
+
 def decode_superthin_chunk(short_ids, sorted_mempool, verbose=False):
     full_ids = []
     duplicates = []
     missing = []
+
     length = len(sorted_mempool)
     t0 = datetime.datetime.now()
     for i, short_id in enumerate(short_ids):
@@ -286,66 +291,54 @@ def all_combinations(duplicates, i=0):
 
     return this_pass
 
-def chunks(l, n):
-    """Yield successive n-sized chunks from l."""
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
+shared_short_ids = None
+shared_sorted_mempool = None
+def init(mempool, short_ids):
+    global shared_sorted_mempool
+    global shared_short_ids
+    shared_sorted_mempool = mempool
+    shared_short_ids = short_ids
 
+def get_chunk(items, chunk, total_chunks):
+    return items[
+        int(float(chunk)/total_chunks*len(items)):
+        int(float(chunk+1)/total_chunks*len(items))
+    ]
 
 def concurrent_decode_superthin(short_ids, sorted_mempool, threads, verbose=False):
-    shared_sorted_mempool = Array(ctypes.c_char_p, sorted_mempool, lock=True)
+    ssm = Array(ctypes.c_char_p, sorted_mempool, lock=False)
+    ssi = Array(ctypes.c_char_p, short_ids, lock=False)
+
+    mpl = len(sorted_mempool)
     if verbose: print("decoding using %s threads" % threads)
 
-    chunk_size = int(len(short_ids)/threads)
-    p = Pool(threads)
-    for chunk_index, chunk in enumerate(chunks(short_ids, chunk_size)):
-        p.map(Process(
-            target=decode_superthin_chunk,
-            args=(chunk, shared_mempool, mpl)
-        )).start()
+    p = Pool(threads, initializer=init, initargs=(ssm, ssi))
+    results = {}
+    for thread_id in range(threads):
+        results[thread_id] = (
+            p.apply_async(
+                concurrent_decode_superthin_chunk, (thread_id, threads)
+            )
+        )
 
-    return
-
-    with futures.ProcessPoolExecutor(max_workers=threads) as executor:
-        results = {}
-        chunk_size = int(len(short_ids)/threads)
-        for chunk_index, chunk in enumerate(chunks(short_ids, chunk_size)):
-            results[executor.submit(
-                decode_superthin_chunk, chunk, shared_mempool, mpl, verbose=verbose
-            )] = chunk_index
-
-        t0 = datetime.datetime.now()
-    print("ending contect processor:", datetime.datetime.now() - t0)
-
-    t0 = datetime.datetime.now()
-    to_iterate = futures.as_completed(results)
-    print("getting results:", datetime.datetime.now() - t0)
-    sorted_results = sorted(results.items(), key=lambda x: x[1])
     full_ids, missing, duplicates = [], [], []
-
-    cumm = []
-    for result, index in sorted_results:
-        r = result.result()
+    for index, result in sorted(results.items(), key=lambda x: x[0]):
+        r = result.get()
+        if verbose: print("got results from thread:", index+1)
         full_ids.extend(r[0])
         missing.extend(r[1])
         duplicates.extend(r[2])
-        cumm.append([r[3], r[4]])
-
-    print("all starts:", " ".join(str(x[0]) for x in cumm))
-    start = min(x[0] for x in cumm)
-    end = max(x[1] for x in cumm)
-    print("start", start, "end", end)
-    print("total thread time:", end - start)
 
     return full_ids, missing, duplicates
 
 def decode_superthin(short_ids, mempool, hash, threads=1, verbose=False):
-    smp = sorted(mempool)
     if threads == 1:
-        full_ids, missing, duplicates = decode_superthin_chunk(short_ids, smp)
+        full_ids, missing, duplicates = decode_superthin_chunk(
+            short_ids, sorted(mempool), verbose=verbose
+        )
     else:
         full_ids, missing, duplicates = concurrent_decode_superthin(
-            short_ids, sorted_mempool=smp, threads=threads
+            short_ids, sorted(mempool), threads=threads, verbose=verbose
         )
 
     if missing:
@@ -492,7 +485,7 @@ if __name__ == '__main__':
         """
         if not mp:
             if not from_file:
-                mp = make_mempool(mb=32, verbose=True)
+                mp = make_mempool(mb=512, verbose=True)
             else:
                 mp = _get_mempool_from_file()
 
@@ -501,7 +494,7 @@ if __name__ == '__main__':
         encoding_time = datetime.datetime.now() - t0
         print("encoding complete, took: %s" % encoding_time)
 
-        for action in [{'add': 150, 'remove': 0}]:
+        for action in [{'add': 0, 'remove': 0}]:
             action['verbose'] = True
             modified_mempool = modify_mempool(mp, **action)
             t1 = datetime.datetime.now()
@@ -512,4 +505,4 @@ if __name__ == '__main__':
             print("decoding took: %s" % decoding_time)
 
 
-    test_not_completely_synced(from_file=False, extra_bytes=1, threads=1)
+    test_not_completely_synced(from_file=False, extra_bytes=2, threads=4)
