@@ -1,9 +1,12 @@
 from __future__ import print_function
 
+from concurrent import futures
 import math
 import datetime
 from hashlib import sha256
 import random
+import ctypes
+from multiprocessing import Array, Pool
 
 def make_unit(bytes):
     if 1024 > bytes:
@@ -179,8 +182,8 @@ def encode_mempool(mempool, extra_bytes=2, verbose=False):
     hash_time = datetime.datetime.now() - t3
 
     if verbose:
-        print("encoding mempool took: %s" % encoding_time)
         print("sorting mempool took: %s" % sorting_time)
+        print("encoding mempool took: %s" % encoding_time)
         print("using start length of: %s" % start_length)
 
         size = sum(len(x) for x in short_ids)
@@ -240,10 +243,12 @@ def get_full_id(short_id, sorted_base16, length, verbose=False):
 
     return finds
 
-def decode_superthin_chunk(short_ids, sorted_mempool, length, verbose=False):
+def decode_superthin_chunk(short_ids, sorted_mempool, verbose=False):
     full_ids = []
     duplicates = []
     missing = []
+    length = len(sorted_mempool)
+    t0 = datetime.datetime.now()
     for i, short_id in enumerate(short_ids):
         found = get_full_id(short_id, sorted_mempool, length, verbose=verbose)
         if not found:
@@ -281,12 +286,68 @@ def all_combinations(duplicates, i=0):
 
     return this_pass
 
-def decode_superthin(short_ids, mempool, hash, threads=4, verbose=False):
-    smp = sorted(mempool)
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 
-    full_ids, missing, duplicates = decode_superthin_chunk(
-        short_ids, smp, len(mempool), verbose=verbose
-    )
+
+def concurrent_decode_superthin(short_ids, sorted_mempool, threads, verbose=False):
+    shared_sorted_mempool = Array(ctypes.c_char_p, sorted_mempool, lock=True)
+    if verbose: print("decoding using %s threads" % threads)
+
+    chunk_size = int(len(short_ids)/threads)
+    p = Pool(threads)
+    for chunk_index, chunk in enumerate(chunks(short_ids, chunk_size)):
+        p.map(Process(
+            target=decode_superthin_chunk,
+            args=(chunk, shared_mempool, mpl)
+        )).start()
+
+    return
+
+    with futures.ProcessPoolExecutor(max_workers=threads) as executor:
+        results = {}
+        chunk_size = int(len(short_ids)/threads)
+        for chunk_index, chunk in enumerate(chunks(short_ids, chunk_size)):
+            results[executor.submit(
+                decode_superthin_chunk, chunk, shared_mempool, mpl, verbose=verbose
+            )] = chunk_index
+
+        t0 = datetime.datetime.now()
+    print("ending contect processor:", datetime.datetime.now() - t0)
+
+    t0 = datetime.datetime.now()
+    to_iterate = futures.as_completed(results)
+    print("getting results:", datetime.datetime.now() - t0)
+    sorted_results = sorted(results.items(), key=lambda x: x[1])
+    full_ids, missing, duplicates = [], [], []
+
+    cumm = []
+    for result, index in sorted_results:
+        r = result.result()
+        full_ids.extend(r[0])
+        missing.extend(r[1])
+        duplicates.extend(r[2])
+        cumm.append([r[3], r[4]])
+
+    print("all starts:", " ".join(str(x[0]) for x in cumm))
+    start = min(x[0] for x in cumm)
+    end = max(x[1] for x in cumm)
+    print("start", start, "end", end)
+    print("total thread time:", end - start)
+
+    return full_ids, missing, duplicates
+
+def decode_superthin(short_ids, mempool, hash, threads=1, verbose=False):
+    smp = sorted(mempool)
+    if threads == 1:
+        full_ids, missing, duplicates = decode_superthin_chunk(short_ids, smp)
+    else:
+        full_ids, missing, duplicates = concurrent_decode_superthin(
+            short_ids, sorted_mempool=smp, threads=threads
+        )
+
     if missing:
         if verbose:
             print("Missing transactions, can't continue")
@@ -425,30 +486,30 @@ if __name__ == '__main__':
             encoded, hash = encode_mempool(mp, verbose=True)
             print("-----")
 
-    def test_not_completely_synced(from_file=False, extra_bytes=1):
+    def test_not_completely_synced(mp=None, from_file=False, extra_bytes=1, threads=4):
         """
         tesing decoding against not completely synced mempools
         """
-        if not from_file:
-            mp = make_mempool(mb=1, verbose=True)
-        else:
-            mp = _get_mempool_from_file()
+        if not mp:
+            if not from_file:
+                mp = make_mempool(mb=32, verbose=True)
+            else:
+                mp = _get_mempool_from_file()
+
         t0 = datetime.datetime.now()
         encoded, hash = encode_mempool(mp, extra_bytes=extra_bytes, verbose=True)
         encoding_time = datetime.datetime.now() - t0
         print("encoding complete, took: %s" % encoding_time)
 
-        for action in [{'add': 30, 'remove': 3}]:
+        for action in [{'add': 150, 'remove': 0}]:
             action['verbose'] = True
             modified_mempool = modify_mempool(mp, **action)
             t1 = datetime.datetime.now()
             full_ids = decode_superthin(
-                encoded, modified_mempool, hash=hash, verbose=True
+                encoded, modified_mempool, threads=threads, hash=hash, verbose=True
             )
             decoding_time = datetime.datetime.now() - t1
             print("decoding took: %s" % decoding_time)
 
-    #test_find_duplicate()
-    #test_fast_index_finder(partial=True, mp=_get_mempool_from_file())
-    test_not_completely_synced(from_file=False, extra_bytes=0)
-    #test_find_index_missing()
+
+    test_not_completely_synced(from_file=False, extra_bytes=1, threads=1)
