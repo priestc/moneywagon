@@ -86,11 +86,14 @@ def _get_from_chainparams(content):
     if match:
         data['private_key_prefix'] = int(match)
 
-    data['message_magic'] = b""
-    for index in range(4):
-        m = re.search("pchMessageStart\[%s\] = 0x([\d\w]+);" % index, content)
-        data['message_magic'] += bytes(m.groups()[0])
-
+    try:
+        data['message_magic'] = b""
+        for index in range(4):
+            m = re.search("pchMessageStart\[%s\] = 0x([\d\w]+);" % index, content)
+            data['message_magic'] += bytes(m.groups()[0])
+    except:
+        pass
+    
     data['seed_nodes'] = []
     seed_index = 0
     # newest seed definition style

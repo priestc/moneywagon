@@ -154,7 +154,7 @@ def get_unique(txid, sorted_mempool, start_length, mempool_length, extra_bytes=1
 
     return txid[:i+extra_bytes]
 
-def encode_mempool(mempool, extra_bytes=2, verbose=False):
+def encode_mempool(mempool, extra_bytes=1, verbose=False, og_size=None):
     mempool_length = len(mempool)
 
     t1 = datetime.datetime.now()
@@ -180,21 +180,22 @@ def encode_mempool(mempool, extra_bytes=2, verbose=False):
     hash_time = datetime.datetime.now() - t3
 
     if verbose:
-        print("sorting mempool took: %s" % sorting_time)
-        print("encoding mempool took: %s" % encoding_time)
+        print("sorting block took: %s" % sorting_time)
+        print("encoding block took: %s" % encoding_time)
         print("using start length of: %s" % start_length)
 
+        print("using extra bytes of: %s" % extra_bytes)
         size = sum(len(x) for x in short_ids)
         avg_bytes_per_tx = size / float(mempool_length)
         print("average bytes per tx: %.4f" % avg_bytes_per_tx)
 
         total_weight = size + mempool_length + 64
-        print("total weight: %.2f %s" % make_unit(total_weight))
+        print("compressed weight: %.2f %s" % make_unit(total_weight))
 
-        mempool_size = ((mempool_length * 266.0) / 1048576)
+        mempool_size = float(og_size or (mempool_length * 266.0))
         print(
             "compression percentage: %.2f%%" % (
-                100 - (100.0 * (total_weight / mempool_size / (1024 ** 2)))
+                100 - (100.0 * (total_weight / mempool_size))
             )
         )
 
@@ -390,22 +391,23 @@ def decode_superthin(short_ids, mempool, hash, threads=1, verbose=False):
         if verbose: print("Hash failed?")
         return None
 
+def modify_mempool(mempool, remove=0, add=0, verbose=False):
+    """
+    Given a list of txids (mempool), add and remove some items to simulate
+    an out of sync mempool.
+    """
+    for i in range(remove):
+        popped = mempool.pop()
+        if verbose: print("removed:", popped)
+
+    for i in range(add):
+        new_txid = _make_txid()
+        mempool.append(new_txid)
+        if verbose: print("added:", new_txid)
+
+    return mempool
+
 if __name__ == '__main__':
-    def modify_mempool(mempool, remove=10, add=10, verbose=False):
-        """
-        Given a list of txids (mempool), add and remove some items to simulate
-        an out of sync mempool.
-        """
-        for i in range(remove):
-            popped = mempool.pop()
-            if verbose: print("removed:", popped)
-
-        for i in range(add):
-            new_txid = _make_txid()
-            mempool.append(new_txid)
-            if verbose: print("added:", new_txid)
-
-        return mempool
 
     def test_fast_index_finder(mp=None, partial=False):
         if not mp:
@@ -485,7 +487,7 @@ if __name__ == '__main__':
         """
         if not mp:
             if not from_file:
-                mp = make_mempool(mb=512, verbose=True)
+                mp = make_mempool(mb=64, verbose=True)
             else:
                 mp = _get_mempool_from_file()
 

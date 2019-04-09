@@ -23,8 +23,9 @@ from moneywagon.network_replay import NetworkReplay
 from moneywagon.currency_support import CurrencySupport
 from moneywagon.services import get_service
 from moneywagon.mcaf import generate_mcaf, decode_mcaf
-from moneywagon.superthin import encode_mempool
-
+from moneywagon.superthin import (
+    encode_mempool, make_unit, modify_mempool, decode_superthin
+)
 def localized_number(num, euro=False):
     ret = "{:,.2f}".format(num)
     if euro:
@@ -189,6 +190,8 @@ x.add_argument('address', action='store', help='Address')
 x = subparsers.add_parser('benchmark-superthin', help='Benchmark superthin compression')
 x.add_argument('crypto', action='store', help='Cryptocurrency symbol')
 x.add_argument('block', action='store', help='Block number')
+x.add_argument('--decode-extra', action='store', help='Decode with given amount of extra mempool transactions')
+x.add_argument('--extra-bytes', action='store', default=1, help='Extra Bytes parameter')
 
 argz = parser.parse_args()
 
@@ -501,5 +504,18 @@ elif argz.subparser_name == 'decode-mcaf':
         print(currency, address)
 
 elif argz.subparser_name == 'benchmark-superthin':
+    print("fetching block...")
     block = get_block(argz.crypto, block_number=int(argz.block))
-    encode_mempool(block['txids'], verbose=True)
+    og_size = block['size']
+    num, unit = make_unit(og_size)
+    print("Benchmarking %s block #%s (%.2f %s) from %s" % (
+        argz.crypto.upper(), argz.block, num, unit, block['time']
+    ))
+    print("Containing %s transactions" % len(block['txids']))
+    short_ids, hash = encode_mempool(
+        block['txids'], verbose=True, og_size=og_size, extra_bytes=int(argz.extra_bytes)
+    )
+    if argz.decode_extra:
+        print("decoding with %s extra mempool transactions" % argz.decode_extra)
+        mp = modify_mempool(block['txids'], add=int(argz.decode_extra))
+        decode_superthin(short_ids, mp, hash, verbose=True)

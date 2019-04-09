@@ -2432,3 +2432,9 @@ class DashBlockExplorer(BitpayInsight):
     domain = 'dashblockexplorer.com'
     supported_cryptos = ['dash']
     version = 0.4
+
+class BCHSVExplorer(BitpayInsight):
+    service_id = 154
+    domain = 'bchsvexplorer.com'
+    supported_cryptos = ['bsv']
+    version = 0.4

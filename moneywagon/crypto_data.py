@@ -2787,7 +2787,46 @@ crypto_data = {
             'get_optimal_fee': []
         },
     },
-
+    'bsv': {
+        'name': 'BitcoinSV',
+        'address_version_byte': 0,
+        'bip44_coin_type': 0x800000ec,
+        'private_key_prefix': 128,
+        'script_hash_byte': None,
+        'message_magic': b"\xe3\xe1\xf3\xe3",
+        'genesis_date': datetime(2009, 1, 3, 18, 15, 5),
+        'github_link': "https://github.com/bitcoin-sv/bitcoin-sv",
+        'header_hash_algo': None,
+        'transaction_hash_algo': 'double-sha256',
+        'script_hash_algo': 'double-sha256',
+        'port': None,
+        'seed_nodes': [
+            'seed.bitcoinsv.io',
+            'seed.cascharia.com',
+            'seed.satoshisvision.network',
+            'stn-seed.bitcoinsv.io'
+        ],
+        'supply_data': {
+            'method': 'standard',
+            'start_coins_per_block': 50,
+            'minutes_per_block': 10,
+            'full_cap': 21000000,
+            'blocks_per_era': 210000,
+            'reward_ends_at_block': 6930000
+        },
+        'services': {
+            'current_price': {
+                'btc': [Bittrex], 'ltc': [], 'usd': [Bittrex], 'doge': []
+            },
+            'address_balance': [BCHSVExplorer],
+            'historical_transactions': [BCHSVExplorer],
+            'single_transaction': [BCHSVExplorer],
+            'push_tx': [BCHSVExplorer],
+            'unspent_outputs': [BCHSVExplorer],
+            'get_block': [BCHSVExplorer],
+            'get_optimal_fee': []
+        },
+    },
     # TEMPLATE
     '': {
         'name': '',
