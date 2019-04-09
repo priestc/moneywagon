@@ -233,7 +233,6 @@ def get_full_id(short_id, sorted_base16, length, verbose=False):
                 break
             find = sorted_base16[try_]
             if find.startswith(short_id):
-                if verbose: print("dupe found", find)
                 finds.append(find)
                 i += 1
                 continue
@@ -356,6 +355,7 @@ def decode_superthin(short_ids, mempool, hash, threads=1, verbose=False):
             if verbose: print("too many duplicates, %s tries required" % total_tries)
             return None
 
+        t0 = datetime.datetime.now()
         while True:
             group = all_combinations(duplicates, i)
             if not group:
@@ -376,7 +376,8 @@ def decode_superthin(short_ids, mempool, hash, threads=1, verbose=False):
                     hash_try.update(txid)
 
             if hash_try.hexdigest() == hash:
-                if verbose: print("Group %s suceeded!" % i)
+                cumm = datetime.datetime.now() - t0
+                if verbose: print("Group %s succeeded! Collision resolution took: %s" % (i, cumm))
                 return full_ids
             i += 1
 
