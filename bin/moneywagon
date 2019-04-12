@@ -517,5 +517,7 @@ elif argz.subparser_name == 'benchmark-superthin':
     )
     if argz.decode_extra:
         print("decoding with %s extra mempool transactions" % argz.decode_extra)
+        t0 = datetime.datetime.now()
         mp = modify_mempool(block['txids'], add=int(argz.decode_extra))
         decode_superthin(short_ids, mp, hash, verbose=True)
+        print("Decode took: %s" % (datetime.datetime.now() - t0))

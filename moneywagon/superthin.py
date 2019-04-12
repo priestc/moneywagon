@@ -186,7 +186,7 @@ def encode_mempool(mempool, extra_bytes=1, verbose=False, og_size=None):
 
         print("using extra bytes of: %s" % extra_bytes)
         size = sum(len(x) for x in short_ids)
-        avg_bytes_per_tx = size / float(mempool_length)
+        avg_bytes_per_tx = size / (float(mempool_length) * 2)
         print("average bytes per tx: %.4f" % avg_bytes_per_tx)
 
         total_weight = size + mempool_length + 64
@@ -259,6 +259,9 @@ def decode_superthin_chunk(short_ids, sorted_mempool, verbose=False):
         if not found:
             if verbose: print("position %s missing: %s" % (i, short_id))
             full_ids.append(short_id)
+            missing.append(short_id)
+        elif len(found) > 3:
+            # too many collisions, consider it missing
             missing.append(short_id)
         elif len(found) > 1:
             if verbose:
@@ -507,5 +510,13 @@ if __name__ == '__main__':
             decoding_time = datetime.datetime.now() - t1
             print("decoding took: %s" % decoding_time)
 
+    def find_txid_with_preimage(preimage):
+        i = 0
+        while True:
+            txid = _make_txid(i)
+            i += 1
+            if txid.startswith(preimage):
+                print(i, txid)
 
+    #find_txid_with_preimage('4e028c0')
     test_not_completely_synced(from_file=False, extra_bytes=2, threads=4)
