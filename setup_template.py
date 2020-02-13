@@ -16,6 +16,7 @@ setup(
     version='{{ version }}',
     description='Next Generation Cryptocurrency Platform',
     long_description=open('README.md').read(),
+    long_description_content_type="text/markdown",
     author='Chris Priest',
     author_email='cp368202@ohiou.edu',
     url='https://github.com/priestc/moneywagon',

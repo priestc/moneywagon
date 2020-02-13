@@ -38,7 +38,10 @@ with open("setup.py", 'w') as f, open("setup_template.py") as t:
     setup = t.read().replace("{{ version }}", version)
     f.write(setup)
 
-call(["python", "setup.py", "sdist", "upload"])
+import ipdb; ipdb.set_trace()
+
+call(["python", "setup.py", "sdist"])
+call(["twine", "upload", "dist/*"])
 call(["python", "setup.py", "develop"])
 call(["git", "commit", "-am", "Made release %s" % version])
 call(["git", "tag", version])
