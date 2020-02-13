@@ -108,14 +108,24 @@ def get_current_price(crypto, fiat, services=None, convert_to=None, helper_price
             return converted_price * fiat_price
 
     all_composite_cryptos = ['btc', 'ltc', 'doge', 'uno']
+
+    if fiat in all_composite_cryptos:
+        raise result
+
+    composite_exc_msg = ""
     if crypto in all_composite_cryptos: all_composite_cryptos.remove(crypto)
     for composite_attempt in all_composite_cryptos:
         if composite_attempt in services and services[composite_attempt]:
-            result = _do_composite_price_fetch(
-                crypto, composite_attempt, fiat, helper_prices, modes
-            )
-            if not isinstance(result, Exception):
+            try:
+                result = _do_composite_price_fetch(
+                    crypto, composite_attempt, fiat, helper_prices, modes
+                )
+            except NoService as exc:
+                composite_exc_msg += " " + str(exc)
+            else:
                 return result
+    else:
+        result = NoService(composite_exc_msg)
 
     raise result
 
