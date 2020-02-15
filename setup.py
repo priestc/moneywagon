@@ -37,6 +37,8 @@ setup(
         'pytz',
         'arrow',
         'bitcoin',
-        'beautifulsoup4'
+        'beautifulsoup4',
+        'socketIO-client',
+        'pycrypto'
     ] + extra_install
 )
