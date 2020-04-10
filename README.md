@@ -18,7 +18,7 @@ Works on all cryptocurrencies, including BTC, LTC, PPC, DOGE, VTC, MYR.
     4. Get unspent outputs
     5. Get historical crypto/fiat price.
     6. Get optimal transaction fee (BTC only)
-    7. Generate new crypto private/pubic keys supporting both 'WIF' and 'compressed' encodings.
+    7. Generate new crypto private/public keys supporting both 'WIF' and 'compressed' encodings.
 
 General Cryptocurrency Features:
 * Bip38 support
