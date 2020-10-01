@@ -422,9 +422,9 @@ class Winkdex(Service):
 
 class ChainSo(Service):
     service_id = 11
-    api_homepage = "https://chain.so/api"
-    base_url = "https://chain.so/api/v2"
-    explorer_address_url = "https://chain.so/address/{crypto}/{address}"
+    api_homepage = "https://sochain.com/api"
+    base_url = "https://sochain.com/api/v2"
+    explorer_address_url = "https://sochain.com/address/{crypto}/{address}"
     supported_cryptos = ['doge', 'btc', 'ltc']
     name = "Chain.So"
 
