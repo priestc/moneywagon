@@ -1111,6 +1111,7 @@ class BitpayInsight(Service):
             tx_count=len(r['tx'])
         )
 
+
     def push_tx(self, crypto, tx_hex):
         url = "%s://%s/%s/tx/send" % (self.protocol, self.domain, self.api_tag)
         return self.post_url(url, {'rawtx': tx_hex}).json()['txid']
@@ -2348,10 +2349,18 @@ class DigiExplorer(BitpayInsight):
 
 class BitcoinComCashExplorer(BitpayInsight):
     service_id = 124
-    domain = "cashexplorer.bitcoin.com"
+    domain = "explorer.api.bitcoin.com"
+    api_tag = "bch/v1"
     supported_cryptos = ['bch']
     name = "Bitcoin.com BCH"
     version = 0.4
+
+    def get_block(self, crypto, block_number=None, block_hash=None, latest=False):
+        if latest:
+            url = "%s://%s/%s/status" % (self.protocol, self.domain, self.api_tag)
+            latest_block_number = self.get_url(url).json()['info']['blocks']
+            return BitpayInsight.get_block(self, crypto, latest_block_number)
+        return BitpayInsight.get_block(self, crypto, block_number)
 
 
 class BlockExplorerCash(BitpayInsight):
